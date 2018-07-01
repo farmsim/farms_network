@@ -3,13 +3,13 @@ import biolog
 import numpy as np
 
 
-class neuron(object):
+class Neuron(object):
     """Base neuron class.
 
     """
 
     def __init__(self, neuron_type):
-        super(neuron, self).__init__()
+        super(Neuron, self).__init__()
         self._neuron_type = neuron_type  # : Type of neuron
 
     @property
@@ -29,7 +29,7 @@ class neuron(object):
         self._neuron_type = value
 
 
-class LeakyIntegrateFire(neuron):
+class LeakyIntegrateFire(Neuron):
     """Leaky Integrate and Fire neuron.
     """
 
@@ -86,7 +86,22 @@ class LeakyIntegrateFire(neuron):
         """
         self._D = value
 
-    def ode(self, _in):
+    @property
+    def membrane(self):
+        """Neuron membrane potential  """
+        return self._membrane
+
+    @membrane.setter
+    def membrane(self, value):
+        """
+        Parameters
+        ----------
+        value : <float>
+            Neuron membrane potetional
+        """
+        self._membrane = value
+
+    def ode(self, time, membrane, _in):
         """
         Parameters
         ----------
@@ -99,6 +114,7 @@ class LeakyIntegrateFire(neuron):
             Rate of change of neuron membrane potential
             tau*dm\dt = -m + sum(_in)
         """
+        self.membrane = membrane
         return (-self.membrane + np.sum(_in)) / self.tau
 
     def activation(self, _in):
