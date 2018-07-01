@@ -33,7 +33,7 @@ class LeakyIntegrateFire(Neuron):
     """Leaky Integrate and Fire neuron.
     """
 
-    def __init__(self, tau=0.1, D=1., bias=0.0):
+    def __init__(self, tau=0.2, D=1., bias=0.0):
         super(LeakyIntegrateFire, self).__init__(
             neuron_type='leaky_integrate_fire')
         self._tau = tau
@@ -129,7 +129,8 @@ class LeakyIntegrateFire(Neuron):
         out : <float>
             Activation value of the neuron
         """
-        return 1 / (1 + np.exp(-self.D * _in))
+        _in = np.array(_in)
+        return 1 / (1 + np.exp(-self.D * (_in + self.bias)))
 
 
 def main():
