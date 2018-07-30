@@ -66,6 +66,16 @@ class LIF_Interneuron(Neuron):
         #: Other constants
         self.c_m = 1.0
 
+        #: Membrane potential
+        self._V = -50.0
+
+    @property
+    def V(self):
+        """
+        Get the neuron mebrane potential
+        """
+        return self._V
+
     def ode(self, time, state, v_syn):
         """
         Parameters
@@ -86,6 +96,7 @@ class LIF_Interneuron(Neuron):
         """
         _V = state[0]  #: Membrane potential
         _h = state[1]  #: Inactivation variable
+        self._V = _V
 
         def v_func(gam, v_h, v_ext=None):
             if v_ext is None:
