@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+			http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+
+   <!-- Attributes for nodes -->
+   <key id="neuron_name" for="node" attr.name="name" attr.type="string">
+     <default>"neuron"</default>
+   </key>
+   
+   <key id="neuron_type" for="node" attr.name="type" attr.type="string">
+     <default>integrate_and_fire</default>
+   </key>
+
+   <key id="ext_in" for="node" attr.name="is_ext" attr.type="boolean">
+     <default>true</default>
+   </key>
+
+   <key id="pos_x" for="node" attr.name="x" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="pos_y" for="node" attr.name="y" attr.type="float">
+     <default>0.0</default>
+   </key>
+   
+  <!-- Attributes for edges -->
+  <key id="synapse_weight" for="edge" attr.name="synapse" attr.type="float">
+
+  </key>
+  <graph id="CPG" edgedefault="directed">
+   <!-- PR SYSTEM (Pro-thorax L1) -->
+   <!-- INTERNEURONS -->
+       <node id="IN1">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 1.</data>
+	 <data key="pos_y"> 1.</data>
+       </node>
+       <node id="IN2">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>	 
+	 <data key="pos_x"> 0.</data>
+	 <data key="pos_y"> 1.</data>
+       </node>
+       <node id="IN3">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>	 
+	 <data key="pos_x"> 5.</data>
+	 <data key="pos_y"> 1.</data>
+       </node>
+       <node id="IN4">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>	 
+	 <data key="pos_x"> 6.</data>
+	 <data key="pos_y"> 1.</data>
+       </node>
+       <node id="IN5">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>	 
+	 <data key="pos_x"> 4.</data>
+	 <data key="pos_y"> 3.</data>
+       </node>
+       <node id="IN6">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>	 
+	 <data key="pos_x"> 3.</data>
+	 <data key="pos_y"> 3.</data>
+       </node>       
+   <!-- MOTORNEURONS -->
+       <node id="MN1">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>     
+	 <data key="pos_x"> 1.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN2">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 0.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN3">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 5.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN4">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 6.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>       
+   <!-- CPG NEURONS -->
+       <node id="C1">
+	 <data key="ext_in">true</data>
+         <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 3.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>
+       <node id="C2">
+	 <data key="ext_in">true</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="pos_x"> 4.</data>
+	 <data key="pos_y"> 2.</data>
+       </node>
+
+   <!-- EDGES -->     
+       <edge source="C1" target="C2" />
+       <edge source="C1" target="IN1" />
+       <edge source="C1" target="IN2" />
+       <edge source="C2" target="C1" />
+       <edge source="C2" target="IN3" />       
+       <edge source="C2" target="IN4" />
+       <edge source="IN1" target="MN1" />
+       <edge source="IN2" target="MN2" />
+       <edge source="IN3" target="MN3" />
+       <edge source="IN4" target="MN4" />
+       <edge source="IN5" target="C2" />
+       <edge source="IN6" target="C1" />
+       <edge source="IN6" target="IN5" />
+  </graph>
+</graphml>

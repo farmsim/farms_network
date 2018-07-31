@@ -104,6 +104,74 @@
        <edge source="IN4" target="MN4" />
        <edge source="IN5" target="C2" />
        <edge source="IN6" target="C1" />
-       <edge source="IN6" target="IN5" />       
+       <edge source="IN6" target="IN5" />
+
+       <!-- PR SYSTEM (Pro-thorax L2) -->
+       <!-- INTERNEURONS -->
+       <node id="IN7">
+       <data key="neuron_type">interneuron</data>
+       </node>
+       <node id="IN8">
+       <data key="neuron_type">interneuron</data>
+       </node>
+       <node id="IN9">
+       <data key="neuron_type">interneuron</data>
+       </node>
+       <node id="IN10">
+       <data key="neuron_type">interneuron</data>
+       </node>
+       <node id="IN11">
+       <data key="neuron_type">interneuron</data>
+       </node>
+       <node id="IN12">
+       <data key="neuron_type">interneuron</data>
+       </node>       
+   <!-- MOTORNEURONS -->
+       <node id="MN5">
+       <data key="neuron_type">motorneuron</data>
+       <data key="pos_x"> 1.</data>
+       <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN6">
+       <data key="neuron_type">motorneuron</data>
+       <data key="pos_x"> 0.</data>
+       <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN7">
+       <data key="neuron_type">motorneuron</data>
+       <data key="pos_x"> 5.</data>
+       <data key="pos_y"> 2.</data>
+       </node>
+       <node id="MN8">
+       <data key="neuron_type">motorneuron</data>
+       <data key="pos_x"> 6.</data>
+       <data key="pos_y"> 2.</data>
+       </node>       
+   <!-- CPG NEURONS -->
+       <node id="C3">
+       <data key="neuron_type">interneuron</data>
+       <data key="pos_x"> 3.</data>
+       <data key="pos_y"> 2.</data>
+       </node>
+       <node id="C4">
+       <data key="neuron_type">interneuron</data>
+       <data key="pos_x"> 4.</data>
+       <data key="pos_y"> 2.</data>
+       </node>
+
+   <!-- EDGES -->     
+       <edge source="C3" target="C4" />
+       <edge source="C3" target="IN7" />
+       <edge source="C3" target="IN8" />
+       <edge source="C4" target="C3" />
+       <edge source="C4" target="IN9" />       
+       <edge source="C4" target="IN10" />
+       <edge source="IN7" target="MN5" />
+       <edge source="IN8" target="MN6" />
+       <edge source="IN9" target="MN7" />
+       <edge source="IN10" target="MN8" />
+       <edge source="IN11" target="C4" />
+       <edge source="IN12" target="C3" />
+       <edge source="IN12" target="IN11" />       
   </graph>
 </graphml>
