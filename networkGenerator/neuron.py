@@ -1,16 +1,20 @@
 """Implementation of different neuron models."""
 import biolog
 import numpy as np
+import casadi as cas
 
 
 class Neuron(object):
     """Base neuron class.
-
+    Inherits from Casadi Dae Builder Class.
     """
 
     def __init__(self, neuron_type):
         super(Neuron, self).__init__()
         self._neuron_type = neuron_type  # : Type of neuron
+
+        # CASADI DAE BUILDER
+        self.dae = cas.DaeBuilder()
 
     @property
     def neuron_type(self):
@@ -26,6 +30,96 @@ class Neuron(object):
             Type of neuron model
         """
         self._neuron_type = value
+
+    def ode_rhs(self):
+        """RHS of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        raise NotImplementedError(
+            """Virtual function ode_rhs not implemented.""")
+
+    def ode_states(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        raise NotImplementedError(
+            """Virtual function ode_states not implemented.""")
+
+    def ode_inputs(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        raise NotImplementedError(
+            """Virtual function ode_inputs not implemented.""")
+
+    def ode_params(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        raise NotImplementedError(
+            """Virtual function ode_inputs not implemented.""")
+
+
+class IntegrateAndFire(Neuron):
+    """Integrate & Fire Neuron Model."""
+
+    def __init__(self, n_id):
+        """Initialize.
+
+        Parameters
+        ----------
+        id: str
+            Unique ID for the neuron in the network.
+        """
+        super(IntegrateAndFire, self).__init__(
+            neuron_type='integrate_and_fire')
+
+        #: Neuron ID
+        self.n_id = n_id
+
+        #: Initialize parameters
+        self.tau = self.dae.add_p('tau_' + self.n_id)
+        self.bias = self.dae.add_p('bias_' + self.n_id)
+        self.D = self.dae.add_p('D_' + self.n_id)
+
+        #: Initialize states
+        self.m = self.dae.add_x('m_' + self.n_id)
+
+        #: Initialize inputs
+        self.S = self.dae.add_u('S_' + self.n_id)
+
+        mdot = (-self.m + self.S) / self.tau
+        self.dae.add_ode('mdot', mdot)
+
+    #:  Setup the virutal functions
+
+    def ode_rhs(self):
+        """RHS of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+
+        #: ODE RHS
+        #: mdot = (-m(t) + S)/tau
+        return self.dae.ode
+
+    def ode_states(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        return self.dae.x
+
+    def ode_inputs(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        return self.dae.u
+
+    def ode_params(self):
+        """States of the ODE equations.
+        Virutal function. To be Implemented in Child Classes."""
+        return self.dae.p
+
+    def n_activation(self):
+        """Neuron activation function.
+        Parameters
+        ----------
+        m_potential: float
+            Neuron membrane potential
+        """
+        return 1 / 1 + np.exp(-self.D * (self.m + self.bias))
 
 
 class LIF_Interneuron(Neuron):
