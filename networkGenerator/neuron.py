@@ -51,6 +51,7 @@ class IntegrateAndFire(Neuron):
         #: Initialize parameters
         self.tau = tau
         self.bias = bias
+        #: pylint: disable=invalid-name
         self.D = D
 
         #: Initialize states
@@ -60,22 +61,125 @@ class IntegrateAndFire(Neuron):
         self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
 
         if self.is_ext:
-            self.mdot = (-self.m + self.ext_in) / self.tau
+            self.mdot = (-self.m + self.ext_in)
         else:
-            self.mdot = (-self.m) / self.tau
+            self.mdot = (-self.m)
 
     def ode_add_input(self, in_):
         """ Add relevant external inputs to the ode."""
-        self.mdot += in_/self.tau
+        self.mdot += in_
         return
 
     def ode_rhs(self):
         """ Generate ODE RHS."""
-        return [self.mdot]
+        return [self.mdot/self.tau]
 
     def ode_states(self):
         """ ODE States."""
         return [self.m]
+
+    def ode_params(self):
+        """ Generate neuron parameters."""
+        return [self.ext_in]
+
+    def neuron_output(self):
+        """Neuron activation function.
+        Parameters
+        ----------
+        m_potential: float
+            Neuron membrane potential
+        """
+        exp = np.exp  # pylint: disable = no-member
+        return 1. / (1. + exp(-self.D * (
+            self.m + self.bias)))
+
+
+class Leaky_Interneuron(Neuron):
+    """Leaky Integrate and Fire Interneuron.
+    """
+
+    def __init__(self, n_id, is_ext=True):
+        super(Leaky_Interneuron, self).__init__(
+            neuron_type='leaky_interneuron', is_ext=is_ext)
+
+        self.n_id = n_id  #: Unique neuron identifier
+        #: Constants
+        self.g_nap = 10.0
+        self.e_nap = 50.0
+        self.v_hm = -37.0
+        self.gamma_m = -0.1667
+        self.eps = 0.002
+        #: Parameters of h
+        self.v_hh = -30.0
+        self.gamma_h = 0.1667
+        self.v_htau = -30.0
+        self.gamma_tau = 0.0833
+        #: Parameters of Ileak
+        self.g_leak = 2.8
+        self.e_leak = -65.0
+        #: Parameters of Isyn
+        self.g_syn = 0.1
+        self.e_syn = 0.0
+        self.v_hs = -43.0
+        self.gamma_s = -0.42
+        #: Parameters of Iapp
+        self.g_app = 0.16
+        self.e_app = 0.0
+        #: Other constants
+        self.c_m = 1.0
+
+        #: State Variables
+        self.V = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
+        self.h = cas.SX.sym('h' + self.n_id)
+
+        #: External Input
+        self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
+        return
+
+    def ode_add_input(self, in_):
+        """ Add relevant external inputs to the ode."""
+        pass
+
+    def ode_rhs(self):
+        """ Generate ODE RHS."""
+        def v_func(gam, v_h, v_ext=None):
+            if v_ext is None:
+                return 1. / (1 + np.exp(gam*(self.V - v_h)))
+            else:
+                return 1. / (1 + np.exp(gam*(v_ext - v_h)))
+
+        #: Inap
+        I_nap_1 = 1. / (1 + np.exp(*self.gamma_m(self.V - self.v_hm)))
+        I_nap = self.g_nap*I_nap_1*_h*(self.V - self.e_nap)
+
+        #: Ileak
+        I_leak = self.g_leak*(self.V - self.e_leak)
+
+        #: Iapp
+        I_app = self.g_app*(self.V - self.e_app)
+
+        #: Isyn
+        I_syn = np.sum(self.g_syn*v_func(
+            self.gamma_s, self.v_hs, v_syn)*(self.V - self.e_syn))
+
+        #: hinf
+        h_inf = v_func(self.gamma_h, self.v_hh)
+
+        #: tau_h
+        tau_h = 1. / \
+            (self.eps*(np.cosh(self.gamma_tau*(self.V - self.v_htau))))
+
+        #: dV
+        _dV = -(I_nap + I_leak + I_syn + I_app)/self.c_m
+
+        #: dh
+        _dh = (h_inf - _h)/tau_h
+
+        return [self.mdot/self.tau]
+
+    def ode_states(self):
+        """ ODE States."""
+        return [self.V, self.h]
 
     def ode_params(self):
         """ Generate neuron parameters."""
