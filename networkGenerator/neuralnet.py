@@ -49,8 +49,6 @@ class NeuralNetGen(NetworkXModel):
             biolog.debug('Generating neuron model : {}'.format(name))
             self.neurons[name] = IFneuron(name, neuron['type'],
                                           neuron['is_ext'])
-        self.neurons['N1'].bias = -2.75
-        self.neurons['N2'].bias = -1.75
         return
 
     def generate_network_connections(self):
@@ -161,6 +159,9 @@ def main():
     """Main."""
     #: Initialize network
     net_ = NeuralNetGen('./conf/simple_cpg.graphml')
+    #: Set neural properties
+    net_.neurons['N1'].bias = -2.75
+    net_.neurons['N2'].bias = -1.75
     net_.show_network_sparse_matrix()  #: Print network matrix
 
     #: Initialize integrator properties
