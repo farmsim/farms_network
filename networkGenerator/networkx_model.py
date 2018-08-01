@@ -72,12 +72,15 @@ class NetworkXModel(object):
         if check_pos_is_none:
             biolog.warning('Missing neuron position information.')
             # self.pos = nx.kamada_kawai_layout(self.graph)
-            self.pos = nx.circular_layout(self.graph)
+            self.pos = nx.spring_layout(self.graph)
         return
 
     def visualize_network(self):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
+        labels = nx.get_edge_attributes(self.graph, 'weight')
+        nx.draw_networkx_edge_labels(self.graph,
+                                     pos=self.pos, edge_labels=labels)
         nx.draw(self.graph, pos=self.pos,
                 with_labels=True, node_size=1000)
         plt.draw()
