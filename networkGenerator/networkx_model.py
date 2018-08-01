@@ -1,9 +1,11 @@
 """This class implements the network of different neurons."""
 
+import os
+
 import matplotlib.pyplot as plt
 import networkx as nx
 from networkx.drawing.nx_pydot import write_dot
-import os
+
 import biolog
 
 
@@ -62,7 +64,6 @@ class NetworkXModel(object):
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
         Only if positions are defined. """
-
         for _neuron, data in self.graph.node.items():
             self.pos[_neuron] = (data.pop('x', None),
                                  data.pop('y', None))
@@ -81,7 +82,7 @@ class NetworkXModel(object):
                 with_labels=True, node_size=1000)
         plt.draw()
         plt.gca().invert_yaxis()
-        # plt.show()
+        return
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
@@ -91,11 +92,11 @@ class NetworkXModel(object):
 
 
 def main():
+    """Main.
+    Test NetworkXModel Reading and Visualization."""
     net_ = NetworkXModel()
-
     net_.read_graph(
         './conf/stick_insect_cpg_v1.graphml')
-
     net_.visualize_network()
 
 
