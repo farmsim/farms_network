@@ -89,7 +89,7 @@ class IntegrateAndFire(Neuron):
             Neuron membrane potential
         """
         exp = np.exp  # pylint: disable = no-member
-        return 1. / (1 + exp(-self.D * (
+        return 1. / (1. + exp(-self.D * (
             self.m + self.bias)))
 
 

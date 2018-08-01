@@ -23,10 +23,8 @@ class NeuralNetGen(NetworkXModel):
         self.dae = {}
         self.integrator = None
         self.generate_neuron_models()
-        self.generate_states()
-        self.generate_params()
-        self.generate_ode()
-
+        self.generate_dae()
+        self.setup_integrator()
         return
 
     def generate_neuron_models(self):
@@ -43,40 +41,69 @@ class NeuralNetGen(NetworkXModel):
         net_mat = cas.SX(np.transpose(self.network_sparse_matrix()))
         neuron_out = [
             n_out.n_activation() for n_out in self.neurons.values()]
-        from IPython import embed
-        embed()
-
-        return cas.mtimes(net_mat, *neuron_out)
+        neuron_out = cas.vertcat(*neuron_out)
+        return cas.mtimes(net_mat, neuron_out)
 
     def generate_states(self):
         """Generate ode states for the network."""
         for neuron in self.neurons.values():
             self.states.extend(neuron.ode_states())
 
+        biolog.info(15*'#' + ' STATES : {} '.format(len(self.states)) + 15*'#' +
+                    '\n {}'.format(self.states))
+        self.states = cas.vertcat(*self.states)
+
     def generate_params(self):
         """Generate ode parameters for the network."""
         for neuron in self.neurons.values():
             if neuron.is_ext:
                 self.params.extend(neuron.ode_params())
+                
+        biolog.info(15*'#' + ' PARAMS : {} '.format(len(self.params)) + 15*'#' +
+                    '\n {}'.format(self.params))
+        self.params = cas.vertcat(*self.params)
 
     def generate_ode(self):
         """ Generate ode rhs for the network."""
         net_conn = self.generate_network_connections()
-        from IPython import embed
-        embed()
-
         for idx, neuron in enumerate(self.neurons.values()):
-            neuron.ode_add_input(net_conn[0][idx])
-            self.ode.extend(neuron.ode_states())
-        print(self.ode[0])
+            neuron.ode_add_input(net_conn[idx])
+            self.ode.extend(neuron.ode_rhs())
+            
+        biolog.info(15*'#' + ' ODE : {} '.format(len(self.ode)) + 15*'#' +
+                    '\n {}'.format(self.ode))
+        self.ode = cas.vertcat(*self.ode)
+
+    def generate_dae(self):
+        self.generate_states()
+        self.generate_params()
+        self.generate_ode()
+        """ Generate dae for integation."""
+
+        #: For variable time step
+        T = cas.SX.sym('T')
+
+        self.dae = {'x': self.states,
+                    'p': cas.vertcat(self.params, T),
+                    'ode': T*self.ode}
+        return
 
     def setup_integrator(self):
         """Setup casadi integrator."""
-        self.integrator = cas.integrator('network', 'idas', self.dae)
+        opts = {"tf": 0.01}  # interval length
+        self.integrator = cas.integrator('network', 'cvodes', self.dae, opts)
 
+    def step(self, time):
+        """Step integrator."""
+        states = self.integrator(x0=0.0, p=[5.0, time])['xf']
+        biolog.info(states)
+        return
 
 def main():
-    net_ = NeuralNetGen('./conf/integrate_and_fire_test.graphml')
+    net_ = NeuralNetGen('./conf/simple_cpg.graphml')
+    time = np.arange(0, 10, 0.01)
+    for t_ in time:
+        net_.step(t_)
     net_.visualize_network()
 
 
