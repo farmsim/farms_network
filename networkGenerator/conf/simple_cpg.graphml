@@ -32,16 +32,31 @@
 
   </key>
   <graph id="CPG" edgedefault="directed">
-   <!-- PR SYSTEM (Pro-thorax L1) -->
-   <!-- INTERNEURONS -->
-       <node id="IN1">
-	 <data key="ext_in">true</data>
+
+   <!-- CPG -->
+       <node id="N1">
+	 <data key="ext_in">false</data>
 	 <data key="neuron_type"> integrate_and_fire </data>
        </node>
 
+       <node id="N2">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type"> integrate_and_fire </data>
+       </node>
+
+
    <!-- EDGES -->     
-       <edge source="IN1" target="IN1">
-          <data key="weight"> -20.0 </data>
+       <edge source="N1" target="N1">
+          <data key="weight"> 4.5 </data>
+       </edge>
+       <edge source="N1" target="N2">
+          <data key="weight"> -1 </data>
+       </edge>
+       <edge source="N2" target="N2">
+          <data key="weight"> 4.5 </data>
+       </edge>
+       <edge source="N2" target="N1">
+          <data key="weight"> 1 </data>
        </edge>
   </graph>
 </graphml>

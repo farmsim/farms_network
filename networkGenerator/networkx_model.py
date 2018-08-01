@@ -2,7 +2,8 @@
 
 import matplotlib.pyplot as plt
 import networkx as nx
-
+from networkx.drawing.nx_pydot import write_dot
+import os
 import biolog
 
 
@@ -69,7 +70,8 @@ class NetworkXModel(object):
             val for x in self.pos.values() for val in x]
         if check_pos_is_none:
             biolog.warning('Missing neuron position information.')
-            self.pos = nx.kamada_kawai_layout(self.graph)
+            # self.pos = nx.kamada_kawai_layout(self.graph)
+            self.pos = nx.circular_layout(self.graph)
         return
 
     def visualize_network(self):
@@ -79,7 +81,13 @@ class NetworkXModel(object):
                 with_labels=True, node_size=1000)
         plt.draw()
         plt.gca().invert_yaxis()
-        plt.show()
+        # plt.show()
+
+    def save_network_to_dot(self, name='graph'):
+        """ Save network file to dot format."""
+        write_dot(self.graph, name + '.dot')
+        os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
+        return
 
 
 def main():

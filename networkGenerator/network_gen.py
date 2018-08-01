@@ -49,8 +49,14 @@ class NetworkXModel(object):
         """
 
         self.graph = nx.read_graphml(path)
-
         return self.graph
+
+    def show_network_matrix(self):
+        """Show network connectivity matrix."""
+        biolog.info('Showing network connectivity matrix')
+        net_matrix = nx.to_scipy_sparse_matrix(self.graph)
+        biolog.info(net_matrix.todense())
+        return
 
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
@@ -81,7 +87,7 @@ def main():
 
     net_.read_graph(
         './conf/stick_insect_cpg_v1.graphml')
-
+    net_.show_network_matrix()
     net_.visualize_network()
 
 

@@ -4,6 +4,7 @@ from neuron import IntegrateAndFire as IFneuron
 import biolog
 import casadi as cas
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class NeuralNetGen(NetworkXModel):
@@ -34,6 +35,7 @@ class NeuralNetGen(NetworkXModel):
             # biolog.debug('Generating neuron model : {}'.format(name))
             self.neurons[name] = IFneuron(name, neuron['type'],
                                           neuron['is_ext'])
+        self.neurons['N2'].bias = -1.75
         return
 
     def generate_network_connections(self):
@@ -58,9 +60,9 @@ class NeuralNetGen(NetworkXModel):
         for neuron in self.neurons.values():
             if neuron.is_ext:
                 self.params.extend(neuron.ode_params())
-                
+
         biolog.info(15*'#' + ' PARAMS : {} '.format(len(self.params)) + 15*'#' +
-                    '\n {}'.format(self.params))
+                    '\n {}'.formatx(self.params))
         self.params = cas.vertcat(*self.params)
 
     def generate_ode(self):
@@ -69,7 +71,7 @@ class NeuralNetGen(NetworkXModel):
         for idx, neuron in enumerate(self.neurons.values()):
             neuron.ode_add_input(net_conn[idx])
             self.ode.extend(neuron.ode_rhs())
-            
+
         biolog.info(15*'#' + ' ODE : {} '.format(len(self.ode)) + 15*'#' +
                     '\n {}'.format(self.ode))
         self.ode = cas.vertcat(*self.ode)
@@ -90,21 +92,34 @@ class NeuralNetGen(NetworkXModel):
 
     def setup_integrator(self):
         """Setup casadi integrator."""
-        opts = {"tf": 0.01}  # interval length
+        opts = {"tf": 1.}  # interval length
         self.integrator = cas.integrator('network', 'cvodes', self.dae, opts)
 
     def step(self, time):
         """Step integrator."""
-        states = self.integrator(x0=0.0, p=[5.0, time])['xf']
-        biolog.info(states)
-        return
+        states = self.integrator(x0=0.0, p=[time])['xf']
+        return np.array(states)
+
 
 def main():
     net_ = NeuralNetGen('./conf/simple_cpg.graphml')
-    time = np.arange(0, 10, 0.01)
-    for t_ in time:
-        net_.step(t_)
+    net_.show_network_sparse_matrix()
+    dt = 0.01
+    time = np.arange(0, 10, dt)
+    res = np.empty([len(time), 2])
+    for idx, t_ in enumerate(time):
+        res[idx] = net_.step(t_)[:, 0]
+    net_.save_network_to_dot()
     net_.visualize_network()
+    plt.figure()
+    plt.title('States Plot')
+    plt.plot(time, res)
+    plt.grid()
+    plt.figure()
+    plt.title('Phase Plot')
+    plt.plot(res[:, 0], res[:, 1])
+    plt.grid()
+    plt.show()
 
 
 if __name__ == '__main__':

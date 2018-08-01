@@ -34,7 +34,7 @@ class IntegrateAndFire(Neuron):
     """Integrate & Fire Neuron Model."""
 
     def __init__(self, n_id, neuron_type=None, is_ext=True,
-                 tau=0.2, bias=0.0, D=1.0):
+                 tau=0.1, bias=-2.75, D=1.0):
         """Initialize.
 
         Parameters
