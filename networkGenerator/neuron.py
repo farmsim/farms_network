@@ -81,7 +81,7 @@ class IntegrateAndFire(Neuron):
         """ Generate neuron parameters."""
         return [self.ext_in]
 
-    def n_activation(self):
+    def neuron_output(self):
         """Neuron activation function.
         Parameters
         ----------
