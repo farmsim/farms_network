@@ -10,7 +10,7 @@
    </key>
    
    <key id="neuron_type" for="node" attr.name="type" attr.type="string">
-     <default>integrate_and_fire</default>
+     <default>lif_interneuron</default>
    </key>
 
    <key id="ext_in" for="node" attr.name="is_ext" attr.type="boolean">
@@ -36,27 +36,23 @@
    <!-- CPG -->
        <node id="N1">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>
 
        <node id="N2">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>
 
 
    <!-- EDGES -->     
        <edge source="N1" target="N1">
-          <data key="weight"> 4.5 </data>
        </edge>
        <edge source="N1" target="N2">
-          <data key="weight"> -1 </data>
        </edge>
        <edge source="N2" target="N2">
-          <data key="weight"> 4.5 </data>
        </edge>
        <edge source="N2" target="N1">
-          <data key="weight"> 1 </data>
        </edge>
   </graph>
 </graphml>

@@ -2,6 +2,7 @@
 import biolog
 import numpy as np
 import casadi as cas
+import casadi.tools as cast
 
 
 class Neuron(object):
@@ -55,7 +56,8 @@ class IntegrateAndFire(Neuron):
         self.D = D
 
         #: Initialize states
-        self.m = cas.SX.sym('m_' + self.n_id)
+        self.states = cast.struct_symSX(['m_' + self.n_id])
+        [self.m] = self.states[...]
 
         #: External inputs
         self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
@@ -76,7 +78,7 @@ class IntegrateAndFire(Neuron):
 
     def ode_states(self):
         """ ODE States."""
-        return [self.m]
+        return [self.states.cat]
 
     def ode_params(self):
         """ Generate neuron parameters."""
@@ -117,8 +119,8 @@ class Leaky_Interneuron(Neuron):
         #: Parameters of Ileak
         self.g_leak = 2.8
         self.e_leak = -65.0
+
         #: Parameters of Isyn
-        self.g_syn = 0.1
         self.e_syn = 0.0
         self.v_hs = -43.0
         self.gamma_s = -0.42
@@ -132,25 +134,32 @@ class Leaky_Interneuron(Neuron):
         self.V = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
         self.h = cas.SX.sym('h' + self.n_id)
 
+        #: ODE
+        self.vdot = None
+        self.hdot = None
+        self._ode_rhs()
+
         #: External Input
         self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
+
         return
 
-    def ode_add_input(self, in_):
+    def ode_add_input(self, v_syn, g_syn=0.0, gamma=0.0, v_h=0.0):
         """ Add relevant external inputs to the ode."""
-        pass
 
-    def ode_rhs(self):
-        """ Generate ODE RHS."""
-        def v_func(gam, v_h, v_ext=None):
-            if v_ext is None:
-                return 1. / (1 + np.exp(gam*(self.V - v_h)))
-            else:
-                return 1. / (1 + np.exp(gam*(v_ext - v_h)))
+        #: Isyn
+        #: pylint: disable=no-member
+        I_syn_1 = 1. / (1. + np.exp(gamma*(v_syn - v_h)))
+        I_syn = g_syn*I_syn_1*(self.V - self.e_syn)
+        self.vdot += I_syn
+        return
 
+    def _ode_rhs(self):
+        """Generate initial ode rhs."""
         #: Inap
-        I_nap_1 = 1. / (1 + np.exp(*self.gamma_m(self.V - self.v_hm)))
-        I_nap = self.g_nap*I_nap_1*_h*(self.V - self.e_nap)
+        #: pylint: disable=no-member
+        I_nap_1 = 1. / (1 + np.exp(self.gamma_m*(self.V - self.v_hm)))
+        I_nap = self.g_nap*I_nap_1*self.h*(self.V - self.e_nap)
 
         #: Ileak
         I_leak = self.g_leak*(self.V - self.e_leak)
@@ -158,24 +167,23 @@ class Leaky_Interneuron(Neuron):
         #: Iapp
         I_app = self.g_app*(self.V - self.e_app)
 
-        #: Isyn
-        I_syn = np.sum(self.g_syn*v_func(
-            self.gamma_s, self.v_hs, v_syn)*(self.V - self.e_syn))
-
         #: hinf
-        h_inf = v_func(self.gamma_h, self.v_hh)
+        h_inf = 1. / (1 + np.exp(self.gamma_h*(self.V - self.v_hh)))
 
         #: tau_h
-        tau_h = 1. / \
-            (self.eps*(np.cosh(self.gamma_tau*(self.V - self.v_htau))))
+        tau_h = 1. / (
+            self.eps*(np.cosh(self.gamma_tau*(self.V - self.v_htau))))
 
         #: dV
-        _dV = -(I_nap + I_leak + I_syn + I_app)/self.c_m
+        self.vdot = I_nap + I_leak + I_app
 
         #: dh
-        _dh = (h_inf - _h)/tau_h
+        self.hdot = (h_inf - self.h)/tau_h
+        return
 
-        return [self.mdot/self.tau]
+    def ode_rhs(self):
+        """ ODE RHS."""
+        return [-self.vdot/self.c_m, self.hdot]
 
     def ode_states(self):
         """ ODE States."""
@@ -192,114 +200,7 @@ class Leaky_Interneuron(Neuron):
         m_potential: float
             Neuron membrane potential
         """
-        exp = np.exp  # pylint: disable = no-member
-        return 1. / (1. + exp(-self.D * (
-            self.m + self.bias)))
-
-
-class LIF_Interneuron(Neuron):
-    """Leaky Integrate and Fire Interneuron.
-    """
-
-    def __init__(self):
-        super(LIF_Interneuron, self).__init__(
-            neuron_type='lif_internueron')
-        #: Neuron constants
-        #: Parameters of INaP
-        self.g_nap = 10.0
-        self.e_nap = 50.0
-        self.v_hm = -37.0
-        self.gamma_m = -0.1667
-        self.eps = 0.002
-
-        #: Parameters of h
-        self.v_hh = -30.0
-        self.gamma_h = 0.1667
-        self.v_htau = -30.0
-        self.gamma_tau = 0.0833
-
-        #: Parameters of Ileak
-        self.g_leak = 2.8
-        self.e_leak = -65.0
-
-        #: Parameters of Isyn
-        self.g_syn = 0.1
-        self.e_syn = 0.0
-        self.v_hs = -43.0
-        self.gamma_s = -0.42
-
-        #: Parameters of Iapp
-        self.g_app = 0.16
-        self.e_app = 0.0
-
-        #: Other constants
-        self.c_m = 1.0
-
-        #: Membrane potential
-        self._V = -50.0
-
-    @property
-    def V(self):
-        """
-        Get the neuron mebrane potential
-        """
-        return self._V
-
-    def ode(self, time, state, v_syn):
-        """
-        Parameters
-        ----------
-        time : <float>
-            Current simulation time step
-        states : <np.array>
-            Neuron states
-                * V : Membrane potential
-                * h : Inactivation variable
-        v_syn : <np.array>
-            External synaptic membrane potentials
-        Returns
-        -------
-        out : <np.array>
-            Rate of change of neuron membrane potential
-
-        """
-        _V = state[0]  #: Membrane potential
-        _h = state[1]  #: Inactivation variable
-        self._V = _V
-
-        def v_func(gam, v_h, v_ext=None):
-            if v_ext is None:
-                return 1. / (1 + np.exp(gam*(_V - v_h)))
-            else:
-                return 1. / (1 + np.exp(gam*(v_ext - v_h)))
-
-        #: Inap
-        I_nap = self.g_nap*v_func(
-            self.gamma_m, self.v_hm)*_h*(_V - self.e_nap)
-
-        #: Ileak
-        I_leak = self.g_leak*(_V - self.e_leak)
-
-        #: Iapp
-        I_app = self.g_app*(_V - self.e_app)
-
-        #: Isyn
-        I_syn = np.sum(self.g_syn*v_func(
-            self.gamma_s, self.v_hs, v_syn)*(_V - self.e_syn))
-
-        #: hinf
-        h_inf = v_func(self.gamma_h, self.v_hh)
-
-        #: tau_h
-        tau_h = 1. / (self.eps*(np.cosh(self.gamma_tau*(_V - self.v_htau))))
-
-        #: dV
-        _dV = -(I_nap + I_leak + I_syn + I_app)/self.c_m
-
-        #: dh
-        _dh = (h_inf - _h)/tau_h
-
-        return np.array([_dV, _dh])
+        pass
 
 
 class LIF_Motorneuron(Neuron):
@@ -364,17 +265,17 @@ class LIF_Motorneuron(Neuron):
         """
         Parameters
         ----------
-        time : <float>
+        time: < float >
             Current simulation time step
-        states : <np.array>
+        states: < np.array >
             Neuron states
-                * V : Membrane potential
-                * h : Inactivation variable
-        v_syn : <np.array>
+                * V: Membrane potential
+                * h: Inactivation variable
+        v_syn: < np.array >
             External synaptic membrane potentials
         Returns
         -------
-        out : <np.array>
+        out: < np.array >
             Rate of change of neuron membrane potential
 
         """

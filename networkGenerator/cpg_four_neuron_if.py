@@ -32,14 +32,14 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 0.01  #: Time step
-    time = np.arange(0, 5, dt)  #: Time
+    time = np.arange(0, 250, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
     biolog.info('Begin Integration!')
     for idx, t_ in enumerate(time):
-        res[idx] = net_.step(t_)[:, 0]
+        res[idx] = net_.step()['xf'].full()[:, 0]
 
     #: Results
     net_.save_network_to_dot()  #: Save network to dot file

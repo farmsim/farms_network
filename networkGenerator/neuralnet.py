@@ -40,6 +40,10 @@ class NeuralNetGen(NetworkXModel):
         self.network_sparse_matrix()
         self.generate_neuron_models()
 
+        #: Time Integration
+        self.dt = 0.001
+        self.fin = {}
+
         return
 
     def generate_neuron_models(self):
@@ -47,8 +51,12 @@ class NeuralNetGen(NetworkXModel):
 
         for name, neuron in self.graph.node.iteritems():
             biolog.debug('Generating neuron model : {}'.format(name))
-            self.neurons[name] = IFneuron(name, neuron['type'],
-                                          neuron['is_ext'])
+            if neuron['type'] == 'integrate_and_fire':
+                self.neurons[name] = IFneuron(name, neuron['type'],
+                                              neuron['is_ext'])
+            elif neuron['type'] == 'leaky_integrate_and_fire':
+                pass
+
         return
 
     def generate_network_connections(self):
@@ -109,10 +117,9 @@ class NeuralNetGen(NetworkXModel):
         self.generate_params()
         self.generate_ode()
         #: For variable time step pylint: disable=invalid-name
-        T = cas.SX.sym('T')
         self.dae = {'x': self.states,
-                    'p': cas.vertcat(self.params, T),
-                    'ode': T*self.ode}
+                    'p': self.params,
+                    'ode': self.ode}
         return
 
     def generate_opts(self, opts):
@@ -120,7 +127,7 @@ class NeuralNetGen(NetworkXModel):
         if opts is not None:
             self.opts = opts
         else:
-            self.opts = {'tf': 1}
+            self.opts = {'tf': self.dt}
         return
 
     #: pylint: disable=invalid-name
@@ -134,25 +141,28 @@ class NeuralNetGen(NetworkXModel):
         #: Generate Options for integration
         self.generate_opts(opts)
         #: Initialize states of the integrator
-        self.x0 = x0
+        self.fin['x0'] = x0
+        self.fin['p'] = []
+        self.fin['z0'] = cas.DM([])
+        self.fin['rx0'] = cas.DM([])
+        self.fin['rp'] = cas.DM([])
+        self.fin['rz0'] = cas.DM([])
+
         #: Set up the integrator
         self.integrator = cas.integrator('network',
                                          integration_method,
                                          self.dae, self.opts)
         return
 
-    def step(self, time, params=None):
+    def step(self, params=None):
         """Step integrator."""
-        _params = []
-        if not params and self.num_params > 0:
-            raise ValueError('Undefined external parameters')
-        elif self.num_params == 0:
-            _params.extend([time])
+        if params is None:
+            self.fin['p'] = []
         else:
-            _params.extend(params)
-            _params.extend([time])
-        states = self.integrator(x0=self.x0, p=_params)['xf']
-        return np.array(states)
+            self.fin['p'] = params
+        res = self.integrator.call(self.fin)
+        self.fin['x0'] = res['xf']
+        return res
 
 
 def main():
@@ -179,8 +189,8 @@ def main():
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
-    for idx, t_ in enumerate(time):
-        res[idx] = net_.step(t_)[:, 0]
+    for idx, _t in enumerate(time):
+        res[idx] = net_.step()['xf'].full()[:, 0]
 
     #: Results
     net_.save_network_to_dot()  #: Save network to dot file

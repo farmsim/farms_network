@@ -36,22 +36,22 @@
    <!-- CPG -->
        <node id="N1">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>
 
        <node id="N2">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>
 
        <node id="N3">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>
 
        <node id="N4">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type"> integrate_and_fire </data>
+	 <data key="neuron_type">integrate_and_fire</data>
        </node>       
 
 
