@@ -189,7 +189,7 @@ def main():
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
-    for idx, _t in enumerate(time):
+    for idx, _ in enumerate(time):
         res[idx] = net_.step()['xf'].full()[:, 0]
 
     #: Results
@@ -200,10 +200,12 @@ def main():
     plt.title('States Plot')
     plt.plot(time, res)
     plt.grid()
+
     plt.figure()
     plt.title('Phase Plot')
     plt.plot(res[:, 0], res[:, 1])
     plt.grid()
+
     plt.show()
 
 

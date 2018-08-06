@@ -32,13 +32,13 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 0.01  #: Time step
-    time = np.arange(0, 250, dt)  #: Time
+    time = np.arange(0, 25, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
     biolog.info('Begin Integration!')
-    for idx, t_ in enumerate(time):
+    for idx, _ in enumerate(time):
         res[idx] = net_.step()['xf'].full()[:, 0]
 
     #: Results
@@ -49,7 +49,7 @@ def main():
     plt.title('States Plot')
     plt.plot(time, res)
     plt.grid()
-    plt.figure()
+
     plt.show()
 
 
