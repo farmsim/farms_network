@@ -76,8 +76,9 @@ class NeuralNetGen(NetworkXModel):
         self.num_states = len(self.states)
         biolog.info(15*'#' +
                     ' STATES : {} '.format(self.num_states) +
-                    15*'#' +
-                    '\n {}'.format(self.states))
+                    15*'#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.states)]))
         self.states = cas.vertcat(*self.states)
         return
 
@@ -90,8 +91,9 @@ class NeuralNetGen(NetworkXModel):
         self.num_params = len(self.params)
         biolog.info(15*'#' +
                     ' PARAMS : {} '.format(self.num_params) +
-                    15*'#' +
-                    '\n {}'.format(self.params))
+                    15*'#')
+        print('\n'.join(['{}. {}'.format(
+            j, p) for j, p in enumerate(self.params)]))
         self.params = cas.vertcat(*self.params)
         return
 
@@ -105,8 +107,9 @@ class NeuralNetGen(NetworkXModel):
         self.num_ode = len(self.ode)
         biolog.info(15*'#' +
                     ' ODE : {} '.format(self.num_ode) +
-                    15*'#' +
-                    '\n {}'.format(self.ode))
+                    15*'#')
+        print('\n'.join(['{}. {}'.format(
+            j, o) for j, o in enumerate(self.ode)]))
         self.ode = cas.vertcat(*self.ode)
         return
 
