@@ -31,6 +31,138 @@ class Neuron(object):
         self._neuron_type = value
 
 
+class LIF_Danner_Nap(Neuron):
+    """Leaky Integrate and Fire Neuron Based on Danner et.al.
+
+    """
+    def __init__(self, n_id, neuron_type, is_ext=True):
+        super(LIF_Danner_Nap, self).__init__(neuron_type, is_ext)
+        self.n_id = n_id
+        self.neuron_type = neuron_type
+        self.is_ext = is_ext
+
+        self.n_id = n_id  #: Unique neuron identifier
+
+        #: Constants
+        self.gnap = 4.5  #: nS
+        self.e_na = 50  #: mV
+
+        self.v1_2_m = -40  #: mV
+        self.k_m = -6  #: mV
+
+        self.v1_2_h = -45  #: mV
+        self.k_h = -4  #: mV
+
+        self.v1_2_t = -35  #: mV
+        self.k_t = -15  #: mV
+
+        self.g_leak = 2.8  #: nS
+        self.e_leak = -60  #: mV
+
+        self.tau_0 = 80  #: ms
+        self.tau_max = 160  #: ms
+        self.tau_noise = 10  #: ms
+
+        self.v_max = 0  #: mV
+        self.v_thres = -50  #: mV
+
+        #: State Variables
+        self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
+        self.h = cas.SX.sym('h_' + self.n_id)
+        self.i_noise = cas.SX.sym('In_' + self.n_id)
+
+        #: ODE
+        self.vdot = None
+        self.hdot = None
+        self._ode_rhs()
+
+        #: External Input (BrainStem Drive)
+        self.alpha = cas.SX.sym('alpha_' + self.n_id)
+        self.m_e_i = 0.0  #: m_E,i
+        self.m_i_i = 0.0  #: m_I,i
+        self.b_e_i = 0.0  #: m_E,i
+        self.b_i_i = 0.0  #: m_I,i
+
+        self.d_e_i = self.m_e_i*self.aplha + self.b_e_i
+        self.d_i_i = self.m_i_i*self.aplha + self.b_i_i
+
+        return
+
+    def ode_add_input(self, excit=False, inhib=True):
+        """ Add relevant external inputs to the ode.
+        Parameters
+        ----------
+        con_type: <str>
+            File path to the graphml structure.
+        """
+
+        #: Isyn
+        #: pylint: disable=no-member
+        I_syn_1 = 1. / (1. + np.exp(gamma*(v_syn - v_h)))
+        I_syn = g_syn*I_syn_1*(self.V - self.e_syn)
+        self.vdot += I_syn
+        return
+
+    def _ode_rhs(self):
+        """Generate initial ode rhs."""
+
+        #: tau_h(V)
+        tau_h = self.tau_0 + (
+            self.tau_max - self.tau_0)/cas.cosh(
+                (self.v - self.v1_2_t)/self.k_t)
+
+        #: h_inf(V)
+        h_inf = cas.inv(1 + cas.exp(self.v - self.v1_2_h)/self.k_h)
+
+        #: m(V)
+        m = cas.inv(1 + cas.exp(self.v - self.v1_2_m)/self.k_m)
+
+        #: Slow inactivation
+        self.hdot = (h_inf - self.h)/tau_h
+
+        #: Inap
+        #: pylint: disable=no-member
+        I_nap = self.g_nap*m*self.h*(self.v - self.e_na)
+
+        #: Ileak
+        I_leak = self.g_leak*(self.v - self.e_leak)
+
+        #: Iapp
+        I_app = self.g_app*(self.V - self.e_app)
+
+        #: hinf
+        h_inf = 1. / (1 + np.exp(self.gamma_h*(self.V - self.v_hh)))
+
+        #: tau_h
+        tau_h = 1. / (
+            self.eps*(np.cosh(self.gamma_tau*(self.V - self.v_htau))))
+
+        #: dV
+        self.vdot = I_nap + I_leak + I_app
+
+        #: dh
+        self.hdot = (h_inf - self.h)/tau_h
+        return
+
+    def ode_rhs(self):
+        """ ODE RHS."""
+        return [-self.vdot/self.c_m, self.hdot]
+
+    def ode_states(self):
+        """ ODE States."""
+        return [self.V, self.h]
+
+    def ode_params(self):
+        """ Generate neuron parameters."""
+        return [self.ext_in]
+
+    def neuron_out(self):
+        """ Output of the neuron model."""
+        _cond = (self.v_thr <= self.v) and (self.v < self.v_max)
+        _f = (self.v - self.v_thr)/(self.v_thr - self.v_max)
+        return cas.if_else(_cond, _f, 1.)*(self.v < self.v_thr)
+
+
 class IntegrateAndFire(Neuron):
     """Integrate & Fire Neuron Model."""
 
