@@ -80,7 +80,7 @@ class NeuralNetGen(NetworkXModel):
             for pred in self.graph.predecessors(name):
                 print('{} -> {}'.format(name, pred))
                 self.neurons[name].ode_add_input(
-                    self.neurons[pred], self.graph[name][pred]['weight'])
+                    self.neurons[pred], self.graph[pred][name]['weight'])
         return
 
     def generate_states(self):
