@@ -5,7 +5,8 @@ import numpy as np
 
 import biolog
 from networkx_model import NetworkXModel
-from neuron import IntegrateAndFire as IFneuron
+from neuron import IntegrateAndFire
+from neuron import LIF_Danner_Nap
 
 
 class NeuralNetGen(NetworkXModel):
@@ -37,8 +38,8 @@ class NeuralNetGen(NetworkXModel):
 
         #: METHODS
         self.read_graph(graph_file_path)
-        self.network_sparse_matrix()
-        self.generate_neuron_models()
+        # self.network_sparse_matrix()
+        # self.generate_neuron_models()
 
         #: Time Integration
         self.dt = 0.001
@@ -46,27 +47,41 @@ class NeuralNetGen(NetworkXModel):
 
         return
 
-    def generate_neuron_models(self):
-        """Generate sparse ode matrix for the network."""
+
+    def generate_neurons(self):
+        """Generate the complete neural network.
+        Instatiate a neuron model for each node in the graph
+
+        Returns
+        -------
+        out : <bool>
+            Return true if successfully created the neurons
+        """
 
         for name, neuron in self.graph.node.iteritems():
+            #: Generate Neuron Models
             biolog.debug('Generating neuron model : {}'.format(name))
             if neuron['type'] == 'integrate_and_fire':
-                self.neurons[name] = IFneuron(name, neuron['type'],
-                                              neuron['is_ext'])
-            elif neuron['type'] == 'leaky_integrate_and_fire':
+                self.neurons[name] = IntegrateAndFire(name, neuron['is_ext'])
+            elif neuron['type'] == 'lif_danner_nap':
+                self.neurons[name] = LIF_Danner_Nap(name, neuron['is_ext'])
+            elif neuron['type'] == 'lif_danner':
+                self.neurons[name] = LIF_Danner_Nap(name, neuron['is_ext'])
+            else:
                 pass
-
+                
         return
 
-    def generate_network_connections(self):
-        """Generate the list of connections for the network."""
-
-        net_mat = cas.SX(np.transpose(self.network_sparse_matrix()))
-        neuron_out = [
-            n_out.neuron_output() for n_out in self.neurons.values()]
-        neuron_out = cas.vertcat(*neuron_out)
-        return cas.mtimes(net_mat, neuron_out)
+    def generate_network(self):
+        """Generate Network Connections"""
+        for name, neuron in self.graph.node.iteritems():
+            biolog.debug(
+                'Establishing neuron {} network connections'.format(name))
+            for pred in self.graph.predecessors(name):
+                print('{} -> {}'.format(name, pred))
+                self.neurons[name].ode_add_input(
+                    self.neurons[pred], self.graph[name][pred]['weight'])
+        return
 
     def generate_states(self):
         """Generate ode states for the network."""
@@ -100,9 +115,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_ode(self):
         """ Generate ode rhs for the network."""
 
-        net_conn = self.generate_network_connections()
         for idx, neuron in enumerate(self.neurons.values()):
-            neuron.ode_add_input(net_conn[idx])
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
         biolog.info(15*'#' +
@@ -133,7 +146,7 @@ class NeuralNetGen(NetworkXModel):
             self.opts = {'tf': self.dt}
         return
 
-    #: pylint: disable=invalid-name
+     #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
                          integration_method='cvodes',
                          opts=None):
@@ -171,17 +184,15 @@ class NeuralNetGen(NetworkXModel):
 def main():
     """Main."""
     #: Initialize network
-    net_ = NeuralNetGen('./conf/simple_cpg.graphml')
-    #: Set neural properties
-    net_.neurons['N1'].bias = -2.75
-    net_.neurons['N2'].bias = -1.75
-    net_.show_network_sparse_matrix()  #: Print network matrix
-
+    net_ = NeuralNetGen('./conf/simple_danner_cpg.graphml')
+    net_.generate_neurons()
+    net_.generate_network()
+    
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
-    x0 = [5, 2]  #: Neuron 1 and 2 membrane potentials
+    x0 = [0, 0, 0, 0]  #: Neuron 1 and 2 membrane potentials
 
-    #: Setup the integrator
+    # #: Setup the integrator
     net_.setup_integrator(x0)
 
     #: Initialize network parameters
@@ -195,18 +206,20 @@ def main():
     for idx, _ in enumerate(time):
         res[idx] = net_.step()['xf'].full()[:, 0]
 
-    #: Results
+    # #: Results
     net_.save_network_to_dot()  #: Save network to dot file
     net_.visualize_network()  #: Visualize network using Matplotlib
 
     plt.figure()
     plt.title('States Plot')
     plt.plot(time, res)
+
+    plt.legend(tuple(net_.states.elements()))
     plt.grid()
 
     plt.figure()
     plt.title('Phase Plot')
-    plt.plot(res[:, 0], res[:, 1])
+    plt.plot(res[:, 0], res[:, 2])
     plt.grid()
 
     plt.show()

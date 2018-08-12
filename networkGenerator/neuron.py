@@ -44,7 +44,9 @@ class LIF_Danner_Nap(Neuron):
         self.n_id = n_id  #: Unique neuron identifier
 
         #: Constants
-        self.gnap = 4.5  #: nS
+        self.c_m = 10  #: pF
+
+        self.g_nap = 4.5  #: nS
         self.e_na = 50  #: mV
 
         self.v1_2_m = -40  #: mV
@@ -64,7 +66,12 @@ class LIF_Danner_Nap(Neuron):
         self.tau_noise = 10  #: ms
 
         self.v_max = 0  #: mV
-        self.v_thres = -50  #: mV
+        self.v_thr = -50  #: mV
+
+        self.g_syn_e = 10.  #: nS
+        self.g_syn_i = 10.  #: nS
+        self.e_syn_e = -10.  #: mV
+        self.e_syn_i = -75.  #: mV
 
         #: State Variables
         self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
@@ -74,7 +81,6 @@ class LIF_Danner_Nap(Neuron):
         #: ODE
         self.vdot = None
         self.hdot = None
-        self._ode_rhs()
 
         #: External Input (BrainStem Drive)
         self.alpha = cas.SX.sym('alpha_' + self.n_id)
@@ -83,24 +89,34 @@ class LIF_Danner_Nap(Neuron):
         self.b_e_i = 0.0  #: m_E,i
         self.b_i_i = 0.0  #: m_I,i
 
-        self.d_e_i = self.m_e_i*self.aplha + self.b_e_i
-        self.d_i_i = self.m_i_i*self.aplha + self.b_i_i
+        self.d_e_i = self.m_e_i*self.alpha + self.b_e_i
+        self.d_i_i = self.m_i_i*self.alpha + self.b_i_i
 
+        self.sum_i_syn_e = 0.0
+        self.sum_i_syn_i = 0.0
+
+        #: Weight squashing function
+        _x = cas.SX.sym('x')
+        self.s_x = cas.Function('s_x',
+                                [_x], [_x*(_x>=0.0)])
         return
 
-    def ode_add_input(self, excit=False, inhib=True):
+    def ode_add_input(self, neuron, weight, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
-        con_type: <str>
-            File path to the graphml structure.
+        neuron : <LIF_Danner>
+            Neuron model from which the input is received.
+        weight : <float>
+            Strength of the synapse between the two neurons
         """
+        if np.sign(weight) == 1:
+            #: Excitatory Synapse
+            self.sum_i_syn_e += self.s_x(weight)*neuron.neuron_out()
+        elif np.sign(weight) == -11:
+            #: Excitatory Synapse
+            self.sum_i_syn_i += self.s_x(weight)*neuron.neuron_out()
 
-        #: Isyn
-        #: pylint: disable=no-member
-        I_syn_1 = 1. / (1. + np.exp(gamma*(v_syn - v_h)))
-        I_syn = g_syn*I_syn_1*(self.V - self.e_syn)
-        self.vdot += I_syn
         return
 
     def _ode_rhs(self):
@@ -122,43 +138,39 @@ class LIF_Danner_Nap(Neuron):
 
         #: Inap
         #: pylint: disable=no-member
-        I_nap = self.g_nap*m*self.h*(self.v - self.e_na)
+        i_nap = self.g_nap*m*self.h*(self.v - self.e_na)
 
         #: Ileak
-        I_leak = self.g_leak*(self.v - self.e_leak)
+        i_leak = self.g_leak*(self.v - self.e_leak)
 
-        #: Iapp
-        I_app = self.g_app*(self.V - self.e_app)
+        #: ISyn_Excitatory
+        i_syn_e = self.g_syn_e*(self.sum_i_syn_e + self.d_e_i)*(
+            self.v - self.e_syn_e)
 
-        #: hinf
-        h_inf = 1. / (1 + np.exp(self.gamma_h*(self.V - self.v_hh)))
-
-        #: tau_h
-        tau_h = 1. / (
-            self.eps*(np.cosh(self.gamma_tau*(self.V - self.v_htau))))
+        #: ISyn_Inhibitory
+        i_syn_i = self.g_syn_i*(self.sum_i_syn_i + self.d_i_i)*(
+            self.v - self.e_syn_i)
 
         #: dV
-        self.vdot = I_nap + I_leak + I_app
-
-        #: dh
-        self.hdot = (h_inf - self.h)/tau_h
+        self.vdot = - i_nap - i_leak - i_syn_e - i_syn_i
         return
 
     def ode_rhs(self):
         """ ODE RHS."""
-        return [-self.vdot/self.c_m, self.hdot]
+        self._ode_rhs()
+        return [self.vdot/self.c_m, self.hdot]
 
     def ode_states(self):
         """ ODE States."""
-        return [self.V, self.h]
+        return [self.v, self.h]
 
     def ode_params(self):
         """ Generate neuron parameters."""
-        return [self.ext_in]
+        return [self.alpha]
 
     def neuron_out(self):
         """ Output of the neuron model."""
-        _cond = (self.v_thr <= self.v) and (self.v < self.v_max)
+        _cond = cas.logic_and(self.v_thr <= self.v, self.v < self.v_max)
         _f = (self.v - self.v_thr)/(self.v_thr - self.v_max)
         return cas.if_else(_cond, _f, 1.)*(self.v < self.v_thr)
 
