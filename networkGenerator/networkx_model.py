@@ -17,6 +17,7 @@ class NetworkXModel(object):
         super(NetworkXModel, self).__init__()
         self._graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
+        self.color_map = []  #: Neuron color map
         self.net_matrix = None
 
     @property
@@ -75,14 +76,22 @@ class NetworkXModel(object):
             self.pos = nx.spring_layout(self.graph)
         return
 
+    def read_neuron_colors_in_graph(self):
+        """ Read the neuron display colors."""
+        for data in self.graph.node.values():
+            self.color_map.extend(data.pop('color', 'r'))
+        return
+
     def visualize_network(self):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
+        self.read_neuron_colors_in_graph()
         labels = nx.get_edge_attributes(self.graph, 'weight')
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos, edge_labels=labels)
         nx.draw(self.graph, pos=self.pos,
-                with_labels=True, node_size=1000)
+                with_labels=True, node_color=self.color_map,
+                node_size=1000)
         plt.draw()
         plt.gca().invert_yaxis()
         return
