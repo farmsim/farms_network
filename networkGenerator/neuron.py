@@ -10,10 +10,9 @@ class Neuron(object):
     Inherits from Casadi Dae Builder Class.
     """
 
-    def __init__(self, neuron_type, is_ext):
+    def __init__(self, neuron_type):
         super(Neuron, self).__init__()
         self._neuron_type = neuron_type  # : Type of neuron
-        self.is_ext = is_ext  #: Is external input
 
     @property
     def neuron_type(self):
@@ -36,11 +35,9 @@ class LIF_Danner_Nap(Neuron):
 
     """
 
-    def __init__(self, n_id, neuron_type, is_ext=True):
-        super(LIF_Danner_Nap, self).__init__(neuron_type, is_ext)
-        self.n_id = n_id
-        self.neuron_type = neuron_type
-        self.is_ext = is_ext
+    def __init__(self, n_id, **kwargs):
+        super(
+            LIF_Danner_Nap, self).__init__(neuron_type='lif_danner_nap')
 
         self.n_id = n_id  #: Unique neuron identifier
 
@@ -85,16 +82,16 @@ class LIF_Danner_Nap(Neuron):
 
         #: External Input (BrainStem Drive)
         self.alpha = cas.SX.sym('alpha_' + self.n_id)
-        self.m_e_i = 0.0  #: m_E,i
-        self.m_i_i = 0.0  #: m_I,i
-        self.b_e_i = 0.0  #: m_E,i
-        self.b_i_i = 0.0  #: m_I,i
+        self.m_e = kwargs.pop('m_e', 0.0)  #: m_E,i
+        self.m_i = kwargs.pop('m_i', 0.0)  #: m_I,i
+        self.b_e = kwargs.pop('b_e', 0.0)  #: m_E,i
+        self.b_i = kwargs.pop('b_i', 0.0)  #: m_I,i
 
-        self.d_e_i = self.m_e_i*self.alpha + self.b_e_i
-        self.d_i_i = self.m_i_i*self.alpha + self.b_i_i
+        self.d_e = self.m_e*self.alpha + self.b_e
+        self.d_i = self.m_i*self.alpha + self.b_i
 
-        self.sum_i_syn_e = 0.0
-        self.sum_i_syn_i = 0.0
+        self.sum_syn_e = 0.0
+        self.sum_syn_i = 0.0
 
         return
 
@@ -113,12 +110,12 @@ class LIF_Danner_Nap(Neuron):
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
                 s_w(weight)))
-            self.sum_i_syn_e += s_w(weight)*neuron.neuron_out()
+            self.sum_syn_e += s_w(weight)*neuron.neuron_out()
         elif np.sign(weight) == -1:
             #: Inhibitory Synapse
             biolog.debug('Adding inhibitory signal of weight {}'.format(
                 s_w(-weight)))
-            self.sum_i_syn_i += s_w(-weight)*neuron.neuron_out()
+            self.sum_syn_i += s_w(-weight)*neuron.neuron_out()
 
         return
 
@@ -147,11 +144,11 @@ class LIF_Danner_Nap(Neuron):
         i_leak = self.g_leak*(self.v - self.e_leak)
 
         #: ISyn_Excitatory
-        i_syn_e = self.g_syn_e*(self.sum_i_syn_e + self.d_e_i)*(
+        i_syn_e = self.g_syn_e*(self.sum_syn_e + self.d_e)*(
             self.v - self.e_syn_e)
 
         #: ISyn_Inhibitory
-        i_syn_i = self.g_syn_i*(self.sum_i_syn_i + self.d_i_i)*(
+        i_syn_i = self.g_syn_i*(self.sum_syn_i + self.d_i)*(
             self.v - self.e_syn_i)
 
         #: dV
@@ -183,11 +180,9 @@ class LIF_Danner(Neuron):
 
     """
 
-    def __init__(self, n_id, neuron_type, is_ext=True):
-        super(LIF_Danner, self).__init__(neuron_type, is_ext)
+    def __init__(self, n_id, **kwargs):
+        super(LIF_Danner, self).__init__(neuron_type='lif_danner')
         self.n_id = n_id
-        self.neuron_type = neuron_type
-        self.is_ext = is_ext
 
         self.n_id = n_id  #: Unique neuron identifier
 
@@ -227,16 +222,16 @@ class LIF_Danner(Neuron):
 
         #: External Input (BrainStem Drive)
         self.alpha = cas.SX.sym('alpha_' + self.n_id)
-        self.m_e_i = 0.0  #: m_E,i
-        self.m_i_i = 0.0  #: m_I,i
-        self.b_e_i = 0.0  #: m_E,i
-        self.b_i_i = 0.0  #: m_I,i
+        self.m_e = kwargs.pop('m_e', 0.0)  #: m_E,i
+        self.m_i = kwargs.pop('m_i', 0.0)  #: m_I,i
+        self.b_e = kwargs.pop('b_e', 0.0)  #: m_E,i
+        self.b_i = kwargs.pop('b_i', 0.0)  #: m_I,i
 
-        self.d_e_i = self.m_e_i*self.alpha + self.b_e_i
-        self.d_i_i = self.m_i_i*self.alpha + self.b_i_i
+        self.d_e = self.m_e*self.alpha + self.b_e
+        self.d_i = self.m_i*self.alpha + self.b_i
 
-        self.sum_i_syn_e = 0.0
-        self.sum_i_syn_i = 0.0
+        self.sum_syn_e = 0.0
+        self.sum_syn_i = 0.0
 
         return
 
@@ -255,12 +250,12 @@ class LIF_Danner(Neuron):
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
                 s_w(weight)))
-            self.sum_i_syn_e += s_w(weight)*neuron.neuron_out()
+            self.sum_syn_e += s_w(weight)*neuron.neuron_out()
         elif np.sign(weight) == -1:
             #: Inhibitory Synapse
             biolog.debug('Adding inhibitory signal of weight {}'.format(
                 s_w(-weight)))
-            self.sum_i_syn_i += s_w(-weight)*neuron.neuron_out()
+            self.sum_syn_i += s_w(-weight)*neuron.neuron_out()
 
         return
 
@@ -271,11 +266,11 @@ class LIF_Danner(Neuron):
         i_leak = self.g_leak*(self.v - self.e_leak)
 
         #: ISyn_Excitatory
-        i_syn_e = self.g_syn_e*(self.sum_i_syn_e + self.d_e_i)*(
+        i_syn_e = self.g_syn_e*(self.sum_syn_e + self.d_e)*(
             self.v - self.e_syn_e)
 
         #: ISyn_Inhibitory
-        i_syn_i = self.g_syn_i*(self.sum_i_syn_i + self.d_i_i)*(
+        i_syn_i = self.g_syn_i*(self.sum_syn_i + self.d_i)*(
             self.v - self.e_syn_i)
 
         #: dV
@@ -305,8 +300,7 @@ class LIF_Danner(Neuron):
 class IntegrateAndFire(Neuron):
     """Integrate & Fire Neuron Model."""
 
-    def __init__(self, n_id, neuron_type=None, is_ext=True,
-                 tau=0.1, bias=-2.75, D=1.0):
+    def __init__(self, n_id, tau=0.1, bias=-2.75, D=1.0):
         """Initialize.
 
         Parameters
@@ -315,7 +309,7 @@ class IntegrateAndFire(Neuron):
             Unique ID for the neuron in the network.
         """
         super(IntegrateAndFire, self).__init__(
-            neuron_type=neuron_type, is_ext=is_ext)
+            neuron_type='if')
 
         #: Neuron ID
         self.n_id = n_id
@@ -373,7 +367,7 @@ class Leaky_Interneuron(Neuron):
 
     def __init__(self, n_id, is_ext=True):
         super(Leaky_Interneuron, self).__init__(
-            neuron_type='leaky_interneuron', is_ext=is_ext)
+            neuron_type='leaky_interneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
         #: Constants

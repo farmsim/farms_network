@@ -47,7 +47,6 @@ class NeuralNetGen(NetworkXModel):
 
         return
 
-
     def generate_neurons(self):
         """Generate the complete neural network.
         Instatiate a neuron model for each node in the graph
@@ -61,15 +60,15 @@ class NeuralNetGen(NetworkXModel):
         for name, neuron in self.graph.node.iteritems():
             #: Generate Neuron Models
             biolog.debug('Generating neuron model : {}'.format(name))
-            if neuron['type'] == 'integrate_and_fire':
-                self.neurons[name] = IntegrateAndFire(name, neuron['is_ext'])
+            if neuron['type'] == 'if':
+                self.neurons[name] = IntegrateAndFire(name)
             elif neuron['type'] == 'lif_danner_nap':
-                self.neurons[name] = LIF_Danner_Nap(name, neuron['is_ext'])
+                self.neurons[name] = LIF_Danner_Nap(name, **neuron)
             elif neuron['type'] == 'lif_danner':
-                self.neurons[name] = LIF_Danner(name, neuron['is_ext'])
+                self.neurons[name] = LIF_Danner(name)
             else:
                 pass
-                
+
         return
 
     def generate_network(self):
@@ -101,8 +100,7 @@ class NeuralNetGen(NetworkXModel):
         """Generate ode parameters for the network."""
 
         for neuron in self.neurons.values():
-            if neuron.is_ext:
-                self.params.extend(neuron.ode_params())
+            self.params.extend(neuron.ode_params())
         self.num_params = len(self.params)
         biolog.info(15*'#' +
                     ' PARAMS : {} '.format(self.num_params) +
@@ -143,12 +141,13 @@ class NeuralNetGen(NetworkXModel):
         if opts is not None:
             self.opts = opts
         else:
-            self.opts = {'tf': self.dt}
+            self.opts = {'tf': self.dt,
+                         'jit': False}
         return
 
      #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
-                         integration_method='collocation',
+                         integration_method='idas',
                          opts=None):
         """Setup casadi integrator."""
 
@@ -187,10 +186,10 @@ def main():
     net_ = NeuralNetGen('./conf/simple_danner_cpg.graphml')
     net_.generate_neurons()
     net_.generate_network()
-    
+
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
-    x0 = np.random.rand(6)
+    x0 = np.random.rand(6)*-10
 
     # #: Setup the integrator
     net_.setup_integrator(x0)
@@ -198,14 +197,13 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 0.01  #: Time step
-    time = np.arange(0, 15, dt)  #: Time
+    time = np.arange(0, 5, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
     for idx, _ in enumerate(time):
-        print(_)
-        res[idx] = net_.step()['xf'].full()[:, 0]
+        res[idx] = net_.step(params=[.2])['xf'].full()[:, 0]
 
     # #: Results
     net_.save_network_to_dot()  #: Save network to dot file
