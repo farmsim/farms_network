@@ -15,6 +15,7 @@ class NetworkXModel(object):
     """
 
     def __init__(self):
+        """ Initialize. """
         super(NetworkXModel, self).__init__()
         self._graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
@@ -88,8 +89,10 @@ class NetworkXModel(object):
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
         for _, _, attr in self.graph.edges(data=True):
+            #: pylint: disable=no-member
             if np.sign(attr['weight']) == 1:
                 self.color_map_edge.extend('g')
+            #: pylint: disable=no-member
             elif np.sign(attr['weight']) == -1:
                 self.color_map_edge.extend('r')
         return
@@ -121,7 +124,7 @@ class NetworkXModel(object):
         write_dot(self.graph, name + '.dot')
         try:
             os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
-        except:
+        except BaseException:
             biolog.error('Command not found')
 
         return

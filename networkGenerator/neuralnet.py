@@ -5,8 +5,7 @@ import numpy as np
 
 import biolog
 from networkx_model import NetworkXModel
-from neuron import IntegrateAndFire
-from neuron import LIF_Danner_Nap, LIF_Danner
+from neuron import IntegrateAndFire, LIF_Danner, LIF_Danner_Nap
 
 
 class NeuralNetGen(NetworkXModel):
@@ -61,7 +60,7 @@ class NeuralNetGen(NetworkXModel):
             #: Generate Neuron Models
             biolog.debug('Generating neuron model : {}'.format(name))
             if neuron['type'] == 'if':
-                self.neurons[name] = IntegrateAndFire(name)
+                self.neurons[name] = IntegrateAndFire(name, **neuron)
             elif neuron['type'] == 'lif_danner_nap':
                 self.neurons[name] = LIF_Danner_Nap(name, **neuron)
             elif neuron['type'] == 'lif_danner':
@@ -88,9 +87,9 @@ class NeuralNetGen(NetworkXModel):
         for neuron in self.neurons.values():
             self.states.extend(neuron.ode_states())
         self.num_states = len(self.states)
-        biolog.info(15*'#' +
+        biolog.info(15 * '#' +
                     ' STATES : {} '.format(self.num_states) +
-                    15*'#')
+                    15 * '#')
         print('\n'.join(['{}. {}'.format(
             j, s) for j, s in enumerate(self.states)]))
         self.states = cas.vertcat(*self.states)
@@ -102,9 +101,9 @@ class NeuralNetGen(NetworkXModel):
         for neuron in self.neurons.values():
             self.params.extend(neuron.ode_params())
         self.num_params = len(self.params)
-        biolog.info(15*'#' +
+        biolog.info(15 * '#' +
                     ' PARAMS : {} '.format(self.num_params) +
-                    15*'#')
+                    15 * '#')
         print('\n'.join(['{}. {}'.format(
             j, p) for j, p in enumerate(self.params)]))
         self.params = cas.vertcat(*self.params)
@@ -116,9 +115,9 @@ class NeuralNetGen(NetworkXModel):
         for idx, neuron in enumerate(self.neurons.values()):
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
-        biolog.info(15*'#' +
+        biolog.info(15 * '#' +
                     ' ODE : {} '.format(self.num_ode) +
-                    15*'#')
+                    15 * '#')
         print('\n'.join(['{}. {}'.format(
             j, o) for j, o in enumerate(self.ode)]))
         self.ode = cas.vertcat(*self.ode)
@@ -189,7 +188,7 @@ def main():
 
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
-    x0 = np.random.rand(6)*-10
+    x0 = np.random.rand(6) * -10
 
     # #: Setup the integrator
     net_.setup_integrator(x0)

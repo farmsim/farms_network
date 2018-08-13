@@ -10,6 +10,9 @@ def main():
     """Main."""
     #: Initialize network
     net_ = NeuralNetGen('./conf/four_neuron_cpg.graphml')
+    net_.generate_neurons()
+    net_.generate_network()
+
     #: Set neural properties
     net_.neurons['N1'].bias = 3.0
     net_.neurons['N2'].bias = 3.0
