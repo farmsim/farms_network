@@ -6,7 +6,7 @@ import numpy as np
 import biolog
 from networkx_model import NetworkXModel
 from neuron import IntegrateAndFire
-from neuron import LIF_Danner_Nap
+from neuron import LIF_Danner_Nap, LIF_Danner
 
 
 class NeuralNetGen(NetworkXModel):
@@ -66,7 +66,7 @@ class NeuralNetGen(NetworkXModel):
             elif neuron['type'] == 'lif_danner_nap':
                 self.neurons[name] = LIF_Danner_Nap(name, neuron['is_ext'])
             elif neuron['type'] == 'lif_danner':
-                self.neurons[name] = LIF_Danner_Nap(name, neuron['is_ext'])
+                self.neurons[name] = LIF_Danner(name, neuron['is_ext'])
             else:
                 pass
                 
@@ -78,7 +78,7 @@ class NeuralNetGen(NetworkXModel):
             biolog.debug(
                 'Establishing neuron {} network connections'.format(name))
             for pred in self.graph.predecessors(name):
-                print('{} -> {}'.format(name, pred))
+                print('{} -> {}'.format(pred, name))
                 self.neurons[name].ode_add_input(
                     self.neurons[pred], self.graph[pred][name]['weight'])
         return
@@ -148,7 +148,7 @@ class NeuralNetGen(NetworkXModel):
 
      #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
-                         integration_method='cvodes',
+                         integration_method='collocation',
                          opts=None):
         """Setup casadi integrator."""
 
@@ -190,7 +190,7 @@ def main():
     
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
-    x0 = [0, 0, 0, 0]  #: Neuron 1 and 2 membrane potentials
+    x0 = np.random.rand(6)
 
     # #: Setup the integrator
     net_.setup_integrator(x0)
@@ -198,12 +198,13 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 0.01  #: Time step
-    time = np.arange(0, 10, dt)  #: Time
+    time = np.arange(0, 15, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
     for idx, _ in enumerate(time):
+        print(_)
         res[idx] = net_.step()['xf'].full()[:, 0]
 
     # #: Results
@@ -213,7 +214,6 @@ def main():
     plt.figure()
     plt.title('States Plot')
     plt.plot(time, res)
-
     plt.legend(tuple(net_.states.elements()))
     plt.grid()
 
