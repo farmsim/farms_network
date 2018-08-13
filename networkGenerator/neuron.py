@@ -52,10 +52,10 @@ class LIF_Danner_Nap(Neuron):
         self.k_m = -6.0  #: mV
 
         self.v1_2_h = -45.0  #: mV
-        self.k_h = -4.0  #: mV
+        self.k_h = 4.0  #: mV
 
         self.v1_2_t = -35.0  #: mV
-        self.k_t = -15.0  #: mV
+        self.k_t = 15.0  #: mV
 
         self.g_leak = 4.5  #: nS
         self.e_leak = -62.5  #: mV
@@ -124,15 +124,14 @@ class LIF_Danner_Nap(Neuron):
         """Generate initial ode rhs."""
 
         #: tau_h(V)
-        tau_h = self.tau_0 + (
-            self.tau_max - self.tau_0) / cas.cosh(
-                (self.v - self.v1_2_t) / self.k_t)
+        tau_h = self.tau_0 + (self.tau_max - self.tau_0) / \
+            cas.cosh((self.v - self.v1_2_t) / self.k_t)
 
         #: h_inf(V)
-        h_inf = cas.inv(1.0 + cas.exp(self.v - self.v1_2_h) / self.k_h)
+        h_inf = cas.inv(1.0 + cas.exp((self.v - self.v1_2_h) / self.k_h))
 
         #: m(V)
-        m = cas.inv(1.0 + cas.exp(self.v - self.v1_2_m) / self.k_m)
+        m = cas.inv(1.0 + cas.exp((self.v - self.v1_2_m) / self.k_m))
 
         #: Slow inactivation
         self.hdot = (h_inf - self.h) / tau_h

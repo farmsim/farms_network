@@ -60,7 +60,7 @@
 	 <data key="pos_y">0.0</data>
 	 <data key="color">b</data>
 	 <data key="m_e">0.1</data>
-	 <data key="b_e">0.0023</data>	 
+	 <data key="b_e">0.0</data>	 
        </node>
 
        <node id="RG_E">
@@ -70,7 +70,7 @@
 	 <data key="pos_y">4.0</data>
 	 <data key="color">b</data>
 	 <data key="m_e">0.0</data>
-	 <data key="b_e">0.0023</data>	 	 
+	 <data key="b_e">0.1</data>	 	 
        </node>
 
        <node id="In_F">

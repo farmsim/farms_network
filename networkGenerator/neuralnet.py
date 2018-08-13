@@ -140,13 +140,13 @@ class NeuralNetGen(NetworkXModel):
         if opts is not None:
             self.opts = opts
         else:
-            self.opts = {'tf': self.dt,
+            self.opts = {'tf': 1.,
                          'jit': False}
         return
 
      #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
-                         integration_method='idas',
+                         integration_method='collocation',
                          opts=None):
         """Setup casadi integrator."""
 
@@ -188,25 +188,25 @@ def main():
 
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
-    x0 = np.random.rand(6) * -10
+    x0 = [-60, -60, -60, 0, -60, 0]
 
     # #: Setup the integrator
     net_.setup_integrator(x0)
 
     #: Initialize network parameters
     #: pylint: disable=invalid-name
-    dt = 0.01  #: Time step
-    time = np.arange(0, 5, dt)  #: Time
+    dt = 1  #: Time step
+    time = np.arange(0, 20000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 
     #: Integrate the network
-    for idx, _ in enumerate(time):
-        res[idx] = net_.step(params=[.2])['xf'].full()[:, 0]
+    for idx, t in enumerate(time):
+        res[idx] = net_.step(params=[t*0.05*1e-3])['xf'].full()[:, 0]
 
     # #: Results
     net_.save_network_to_dot()  #: Save network to dot file
-    net_.visualize_network()  #: Visualize network using Matplotlib
+    # net_.visualize_network()  #: Visualize network using Matplotlib
 
     plt.figure()
     plt.title('States Plot')
