@@ -4,6 +4,7 @@ import os
 
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 from networkx.drawing.nx_pydot import write_dot
 
 import biolog
@@ -18,6 +19,8 @@ class NetworkXModel(object):
         self._graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
         self.color_map = []  #: Neuron color map
+        self.color_map_edge = []  #: Neuron edge color map
+        self.edge_style = []  #: Arrow edge style
         self.net_matrix = None
 
     @property
@@ -82,16 +85,33 @@ class NetworkXModel(object):
             self.color_map.extend(data.pop('color', 'r'))
         return
 
+    def read_edge_colors_in_graph(self):
+        """ Read the neuron display colors."""
+        for _, _, attr in self.graph.edges(data=True):
+            if np.sign(attr['weight']) == 1:
+                self.color_map_edge.extend('g')
+            elif np.sign(attr['weight']) == -1:
+                self.color_map_edge.extend('r')
+        return
+
     def visualize_network(self):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
+        self.read_edge_colors_in_graph()
+
         labels = nx.get_edge_attributes(self.graph, 'weight')
+
         nx.draw_networkx_edge_labels(self.graph,
-                                     pos=self.pos, edge_labels=labels)
+                                     pos=self.pos,
+                                     edge_labels=labels)
+
         nx.draw(self.graph, pos=self.pos,
                 with_labels=True, node_color=self.color_map,
-                node_size=1000)
+                node_size=1000,
+                edge_color=self.color_map_edge,
+                arrowstyle='simple',
+                alpha=0.5)
         plt.draw()
         plt.gca().invert_yaxis()
         return
