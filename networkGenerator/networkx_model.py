@@ -90,7 +90,11 @@ class NetworkXModel(object):
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
         write_dot(self.graph, name + '.dot')
-        os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
+        try:
+            os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
+        except:
+            biolog.error('Command not found')
+
         return
 
 
