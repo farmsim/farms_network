@@ -44,34 +44,34 @@ class LIF_Danner_Nap(Neuron):
         self.n_id = n_id  #: Unique neuron identifier
 
         #: Constants
-        self.c_m = 10  #: pF
+        self.c_m = 10.0  #: pF
 
         self.g_nap = 4.5  #: nS
-        self.e_na = 50  #: mV
+        self.e_na = 50.0  #: mV
 
-        self.v1_2_m = -40  #: mV
-        self.k_m = -6  #: mV
+        self.v1_2_m = -40.0  #: mV
+        self.k_m = -6.0  #: mV
 
-        self.v1_2_h = -45  #: mV
-        self.k_h = -4  #: mV
+        self.v1_2_h = -45.0  #: mV
+        self.k_h = -4.0  #: mV
 
-        self.v1_2_t = -35  #: mV
-        self.k_t = -15  #: mV
+        self.v1_2_t = -35.0  #: mV
+        self.k_t = -15.0  #: mV
 
         self.g_leak = 2.8  #: nS
-        self.e_leak = -60  #: mV
+        self.e_leak = -60.0  #: mV
 
-        self.tau_0 = 80  #: ms
-        self.tau_max = 160  #: ms
-        self.tau_noise = 10  #: ms
+        self.tau_0 = 80.0  #: ms
+        self.tau_max = 160.0  #: ms
+        self.tau_noise = 10.0  #: ms
 
-        self.v_max = 0  #: mV
-        self.v_thr = -50  #: mV
+        self.v_max = 0.0  #: mV
+        self.v_thr = -50.0  #: mV
 
-        self.g_syn_e = 10.  #: nS
-        self.g_syn_i = 10.  #: nS
-        self.e_syn_e = -10.  #: mV
-        self.e_syn_i = -75.  #: mV
+        self.g_syn_e = 10.0  #: nS
+        self.g_syn_i = 10.0  #: nS
+        self.e_syn_e = -10.0  #: mV
+        self.e_syn_i = -75.0  #: mV
 
         #: State Variables
         self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
@@ -95,10 +95,6 @@ class LIF_Danner_Nap(Neuron):
         self.sum_i_syn_e = 0.0
         self.sum_i_syn_i = 0.0
 
-        #: Weight squashing function
-        _x = cas.SX.sym('x')
-        self.s_x = cas.Function('s_x',
-                                [_x], [_x*(_x>=0.0)])
         return
 
     def ode_add_input(self, neuron, weight, **kwargs):
@@ -110,12 +106,18 @@ class LIF_Danner_Nap(Neuron):
         weight : <float>
             Strength of the synapse between the two neurons
         """
+        #: Weight squashing function
+        s_w = lambda w : w*(w>=0.0)
         if np.sign(weight) == 1:
             #: Excitatory Synapse
-            self.sum_i_syn_e += self.s_x(weight)*neuron.neuron_out()
-        elif np.sign(weight) == -11:
-            #: Excitatory Synapse
-            self.sum_i_syn_i += self.s_x(weight)*neuron.neuron_out()
+            biolog.debug('Adding excitatory signal of weight {}'.format(
+                s_w(weight)))
+            self.sum_i_syn_e += s_w(weight)*neuron.neuron_out()
+        elif np.sign(weight) == -1:
+            #: Inhibitory Synapse
+            biolog.debug('Adding inhibitory signal of weight {}'.format(
+                s_w(-weight)))
+            self.sum_i_syn_i += s_w(-weight)*neuron.neuron_out()
 
         return
 
@@ -128,10 +130,10 @@ class LIF_Danner_Nap(Neuron):
                 (self.v - self.v1_2_t)/self.k_t)
 
         #: h_inf(V)
-        h_inf = cas.inv(1 + cas.exp(self.v - self.v1_2_h)/self.k_h)
+        h_inf = cas.inv(1.0 + cas.exp(self.v - self.v1_2_h)/self.k_h)
 
         #: m(V)
-        m = cas.inv(1 + cas.exp(self.v - self.v1_2_m)/self.k_m)
+        m = cas.inv(1.0 + cas.exp(self.v - self.v1_2_m)/self.k_m)
 
         #: Slow inactivation
         self.hdot = (h_inf - self.h)/tau_h
@@ -171,8 +173,130 @@ class LIF_Danner_Nap(Neuron):
     def neuron_out(self):
         """ Output of the neuron model."""
         _cond = cas.logic_and(self.v_thr <= self.v, self.v < self.v_max)
-        _f = (self.v - self.v_thr)/(self.v_thr - self.v_max)
-        return cas.if_else(_cond, _f, 1.)*(self.v < self.v_thr)
+        _f = (self.v - self.v_thr)/(self.v_max - self.v_thr)
+        return cas.if_else(_cond, _f, 1.)*(self.v>self.v_thr)
+
+class LIF_Danner(Neuron):
+    """Leaky Integrate and Fire Neuron Based on Danner et.al.
+
+    """
+    def __init__(self, n_id, neuron_type, is_ext=True):
+        super(LIF_Danner, self).__init__(neuron_type, is_ext)
+        self.n_id = n_id
+        self.neuron_type = neuron_type
+        self.is_ext = is_ext
+
+        self.n_id = n_id  #: Unique neuron identifier
+
+        #: Constants
+        self.c_m = 10.0  #: pF
+
+        self.v1_2_m = -40.0  #: mV
+        self.k_m = -6.0  #: mV
+
+        self.v1_2_h = -45.0  #: mV
+        self.k_h = -4.0  #: mV
+
+        self.v1_2_t = -35.0  #: mV
+        self.k_t = -15.0  #: mV
+
+        self.g_leak = 2.8  #: nS
+        self.e_leak = -60.0  #: mV
+
+        self.tau_noise = 10.0  #: ms
+
+        self.v_max = 0.0  #: mV
+        self.v_thr = -50.0  #: mV
+
+        self.g_syn_e = 10.0  #: nS
+        self.g_syn_i = 10.0  #: nS
+        self.e_syn_e = -10.0  #: mV
+        self.e_syn_i = -75.0  #: mV
+
+        #: State Variables
+        self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
+        self.h = cas.SX.sym('h_' + self.n_id)
+        self.i_noise = cas.SX.sym('In_' + self.n_id)
+
+        #: ODE
+        self.vdot = None
+        self.hdot = None
+
+        #: External Input (BrainStem Drive)
+        self.alpha = cas.SX.sym('alpha_' + self.n_id)
+        self.m_e_i = 0.0  #: m_E,i
+        self.m_i_i = 0.0  #: m_I,i
+        self.b_e_i = 0.0  #: m_E,i
+        self.b_i_i = 0.0  #: m_I,i
+
+        self.d_e_i = self.m_e_i*self.alpha + self.b_e_i
+        self.d_i_i = self.m_i_i*self.alpha + self.b_i_i
+
+        self.sum_i_syn_e = 0.0
+        self.sum_i_syn_i = 0.0
+
+        return
+
+    def ode_add_input(self, neuron, weight, **kwargs):
+        """ Add relevant external inputs to the ode.
+        Parameters
+        ----------
+        neuron : <LIF_Danner>
+            Neuron model from which the input is received.
+        weight : <float>
+            Strength of the synapse between the two neurons
+        """
+        #: Weight squashing function
+        s_w = lambda w : w*(w>=0.0)
+        if np.sign(weight) == 1:
+            #: Excitatory Synapse
+            biolog.debug('Adding excitatory signal of weight {}'.format(
+                s_w(weight)))
+            self.sum_i_syn_e += s_w(weight)*neuron.neuron_out()
+        elif np.sign(weight) == -1:
+            #: Inhibitory Synapse
+            biolog.debug('Adding inhibitory signal of weight {}'.format(
+                s_w(-weight)))
+            self.sum_i_syn_i += s_w(-weight)*neuron.neuron_out()
+
+        return
+
+    def _ode_rhs(self):
+        """Generate initial ode rhs."""
+
+        #: Ileak
+        i_leak = self.g_leak*(self.v - self.e_leak)
+
+        #: ISyn_Excitatory
+        i_syn_e = self.g_syn_e*(self.sum_i_syn_e + self.d_e_i)*(
+            self.v - self.e_syn_e)
+
+        #: ISyn_Inhibitory
+        i_syn_i = self.g_syn_i*(self.sum_i_syn_i + self.d_i_i)*(
+            self.v - self.e_syn_i)
+
+        #: dV
+        self.vdot = - i_leak - i_syn_e - i_syn_i
+        return
+
+    def ode_rhs(self):
+        """ ODE RHS."""
+        self._ode_rhs()
+        return [self.vdot/self.c_m]
+
+    def ode_states(self):
+        """ ODE States."""
+        return [self.v]
+
+    def ode_params(self):
+        """ Generate neuron parameters."""
+        return [self.alpha]
+
+    def neuron_out(self):
+        """ Output of the neuron model."""
+        _cond = cas.logic_and(self.v_thr <= self.v, self.v < self.v_max)
+        _f = (self.v - self.v_thr)/(self.v_max - self.v_thr)
+        return cas.if_else(_cond, _f, 1.)*(self.v>self.v_thr)
 
 
 class IntegrateAndFire(Neuron):
