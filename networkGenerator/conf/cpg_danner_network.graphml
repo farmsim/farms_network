@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+			http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+
+   <!-- Attributes for nodes -->
+   <key id="neuron_name" for="node" attr.name="name" attr.type="string">
+     <default>"neuron"</default>
+   </key>
+   
+   <key id="neuron_type" for="node" attr.name="type" attr.type="string">
+     <default>lif_danner_nap</default>
+   </key>
+
+   <key id="ext_in" for="node" attr.name="is_ext" attr.type="boolean">
+     <default>true</default>
+   </key>
+
+   <key id="pos_x" for="node" attr.name="x" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="pos_y" for="node" attr.name="y" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="color" for="node" attr.name="color" attr.type="string">
+     <default>red</default>
+   </key>
+
+   <key id="m_e" for="node" attr.name="m_e" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="m_i" for="node" attr.name="m_i" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="b_e" for="node" attr.name="b_e" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="b_i" for="node" attr.name="b_i" attr.type="float">
+     <default>0.0</default>
+   </key>
+   
+  <!-- Attributes for edges -->
+   <key id="weight" for="edge" attr.name="weight" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+  <graph id="CPG" edgedefault="directed">
+
+   <!-- CPG_FL -->
+       <node id="FL_RG_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.1</data>
+	 <data key="b_e">0.0</data>	 
+       </node>
+
+       <node id="FL_RG_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">4.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.0</data>
+	 <data key="b_e">0.1</data>	 	 
+       </node>
+
+       <node id="FL_In_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">0.0</data>
+	 <data key="pos_y">2.0</data>
+	 <data key="color">g</data>	 
+       </node>
+
+       <node id="FL_In_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">2.0</data>
+	 <data key="pos_y">2.0</data>
+	 <data key="color">g</data>	 	 
+       </node>
+
+   <!-- CPG_FR -->
+       <node id="FR_RG_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.1</data>
+	 <data key="b_e">0.0</data>	 
+       </node>
+
+       <node id="FR_RG_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">4.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.0</data>
+	 <data key="b_e">0.1</data>	 	 
+       </node>
+
+       <node id="FR_In_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">3.0</data>
+	 <data key="pos_y">2.0</data>
+	 <data key="color">g</data>	 
+       </node>
+
+       <node id="FR_In_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">5.0</data>
+	 <data key="pos_y">2.0</data>
+	 <data key="color">g</data>	 	 
+       </node>
+
+   <!-- CPG_HL -->
+       <node id="HL_RG_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">6.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.1</data>
+	 <data key="b_e">0.0</data>	 
+       </node>
+
+       <node id="HL_RG_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">10.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.0</data>
+	 <data key="b_e">0.1</data>	 	 
+       </node>
+
+       <node id="HL_In_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">0.0</data>
+	 <data key="pos_y">8.0</data>
+	 <data key="color">g</data>	 
+       </node>
+
+       <node id="HL_In_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">2.0</data>
+	 <data key="pos_y">8.0</data>
+	 <data key="color">g</data>	 	 
+       </node>
+
+
+   <!-- CPG_HR -->
+       <node id="HR_RG_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">6.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.1</data>
+	 <data key="b_e">0.0</data>	 
+       </node>
+
+       <node id="HR_RG_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">10.0</data>
+	 <data key="color">b</data>
+	 <data key="m_e">0.0</data>
+	 <data key="b_e">0.1</data>	 	 
+       </node>
+
+       <node id="HR_In_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">3.0</data>
+	 <data key="pos_y">8.0</data>
+	 <data key="color">g</data>	 
+       </node>
+
+       <node id="HR_In_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">5.0</data>
+	 <data key="pos_y">8.0</data>
+	 <data key="color">g</data>	 	 
+       </node>
+
+   
+
+
+   <!-- EDGES -->     
+       <edge source="FL_RG_F" target="FL_In_F">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="FL_In_F" target="FL_RG_E">
+	 <data key="weight">-1</data>
+       </edge>
+       <edge source="FL_RG_E" target="FL_In_E">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="FL_In_E" target="FL_RG_F">
+	 <data key="weight">-0.08</data>
+       </edge>
+
+       <edge source="FR_RG_F" target="FR_In_F">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="FR_In_F" target="FR_RG_E">
+	 <data key="weight">-1</data>
+       </edge>
+       <edge source="FR_RG_E" target="FR_In_E">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="FR_In_E" target="FR_RG_F">
+	 <data key="weight">-0.08</data>
+       </edge>
+
+       <edge source="HL_RG_F" target="HL_In_F">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="HL_In_F" target="HL_RG_E">
+	 <data key="weight">-1</data>
+       </edge>
+       <edge source="HL_RG_E" target="HL_In_E">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="HL_In_E" target="HL_RG_F">
+	 <data key="weight">-0.08</data>
+       </edge>
+
+       <edge source="HR_RG_F" target="HR_In_F">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="HR_In_F" target="HR_RG_E">
+	 <data key="weight">-1</data>
+       </edge>
+       <edge source="HR_RG_E" target="HR_In_E">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="HR_In_E" target="HR_RG_F">
+	 <data key="weight">-0.08</data>
+       </edge>
+  </graph>
+</graphml>
