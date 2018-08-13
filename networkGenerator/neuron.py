@@ -35,6 +35,7 @@ class LIF_Danner_Nap(Neuron):
     """Leaky Integrate and Fire Neuron Based on Danner et.al.
 
     """
+
     def __init__(self, n_id, neuron_type, is_ext=True):
         super(LIF_Danner_Nap, self).__init__(neuron_type, is_ext)
         self.n_id = n_id
@@ -58,8 +59,8 @@ class LIF_Danner_Nap(Neuron):
         self.v1_2_t = -35.0  #: mV
         self.k_t = -15.0  #: mV
 
-        self.g_leak = 2.8  #: nS
-        self.e_leak = -60.0  #: mV
+        self.g_leak = 4.5  #: nS
+        self.e_leak = -62.5  #: mV
 
         self.tau_0 = 80.0  #: ms
         self.tau_max = 160.0  #: ms
@@ -107,7 +108,7 @@ class LIF_Danner_Nap(Neuron):
             Strength of the synapse between the two neurons
         """
         #: Weight squashing function
-        s_w = lambda w : w*(w>=0.0)
+        def s_w(w): return w*(w >= 0.0)
         if np.sign(weight) == 1:
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
@@ -174,12 +175,14 @@ class LIF_Danner_Nap(Neuron):
         """ Output of the neuron model."""
         _cond = cas.logic_and(self.v_thr <= self.v, self.v < self.v_max)
         _f = (self.v - self.v_thr)/(self.v_max - self.v_thr)
-        return cas.if_else(_cond, _f, 1.)*(self.v>self.v_thr)
+        return cas.if_else(_cond, _f, 1.)*(self.v > self.v_thr)
+
 
 class LIF_Danner(Neuron):
     """Leaky Integrate and Fire Neuron Based on Danner et.al.
 
     """
+
     def __init__(self, n_id, neuron_type, is_ext=True):
         super(LIF_Danner, self).__init__(neuron_type, is_ext)
         self.n_id = n_id
@@ -247,7 +250,7 @@ class LIF_Danner(Neuron):
             Strength of the synapse between the two neurons
         """
         #: Weight squashing function
-        s_w = lambda w : w*(w>=0.0)
+        def s_w(w): return w*(w >= 0.0)
         if np.sign(weight) == 1:
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
@@ -296,7 +299,7 @@ class LIF_Danner(Neuron):
         """ Output of the neuron model."""
         _cond = cas.logic_and(self.v_thr <= self.v, self.v < self.v_max)
         _f = (self.v - self.v_thr)/(self.v_max - self.v_thr)
-        return cas.if_else(_cond, _f, 1.)*(self.v>self.v_thr)
+        return cas.if_else(_cond, _f, 1.)*(self.v > self.v_thr)
 
 
 class IntegrateAndFire(Neuron):
