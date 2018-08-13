@@ -10,7 +10,7 @@
    </key>
    
    <key id="neuron_type" for="node" attr.name="type" attr.type="string">
-     <default>integrate_and_fire</default>
+     <default>if</default>
    </key>
 
    <key id="ext_in" for="node" attr.name="is_ext" attr.type="boolean">
@@ -36,22 +36,22 @@
    <!-- CPG -->
        <node id="N1">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type">integrate_and_fire</data>
+	 <data key="neuron_type">if</data>
        </node>
 
        <node id="N2">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type">integrate_and_fire</data>
+	 <data key="neuron_type">if</data>
        </node>
 
        <node id="N3">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type">integrate_and_fire</data>
+	 <data key="neuron_type">if</data>
        </node>
 
        <node id="N4">
 	 <data key="ext_in">false</data>
-	 <data key="neuron_type">integrate_and_fire</data>
+	 <data key="neuron_type">if</data>
        </node>       
 
 
