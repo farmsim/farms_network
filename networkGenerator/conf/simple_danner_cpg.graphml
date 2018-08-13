@@ -36,23 +36,47 @@
   <graph id="CPG" edgedefault="directed">
 
    <!-- CPG -->
-       <node id="N1">
+       <node id="RG_F">
 	 <data key="ext_in">false</data>
 	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">0.0</data>	 
        </node>
 
-       <node id="N2">
+       <node id="RG_E">
 	 <data key="ext_in">false</data>
 	 <data key="neuron_type">lif_danner_nap</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">4.0</data>	 
+       </node>
+
+       <node id="In_F">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">0.0</data>
+	 <data key="pos_y">2.0</data>	 
+       </node>
+
+       <node id="In_E">
+	 <data key="ext_in">false</data>
+	 <data key="neuron_type">lif_danner</data>
+	 <data key="pos_x">2.0</data>
+	 <data key="pos_y">2.0</data>	 
        </node>
 
 
    <!-- EDGES -->     
-       <edge source="N1" target="N2">
-	 <data key="weight">0.05</data>
+       <edge source="RG_F" target="In_F">
+	 <data key="weight">0.4</data>
        </edge>
-       <edge source="N2" target="N1">
-	 <data key="weight">-0.05</data>
+       <edge source="In_F" target="RG_E">
+	 <data key="weight">-1</data>
+       </edge>
+       <edge source="RG_E" target="In_E">
+	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="In_E" target="RG_F">
+	 <data key="weight">-0.08</data>
        </edge>
   </graph>
 </graphml>
