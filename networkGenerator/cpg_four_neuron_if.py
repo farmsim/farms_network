@@ -35,7 +35,7 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 0.01  #: Time step
-    time = np.arange(0, 25, dt)  #: Time
+    time = np.arange(0, 2, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), net_.num_states])
 

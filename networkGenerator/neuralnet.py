@@ -111,7 +111,6 @@ class NeuralNetGen(NetworkXModel):
 
     def generate_ode(self):
         """ Generate ode rhs for the network."""
-
         for idx, neuron in enumerate(self.neurons.values()):
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
@@ -141,12 +140,13 @@ class NeuralNetGen(NetworkXModel):
             self.opts = opts
         else:
             self.opts = {'tf': 1.,
-                         'jit': False}
+                         'jit': False,
+                         "print_stats": False}
         return
 
      #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
-                         integration_method='collocation',
+                         integration_method='cvodes',
                          opts=None):
         """Setup casadi integrator."""
 

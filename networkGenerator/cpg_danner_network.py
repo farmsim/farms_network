@@ -35,7 +35,9 @@ def main():
 
     #: Integrate the network
     biolog.info('Begin Integration!')
-    for idx, _ in enumerate(time):
+    for idx, t in enumerate(time):
+        if (t % 100) == 0:
+            biolog.info('Time : {}'.format(t/1000.))
         res[idx] = net_.step([0.2])['xf'].full()[:, 0]
 
     #: Results
