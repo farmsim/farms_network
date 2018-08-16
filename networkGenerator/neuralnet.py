@@ -1,11 +1,13 @@
 """Generate Neural Network."""
 import casadi as cas
+import casadi.tools as cast
 import matplotlib.pyplot as plt
 import numpy as np
 
 import biolog
 from networkx_model import NetworkXModel
-from neuron import IntegrateAndFire, LIF_Danner, LIF_Danner_Nap
+from neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
+                    LIF_Daun_Interneuron)
 
 
 class NeuralNetGen(NetworkXModel):
@@ -27,6 +29,9 @@ class NeuralNetGen(NetworkXModel):
         self.num_states = 0  #: Number of state variables
         self.params = []  #: Network external parameters
         self.num_params = 0  #: Number of parameters
+        self.alg_var = []
+        self.num_alg_var = 0
+        self.alg_eqn = []
         self.ode = []  #: Network ODE-RHS
         self.num_ode = 0  #: Number of ode equations
         self.dae = {}  #: Network DAE setup for integrator
@@ -41,7 +46,7 @@ class NeuralNetGen(NetworkXModel):
         # self.generate_neuron_models()
 
         #: Time Integration
-        self.dt = 0.001
+        self.dt = 1.
         self.fin = {}
 
         return
@@ -57,14 +62,19 @@ class NeuralNetGen(NetworkXModel):
         """
 
         for name, neuron in self.graph.node.iteritems():
+            biolog.debug(
+                'Generating neuron model : {} of type {}'.format(
+                    name, neuron['type']))
             #: Generate Neuron Models
-            biolog.debug('Generating neuron model : {}'.format(name))
             if neuron['type'] == 'if':
                 self.neurons[name] = IntegrateAndFire(name, **neuron)
             elif neuron['type'] == 'lif_danner_nap':
                 self.neurons[name] = LIF_Danner_Nap(name, **neuron)
             elif neuron['type'] == 'lif_danner':
-                self.neurons[name] = LIF_Danner(name)
+                self.neurons[name] = LIF_Danner(name, **neuron)
+            elif neuron['type'] == 'lif_daun_interneuron':
+                self.neurons[name] = LIF_Daun_Interneuron(
+                    name, **neuron)
             else:
                 pass
 
@@ -72,13 +82,14 @@ class NeuralNetGen(NetworkXModel):
 
     def generate_network(self):
         """Generate Network Connections"""
-        for name, neuron in self.graph.node.iteritems():
+        for name, _ in self.graph.node.iteritems():
             biolog.debug(
                 'Establishing neuron {} network connections'.format(name))
             for pred in self.graph.predecessors(name):
                 print('{} -> {}'.format(pred, name))
                 self.neurons[name].ode_add_input(
-                    self.neurons[pred], self.graph[pred][name]['weight'])
+                    self.neurons[pred], self.graph[pred][name].get(
+                        'weight', 0.0), **self.graph[pred][name])
         return
 
     def generate_states(self):
@@ -109,9 +120,22 @@ class NeuralNetGen(NetworkXModel):
         self.params = cas.vertcat(*self.params)
         return
 
+    def generate_algebraic_eqn_var(self):
+        """ Generate Algebraic equations and states."""
+
+        for neuron in self.neurons.values():
+            self.alg_var.extend(neuron.ode_alg_var())
+        self.num_alg_var = len(self.alg_var)
+        self.alg_var = cas.vertcat(*self.alg_var)
+
+        for neuron in self.neurons.values():
+            self.alg_eqn.extend(neuron.ode_alg_eqn())
+        self.alg_eqn = cas.vertcat(*self.alg_eqn)
+        return
+
     def generate_ode(self):
         """ Generate ode rhs for the network."""
-        for idx, neuron in enumerate(self.neurons.values()):
+        for _, neuron in enumerate(self.neurons.values()):
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
         biolog.info(15 * '#' +
@@ -128,9 +152,12 @@ class NeuralNetGen(NetworkXModel):
         self.generate_states()
         self.generate_params()
         self.generate_ode()
+        self.generate_algebraic_eqn_var()
         #: For variable time step pylint: disable=invalid-name
         self.dae = {'x': self.states,
                     'p': self.params,
+                    'z': self.alg_var,
+                    'alg': self.alg_eqn,
                     'ode': self.ode}
         return
 
@@ -146,7 +173,7 @@ class NeuralNetGen(NetworkXModel):
 
      #: pylint: disable=invalid-name
     def setup_integrator(self, x0,
-                         integration_method='cvodes',
+                         integration_method='idas',
                          opts=None):
         """Setup casadi integrator."""
 

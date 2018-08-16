@@ -130,11 +130,11 @@ class LIF_Danner_Nap(Neuron):
         #: h_inf(V)
         h_inf = cas.inv(1.0 + cas.exp((self.v - self.v1_2_h) / self.k_h))
 
-        #: m(V)
-        m = cas.inv(1.0 + cas.exp((self.v - self.v1_2_m) / self.k_m))
-
         #: Slow inactivation
         self.hdot = (h_inf - self.h) / tau_h
+
+        #: m(V)
+        m = cas.inv(1.0 + cas.exp((self.v - self.v1_2_m) / self.k_m))
 
         #: Inap
         #: pylint: disable=no-member
@@ -363,111 +363,146 @@ class IntegrateAndFire(Neuron):
             self.m + self.bias)))
 
 
-class Leaky_Interneuron(Neuron):
+class LIF_Daun_Interneuron(Neuron):
     """Leaky Integrate and Fire Interneuron.
+    Based on Silvia Daun and Tbor's model.
     """
 
-    def __init__(self, n_id, is_ext=True):
-        super(Leaky_Interneuron, self).__init__(
-            neuron_type='leaky_interneuron')
+    def __init__(self, n_id, **kwargs):
+        super(LIF_Daun_Interneuron, self).__init__(
+            neuron_type='lif_daun_interneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
-        #: Constants
-        self.g_nap = 10.0
-        self.e_nap = 50.0
-        self.v_hm = -37.0
-        self.gamma_m = -0.1667
-        self.eps = 0.002
-        #: Parameters of h
-        self.v_hh = -30.0
-        self.gamma_h = 0.1667
-        self.v_htau = -30.0
-        self.gamma_tau = 0.0833
-        #: Parameters of Ileak
-        self.g_leak = 2.8
-        self.e_leak = -65.0
 
-        #: Parameters of Isyn
-        self.e_syn = 0.0
-        self.v_hs = -43.0
-        self.gamma_s = -0.42
+        #: Constants
+        self.g_nap = kwargs.get('g_nap', 10.0)
+        self.e_nap = kwargs.get('e_nap', 50.0)
+
+        #: Parameters of h
+        self.v_h_h = kwargs.get('v_h_h', -30.0)
+        self.gamma_h = kwargs.get('gamma_h', 0.1667)
+
+        #: Parameters of tau
+        self.v_t_h = kwargs.get('v_t_h', -30.0)
+        self.eps = kwargs.get('eps', 0.01)
+        self.gamma_t = kwargs.get('gamma_t', 0.0833)
+
+        #: Parameters of m
+        self.v_h_m = kwargs.get('v_h_m', -37.0)
+        self.gamma_m = kwargs.get('gamma_m', -0.1667)
+
+        #: Parameters of Ileak
+        self.g_leak = kwargs.get('g_leak', 2.8)
+        self.e_leak = kwargs.get('e_leak', -65.0)
+
         #: Parameters of Iapp
-        self.g_app = 0.16
-        self.e_app = 0.0
+        self.g_app = kwargs.get('g_app', 1.6)
+        self.e_app = kwargs.get('e_app', -80.0)
+
         #: Other constants
-        self.c_m = 1.0
+        self.c_m = kwargs.get('c_m', 0.21)
+
+        #: Sum of external neuron connections
+        self.i_syn = 0.0
 
         #: State Variables
-        self.V = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
-        self.h = cas.SX.sym('h' + self.n_id)
+        #: pylint: disable=invalid-name
+        self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
+        self.h = cas.SX.sym('h_' + self.n_id)
 
         #: ODE
         self.vdot = None
         self.hdot = None
         self._ode_rhs()
 
+        self.z_i_syn = cas.SX.sym('z_i_syn_' + self.n_id)
+
         #: External Input
-        self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
+        self.g_app = cas.SX.sym('g_app_' + self.n_id)
 
         return
 
-    def ode_add_input(self, v_syn, g_syn=0.0, gamma=0.0, v_h=0.0):
-        """ Add relevant external inputs to the ode."""
+    def ode_add_input(self, neuron, _, **kwargs):
+        """ Add relevant external inputs to the ode.
+        Parameters
+        ----------
+        neuron : <LIF_Danner>
+            Neuron model from which the input is received.
+        weight : <float>
+            Strength of the synapse between the two neurons"""
 
-        #: Isyn
-        #: pylint: disable=no-member
-        I_syn_1 = 1. / (1. + np.exp(gamma * (v_syn - v_h)))
-        I_syn = g_syn * I_syn_1 * (self.V - self.e_syn)
-        self.vdot += I_syn
+        g_syn = kwargs.pop('g_syn', 0.0)
+        e_syn = kwargs.pop('e_syn', 0.0)
+        gamma_s = kwargs.pop('gamma_s', 0.0)
+        v_h_s = kwargs.pop('v_h_s', 0.0)
+
+        s_inf = cas.inv(
+            1. + cas.exp(gamma_s*(neuron.neuron_out() - v_h_s)))
+
+        self.i_syn += g_syn*s_inf*(self.v - e_syn)
         return
 
     def _ode_rhs(self):
         """Generate initial ode rhs."""
+
+        #: tau_h(V)
+        tau_h = cas.inv(
+            self.eps*cas.cosh(self.gamma_t*(self.v - self.v_t_h)))
+
+        #: h_inf(V)
+        h_inf = cas.inv(
+            1. + cas.exp(self.gamma_h*(self.v - self.v_h_h)))
+
+        #: Slow inactivation
+        self.hdot = (h_inf - self.h)/tau_h
+
+        #: m_inf(V)
+        m_inf = cas.inv(
+            1. + cas.exp(self.gamma_m*(self.v - self.v_h_m)))
+
         #: Inap
         #: pylint: disable=no-member
-        I_nap_1 = 1. / (1 + np.exp(self.gamma_m * (self.V - self.v_hm)))
-        I_nap = self.g_nap * I_nap_1 * self.h * (self.V - self.e_nap)
+        i_nap = self.g_nap * m_inf * self.h * (self.v - self.e_nap)
 
         #: Ileak
-        I_leak = self.g_leak * (self.V - self.e_leak)
+        i_leak = self.g_leak * (self.v - self.e_leak)
 
         #: Iapp
-        I_app = self.g_app * (self.V - self.e_app)
-
-        #: hinf
-        h_inf = 1. / (1 + np.exp(self.gamma_h * (self.V - self.v_hh)))
-
-        #: tau_h
-        tau_h = 1. / (
-            self.eps * (np.cosh(self.gamma_tau * (self.V - self.v_htau))))
+        i_app = self.g_app * (self.v - self.e_app)
 
         #: dV
-        self.vdot = I_nap + I_leak + I_app
-
-        #: dh
-        self.hdot = (h_inf - self.h) / tau_h
+        self.vdot = -i_nap - i_leak - i_app - self.i_syn
         return
 
     def ode_rhs(self):
         """ ODE RHS."""
-        return [-self.vdot / self.c_m, self.hdot]
+        self._ode_rhs()
+        return [self.vdot / self.c_m, self.hdot]
 
     def ode_states(self):
         """ ODE States."""
-        return [self.V, self.h]
+        return [self.v, self.h]
 
     def ode_params(self):
         """ Generate neuron parameters."""
-        return [self.ext_in]
+        return [self.g_app]
 
-    def neuron_output(self):
+    def ode_alg_var(self):
+        """ ODE Algebraic Variables."""
+        return [self.z_i_syn]
+
+    def ode_alg_eqn(self):
+        """ ODE Algebraic Variables."""
+        return [self.z_i_syn - self.i_syn]
+
+    def neuron_out(self):
         """Neuron activation function.
         Parameters
         ----------
         m_potential: float
             Neuron membrane potential
         """
-        pass
+        return self.v
 
 
 class LIF_Motorneuron(Neuron):
