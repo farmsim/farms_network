@@ -90,11 +90,13 @@ class NetworkXModel(object):
         """ Read the neuron display colors."""
         for _, _, attr in self.graph.edges(data=True):
             #: pylint: disable=no-member
-            if np.sign(attr['weight']) == 1:
+            if np.sign(attr.get('weight')) == 1:
                 self.color_map_edge.extend('g')
             #: pylint: disable=no-member
-            elif np.sign(attr['weight']) == -1:
+            elif np.sign(attr.get('weight')) == -1:
                 self.color_map_edge.extend('r')
+            else:
+                self.color_map_edge.extend('k')
         return
 
     def visualize_network(self):
