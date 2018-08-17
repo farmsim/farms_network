@@ -657,7 +657,7 @@ class LIF_Daun_Motorneuron(Neuron):
 
         #: m_q_inf
         m_q_inf = cas.inv(1 + cas.exp(
-            self.gamma_q * (self.v - self.v_h_q)))
+            self.gamma_q * (self.v - self.v_m_q)))
 
         #: alpha_m_q
         a_m_q = m_q_inf * self.r_q

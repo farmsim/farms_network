@@ -7,7 +7,7 @@ import numpy as np
 import biolog
 from networkx_model import NetworkXModel
 from neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
-                    LIF_Daun_Interneuron)
+                    LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
 
 
 class NeuralNetGen(NetworkXModel):
@@ -74,6 +74,9 @@ class NeuralNetGen(NetworkXModel):
                 self.neurons[name] = LIF_Danner(name, **neuron)
             elif neuron['type'] == 'lif_daun_interneuron':
                 self.neurons[name] = LIF_Daun_Interneuron(
+                    name, **neuron)
+            elif neuron['type'] == 'lif_daun_motorneuron':
+                self.neurons[name] = LIF_Daun_Motorneuron(
                     name, **neuron)
             else:
                 pass
