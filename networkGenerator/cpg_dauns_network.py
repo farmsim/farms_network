@@ -25,7 +25,7 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 1000, dt)  #: Time
+    time = np.arange(0, 10000, dt)  #: Time
 
     #: Integrate the network
     biolog.info('Begin Integration!')

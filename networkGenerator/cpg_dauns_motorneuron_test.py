@@ -31,7 +31,7 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 10000, dt)  #: Time
+    time = np.arange(0, 1000, dt)  #: Time
 
     #: Integrate the network
     biolog.info('Begin Integration!')
@@ -40,13 +40,13 @@ def main():
     res_deep = np.empty([len(time), net_.num_alg_var])
     #: Integrate the network
     for idx, _ in enumerate(time):
-        _out = net_.step(params=[0.2, 0.0,
+        _out = net_.step(params=[0.0, 0.0,
                                  0.2, 0.0,
                                  0.2, 0.0,
-                                 0.2, 0.0,
-                                 0.2, 0.0,
-                                 0.2, 0.0,
-                                 0.2, 0.0,
+                                 1.6, -80.0,
+                                 1.6, -80.0,
+                                 2.0, 0.0,
+                                 0.16, 0.0,
                                  0.2, 0.0])
         res[idx] = _out['xf'].full()[:, 0]
         res_deep[idx] = _out['zf'].full()[:, 0]
