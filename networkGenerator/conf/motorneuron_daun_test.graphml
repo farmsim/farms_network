@@ -124,58 +124,58 @@
 
    <edge source="C1" target="In1">
      <data key="weight">0.0</data>
-     <data key="g_syn">-1.0</data>
-     <data key="e_syn">-80.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
      <data key="v_h_s">-43.0</data>
      <data key="gamma_s">-10.0</data>
    </edge>
 
    <edge source="C2" target="In2">
      <data key="weight">0.0</data>
-     <data key="g_syn">-1.0</data>
-     <data key="e_syn">-80.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
      <data key="v_h_s">-43.0</data>
      <data key="gamma_s">-10.0</data>
    </edge>
 
    <edge source="In4" target="C1">
      <data key="weight">0.0</data>
-     <data key="g_syn">1</data>
-     <data key="e_syn">-40.0</data>
+     <data key="g_syn">0.1</data>
+     <data key="e_syn">0.0</data>
      <data key="v_h_s">-43.0</data>
-     <data key="gamma_s">-10.0</data>
+     <data key="gamma_s">-0.42</data>
    </edge>
 
    <edge source="In3" target="C2">
      <data key="weight">0.0</data>
-     <data key="g_syn">1</data>
-     <data key="e_syn">-40.0</data>
+     <data key="g_syn">0.05</data>
+     <data key="e_syn">-80.0</data>
      <data key="v_h_s">-43.0</data>
      <data key="gamma_s">-10.0</data>
    </edge>
    
    <edge source="In4" target="In3">
      <data key="weight">0.0</data>
-     <data key="g_syn">-1</data>
-     <data key="e_syn">-40.0</data>
+     <data key="g_syn">0.4</data>
+     <data key="e_syn">0.0</data>
      <data key="v_h_s">-43.0</data>
      <data key="gamma_s">-10.0</data>
    </edge>
 
    <edge source="In1" target="Mn1">
      <data key="weight">0.0</data>
-     <data key="g_syn">0</data>
-     <data key="e_syn">-40.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
      <data key="v_h_s">-43.0</data>
-     <data key="gamma_s">-10.0</data>
+     <data key="gamma_s">-0.1</data>
    </edge>
 
    <edge source="In2" target="Mn2">
      <data key="weight">0.0</data>
-     <data key="g_syn">0</data>
-     <data key="e_syn">-40.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
      <data key="v_h_s">-43.0</data>
-     <data key="gamma_s">-10.0</data>
+     <data key="gamma_s">-0.1</data>
    </edge>   
    
   </graph>
