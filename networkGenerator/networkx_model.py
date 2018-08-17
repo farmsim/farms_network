@@ -113,12 +113,12 @@ class NetworkXModel(object):
 
         nx.draw(self.graph, pos=self.pos,
                 with_labels=True, node_color=self.color_map,
-                node_size=1400,
+                node_size=1500,
                 font_size=8,
                 font_weight='bold',
                 edge_color=self.color_map_edge,
                 arrowstyle='simple',
-                alpha=0.8)
+                alpha=1.)
         plt.draw()
         plt.gca().invert_yaxis()
         return
