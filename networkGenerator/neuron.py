@@ -384,7 +384,7 @@ class LIF_Daun_Interneuron(Neuron):
 
         #: Parameters of tau
         self.v_t_h = kwargs.get('v_t_h', -30.0)
-        self.eps = kwargs.get('eps', 0.01)
+        self.eps = kwargs.get('eps', 0.0023)
         self.gamma_t = kwargs.get('gamma_t', 0.0833)
 
         #: Parameters of m
@@ -395,12 +395,8 @@ class LIF_Daun_Interneuron(Neuron):
         self.g_leak = kwargs.get('g_leak', 2.8)
         self.e_leak = kwargs.get('e_leak', -65.0)
 
-        #: Parameters of Iapp
-        self.g_app = kwargs.get('g_app', 1.6)
-        self.e_app = kwargs.get('e_app', -80.0)
-
         #: Other constants
-        self.c_m = kwargs.get('c_m', 0.21)
+        self.c_m = kwargs.get('c_m', 0.9154)
 
         #: Sum of external neuron connections
         self.i_syn = 0.0
@@ -413,12 +409,12 @@ class LIF_Daun_Interneuron(Neuron):
         #: ODE
         self.vdot = None
         self.hdot = None
-        self._ode_rhs()
 
         self.z_i_syn = cas.SX.sym('z_i_syn_' + self.n_id)
 
         #: External Input
         self.g_app = cas.SX.sym('g_app_' + self.n_id)
+        self.e_app = cas.SX.sym('e_app_' + self.n_id)
 
         return
 
@@ -471,7 +467,7 @@ class LIF_Daun_Interneuron(Neuron):
         i_app = self.g_app * (self.v - self.e_app)
 
         #: dV
-        self.vdot = -i_nap - i_leak - i_app - self.i_syn
+        self.vdot = -(i_nap + i_leak + i_app + self.i_syn)
         return
 
     def ode_rhs(self):
@@ -485,7 +481,7 @@ class LIF_Daun_Interneuron(Neuron):
 
     def ode_params(self):
         """ Generate neuron parameters."""
-        return [self.g_app]
+        return [self.g_app, self.e_app]
 
     def ode_alg_var(self):
         """ ODE Algebraic Variables."""

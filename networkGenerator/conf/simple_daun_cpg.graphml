@@ -63,6 +63,21 @@
 	 <data key="color">g</data>
        </node>
 
+       <node id="C3">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+       </node>
+
+       <node id="C4">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">5.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">g</data>
+       </node>
+       
+
    <!-- EDGES -->     
    <edge source="C1" target="C2">
      <data key="weight">0.0</data>
@@ -73,6 +88,22 @@
    </edge>
 
    <edge source="C2" target="C1">
+     <data key="weight">0.0</data>
+     <data key="g_syn">1.0</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C3" target="C4">
+     <data key="weight">0.0</data>
+     <data key="g_syn">1.0</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C4" target="C3">
      <data key="weight">0.0</data>
      <data key="g_syn">1.0</data>
      <data key="e_syn">-80.0</data>

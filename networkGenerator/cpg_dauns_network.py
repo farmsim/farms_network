@@ -16,7 +16,8 @@ def main():
     #: Initialize integrator properties
     #: pylint: disable=invalid-name
     x0 = []
-    x0.extend([-80.0, 0.0, -60.0, 0.0])
+    x0.extend([-70.0, 0.8, -10.0, 0.1,
+               -70.0, 0.8, -10.0, 0.1])
 
     #: Setup the integrator
     net_.setup_integrator(x0)
@@ -24,7 +25,7 @@ def main():
     #: Initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 10000, dt)  #: Time
+    time = np.arange(0, 1000, dt)  #: Time
 
     #: Integrate the network
     biolog.info('Begin Integration!')
@@ -32,8 +33,9 @@ def main():
     res = np.empty([len(time), net_.num_states])
     res_deep = np.empty([len(time), net_.num_alg_var])
     #: Integrate the network
-    for idx, t in enumerate(time):
-        _out = net_.step(params=[t*0.05*1e-3])
+    for idx, _ in enumerate(time):
+        _out = net_.step(params=[0.2, 0.0, 0.2, 0.0,
+                                 0.2, 0.0, 0.2, 0.0])
         res[idx] = _out['xf'].full()[:, 0]
         res_deep[idx] = _out['zf'].full()[:, 0]
 
@@ -43,14 +45,10 @@ def main():
 
     plt.figure()
     plt.title('States Plot')
-    plt.plot(time, res[:, [0, 2]])
-    plt.legend(('C2', 'C1'))
-    plt.grid()
-
-    plt.figure()
-    plt.title('Synapse')
-    plt.plot(time, res_deep)
-    plt.legend(('C2', 'C1'))
+    plt.plot(time/1000., res[:, [0, 0, 2, 4, 6]])
+    plt.xlabel('Time[s]')
+    plt.ylabel('Membrane potential [mV]')
+    plt.legend(('C3', 'C2', 'C1', 'C4'))
     plt.grid()
     plt.show()
 
