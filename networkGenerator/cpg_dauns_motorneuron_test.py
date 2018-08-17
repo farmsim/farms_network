@@ -17,13 +17,17 @@ def main():
     #: pylint: disable=invalid-name
     x0 = []
     x0.extend([-63.46, 0.7910,
+               -63.46, 0.7910,
+               -63.46, 0.7910,
                -65.0, 0.9, 0.0, 0.0, 0.0,
                -65.0, 0.9, 0.0, 0.0, 0.0,
                -63.46, 0.7910,
                -63.46, 0.7910,
                -63.46, 0.7910,
+               -65.0, 0.9, 0.0, 0.0, 0.0,
                -63.46487, 0.8,
-               -10.0, 0.2592])
+               -10.0, 0.2592,
+               -65.0, 0.9, 0.0, 0.0, 0.0])
 
     #: Setup the integrator
     net_.setup_integrator(x0)
@@ -40,14 +44,18 @@ def main():
     res_deep = np.empty([len(time), net_.num_alg_var])
     #: Integrate the network
     for idx, _ in enumerate(time):
-        _out = net_.step(params=[0.0, 0.0,
-                                 0.2, 0.0,
-                                 0.2, 0.0,
+        _out = net_.step(params=[1.6, -80.0,
+                                 0.0, 0.0,
+                                 0.0, 0.0,
+                                 0.19, 0.0,
+                                 0.19, 0.0,
                                  1.6, -80.0,
                                  1.6, -80.0,
-                                 2.0, 0.0,
-                                 0.16, 0.0,
-                                 0.2, 0.0])
+                                 1.6, -80.0,
+                                 0.19, 0.0,
+                                 0.2, 0.0,
+                                 0.2, 0.0,
+                                 1.6, -80.0])
         res[idx] = _out['xf'].full()[:, 0]
         res_deep[idx] = _out['zf'].full()[:, 0]
 
@@ -57,10 +65,11 @@ def main():
 
     plt.figure()
     plt.title('States Plot')
-    plt.plot(time/1000., res[:, [0, 2, 7, 12, 14, 16, 18, 20]])
+    plt.plot(time/1000., res[:, [0, 2, 4, 6, 11, 16, 18, 20, 22,
+                                 27, 29, 31]])
     plt.xlabel('Time[s]')
     plt.ylabel('Membrane potential [mV]')
-    plt.legend(('C2', 'C1', 'In1', 'Mn1'))
+    plt.legend(tuple([neuron for neuron in net_.neurons.keys()]))
     plt.grid()
     plt.show()
 
