@@ -38,7 +38,7 @@ class NeuralNetGen(NetworkXModel):
         self.opts = {}  #: Network integration options
         self.integrator = None  #: CASADI Integrator
         #: pylint: disable=invalid-name
-        self.x0 = []  #: Initial state of the network
+        self._x0 = []  #: Initial state of the network
 
         #: METHODS
         self.read_graph(graph_file_path)
@@ -174,8 +174,37 @@ class NeuralNetGen(NetworkXModel):
                          "print_stats": False}
         return
 
-     #: pylint: disable=invalid-name
-    def setup_integrator(self, x0,
+    def set_init_states(self, x0):
+        """Set the initial conditions of the neurons.
+
+        Parameters
+        ----------
+            x0 : <dict>
+                Dictionary containing the initial states of the network
+        """
+
+        for neuron in self.neurons.keys():
+            self._x0.extend([val for val in x0[neuron]])
+
+        return
+
+    def set_params(self, param):
+        """Set the parameters of the neurons.
+
+        Parameters
+        ----------
+            param : <dict>
+                Dictionary containing the network parameters
+        """
+
+        _param = []
+
+        for neuron in self.neurons.keys():
+            _param.extend([val for val in param[neuron]])
+        return _param
+
+    #: pylint: disable=invalid-name
+    def setup_integrator(self,
                          integration_method='idas',
                          opts=None):
         """Setup casadi integrator."""
@@ -185,7 +214,7 @@ class NeuralNetGen(NetworkXModel):
         #: Generate Options for integration
         self.generate_opts(opts)
         #: Initialize states of the integrator
-        self.fin['x0'] = x0
+        self.fin['x0'] = self._x0
         self.fin['p'] = []
         self.fin['z0'] = cas.DM([])
         self.fin['rx0'] = cas.DM([])
