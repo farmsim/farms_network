@@ -30,47 +30,119 @@ class Neuron(object):
         """
         self._neuron_type = value
 
+    def add_ode_input(self, neuron, **kwargs):
+        """Add relevant external inputs to the ode.
+        Parameters
+        ----------
+        neuron : <LIF_Danner>
+            Neuron model from which the input is received.
+        kwargs : <dict>
+             Contains the weight/synaptic information from the receiving neuron.
+        """
+        raise NotImplementedError(
+            'add_ode_input : Method not implemented in child class')
+
+    def ode_rhs(self):
+        """ ODE RHS.
+        Returns
+        ----------
+        ode_rhs: <list>
+            List containing the rhs equations of the ode states in the system
+        """
+        raise NotImplementedError(
+            'ode_rhs : Method not implemented in child class')
+
+    def ode_states(self):
+        """ ODE States.
+        Returns
+        ----------
+        states: <list>
+            List containing the ode states of the system
+        """
+        raise NotImplementedError(
+            'ode_states : Method not implemented in child class')
+
+    def ode_params(self):
+        """ ODE Params.
+        Returns
+        ----------
+        params: <list>
+            List containing the ode params of the system
+        """
+        raise NotImplementedError(
+            'ode_params : Method not implemented in child class')
+
+    def ode_alg_var(self):
+        """ ODE Algebraic variables.
+        Returns
+        ----------
+        alg_var: <list>
+            List containing the ode algebraic variables
+        """
+        raise NotImplementedError(
+            'ode_alg_var : Method not implemented in child class')
+
+    def ode_alg_eqn(self):
+        """ ODE Algebraic equations.
+        Returns
+        ----------
+        alg_eqn: <list>
+            List containing the ode algebraic equations
+        """
+        raise NotImplementedError(
+            'ode_alg_eqn : Method not implemented in child class')
+
+    def neuron_out(self):
+        """ Output of the neuron model.
+        Returns
+        ----------
+        out: <cas.SX.sym>
+            Output of the neuron  model
+        """
+        raise NotImplementedError(
+            'neuron_out : Method not implemented in child class')
+
 
 class LIF_Danner_Nap(Neuron):
     """Leaky Integrate and Fire Neuron Based on Danner et.al.
 
     """
 
-    def __init__(self, n_id, **kwargs):
+    def __init__(self, n_id, dae, **kwargs):
         super(
             LIF_Danner_Nap, self).__init__(neuron_type='lif_danner_nap')
 
         self.n_id = n_id  #: Unique neuron identifier
 
         #: Constants
-        self.c_m = 10.0  #: pF
+        self.c_m = kwargs.get('c_m', 10.0)  #: pF
 
-        self.g_nap = 4.5  #: nS
-        self.e_na = 50.0  #: mV
+        self.g_nap = kwargs.get('g_nap', 4.5)  #: nS
+        self.e_na = kwargs.get('e_na', 50.0)  #: mV
 
-        self.v1_2_m = -40.0  #: mV
-        self.k_m = -6.0  #: mV
+        self.v1_2_m = kwargs.get('v1_2_m', -40.0)  #: mV
+        self.k_m = kwargs.get('k_m', -6.0)  #: mV
 
-        self.v1_2_h = -45.0  #: mV
-        self.k_h = 4.0  #: mV
+        self.v1_2_h = kwargs.get('v1_2_h', -45.0)  #: mV
+        self.k_h = kwargs.get('k_h', 4.0)  #: mV
 
-        self.v1_2_t = -35.0  #: mV
-        self.k_t = 15.0  #: mV
+        self.v1_2_t = kwargs.get('v1_2_t', -35.0)  #: mV
+        self.k_t = kwargs.get('k_t', 15.0)  #: mV
 
-        self.g_leak = 4.5  #: nS
-        self.e_leak = -62.5  #: mV
+        self.g_leak = kwargs.get('g_leak', 4.5)  #: nS
+        self.e_leak = kwargs.get('e_leak', -62.5)  #: mV
 
-        self.tau_0 = 80.0  #: ms
-        self.tau_max = 160.0  #: ms
-        self.tau_noise = 10.0  #: ms
+        self.tau_0 = kwargs.get('tau_0', 80.0)  #: ms
+        self.tau_max = kwargs.get('tau_max', 160.0)  #: ms
+        self.tau_noise = kwargs.get('tau_noise', 10.0)  #: ms
 
-        self.v_max = 0.0  #: mV
-        self.v_thr = -50.0  #: mV
+        self.v_max = kwargs.get('v_max', 0.0)  #: mV
+        self.v_thr = kwargs.get('v_thr', -50.0)  #: mV
 
-        self.g_syn_e = 10.0  #: nS
-        self.g_syn_i = 10.0  #: nS
-        self.e_syn_e = -10.0  #: mV
-        self.e_syn_i = -75.0  #: mV
+        self.g_syn_e = kwargs.get('g_syn_e', 10.0)  #: nS
+        self.g_syn_i = kwargs.get('g_syn_i', 10.0)  #: nS
+        self.e_syn_e = kwargs.get('e_syn_e', -10.0)  #: mV
+        self.e_syn_i = kwargs.get('e_syn_i', -75.0)  #: mV
 
         #: State Variables
         self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
@@ -96,7 +168,7 @@ class LIF_Danner_Nap(Neuron):
 
         return
 
-    def ode_add_input(self, neuron, weight, **kwargs):
+    def ode_add_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -105,8 +177,14 @@ class LIF_Danner_Nap(Neuron):
         weight : <float>
             Strength of the synapse between the two neurons
         """
+        weight = cas.SX.sym('w' + neuron.n_id + '_to_' + self.n_id)
+
         #: Weight squashing function
-        def s_w(w): return w * (w >= 0.0)
+        def s_w(val):
+            """ Weight squashing internal function."""
+            return val * (val >= 0.0)
+
+        #: pylint: disable=no-member
         if np.sign(weight) == 1:
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
@@ -180,7 +258,7 @@ class LIF_Danner(Neuron):
 
     """
 
-    def __init__(self, n_id, **kwargs):
+    def __init__(self, n_id, dae, **kwargs):
         super(LIF_Danner, self).__init__(neuron_type='lif_danner')
         self.n_id = n_id
 
@@ -300,7 +378,7 @@ class LIF_Danner(Neuron):
 class IntegrateAndFire(Neuron):
     """Integrate & Fire Neuron Model."""
 
-    def __init__(self, n_id, **kwargs):
+    def __init__(self, n_id, dae, **kwargs):
         """Initialize.
 
         Parameters
@@ -324,13 +402,17 @@ class IntegrateAndFire(Neuron):
         self.m = cas.SX.sym('m_' + self.n_id)
 
         #: External inputs
+        self.ext = []  #: List of inputs to the network
         self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
+        self.ext.extend(self.ext_in)
         self.ext_sum = 0.0
 
         self.mdot = None
 
-    def ode_add_input(self, neuron, weight):
+    def ode_add_input(self, neuron):
         """ Add relevant external inputs to the ode."""
+        weight = cas.SX.sym('w' + neuron.n_id + '_to_' + self.n_id)
+
         self.ext_sum += neuron.neuron_output()*weight
         return
 
@@ -368,11 +450,12 @@ class LIF_Daun_Interneuron(Neuron):
     Based on Silvia Daun and Tbor's model.
     """
 
-    def __init__(self, n_id, **kwargs):
+    def __init__(self, n_id, dae, **kwargs):
         super(LIF_Daun_Interneuron, self).__init__(
             neuron_type='lif_daun_interneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
+        self.dae = dae
 
         #: Constants
         self.g_nap = kwargs.get('g_nap', 10.0)
@@ -403,22 +486,22 @@ class LIF_Daun_Interneuron(Neuron):
 
         #: State Variables
         #: pylint: disable=invalid-name
-        self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
-        self.h = cas.SX.sym('h_' + self.n_id)
+        self.v = self.dae.add_state('V_' + self.n_id)  #: Membrane potential
+        self.h = self.dae.add_state('h_' + self.n_id)
 
         #: ODE
         self.vdot = None
         self.hdot = None
 
-        self.z_i_syn = cas.SX.sym('z_i_syn_' + self.n_id)
+        self.z_i_syn = self.dae.add_alg_var('z_i_syn_' + self.n_id)
 
         #: External Input
-        self.g_app = cas.SX.sym('g_app_' + self.n_id)
-        self.e_app = cas.SX.sym('e_app_' + self.n_id)
+        self.g_app = self.dae.add_param('g_app_' + self.n_id)
+        self.e_app = self.dae.add_param('e_app_' + self.n_id)
 
         return
 
-    def ode_add_input(self, neuron, _, **kwargs):
+    def ode_add_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -506,7 +589,7 @@ class LIF_Daun_Motorneuron(Neuron):
     Based on Silvia Daun and Tbor's model.
     """
 
-    def __init__(self, n_id, **kwargs):
+    def __init__(self, n_id, dae, **kwargs):
         super(LIF_Daun_Motorneuron, self).__init__(
             neuron_type='lif_daun_motorneuron')
 
@@ -589,7 +672,7 @@ class LIF_Daun_Motorneuron(Neuron):
         self.g_app = cas.SX.sym('g_app_' + self.n_id)
         self.e_app = cas.SX.sym('e_app_' + self.n_id)
 
-    def ode_add_input(self, neuron, _, **kwargs):
+    def ode_add_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
