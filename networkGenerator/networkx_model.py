@@ -121,7 +121,8 @@ class NetworkXModel(object):
                 alpha=1.)
         plt.draw()
         plt.gca().invert_yaxis()
-        return
+        plt.show()
+        return plt
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
