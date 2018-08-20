@@ -10,6 +10,10 @@ def main():
     """Main."""
     #: Initialize network
     net_ = NeuralNetGen('./conf/motorneuron_daun_test.graphml')
+
+    #: Set time step size (1ms)
+    net_.dt = 1.
+
     net_.generate_neurons()
     net_.generate_network()
 
@@ -58,7 +62,7 @@ def main():
     params['Mn2'] = [1.6, -80]
     params['Mn3'] = [0.19, 0.0]
     params['Mn4'] = [0.19, 0.0]
-    
+
     #: Integrate the network
     _params = net_.set_params(params)
     for idx, _ in enumerate(time):
