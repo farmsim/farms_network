@@ -77,7 +77,7 @@ class NeuralNetGen(NetworkXModel):
             Return true if successfully created the neurons
         """
 
-        for name, neuron in sorted(self.graph.node.iteritems()):
+        for name, neuron in self.graph.node.iteritems():
             biolog.debug(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['type']))
@@ -101,7 +101,7 @@ class NeuralNetGen(NetworkXModel):
 
     def generate_network(self):
         """Generate Network Connections"""
-        for name, _ in sorted(self.graph.node.iteritems()):
+        for name, _ in self.graph.node.iteritems():
             biolog.debug(
                 'Establishing neuron {} network connections'.format(name))
             for pred in self.graph.predecessors(name):
@@ -114,7 +114,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_states(self):
         """Generate ode states for the network."""
 
-        for _, neuron in sorted(self.neurons.iteritems()):
+        for _, neuron in self.neurons.iteritems():
             self.states.extend(neuron.ode_states())
         self.num_states = len(self.states)
         biolog.info(15 * '#' +
@@ -128,7 +128,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_params(self):
         """Generate ode parameters for the network."""
 
-        for _, neuron in sorted(self.neurons.iteritems()):
+        for _, neuron in self.neurons.iteritems():
             self.params.extend(neuron.ode_params())
         self.num_params = len(self.params)
         biolog.info(15 * '#' +
@@ -142,7 +142,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_algebraic_eqn_var(self):
         """ Generate Algebraic equations and states."""
 
-        for _, neuron in sorted(self.neurons.iteritems()):
+        for _, neuron in self.neurons.iteritems():
             self.alg_var.extend(neuron.ode_alg_var())
         self.num_alg_var = len(self.alg_var)
         self.alg_var = cas.vertcat(*self.alg_var)
@@ -154,7 +154,7 @@ class NeuralNetGen(NetworkXModel):
 
     def generate_ode(self):
         """ Generate ode rhs for the network."""
-        for name, neuron in sorted(self.neurons.iteritems()):
+        for name, neuron in self.neurons.iteritems():
             print(name)
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
@@ -200,7 +200,7 @@ class NeuralNetGen(NetworkXModel):
                 Dictionary containing the initial states of the network
         """
 
-        for neuron, _ in sorted(self.neurons.iteritems()):
+        for neuron, _ in self.neurons.iteritems():
             self._x0.extend([val for val in x0[neuron]])
 
         return
@@ -216,7 +216,7 @@ class NeuralNetGen(NetworkXModel):
 
         _param = []
 
-        for neuron, _ in sorted(self.neurons.iteritems()):
+        for neuron, _ in self.neurons.iteritems():
             _param.extend([val for val in param[neuron]])
         return _param
 
