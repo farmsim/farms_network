@@ -486,18 +486,18 @@ class LIF_Daun_Interneuron(Neuron):
 
         #: State Variables
         #: pylint: disable=invalid-name
-        self.v = self.dae.add_state('V_' + self.n_id)  #: Membrane potential
-        self.h = self.dae.add_state('h_' + self.n_id)
+        self.v = self.dae.add_x('V_' + self.n_id)  #: Membrane potential
+        self.h = self.dae.add_x('h_' + self.n_id)
 
         #: ODE
         self.vdot = None
         self.hdot = None
 
-        self.z_i_syn = self.dae.add_alg_var('z_i_syn_' + self.n_id)
+        self.z_i_syn = self.dae.add_z('z_i_syn_' + self.n_id)
 
         #: External Input
-        self.g_app = self.dae.add_param('g_app_' + self.n_id)
-        self.e_app = self.dae.add_param('e_app_' + self.n_id)
+        self.g_app = self.dae.add_p('g_app_' + self.n_id)
+        self.e_app = self.dae.add_p('e_app_' + self.n_id)
 
         return
 
@@ -594,6 +594,7 @@ class LIF_Daun_Motorneuron(Neuron):
             neuron_type='lif_daun_motorneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
+        self.dae = dae
 
         #: Neuron constants
         #: Parameters of INaP
@@ -651,12 +652,12 @@ class LIF_Daun_Motorneuron(Neuron):
 
         #: State Variables
         #: pylint: disable=invalid-name
-        self.v = cas.SX.sym('V_' + self.n_id)  #: Membrane potential
-        self.h = cas.SX.sym('h_' + self.n_id)
-        self.m_na = cas.SX.sym('m_na_' + self.n_id)
-        self.h_na = cas.SX.sym('h_na_' + self.n_id)
-        self.m_k = cas.SX.sym('m_k_' + self.n_id)
-        self.m_q = cas.SX.sym('m_q_' + self.n_id)
+        self.v = self.dae.add_x('V_' + self.n_id)  #: Membrane potential
+        self.h = self.dae.add_x('h_' + self.n_id)
+        self.m_na = self.dae.add_x('m_na_' + self.n_id)
+        self.h_na = self.dae.add_x('h_na_' + self.n_id)
+        self.m_k = self.dae.add_x('m_k_' + self.n_id)
+        self.m_q = self.dae.add_x('m_q_' + self.n_id)
 
         #: ODE
         self.vdot = None
@@ -666,11 +667,11 @@ class LIF_Daun_Motorneuron(Neuron):
         self.m_k_dot = None
         self.m_q_dot = None
 
-        self.z_i_syn = cas.SX.sym('z_i_syn_' + self.n_id)
+        self.z_i_syn = self.dae.add_z('z_i_syn_' + self.n_id)
 
         #: External Input
-        self.g_app = cas.SX.sym('g_app_' + self.n_id)
-        self.e_app = cas.SX.sym('e_app_' + self.n_id)
+        self.g_app = self.dae.add_p('g_app_' + self.n_id)
+        self.e_app = self.dae.add_p('e_app_' + self.n_id)
 
     def ode_add_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.

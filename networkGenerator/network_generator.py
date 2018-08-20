@@ -1,3 +1,4 @@
+
 """ Generate neural network. """
 
 import casadi as cas
@@ -6,7 +7,7 @@ import numpy as np
 from collections import OrderedDict
 
 import biolog
-from network_dae import NetworkDae
+from dae_generator import DaeGenerator
 from networkx_model import NetworkXModel
 from neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
@@ -28,7 +29,7 @@ class NetworkGenerator(NetworkXModel):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
-        self.dae = NetworkDae()
+        self.dae = DaeGenerator()
 
         #: METHODS
         self.read_graph(graph_file_path)
@@ -79,7 +80,7 @@ class NetworkGenerator(NetworkXModel):
         """
         Generate the network.
         """
-
+        
         for name, neuron in self.neurons.iteritems():
             biolog.debug(
                 'Establishing neuron {} network connections'.format(
@@ -89,13 +90,11 @@ class NetworkGenerator(NetworkXModel):
                 self.neurons[name].ode_add_input(
                     self.neurons[pred], **self.graph[pred][name])
 
-
 def main():
     """ Main function."""
     net = NetworkGenerator('./conf/motorneuron_daun_test.graphml')
     net.visualize_network()
     print(net.dae.generate_dae())
-    print(net.dae.states.to_list())
 
 
 if __name__ == '__main__':
