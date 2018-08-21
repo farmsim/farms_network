@@ -4,67 +4,49 @@ from collections import OrderedDict
 import casadi as cas
 import biolog
 
-class Parameters(object):
+
+class Parameters(OrderedDict):
     """Book keeping for casadi objects.
     """
 
     def __init__(self):
         """ Initialization. """
         super(Parameters, self).__init__()
-        self.data = OrderedDict()  #: Ordered Dictionary
         return
 
-    def add_data(self, name, value):
-        """Add data to the list.
-        Parameters
-        ----------
-        name : <str>
-            Name of the value to be saved as
-        value : <float> <cas.SX.sym> <cas.SX.sym>
-            Data to be stored. Can be of any type
-        """
-        if name not in self.data:
-            self.data[name] = value
-        else:
-            biolog.error(
-                'Can not add value {}  with name : {}'.format(
-                    value, name))
-            raise AttributeError()
+    def vals(self):
+        """ Get list parameter values. """
+        return [val.val for val in self.values()]
+
+    def syms(self):
+        """ Get list parameter symbolics. """
+        return [val.sym for val in self.values()]
+
+
+class Param(object):
+    """Wrapper for parameters in the system.
+    Can be a casadi symbolic or numeric value.
+    """
+
+    def __init__(self, sym, val=None):
+        """ Initialization. """
+        super(Param, self).__init__()
+        if val is not None:
+            self.val = val
+        self.sym = sym
         return
-
-    def get_data(self, name):
-        """ Return the appropriate data.
-        Parameters
-        ----------
-        self: type
-            description
-        name: <str>
-            Name of the data to be queried
-        Returns
-        -------
-        data: <cas.SX.sym>
-            Data attributed to the give name
-        """
-        try:
-            return self.data[name]
-        except KeyError:
-            biolog.error('Undefined key {}'.format(name))
-            raise KeyError()
-
-    def to_list(self):
-        """ Return the data as a list."""
-        return [val for val in self.data.values()]
 
 
 class DaeGenerator(object):
     """Dae Generator class
-
     """
+
     def __init__(self):
         """ Initialization. """
         super(DaeGenerator, self).__init__()
 
         #: Variables
+        #: pylint: disable=invalid-name
         self.x = Parameters()  #: States
         self.z = Parameters()  #: Algebraic variables
         self.p = Parameters()  #: Parameters
@@ -75,62 +57,66 @@ class DaeGenerator(object):
         #: Equations
         self.alg = Parameters()  #: Algebraic equations
         self.ode = Parameters()  #: ODE RHS
-        self.dae = {}  #: DAE
 
-    def add_x(self, name):
+    def add_x(self, name, value=0.0):
         """Add a new state.
         Parameters
         ----------
         name : <str>
             Name of the new state to be defined
+        value : <float>
+            Initial value for the state variable
         """
-        state = cas.SX.sym(name)
-        self.x.add_data(name, state)
-        return state
+        self.x[name] = Param(cas.SX.sym(name), value)
+        return self.x[name]
 
-    def add_z(self, name):
+    def add_z(self, name, value=0.0):
         """Add a new algebraic variable.
         Parameters
         ----------
         name : <str>
             Name of the new algebraic variable to be defined
+        value : <float>
+            Initial value for the algebraic variable
         """
-        alg_var = cas.SX.sym(name)
-        self.z.add_data(name, alg_var)
-        return alg_var
+        self.z[name] = Param(cas.SX.sym(name), value)
+        return self.z[name]
 
-    def add_p(self, name):
+    def add_p(self, name, value=0.0):
         """Add a new parameter.
         Parameters
         ----------
         name : <str>
             Name of the new param to be defined
+        value : <float>
+            Default parameter value to be used during run time
         """
-        param = cas.SX.sym(name)
-        self.p.add_data(name, param)
-        return param
+        self.p[name] = Param(cas.SX.sym(name), value)
+        return self.p[name]
 
-    def add_u(self, name):
+    def add_u(self, name, value=0.0):
         """Add a new Input.
         Parameters
         ----------
         name : <str>
             Name of the new input to be defined
+        value : <float>
+            Default parameter value to be used during run time
         """
-        inp = cas.SX.sym(name)
-        self.u.add_data(name, inp)
-        return inp
+        self.u[name] = Param(cas.SX.sym(name), value)
+        return self.u[name]
 
-    def add_c(self, name):
+    def add_c(self, name, value=0.0):
         """Add a new constant.
         Parameters
         ----------
         name : <str>
             Name of the new constant to be defined
+        value : <float>
+            Default parameter value to be used during run time
         """
-        const = cas.SX.sym(name)
-        self.c.add_data(name, const)
-        return const
+        self.c[name] = Param(cas.SX.sym(name), value)
+        return self.c[name]
 
     def add_y(self, name):
         """Add a new output.
@@ -139,9 +125,8 @@ class DaeGenerator(object):
         name : <str>
             Name of the new output to be defined
         """
-        out = cas.SX.sym(name)
-        self.y.add_data(name, out)
-        return out
+        self.y[name] = Param(cas.SX.sym(name), 0.0)
+        return self.y[name]
 
     def add_ode(self, name, ode):
         """Add a new ode rhs.
@@ -152,8 +137,8 @@ class DaeGenerator(object):
         ode : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.ode.add_data(name, ode)
-        return
+        self.ode[name] = Param(ode)
+        return self.ode[name]
 
     def add_alg(self, name, alg_eqn):
         """Add a new algebraic equation.
@@ -164,8 +149,8 @@ class DaeGenerator(object):
         alg_eqn : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.alg.add_data(name, alg_eqn)
-        return
+        self.alg[name] = Param(alg_eqn)
+        return self.alg[name]
 
     def generate_dae(self):
         """Generate DAE for the full network.
@@ -175,9 +160,10 @@ class DaeGenerator(object):
             Differential algebraic equation of the network
         """
         #: For variable time step pylint: disable=invalid-name
-        self.dae = {'x': self.x.to_list(),
-                    'p': self.u.to_list() + self.p.to_list() + self.c.to_list(),
-                    'z': self.z.to_list(),
-                    'alg': self.alg.to_list(),
-                    'ode': self.ode.to_list()}
-        return self.dae
+        dae = {'x': cas.vertcat(*self.x.syms()),
+               'p': cas.vertcat(*self.u.syms() +
+                                self.p.syms() + self.c.syms()),
+               'z': cas.vertcat(*self.z.syms()),
+               'alg': cas.vertcat(*self.alg.syms()),
+               'ode': cas.vertcat(*self.ode.syms())}
+        return dae
