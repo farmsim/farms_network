@@ -118,10 +118,7 @@ class NetworkGenerator(NetworkXModel):
         self.fin['rp'] = cas.DM([])
         self.fin['rz0'] = cas.DM([])
 
-        biolog.info('Setting up Integrator')
-        biolog.debug('States X : {}'.format(self.dae.x.syms()))
-        biolog.debug('ODE : {}'.format(len(self.dae.ode.syms())))
-        biolog.debug('U : {}'.format((self.dae.u.vals())))
+        self.dae.print_dae()
 
         #: Set up the integrator
         self.integrator = cas.integrator('network',

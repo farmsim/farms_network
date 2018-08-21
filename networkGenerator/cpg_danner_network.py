@@ -14,13 +14,13 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 20000, dt)  #: Time
+    time = np.arange(0, 200, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': True,
+            'jit': False,
             "print_stats": False}
 
     # #: Setup the integrator

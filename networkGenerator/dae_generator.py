@@ -167,3 +167,49 @@ class DaeGenerator(object):
                'alg': cas.vertcat(*self.alg.syms()),
                'ode': cas.vertcat(*self.ode.syms())}
         return dae
+
+    def print_dae(self):
+        """ Pretty print. """
+
+        biolog.info(15 * '#' +
+                    ' STATES : {} '.format(len(self.x)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.x.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' INPUTS : {} '.format(len(self.u)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.u.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' PARAMETERS : {} '.format(len(self.p)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.p.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' CONSTANTS : {} '.format(len(self.c)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.c.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' ODE : {} '.format(len(self.ode)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.ode.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' ALGEBRAIC VARIABLES : {} '.format(len(self.z)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.z.syms())]))
+
+        biolog.info(15 * '#' +
+                    ' ALGEBRAIC EQUATIONS : {} '.format(len(self.alg)) +
+                    15 * '#')
+        print('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.alg.syms())]))
+        return

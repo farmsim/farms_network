@@ -243,7 +243,7 @@ class LIF_Danner_Nap(Neuron):
         """
 
         weight = self.dae.add_p(
-            'w' + neuron.n_id + '_to_' + self.n_id, kwargs.get(
+            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get(
                 'weight'))
 
         #: Weight squashing function
@@ -402,7 +402,7 @@ class LIF_Danner(Neuron):
         """
 
         weight = self.dae.add_p(
-            'w' + neuron.n_id + '_to_' + self.n_id, kwargs.get(
+            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get(
                 'weight'))
 
         #: Weight squashing function
