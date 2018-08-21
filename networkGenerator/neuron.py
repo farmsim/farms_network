@@ -391,47 +391,40 @@ class IntegrateAndFire(Neuron):
 
         #: Neuron ID
         self.n_id = n_id
+        self.dae = dae
 
         #: Initialize parameters
-        self.tau = kwargs.pop('tau', 0.1)
-        self.bias = kwargs.pop('bias', -2.75)
+        self.tau = self.dae.add_c('tau_' + self.n_id,
+                                  kwargs.get('tau', 0.1))
+        self.bias = self.dae.add_c('bias_' + self.n_id,
+                                   kwargs.get('bias', -2.75))
         #: pylint: disable=invalid-name
-        self.D = kwargs.pop('D', 1.0)
+        self.D = self.dae.add_c('D_' + self.n_id,
+                                kwargs.get('D', 1.0))
 
         #: Initialize states
-        self.m = cas.SX.sym('m_' + self.n_id)
-
+        self.m = self.dae.add_x('m_' + self.n_id,
+                                kwargs.get('x0', 0.0))
         #: External inputs
-        self.ext = []  #: List of inputs to the network
-        self.ext_in = cas.SX.sym('ext_in_' + self.n_id)
-        self.ext.extend(self.ext_in)
-        self.ext_sum = 0.0
+        self.ext_in = self.dae.add_u('ext_in_' + self.n_id)
 
-        self.mdot = None
+        #: ODE RHS
+        self.mdot = self.dae.add_ode('mdot_' + self.n_id, 0.0)
+        self.ode_rhs()
 
-    def ode_add_input(self, neuron):
+    def ode_add_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
-        weight = cas.SX.sym('w' + neuron.n_id + '_to_' + self.n_id)
-
-        self.ext_sum += neuron.neuron_output()*weight
+        weight = self.dae.add_p(
+            'w_' + neuron.n_id + '_to_' + self.n_id,
+            kwargs.get('weight'))
+        self.mdot.sym += (
+            neuron.neuron_output()*weight.sym)/self.tau.sym
         return
 
-    def _ode_rhs(self):
-        """ Generate the ODE. Internal Setup Function."""
-        self.mdot = -self.m + self.ext_sum + self.ext_in
-
     def ode_rhs(self):
-        """ Generate ODE RHS."""
-        self._ode_rhs()
-        return [self.mdot / self.tau]
-
-    def ode_states(self):
-        """ ODE States."""
-        return [self.m]
-
-    def ode_params(self):
-        """ Generate neuron parameters."""
-        return [self.ext_in]
+        """ Generate the ODE. Internal Setup Function."""
+        self.mdot.sym = (
+            -self.m.sym + self.ext_in.sym)/self.tau.sym
 
     def neuron_output(self):
         """Neuron activation function.
@@ -441,8 +434,8 @@ class IntegrateAndFire(Neuron):
             Neuron membrane potential
         """
         exp = np.exp  # pylint: disable = no-member
-        return 1. / (1. + exp(-self.D * (
-            self.m + self.bias)))
+        return 1. / (1. + exp(-self.D.sym * (
+            self.m.sym + self.bias.sym)))
 
 
 class LIF_Daun_Interneuron(Neuron):

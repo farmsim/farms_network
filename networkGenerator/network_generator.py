@@ -30,6 +30,9 @@ class NetworkGenerator(NetworkXModel):
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
         self.dae = DaeGenerator()
+        self.opts = {}  #: Integration parameters
+        self.fin = {}
+        self.integrator = {}
 
         #: METHODS
         self.read_graph(graph_file_path)
@@ -73,28 +76,67 @@ class NetworkGenerator(NetworkXModel):
                                                           **neuron)
             else:
                 pass
-
         return
 
     def generate_network(self):
         """
         Generate the network.
         """
-        
         for name, neuron in self.neurons.iteritems():
             biolog.debug(
                 'Establishing neuron {} network connections'.format(
                     name))
             for pred in self.graph.predecessors(name):
                 print('{} -> {}'.format(pred, name))
-                self.neurons[name].ode_add_input(
+                neuron.ode_add_input(
                     self.neurons[pred], **self.graph[pred][name])
+
+    def generate_opts(self, opts):
+        """ Generate options for integration."""
+        if opts is not None:
+            self.opts = opts
+        else:
+            self.opts = {'tf': 0.001,
+                         'jit': False,
+                         "print_stats": False}
+        return
+
+    #: pylint: disable=invalid-name
+    def setup_integrator(self,
+                         integration_method='idas',
+                         opts=None):
+        """Setup casadi integrator."""
+
+        #: Generate Options for integration
+        self.generate_opts(opts)
+        #: Initialize states of the integrator
+        self.fin['x0'] = self.dae.x.vals()
+        self.fin['p'] = self.dae.u.vals() +\
+            self.dae.p.vals() + self.dae.c.vals()
+        self.fin['z0'] = self.dae.z.vals()
+        self.fin['rx0'] = cas.DM([])
+        self.fin['rp'] = cas.DM([])
+        self.fin['rz0'] = cas.DM([])
+
+        #: Set up the integrator
+        self.integrator = cas.integrator('network',
+                                         integration_method,
+                                         self.dae.generate_dae(),
+                                         self.opts)
+
+        return self.integrator
+
+    def step(self):
+        """Step integrator."""
+        res = self.integrator.call(self.fin)
+        self.fin['x0'] = res['xf']
+        return res
+
 
 def main():
     """ Main function."""
     net = NetworkGenerator('./conf/motorneuron_daun_test.graphml')
     net.visualize_network()
-    print(net.dae.generate_dae())
 
 
 if __name__ == '__main__':
