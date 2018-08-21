@@ -99,7 +99,7 @@ class NetworkXModel(object):
                 self.color_map_edge.extend('k')
         return
 
-    def visualize_network(self):
+    def visualize_network(self, plt_out=None):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
@@ -119,10 +119,14 @@ class NetworkXModel(object):
                 edge_color=self.color_map_edge,
                 arrowstyle='simple',
                 alpha=1.)
-        plt.draw()
-        plt.gca().invert_yaxis()
-        plt.show()
-        return plt
+        if plt_out is not None:
+            plt_out.draw()
+            plt_out.gca().invert_yaxis()
+        else:
+            plt.draw()
+            plt.gca().invert_yaxis()
+            plt.show()
+        return
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
