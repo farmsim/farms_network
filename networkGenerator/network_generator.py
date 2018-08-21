@@ -119,7 +119,7 @@ class NetworkGenerator(NetworkXModel):
         self.fin['rz0'] = cas.DM([])
 
         self.dae.print_dae()
-
+        
         #: Set up the integrator
         self.integrator = cas.integrator('network',
                                          integration_method,
@@ -130,6 +130,8 @@ class NetworkGenerator(NetworkXModel):
 
     def step(self):
         """Step integrator."""
+        self.fin['p'] = self.dae.u.vals() +\
+            self.dae.p.vals() + self.dae.c.vals()
         res = self.integrator.call(self.fin)
         self.fin['x0'] = res['xf']
         return res

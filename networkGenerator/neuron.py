@@ -294,10 +294,10 @@ class LIF_Danner_Nap(Neuron):
         i_leak = self.g_leak.sym * (self.v.sym - self.e_leak.sym)
 
         #: ISyn_Excitatory
-        i_syn_e = self.d_e * (self.v.sym - self.e_syn_e.sym)
+        i_syn_e = self.g_syn_e.sym * self.d_e * (self.v.sym - self.e_syn_e.sym)
 
         #: ISyn_Inhibitory
-        i_syn_i = self.d_i * (self.v.sym - self.e_syn_i.sym)
+        i_syn_i = self.g_syn_i.sym * self.d_i * (self.v.sym - self.e_syn_i.sym)
 
         #: dV
         self.vdot.sym = -(i_nap + i_leak + i_syn_e + i_syn_i)/self.c_m.sym

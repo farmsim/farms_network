@@ -22,6 +22,11 @@ class Parameters(OrderedDict):
         """ Get list parameter symbolics. """
         return [val.sym for val in self.values()]
 
+    def set_all(self, val):
+        """ Set all the parameters in the list. """
+        for key in self.keys():
+            self[key].val = val
+
 
 class Param(object):
     """Wrapper for parameters in the system.
@@ -31,8 +36,7 @@ class Param(object):
     def __init__(self, sym, val=None):
         """ Initialization. """
         super(Param, self).__init__()
-        if val is not None:
-            self.val = val
+        self.val = val
         self.sym = sym
         return
 
