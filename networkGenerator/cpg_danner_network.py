@@ -14,13 +14,13 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 2000, dt)  #: Time
+    time = np.arange(0, 20000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "print_stats": False}
 
     # #: Setup the integrator
@@ -37,6 +37,7 @@ def main():
     plt.figure()
     plt.title('States Plot')
     plt.plot(time, res)
+    plt.legend(tuple([leg for leg in net_.dae.x.keys()]))
     plt.grid()
     plt.show()
     # net_.generate_neurons()

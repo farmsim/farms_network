@@ -79,35 +79,35 @@
 	 <data key="h0">0.0</data>
        </node>
 
-       <!-- <node id="In_F"> -->
-       <!-- 	 <data key="ext_in">false</data> -->
-       <!-- 	 <data key="neuron_type">lif_danner</data> -->
-       <!-- 	 <data key="pos_x">0.0</data> -->
-       <!-- 	 <data key="pos_y">2.0</data> -->
-       <!-- 	 <data key="color">g</data>	  -->
-       <!-- </node> -->
+       <node id="In_F">
+       	 <data key="neuron_type">lif_danner</data>
+       	 <data key="pos_x">0.0</data>
+       	 <data key="pos_y">2.0</data>
+       	 <data key="color">g</data>
+	 	 <data key="v0">-60.0</data>
+       </node>
 
-       <!-- <node id="In_E"> -->
-       <!-- 	 <data key="ext_in">false</data> -->
-       <!-- 	 <data key="neuron_type">lif_danner</data> -->
-       <!-- 	 <data key="pos_x">2.0</data> -->
-       <!-- 	 <data key="pos_y">2.0</data> -->
-       <!-- 	 <data key="color">g</data>	 	  -->
-       <!-- </node> -->
+       <node id="In_E">
+       	 <data key="neuron_type">lif_danner</data>
+       	 <data key="pos_x">2.0</data>
+       	 <data key="pos_y">2.0</data>
+       	 <data key="color">g</data>
+	 	 <data key="v0">-60.0</data>
+       </node>
 
 
    <!-- EDGES -->     
-       <edge source="RG_F" target="RG_E">
+       <edge source="RG_F" target="In_F">
 	 <data key="weight">0.4</data>
        </edge>
-       <!-- <edge source="In_F" target="RG_E"> -->
-       <!-- 	 <data key="weight">-1</data> -->
-       <!-- </edge> -->
-       <!-- <edge source="RG_E" target="In_E"> -->
-       <!-- 	 <data key="weight">0.4</data> -->
-       <!-- </edge> -->
-       <!-- <edge source="In_E" target="RG_F"> -->
-       <!-- 	 <data key="weight">-0.08</data> -->
-       <!-- </edge> -->
+       <edge source="In_F" target="RG_E">
+       	 <data key="weight">-1</data>
+       </edge>
+       <edge source="RG_E" target="In_E">
+       	 <data key="weight">0.4</data>
+       </edge>
+       <edge source="In_E" target="RG_F">
+       	 <data key="weight">-0.08</data>
+       </edge>
   </graph>
 </graphml>
