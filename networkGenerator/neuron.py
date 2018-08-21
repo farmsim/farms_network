@@ -52,36 +52,6 @@ class Neuron(object):
         raise NotImplementedError(
             'ode_rhs : Method not implemented in child class')
 
-    def ode_states(self):
-        """ ODE States.
-        Returns
-        ----------
-        states: <list>
-            List containing the ode states of the system
-        """
-        raise NotImplementedError(
-            'ode_states : Method not implemented in child class')
-
-    def ode_params(self):
-        """ ODE Params.
-        Returns
-        ----------
-        params: <list>
-            List containing the ode params of the system
-        """
-        raise NotImplementedError(
-            'ode_params : Method not implemented in child class')
-
-    def ode_alg_var(self):
-        """ ODE Algebraic variables.
-        Returns
-        ----------
-        alg_var: <list>
-            List containing the ode algebraic variables
-        """
-        raise NotImplementedError(
-            'ode_alg_var : Method not implemented in child class')
-
     def ode_alg_eqn(self):
         """ ODE Algebraic equations.
         Returns
@@ -140,13 +110,13 @@ class IntegrateAndFire(Neuron):
         self.mdot = self.dae.add_ode('mdot_' + self.n_id, 0.0)
         self.ode_rhs()
 
-    def ode_add_input(self, neuron, **kwargs):
+    def add_ode_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         weight = self.dae.add_p(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight'))
         self.mdot.sym += (
-            neuron.neuron_output()*weight.sym)/self.tau.sym
+            neuron.neuron_out()*weight.sym)/self.tau.sym
         return
 
     def ode_rhs(self):
@@ -154,7 +124,7 @@ class IntegrateAndFire(Neuron):
         self.mdot.sym = (
             -self.m.sym + self.ext_in.sym)/self.tau.sym
 
-    def neuron_output(self):
+    def neuron_out(self):
         """Neuron activation function.
         Parameters
         ----------

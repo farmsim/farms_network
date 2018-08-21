@@ -88,7 +88,7 @@ class NetworkGenerator(NetworkXModel):
                     name))
             for pred in self.graph.predecessors(name):
                 print('{} -> {}'.format(pred, name))
-                neuron.ode_add_input(
+                neuron.add_ode_input(
                     self.neurons[pred], **self.graph[pred][name])
 
     def generate_opts(self, opts):
