@@ -96,7 +96,7 @@ class NetworkGenerator(NetworkXModel):
         if opts is not None:
             self.opts = opts
         else:
-            self.opts = {'tf': 0.001,
+            self.opts = {'tf': 1.,
                          'jit': False,
                          "print_stats": False}
         return
@@ -117,6 +117,10 @@ class NetworkGenerator(NetworkXModel):
         self.fin['rx0'] = cas.DM([])
         self.fin['rp'] = cas.DM([])
         self.fin['rz0'] = cas.DM([])
+
+        biolog.info('Setting up Integrator')
+        biolog.debug('States X : {}'.format(self.dae.x.syms()))
+        biolog.debug('States ODE : {}'.format(self.dae.ode.syms()))
 
         #: Set up the integrator
         self.integrator = cas.integrator('network',
