@@ -123,6 +123,45 @@ class Commissural(object):
         return
 
 
+class Ipsilateral(object):
+    """Ipsilateral Network template.
+
+    """
+
+    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
+        """ Initialization. """
+        super(Ipsilateral, self).__init__()
+        self.ipsilateral = nx.DiGraph()
+        self.name = name
+        self.ipsilateral.name = name
+
+        #: Methods
+        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_connections()
+        return
+
+    def add_neurons(self, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        self.ipsilateral.add_node(self.name+'F_Ini_fh',
+                                  model='lif_danner',
+                                  x=0.0+anchor_x,
+                                  y=0.0+anchor_y,
+                                  color=color,
+                                  v0=-60.0)
+
+        self.ipsilateral.add_node(self.name+'H_Ini_fh',
+                                  model='lif_danner',
+                                  x=0.0+anchor_x,
+                                  y=1.5+anchor_y,
+                                  color=color,
+                                  v0=-60.0)
+
+        return
+
+    def add_connections(self):
+        return
+
+
 def main():
     """ Main. """
 

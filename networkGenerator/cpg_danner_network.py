@@ -4,7 +4,7 @@ from network_generator import NetworkGenerator
 import matplotlib.pyplot as plt
 import numpy as np
 import biolog
-from danner_net_gen import CPG, Commissural
+from danner_net_gen import CPG, Commissural, Ipsilateral
 import networkx as nx
 
 
@@ -27,6 +27,12 @@ def main():
     net8 = Commissural('HR', anchor_x=4.5, anchor_y=8.,
                        color='c')  #: Directed graph
 
+    #: Ipsilateral
+    net9 = Ipsilateral('L', anchor_x=0.0, anchor_y=5.,
+                       color='c')  #: Directed graph
+
+    net10 = Ipsilateral('R', anchor_x=10.0, anchor_y=5.,
+                        color='c')  #: Directed graph
     #: Connecting sub graphs
     net = nx.compose_all([net1.cpg,
                           net2.cpg,
@@ -35,28 +41,34 @@ def main():
                           net5.commissural,
                           net6.commissural,
                           net7.commissural,
-                          net8.commissural])
+                          net8.commissural,
+                          net9.ipsilateral,
+                          net10.ipsilateral])
 
     #: Connect Nodes Between Sub-Networks
 
     net.add_edge('FL_RG_F', 'FL_CINe1', weight=0.25)
     net.add_edge('FL_RG_F', 'FL_CINe2', weight=0.65)
     net.add_edge('FL_RG_F', 'FL_CINi1', weight=0.4)
+    net.add_edge('FL_RG_F', 'LF_Ini_fh', weight=0.5)
     net.add_edge('FL_RG_E', 'FL_CINi2', weight=0.3)
 
     net.add_edge('FR_RG_F', 'FR_CINe1', weight=0.25)
     net.add_edge('FR_RG_F', 'FR_CINe2', weight=0.65)
     net.add_edge('FR_RG_F', 'FR_CINi1', weight=0.4)
+    net.add_edge('FR_RG_F', 'RF_Ini_fh', weight=0.5)
     net.add_edge('FR_RG_E', 'FR_CINi2', weight=0.3)
 
     net.add_edge('HL_RG_F', 'HL_CINe1', weight=0.25)
     net.add_edge('HL_RG_F', 'HL_CINe2', weight=0.65)
     net.add_edge('HL_RG_F', 'HL_CINi1', weight=0.4)
+    net.add_edge('HL_RG_F', 'LH_Ini_fh', weight=0.5)
     net.add_edge('HL_RG_E', 'HL_CINi2', weight=0.3)
 
     net.add_edge('HR_RG_F', 'HR_CINe1', weight=0.25)
     net.add_edge('HR_RG_F', 'HR_CINe2', weight=0.65)
     net.add_edge('HR_RG_F', 'HR_CINi1', weight=0.4)
+    net.add_edge('HR_RG_F', 'RH_Ini_fh', weight=0.5)
     net.add_edge('HR_RG_E', 'HR_CINi2', weight=0.3)
 
     net.add_edge('FL_Ini1', 'FL_RG_F', weight=-0.2)
@@ -83,6 +95,11 @@ def main():
     net.add_edge('FL_CINe2', 'FR_Ini1', weight=0.35)
     net.add_edge('HR_CINe2', 'HL_Ini1', weight=0.35)
     net.add_edge('HL_CINe2', 'HR_Ini1', weight=0.35)
+
+    net.add_edge('LF_Ini_fh', 'HL_RG_F', weight=-0.015)
+    net.add_edge('LH_Ini_fh', 'FL_RG_F', weight=-0.035)
+    net.add_edge('RF_Ini_fh', 'HR_RG_F', weight=-0.015)
+    net.add_edge('RH_Ini_fh', 'FR_RG_F', weight=-0.035)
 
     nx.write_graphml(net,
                      './conf/auto_gen_danner_cpg.graphml')
@@ -111,6 +128,7 @@ def main():
         res[idx] = net_.step()['xf'].full()[:, 0]
 
     # #: Results
+    net_.save_network_to_dot()
     net_.visualize_network(plt)  #: Visualize network using Matplotlib
 
     plt.figure()
