@@ -6,6 +6,16 @@ import numpy as np
 import biolog
 from danner_net_gen import CPG, Commissural, Ipsilateral
 import networkx as nx
+import time
+
+# Global settings for plotting
+# You may change as per your requirement
+plt.rc('lines', linewidth=2.0)
+plt.rc('font', size=12.0)
+plt.rc('axes', titlesize=14.0)     # fontsize of the axes title
+plt.rc('axes', labelsize=14.0)    # fontsize of the x and y labels
+plt.rc('xtick', labelsize=14.0)    # fontsize of the tick labels
+plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 
 
 def main():
@@ -110,9 +120,9 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 1000, dt)  #: Time
+    time_vec = np.arange(0, 10000, dt)  #: Time
     #: Vector to store results
-    res = np.empty([len(time), len(net_.dae.x)])
+    res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
@@ -124,17 +134,32 @@ def main():
 
     #: Integrate the network
     biolog.info('Begin Integration!')
-    for idx, _ in enumerate(time):
+
+    start_time = time.time()
+    for idx, _ in enumerate(time_vec):
+        net_.dae.u.set_all(idx*0.001/10.)
         res[idx] = net_.step()['xf'].full()[:, 0]
+    end_time = time.time()
+
+    biolog.info('Execution Time : {}'.format(
+        end_time - start_time))
 
     # #: Results
     net_.save_network_to_dot()
     net_.visualize_network(plt)  #: Visualize network using Matplotlib
 
     plt.figure()
-    plt.title('States Plot')
-    plt.plot(time, res)
-    plt.legend(tuple([leg for leg in net_.dae.x.keys()]))
+    plt.subplot(211)
+    plt.title('FORE LIMBS')
+    plt.plot(time_vec*0.001, res[:, [7, 9]])
+    plt.plot(time_vec*0.001, res[:, [18, 20]], ':', markersize=5.)
+    plt.legend(('V_FL_RG_E', 'V_FL_RG_F', 'V_FR_RG_E', 'V_FR_RG_F'))
+    plt.grid()
+    plt.subplot(212)
+    plt.title('HIND LIMBS')
+    plt.plot(time_vec*0.001, res[:, [29, 31]])
+    plt.plot(time_vec*0.001, res[:, [40, 42]], ':', markersize=5.)
+    plt.legend(('V_HL_RG_E', 'V_HL_RG_F', 'V_HR_RG_E', 'V_HR_RG_F'))
     plt.grid()
     plt.show()
 
