@@ -120,7 +120,7 @@ class NetworkGenerator(NetworkXModel):
         self.fin['rz0'] = cas.DM([])
 
         self.dae.print_dae()
-        
+
         #: Set up the integrator
         self.integrator = cas.integrator('network',
                                          integration_method,
