@@ -9,7 +9,7 @@
      <default>"neuron"</default>
    </key>
    
-   <key id="neuron_type" for="node" attr.name="type" attr.type="string">
+   <key id="neuron_type" for="node" attr.name="model" attr.type="string">
      <default>if</default>
    </key>
 

@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key attr.name="weight" attr.type="double" for="edge" id="d9"/>
+<key attr.name="model" attr.type="string" for="node" id="d8"/>
+<key attr.name="x" attr.type="double" for="node" id="d7"/>
+<key attr.name="y" attr.type="double" for="node" id="d6"/>
+<key attr.name="v0" attr.type="double" for="node" id="d5"/>
+<key attr.name="m_e" attr.type="double" for="node" id="d4"/>
+<key attr.name="b_e" attr.type="double" for="node" id="d3"/>
+<key attr.name="h0" attr.type="double" for="node" id="d2"/>
+<key attr.name="color" attr.type="string" for="node" id="d1"/>
+<key attr.name="name" attr.type="string" for="graph" id="d0"/>
+<graph edgedefault="directed"><data key="d0">HR</data>
+<node id="FL_In_F">
+  <data key="d6">2.0</data>
+  <data key="d7">0.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="FR_RG_E">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.1</data>
+  <data key="d4">0.0</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">4.0</data>
+  <data key="d7">9.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="FR_RG_F">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.0</data>
+  <data key="d4">0.1</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">0.0</data>
+  <data key="d7">9.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="FL_In_E">
+  <data key="d6">2.0</data>
+  <data key="d7">2.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="HR_RG_F">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.0</data>
+  <data key="d4">0.1</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">8.0</data>
+  <data key="d7">9.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="HR_In_F">
+  <data key="d6">10.0</data>
+  <data key="d7">8.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="HR_RG_E">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.1</data>
+  <data key="d4">0.0</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">12.0</data>
+  <data key="d7">9.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="FL_RG_F">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.0</data>
+  <data key="d4">0.1</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">0.0</data>
+  <data key="d7">1.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="FL_RG_E">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.1</data>
+  <data key="d4">0.0</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">4.0</data>
+  <data key="d7">1.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="HL_RG_E">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.1</data>
+  <data key="d4">0.0</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">12.0</data>
+  <data key="d7">1.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="HL_RG_F">
+  <data key="d1">b</data>
+  <data key="d2">0.0</data>
+  <data key="d3">0.0</data>
+  <data key="d4">0.1</data>
+  <data key="d5">-60.0</data>
+  <data key="d6">8.0</data>
+  <data key="d7">1.0</data>
+  <data key="d8">lif_danner_nap</data>
+</node>
+<node id="FR_In_E">
+  <data key="d6">2.0</data>
+  <data key="d7">10.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="FR_In_F">
+  <data key="d6">2.0</data>
+  <data key="d7">8.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="HR_In_E">
+  <data key="d6">10.0</data>
+  <data key="d7">10.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="HL_In_E">
+  <data key="d6">10.0</data>
+  <data key="d7">2.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<node id="HL_In_F">
+  <data key="d6">10.0</data>
+  <data key="d7">0.0</data>
+  <data key="d8">lif_danner</data>
+  <data key="d5">-60.0</data>
+  <data key="d1">y</data>
+</node>
+<edge source="FL_In_F" target="FL_RG_E">
+  <data key="d9">-1.0</data>
+</edge>
+<edge source="FR_RG_E" target="FR_In_E">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="FR_RG_F" target="FR_In_F">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="FL_In_E" target="FL_RG_F">
+  <data key="d9">-0.08</data>
+</edge>
+<edge source="HR_RG_F" target="HR_In_F">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="HR_In_F" target="HR_RG_E">
+  <data key="d9">-1.0</data>
+</edge>
+<edge source="HR_RG_E" target="HR_In_E">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="FL_RG_F" target="FL_In_F">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="FL_RG_E" target="FL_In_E">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="HL_RG_E" target="HL_In_E">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="HL_RG_F" target="HL_In_F">
+  <data key="d9">0.4</data>
+</edge>
+<edge source="FR_In_E" target="FR_RG_F">
+  <data key="d9">-0.08</data>
+</edge>
+<edge source="FR_In_F" target="FR_RG_E">
+  <data key="d9">-1.0</data>
+</edge>
+<edge source="HR_In_E" target="HR_RG_F">
+  <data key="d9">-0.08</data>
+</edge>
+<edge source="HL_In_E" target="HL_RG_F">
+  <data key="d9">-0.08</data>
+</edge>
+<edge source="HL_In_F" target="HL_RG_E">
+  <data key="d9">-1.0</data>
+</edge>
+</graph></graphml>

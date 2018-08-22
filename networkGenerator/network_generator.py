@@ -52,25 +52,26 @@ class NetworkGenerator(NetworkXModel):
         """
 
         for name, neuron in sorted(self.graph.node.iteritems()):
+
             #: Add neuron to list
             biolog.debug(
                 'Generating neuron model : {} of type {}'.format(
-                    name, neuron['type']))
+                    name, neuron['model']))
             #: Generate Neuron Models
-            if neuron['type'] == 'if':
+            if neuron['model'] == 'if':
                 self.neurons[name] = IntegrateAndFire(name, self.dae,
                                                       ** neuron)
-            elif neuron['type'] == 'lif_danner_nap':
+            elif neuron['model'] == 'lif_danner_nap':
                 self.neurons[name] = LIF_Danner_Nap(name, self.dae,
                                                     **neuron)
-            elif neuron['type'] == 'lif_danner':
+            elif neuron['model'] == 'lif_danner':
                 self.neurons[name] = LIF_Danner(name, self.dae,
                                                 **neuron)
-            elif neuron['type'] == 'lif_daun_interneuron':
+            elif neuron['model'] == 'lif_daun_interneuron':
                 self.neurons[name] = LIF_Daun_Interneuron(name,
                                                           self.dae,
                                                           **neuron)
-            elif neuron['type'] == 'lif_daun_motorneuron':
+            elif neuron['model'] == 'lif_daun_motorneuron':
                 self.neurons[name] = LIF_Daun_Motorneuron(name,
                                                           self.dae,
                                                           **neuron)
