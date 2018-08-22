@@ -137,7 +137,7 @@ def main():
 
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
-        net_.dae.u.set_all(idx*0.001/10.)
+        net_.dae.u.set_all((idx*0.001/100.))
         res[idx] = net_.step()['xf'].full()[:, 0]
     end_time = time.time()
 
@@ -151,9 +151,9 @@ def main():
     plt.figure()
     plt.subplot(211)
     plt.title('FORE LIMBS')
-    plt.plot(time_vec*0.001, res[:, [7, 9]])
-    plt.plot(time_vec*0.001, res[:, [18, 20]], ':', markersize=5.)
-    plt.legend(('V_FL_RG_E', 'V_FL_RG_F', 'V_FR_RG_E', 'V_FR_RG_F'))
+    plt.plot(time_vec*0.001, res[:, [9]])
+    plt.plot(time_vec*0.001, res[:, [20]], ':', markersize=5.)
+    plt.legend(('V_FL_RG_F', 'V_FR_RG_F'))
     plt.grid()
     plt.subplot(212)
     plt.title('HIND LIMBS')
