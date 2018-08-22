@@ -16,7 +16,10 @@ class Parameters(OrderedDict):
 
     def vals(self):
         """ Get list parameter values. """
-        return [val.val for val in self.values()]
+        from IPython import embed
+        embed()
+
+        return self[0]._val
 
     def syms(self):
         """ Get list parameter symbolics. """
@@ -33,12 +36,27 @@ class Param(object):
     Can be a casadi symbolic or numeric value.
     """
 
-    def __init__(self, sym, val=None):
+    def __init__(self, sym, value=None, p_list=None, idx=None):
         """ Initialization. """
         super(Param, self).__init__()
-        self.val = val
+        self.idx = idx
+        self._val = p_list
+        if self._val is not None:
+            self._val.append(value)
         self.sym = sym
         return
+
+    @property
+    def val(self):
+        """Value  """
+        return self._val[self.idx]
+
+    @val.setter
+    def val(self, data):
+        """
+        Param
+        """
+        self._val[self.idx] = data
 
 
 class DaeGenerator(object):
@@ -51,109 +69,102 @@ class DaeGenerator(object):
 
         #: Variables
         #: pylint: disable=invalid-name
-        self.x = Parameters()  #: States
-        self.z = Parameters()  #: Algebraic variables
-        self.p = Parameters()  #: Parameters
-        self.u = Parameters()  #: Inputs
-        self.c = Parameters()  #: Named Constants
-        self.y = Parameters()  #: Outputs
+        self.x = []  #: States
+        self.z = []  #: Algebraic variables
+        self.p = []  #: []       self.u = []  #: Inputs
+        self.c = []  #: Named Constants
+        self.y = []  #: Outputs
+
+        self.x_l = []  #: States
+        self.z_l = []  #: Algebraic variables
+        self.p_l = []  #: []       self.u = []  #: Inputs
+        self.c_l = []  #: Named Constants
+        self.y_l = []  #: Outputs
 
         #: Equations
-        self.alg = Parameters()  #: Algebraic equations
-        self.ode = Parameters()  #: ODE RHS
+        self.alg = []  #: Algebraic equations
+        self.ode = []  #: ODE RHS
 
     def add_x(self, name, value=0.0):
         """Add a new state.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new state to be defined
         value : <float>
             Initial value for the state variable
         """
-        self.x[name] = Param(cas.SX.sym(name), value)
-        return self.x[name]
+        self.x.append(Param(cas.SX.sym(name), value, self.x_l,
+                            len(self.x_l)))
+        return self.x[-1]
 
     def add_z(self, name, value=0.0):
         """Add a new algebraic variable.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new algebraic variable to be defined
         value : <float>
             Initial value for the algebraic variable
         """
-        self.z[name] = Param(cas.SX.sym(name), value)
-        return self.z[name]
+        self.z.append((cas.SX.sym(
+            name), value, self.z_l, len(self.z_l)))
+        return self.z[-1]
 
     def add_p(self, name, value=0.0):
         """Add a new parameter.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new param to be defined
         value : <float>
             Default parameter value to be used during run time
         """
-        self.p[name] = Param(cas.SX.sym(name), value)
-        return self.p[name]
+        self.p.append(Param(cas.SX.sym(
+            name), value, self.p_l, len(self.p_l))
+        return self.p[-1]
 
     def add_u(self, name, value=0.0):
         """Add a new Input.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new input to be defined
         value : <float>
             Default parameter value to be used during run time
         """
-        self.u[name] = Param(cas.SX.sym(name), value)
-        return self.u[name]
+        self.u.append(Param(cas.SX.sym(
+            name), value, self.u_l, len(self.u_l))
+        return self.u[-1]
 
     def add_c(self, name, value=0.0):
         """Add a new constant.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new constant to be defined
         value : <float>
             Default parameter value to be used during run time
         """
-        self.c[name] = Param(cas.SX.sym(name), value)
-        return self.c[name]
-
-    def add_y(self, name):
-        """Add a new output.
-        Parameters
-        ----------
-        name : <str>
-            Name of the new output to be defined
-        """
-        self.y[name] = Param(cas.SX.sym(name), 0.0)
-        return self.y[name]
+        self.c.append(Param(cas.SX.sym(
+            name), value, self.c_l, len(self.c_l))
+        return self.c[-1]
 
     def add_ode(self, name, ode):
         """Add a new ode rhs.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new ode
         ode : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.ode[name] = Param(ode)
+        self.ode[name]=Param(ode)
         return self.ode[name]
 
     def add_alg(self, name, alg_eqn):
         """Add a new algebraic equation.
-        Parameters
-        ----------
+        []       ----------
         name : <str>
             Name of the new ode
         alg_eqn : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.alg[name] = Param(alg_eqn)
+        self.alg[name]=Param(alg_eqn)
         return self.alg[name]
 
     def generate_dae(self):
@@ -164,7 +175,7 @@ class DaeGenerator(object):
             Differential algebraic equation of the network
         """
         #: For variable time step pylint: disable=invalid-name
-        dae = {'x': cas.vertcat(*self.x.syms()),
+        dae={'x': cas.vertcat(*self.x.syms()),
                'p': cas.vertcat(*self.u.syms() +
                                 self.p.syms() + self.c.syms()),
                'z': cas.vertcat(*self.z.syms()),
