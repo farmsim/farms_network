@@ -4,17 +4,26 @@ from network_generator import NetworkGenerator
 import matplotlib.pyplot as plt
 import numpy as np
 import biolog
-
+from danner_net_gen import CPG
+import networkx as nx
 
 def main():
     """Main."""
+
+    net1 = CPG('FL', anchor_x=0., anchor_y=0.)  #: Directed graph
+    net2 = CPG('FR', anchor_x=8., anchor_y=0.)  #: Directed graph
+    net3 = CPG('HL', anchor_x=0., anchor_y=8.)  #: Directed graph
+    net4 = CPG('HR', anchor_x=8., anchor_y=8.)  #: Directed graph    
+    nx.write_graphml(nx.compose_all([net1.cpg, net2.cpg, net3.cpg, net4.cpg]),
+                     './conf/auto_gen_danner_cpg.graphml')
+    
     #: Initialize network
-    net_ = NetworkGenerator('./conf/simple_danner_cpg.graphml')
+    net_ = NetworkGenerator('./conf/auto_gen_danner_cpg.graphml')
 
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time = np.arange(0, 5000, dt)  #: Time
+    time = np.arange(0, 1000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time), len(net_.dae.x)])
 
@@ -29,7 +38,6 @@ def main():
     #: Integrate the network
     biolog.info('Begin Integration!')
     for idx, _ in enumerate(time):
-        net_.dae.u.set_all(0.2)
         res[idx] = net_.step()['xf'].full()[:, 0]
 
     # #: Results
