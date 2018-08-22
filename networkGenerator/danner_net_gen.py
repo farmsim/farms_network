@@ -1,7 +1,7 @@
 """ Generate Danner Network."""
 
 import networkx as nx
-
+import numpy as np
 
 class CPG(object):
     """Generate CPG Network
@@ -29,7 +29,7 @@ class CPG(object):
                           m_e=0.1,
                           b_e=0.0,
                           v0=-60.0,
-                          h0=0.0)
+                          h0=np.random.uniform(0, 1))
         self.cpg.add_node(self.name+'_RG_E',
                           model='lif_danner_nap',
                           x=1.0+anchor_x,
@@ -38,7 +38,7 @@ class CPG(object):
                           m_e=0.0,
                           b_e=0.1,
                           v0=-60.0,
-                          h0=0.0)
+                          h0=np.random.uniform(0, 1))
         self.cpg.add_node(self.name+'_In_F',
                           model='lif_danner',
                           x=0.0+anchor_x,
