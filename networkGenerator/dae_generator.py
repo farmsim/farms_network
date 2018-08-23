@@ -12,24 +12,49 @@ class Parameters(list):
     def __init__(self):
         """ Initialization. """
         super(Parameters, self).__init__()
+        self.param_list = []  #: List to store param objects
         self._name_to_idx = {}  #: Dict to store name, index
         return
 
-    def get(self, key):
+    def get_val(self, key):
         """ Get the attribute value by name."""
         if key not in self._name_to_idx:
             raise AttributeError()
         else:
             return self[self._name_to_idx[key]]
 
-    def set(self, key, value):
+    def set_val(self, key, value):
         """ Set the attribute value by name."""
         if key not in self._name_to_idx:
             raise AttributeError()
         else:
             self[self._name_to_idx[key]] = value
 
-    def add(self, name, sym, value):
+    def set_all_val(self, value):
+        """ Set the attribute value by name."""
+        for idx, _ in enumerate(self):
+            self[idx] = value
+
+    def get_sym(self, key):
+        """ Get the attribute symbol by name."""
+        if key not in self._name_to_idx:
+            raise AttributeError()
+        else:
+            return self.param_list[self._name_to_idx[key]].sym
+
+    def set_sym(self, key, sym):
+        """ Get the attribute symbol by name."""
+        if key not in self._name_to_idx:
+            raise AttributeError()
+        else:
+            biolog.warning('Overwriting existing symbol')
+            self.param_list[self._name_to_idx[key]].sym = sym
+
+    def get_all_sym(self):
+        """ Get list of all symbols. """
+        return [param.sym for param in self.param_list]
+
+    def add(self, name, sym, value=None):
         """Add new element to the parameter list.
         Parameters
         ----------
@@ -50,23 +75,58 @@ class Parameters(list):
 
         _idx = len(self)
         self._name_to_idx[name] = _idx
-        self.insert(_idx, Param(sym=sym, value=value))
+        _param = Param(p_list=self, idx=_idx, sym=sym, value=value)
+        self.param_list.insert(_idx, _param)
+
         return
+
 
 class Param(object):
     """Wrapper for parameters in the system.
     Can be a casadi symbolic or numeric value.
     """
 
-    def __init__(self, sym, value=None):
+    def __init__(self, p_list, idx, sym, value):
         """ Initialization. """
         super(Param, self).__init__()
 
+        #: List
+        self._p_list = p_list
+
+        #: idx
+        self.idx = idx
+
+        #:
+        self._p_list.insert(self.idx, value)
+
         #: Update the value to the list
         self.val = value
+
         #: Store the symbol
         self.sym = sym
+
         return
+
+    @property
+    def val(self):
+        """ Set the value of the parameter  """
+        return self._p_list[self.idx]
+
+    @val.setter
+    def val(self, data):
+        """
+        Set the value of the parameter
+        Parameters
+        ----------
+        data : <float>
+            Value of the parameter
+        """
+        try:
+            self._p_list[self.idx] = data
+        except IndexError:
+            biolog.error('Unable to find index {} in list {}'.format(
+                self.idx, self._p_list))
+            raise IndexError()
 
 
 class DaeGenerator(object):
@@ -99,9 +159,8 @@ class DaeGenerator(object):
             Initial value for the state variable
         """
 
-        self.x.append(Param(cas.SX.sym(name), value, self.x_l,
-                            len(self.x_l)))
-        return self.x[-1]
+        self.x.add(name, cas.SX.sym(name), value)
+        return self.x.param_list[-1]
 
     def add_z(self, name, value=0.0):
         """Add a new algebraic variable.
@@ -111,9 +170,8 @@ class DaeGenerator(object):
         value : <float>
             Initial value for the algebraic variable
         """
-        self.z.append((cas.SX.sym(
-            name), value, self.z_l, len(self.z_l)))
-        return self.z[-1]
+        self.z.add(name, cas.SX.sym(name), value)
+        return self.z.param_list[-1]
 
     def add_p(self, name, value=0.0):
         """Add a new parameter.
@@ -123,10 +181,8 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        # self.p.append(Param(cas.SX.sym(
-        #     name), value, self.p_l, len(self.p_l))
-        # return self.p[-1]
-        pass
+        self.p.add(name, cas.SX.sym(name), value)
+        return self.p.param_list[-1]
 
     def add_u(self, name, value=0.0):
         """Add a new Input.
@@ -136,10 +192,8 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        # self.u.append(Param(cas.SX.sym(
-        #     name), value, self.u_l, len(self.u_l))
-        # return self.u[-1]
-        pass
+        self.u.add(name, cas.SX.sym(name), value)
+        return self.u.param_list[-1]
 
     def add_c(self, name, value=0.0):
         """Add a new constant.
@@ -149,10 +203,8 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        # self.c.append(Param(cas.SX.sym(
-        #     name), value, self.c_l, len(self.c_l))
-        # return self.c[-1]
-        pass
+        self.c.add(name, cas.SX.sym(name), value)
+        return self.c.param_list[-1]
 
     def add_ode(self, name, ode):
         """Add a new ode rhs.
@@ -162,8 +214,8 @@ class DaeGenerator(object):
         ode : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.ode[name]=Param(ode)
-        return self.ode[name]
+        self.ode.add(name, ode)
+        return self.ode.param_list[-1]
 
     def add_alg(self, name, alg_eqn):
         """Add a new algebraic equation.
@@ -173,8 +225,8 @@ class DaeGenerator(object):
         alg_eqn : <cas.SX.sym>
             Symbolic ODE equation
         """
-        self.alg[name]=Param(alg_eqn)
-        return self.alg[name]
+        self.alg.add(name, alg_eqn)
+        return self.alg.param_list[-1]
 
     def generate_dae(self):
         """Generate DAE for the full network.
@@ -184,12 +236,13 @@ class DaeGenerator(object):
             Differential algebraic equation of the network
         """
         #: For variable time step pylint: disable=invalid-name
-        dae={'x': cas.vertcat(*self.x.syms()),
-               'p': cas.vertcat(*self.u.syms() +
-                                self.p.syms() + self.c.syms()),
-               'z': cas.vertcat(*self.z.syms()),
-               'alg': cas.vertcat(*self.alg.syms()),
-               'ode': cas.vertcat(*self.ode.syms())}
+        dae = {'x': cas.vertcat(*self.x.get_all_sym()),
+               'p': cas.vertcat(*self.u.get_all_sym() +
+                                self.p.get_all_sym() +
+                                self.c.get_all_sym()),
+               'z': cas.vertcat(*self.z.get_all_sym()),
+               'alg': cas.vertcat(*self.alg.get_all_sym()),
+               'ode': cas.vertcat(*self.ode.get_all_sym())}
         return dae
 
     def print_dae(self):
@@ -199,41 +252,41 @@ class DaeGenerator(object):
                     ' STATES : {} '.format(len(self.x)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.x.syms())]))
+            j, s) for j, s in enumerate(self.x.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' INPUTS : {} '.format(len(self.u)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.u.syms())]))
+            j, s) for j, s in enumerate(self.u.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' PARAMETERS : {} '.format(len(self.p)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.p.syms())]))
+            j, s) for j, s in enumerate(self.p.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' CONSTANTS : {} '.format(len(self.c)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.c.syms())]))
+            j, s) for j, s in enumerate(self.c.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' ODE : {} '.format(len(self.ode)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.ode.syms())]))
+            j, s) for j, s in enumerate(self.ode.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' ALGEBRAIC VARIABLES : {} '.format(len(self.z)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.z.syms())]))
+            j, s) for j, s in enumerate(self.z.get_all_sym())]))
 
         biolog.info(15 * '#' +
                     ' ALGEBRAIC EQUATIONS : {} '.format(len(self.alg)) +
                     15 * '#')
         print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.alg.syms())]))
+            j, s) for j, s in enumerate(self.alg.get_all_sym())]))
         return
