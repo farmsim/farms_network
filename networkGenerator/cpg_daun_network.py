@@ -40,7 +40,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 10000, dt)  #: Time
+    time_vec = np.arange(0, 1000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
@@ -59,6 +59,22 @@ def main():
     #: Integrate the network
     biolog.info('Begin Integration!')
 
+    biolog.info('PARAMETERS')
+    print('\n'.join(
+        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.p.param_list]))
+
+    biolog.info('INPUTS')
+    print('\n'.join(
+        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.u.param_list]))
+    
+    biolog.info('INITIAL CONDITIONS')
+    print('\n'.join(
+        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.x.param_list]))
+
+    biolog.info('CONSTANTS')
+    print('\n'.join(
+        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.c.param_list]))
+    
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
         res[idx] = net_.step()['xf'].full()[:, 0]

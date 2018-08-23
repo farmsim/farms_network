@@ -546,7 +546,7 @@ class LIF_Daun_Interneuron(Neuron):
             1. + cas.exp(gamma_s.sym*(
                 neuron.neuron_out() - v_h_s.sym)))
 
-        self.vdot.sym += (
+        self.vdot.sym += -(
             g_syn.sym*s_inf*(self.v.sym - e_syn.sym))/self.c_m.sym
         return
 
@@ -756,7 +756,7 @@ class LIF_Daun_Motorneuron(Neuron):
             1. + cas.exp(gamma_s.sym*(
                 neuron.neuron_out() - v_h_s.sym)))
 
-        self.vdot.sym += (g_syn.sym*s_inf *
+        self.vdot.sym += -(g_syn.sym*s_inf *
                           (self.v.sym - e_syn.sym))/self.c_m.sym
         return
 
