@@ -152,34 +152,54 @@ class LIF_Danner_Nap(Neuron):
         self.dae = dae  #: Container for network
 
         #: Constants
-        self.c_m = kwargs.get('c_m', 10.0)  #: pF
+        self.c_m = self.dae.add_c('c_m_' + self.n_id,
+                                  kwargs.get('c_m', 10.0))  #: pF
 
-        self.g_nap = kwargs.get('g_nap', 4.5)  #: nS
-        self.e_na = kwargs.get('e_na', 50.0)  #: mV
+        self.g_nap = self.dae.add_c(
+            'g_nap_'+self.n_id, kwargs.get('g_nap', 4.5))  #: nS
+        self.e_na = self.dae.add_c(
+            'e_na_'+self.n_id, kwargs.get('e_na', 50.0))  #: mV
 
-        self.v1_2_m = kwargs.get('v1_2_m', -40.0)  #: mV
-        self.k_m = kwargs.get('k_m', -6.0)  #: mV
+        self.v1_2_m = self.dae.add_c(
+            'v1_2_m_' + self.n_id, kwargs.get('v1_2_m', -40.0))  #: mV
+        self.k_m = self.dae.add_c(
+            'k_m_' + self.n_id, kwargs.get('k_m', -6.0))  #: mV
 
-        self.v1_2_h = kwargs.get('v1_2_h', -45.0)  #: mV
-        self.k_h = kwargs.get('k_h', 4.0)  #: mV
+        self.v1_2_h = self.dae.add_c(
+            'v1_2_h_' + self.n_id, kwargs.get('v1_2_h', -45.0))  #: mV
+        self.k_h = self.dae.add_c(
+            'k_h_' + self.n_id, kwargs.get('k_h', 4.0))  #: mV
 
-        self.v1_2_t = kwargs.get('v1_2_t', -35.0)  #: mV
-        self.k_t = kwargs.get('k_t', 15.0)  #: mV
+        self.v1_2_t = self.dae.add_c(
+            'v1_2_t_' + self.n_id, kwargs.get('v1_2_t', -35.0))  #: mV
+        self.k_t = self.dae.add_c(
+            'k_t_' + self.n_id, kwargs.get('k_t', 15.0))  #: mV
 
-        self.g_leak = kwargs.get('g_leak', 4.5)  #: nS
-        self.e_leak = kwargs.get('e_leak', -62.5)  #: mV
+        self.g_leak = self.dae.add_c(
+            'g_leak_' + self.n_id, kwargs.get('g_leak', 4.5))  #: nS
+        self.e_leak = self.dae.add_c(
+            'e_leak_' + self.n_id, kwargs.get('e_leak', -62.5))  #: mV
 
-        self.tau_0 = kwargs.get('tau_0', 80.0)  #: ms
-        self.tau_max = kwargs.get('tau_max', 160.0)  #: ms
-        self.tau_noise = kwargs.get('tau_noise', 10.0)  #: ms
+        self.tau_0 = self.dae.add_c(
+            'tau_0_' + self.n_id, kwargs.get('tau_0', 80.0))  #: ms
+        self.tau_max = self.dae.add_c(
+            'tau_max_' + self.n_id, kwargs.get('tau_max', 160.0))  #: ms
+        self.tau_noise = self.dae.add_c(
+            'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  #: ms
 
-        self.v_max = kwargs.get('v_max', 0.0)  #: mV
-        self.v_thr = kwargs.get('v_thr', -50.0)  #: mV
+        self.v_max = self.dae.add_c(
+            'v_max_' + self.n_id, kwargs.get('v_max', 0.0))  #: mV
+        self.v_thr = self.dae.add_c(
+            'v_thr_' + self.n_id, kwargs.get('v_thr', -50.0))  #: mV
 
-        self.g_syn_e = kwargs.get('g_syn_e', 10.0)  #: nS
-        self.g_syn_i = kwargs.get('g_syn_i', 10.0)  #: nS
-        self.e_syn_e = kwargs.get('e_syn_e', -10.0)  #: mV
-        self.e_syn_i = kwargs.get('e_syn_i', -75.0)  #: mV
+        self.g_syn_e = self.dae.add_c(
+            'g_syn_e_' + self.n_id, kwargs.get('g_syn_e', 10.0))  #: nS
+        self.g_syn_i = self.dae.add_c(
+            'g_syn_i_' + self.n_id, kwargs.get('g_syn_i', 10.0))  #: nS
+        self.e_syn_e = self.dae.add_c(
+            'e_syn_e_' + self.n_id, kwargs.get('e_syn_e', -10.0))  #: mV
+        self.e_syn_i = self.dae.add_c(
+            'e_syn_i_' + self.n_id, kwargs.get('e_syn_i', -75.0))  #: mV
 
         #: State Variables
         #: pylint: disable=invalid-name
@@ -195,13 +215,17 @@ class LIF_Danner_Nap(Neuron):
 
         #: External Input (BrainStem Drive)
         self.alpha = self.dae.add_u('alpha_' + self.n_id, 0.22)
-        self.m_e = kwargs.pop('m_e', 0.0)  #: m_E,i
-        self.m_i = kwargs.pop('m_i', 0.0)  #: m_I,i
-        self.b_e = kwargs.pop('b_e', 0.0)  #: m_E,i
-        self.b_i = kwargs.pop('b_i', 0.0)  #: m_I,i
+        self.m_e = self.dae.add_c(
+            'm_e_' + self.n_id, kwargs.pop('m_e', 0.0))  #: m_E,i
+        self.m_i = self.dae.add_c(
+            'm_i_' + self.n_id, kwargs.pop('m_i', 0.0))  #: m_I,i
+        self.b_e = self.dae.add_c(
+            'b_e_' + self.n_id, kwargs.pop('b_e', 0.0))  #: m_E,i
+        self.b_i = self.dae.add_c(
+            'b_i_' + self.n_id, kwargs.pop('b_i', 0.0))  #: m_I,i
 
-        self.d_e = self.m_e * self.alpha.sym + self.b_e
-        self.d_i = self.m_i * self.alpha.sym + self.b_i
+        self.d_e = self.m_e.sym * self.alpha.sym + self.b_e.sym
+        self.d_i = self.m_i.sym * self.alpha.sym + self.b_i.sym
 
         #: ODE
         self.ode_rhs()
@@ -232,60 +256,59 @@ class LIF_Danner_Nap(Neuron):
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
                 s_w(weight.val)))
-            self.vdot.sym += -(self.g_syn_e*(
+            self.vdot.sym += -(self.g_syn_e.sym*(
                 s_w(weight.sym) * neuron.neuron_out())*(
-                    self.v.sym - self.e_syn_e))/self.c_m
-
+                    self.v.sym - self.e_syn_e.sym))/self.c_m.sym
         elif np.sign(weight.val) == -1:
             #: Inhibitory Synapse
             biolog.debug('Adding inhibitory signal of weight {}'.format(
                 s_w(-weight.val)))
-            self.vdot.sym += -(self.g_syn_i*(
+            self.vdot.sym += -(self.g_syn_i.sym*(
                 s_w(-weight.sym)*neuron.neuron_out())*(
-                self.v.sym - self.e_syn_i))/self.c_m
+                self.v.sym - self.e_syn_i.sym))/self.c_m.sym
         return
 
     def ode_rhs(self):
         """Generate initial ode rhs."""
 
         #: tau_h(V)
-        tau_h = self.tau_0 + (self.tau_max - self.tau_0) / \
-            cas.cosh((self.v.sym - self.v1_2_t) / self.k_t)
+        tau_h = self.tau_0.sym + (self.tau_max.sym - self.tau_0.sym) / \
+            cas.cosh((self.v.sym - self.v1_2_t.sym) / self.k_t.sym)
 
         #: h_inf(V)
         h_inf = cas.inv(
-            1.0 + cas.exp((self.v.sym - self.v1_2_h) / self.k_h))
+            1.0 + cas.exp((self.v.sym - self.v1_2_h.sym) / self.k_h.sym))
 
         #: Slow inactivation
         self.hdot.sym = (h_inf - self.h.sym) / tau_h
 
         #: m(V)
         m = cas.inv(
-            1.0 + cas.exp((self.v.sym - self.v1_2_m) / self.k_m))
+            1.0 + cas.exp((self.v.sym - self.v1_2_m.sym) / self.k_m.sym))
 
         #: Inap
         #: pylint: disable=no-member
-        i_nap = self.g_nap * m * self.h.sym * (self.v.sym - self.e_na)
+        i_nap = self.g_nap.sym * m * self.h.sym * (self.v.sym - self.e_na.sym)
 
         #: Ileak
-        i_leak = self.g_leak * (self.v.sym - self.e_leak)
+        i_leak = self.g_leak.sym * (self.v.sym - self.e_leak.sym)
 
         #: ISyn_Excitatory
-        i_syn_e = self.g_syn_e * self.d_e * (self.v.sym - self.e_syn_e)
+        i_syn_e = self.g_syn_e.sym * self.d_e * (self.v.sym - self.e_syn_e.sym)
 
         #: ISyn_Inhibitory
-        i_syn_i = self.g_syn_i * self.d_i * (self.v.sym - self.e_syn_i)
+        i_syn_i = self.g_syn_i.sym * self.d_i * (self.v.sym - self.e_syn_i.sym)
 
         #: dV
-        self.vdot.sym = -(i_nap + i_leak + i_syn_e + i_syn_i)/self.c_m
+        self.vdot.sym = -(i_nap + i_leak + i_syn_e + i_syn_i)/self.c_m.sym
         return
 
     def neuron_out(self):
         """ Output of the neuron model."""
-        _cond = cas.logic_and(self.v_thr <= self.v.sym,
-                              self.v.sym < self.v_max)
-        _f = (self.v.sym - self.v_thr) / (self.v_max - self.v_thr)
-        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr)
+        _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
+                              self.v.sym < self.v_max.sym)
+        _f = (self.v.sym - self.v_thr.sym) / (self.v_max.sym - self.v_thr.sym)
+        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr.sym)
 
 
 class LIF_Danner(Neuron):
@@ -299,29 +322,45 @@ class LIF_Danner(Neuron):
         self.dae = dae
 
         #: Constants
-        self.c_m = kwargs.get('c_m', 10.0)  # : pF
+        self.c_m = self.dae.add_c('c_m_' + self.n_id,
+                                  kwargs.get('c_m', 10.0))  # : pF
 
-        self.v1_2_m = kwargs.get('v1_2_m', -40.0)  # : mV
-        self.k_m = kwargs.get('k_m', -6.0)  #: mV
+        self.v1_2_m = self.dae.add_c('v1_2_m_' + self.n_id,
+                                     kwargs.get('v1_2_m', -40.0))  # : mV
+        self.k_m = self.dae.add_c('k_m_' + self.n_id,
+                                  kwargs.get('k_m', -6.0))  #: mV
 
-        self.v1_2_h = kwargs.get('v1_2_h', -45.0)  #: mV
-        self.k_h = kwargs.get('k_h', -4.0)  #: mV
+        self.v1_2_h = self.dae.add_c('v1_2_h_' + self.n_id,
+                                     kwargs.get('v1_2_h', -45.0))  #: mV
+        self.k_h = self.dae.add_c('k_h_' + self.n_id,
+                                  kwargs.get('k_h', -4.0))  #: mV
 
-        self.v1_2_t = kwargs.get('v1_2_t', -35.0)  #: mV
-        self.k_t = kwargs.get('k_t', -15.0)  #: mV
+        self.v1_2_t = self.dae.add_c('v1_2_t_' + self.n_id,
+                                     kwargs.get('v1_2_t', -35.0))  #: mV
+        self.k_t = self.dae.add_c('k_t_' + self.n_id,
+                                  kwargs.get('k_t', -15.0))  #: mV
 
-        self.g_leak = kwargs.get('g_leak', 2.8)  #: nS
-        self.e_leak = kwargs.get('e_leak', -60.0)  #: mV
+        self.g_leak = self.dae.add_c('g_leak_' + self.n_id,
+                                     kwargs.get('g_leak', 2.8))  #: nS
+        self.e_leak = self.dae.add_c('e_leak_' + self.n_id,
+                                     kwargs.get('e_leak', -60.0))  #: mV
 
-        self.tau_noise = kwargs.get('tau_noise', 10.0)  #: ms
+        self.tau_noise = self.dae.add_c('tau_noise_' + self.n_id,
+                                        kwargs.get('tau_noise', 10.0))  #: ms
 
-        self.v_max = kwargs.get('v_max', 0.0)  #: mV
-        self.v_thr = kwargs.get('v_thr', -50.0)  #: mV
+        self.v_max = self.dae.add_c('v_max_' + self.n_id,
+                                    kwargs.get('v_max', 0.0))  #: mV
+        self.v_thr = self.dae.add_c('v_thr_' + self.n_id,
+                                    kwargs.get('v_thr', -50.0))  #: mV
 
-        self.g_syn_e = kwargs.get('g_syn_e', 10.0)  #: nS
-        self.g_syn_i = kwargs.get('g_syn_i', 10.0)  #: nS
-        self.e_syn_e = kwargs.get('e_syn_e', -10.0)  #: mV
-        self.e_syn_i = kwargs.get('e_syn_i', -75.0)  #: mV
+        self.g_syn_e = self.dae.add_c('g_syn_e_' + self.n_id,
+                                      kwargs.get('g_syn_e', 10.0))  #: nS
+        self.g_syn_i = self.dae.add_c('g_syn_i_' + self.n_id,
+                                      kwargs.get('g_syn_i', 10.0))  #: nS
+        self.e_syn_e = self.dae.add_c('e_syn_e_' + self.n_id,
+                                      kwargs.get('e_syn_e', -10.0))  #: mV
+        self.e_syn_i = self.dae.add_c('e_syn_i_' + self.n_id,
+                                      kwargs.get('e_syn_i', -75.0))  #: mV
 
         #: State Variables
         #: Membrane potential
@@ -335,13 +374,17 @@ class LIF_Danner(Neuron):
 
         #: External Input (BrainStem Drive)
         self.alpha = self.dae.add_u('alpha_' + self.n_id, 0.2)
-        self.m_e = kwargs.pop('m_e', 0.0)  #: m_E,i
-        self.m_i = kwargs.pop('m_i', 0.0)  #: m_I,i
-        self.b_e = kwargs.pop('b_e', 0.0)  #: m_E,i
-        self.b_i = kwargs.pop('b_i', 0.0)  #: m_I,i
+        self.m_e = self.dae.add_c('m_e_' + self.n_id,
+                                  kwargs.pop('m_e', 0.0))  #: m_E,i
+        self.m_i = self.dae.add_c('m_i_' + self.n_id,
+                                  kwargs.pop('m_i', 0.0))  #: m_I,i
+        self.b_e = self.dae.add_c('b_e_' + self.n_id,
+                                  kwargs.pop('b_e', 0.0))  #: m_E,i
+        self.b_i = self.dae.add_c('b_i_' + self.n_id,
+                                  kwargs.pop('b_i', 0.0))  #: m_I,i
 
-        self.d_e = self.m_e * self.alpha.sym + self.b_e
-        self.d_i = self.m_i * self.alpha.sym + self.b_i
+        self.d_e = self.m_e.sym * self.alpha.sym + self.b_e.sym
+        self.d_i = self.m_i.sym * self.alpha.sym + self.b_i.sym
 
         #: ODE
         self.ode_rhs()
@@ -372,46 +415,42 @@ class LIF_Danner(Neuron):
             #: Excitatory Synapse
             biolog.debug('Adding excitatory signal of weight {}'.format(
                 s_w(weight.val)))
-            self.vdot.sym += -(self.g_syn_e*(
+            self.vdot.sym += -(self.g_syn_e.sym*(
                 s_w(weight.sym) * neuron.neuron_out())*(
-                    self.v.sym - self.e_syn_e))/self.c_m
+                    self.v.sym - self.e_syn_e.sym))/self.c_m.sym
         elif np.sign(weight.val) == -1:
             #: Inhibitory Synapse
             biolog.debug('Adding inhibitory signal of weight {}'.format(
                 s_w(-weight.val)))
-            self.vdot.sym += -(self.g_syn_i*(
+            self.vdot.sym += -(self.g_syn_i.sym*(
                 s_w(-weight.sym)*neuron.neuron_out())*(
-                self.v.sym - self.e_syn_i))/self.c_m
+                self.v.sym - self.e_syn_i.sym))/self.c_m.sym
         return
 
     def ode_rhs(self):
         """Generate initial ode rhs."""
 
         #: Ileak
-        i_leak = self.g_leak * (self.v.sym - self.e_leak)
+        i_leak = self.g_leak.sym * (self.v.sym - self.e_leak.sym)
 
         #: ISyn_Excitatory
-        i_syn_e = self.g_syn_e * (self.d_e) * (
-            self.v.sym - self.e_syn_e)
+        i_syn_e = self.g_syn_e.sym * (self.d_e) * (
+            self.v.sym - self.e_syn_e.sym)
 
         #: ISyn_Inhibitory
-        i_syn_i = self.g_syn_i * (self.d_i) * (
-            self.v.sym - self.e_syn_i)
+        i_syn_i = self.g_syn_i.sym * (self.d_i) * (
+            self.v.sym - self.e_syn_i.sym)
 
         #: dV
-        self.vdot.sym = - (i_leak + i_syn_e + i_syn_i)/self.c_m
+        self.vdot.sym = - (i_leak + i_syn_e + i_syn_i)/self.c_m.sym
         return
-
-    def ode_alg_eqn(self):
-        """ Abstract function."""
-        pass
 
     def neuron_out(self):
         """ Output of the neuron model."""
-        _cond = cas.logic_and(self.v_thr <= self.v.sym,
-                              self.v.sym < self.v_max)
-        _f = (self.v.sym - self.v_thr) / (self.v_max - self.v_thr)
-        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr)
+        _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
+                              self.v.sym < self.v_max.sym)
+        _f = (self.v.sym - self.v_thr.sym) / (self.v_max.sym - self.v_thr.sym)
+        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr.sym)
 
 
 class LIF_Daun_Interneuron(Neuron):
