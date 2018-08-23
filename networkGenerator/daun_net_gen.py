@@ -161,6 +161,81 @@ class Interneurons(object):
         return
 
 
+class Motorneurons(object):
+    """Interneuons Network template.
+    """
+
+    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
+        """ Initialization. """
+        super(Motorneurons, self).__init__()
+        self.motorneruons = nx.DiGraph()
+        self.name = name
+        self.motorneruons.name = name
+
+        #: Methods
+        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_connections()
+        return
+
+    def add_neurons(self, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        self.motorneruons.add_node(self.name+'_MN1',
+                                   model='lif_daun_motorneruon',
+                                   x=-3.0+anchor_x,
+                                   y=1.5+anchor_y,
+                                   color=color,
+                                   g_app=0.19,
+                                   e_app=0.0,
+                                   v0=-65.0,
+                                   m_na0=0.9,
+                                   h_na0=0.0,
+                                   mm_k0=0.0,
+                                   m_q0=0.0)
+
+        self.motorneruons.add_node(self.name+'_MN2',
+                                   model='lif_daun_motorneruon',
+                                   x=-5.0+anchor_x,
+                                   y=1.5+anchor_y,
+                                   color=color,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-65.0,
+                                   m_na0=0.9,
+                                   h_na0=0.0,
+                                   mm_k0=0.0,
+                                   m_q0=0.0)
+
+        self.motorneruons.add_node(self.name+'_MN3',
+                                   model='lif_daun_motorneruon',
+                                   x=3.0+anchor_x,
+                                   y=1.5+anchor_y,
+                                   color=color,
+                                   g_app=0.19,
+                                   e_app=0.0,
+                                   v0=-65.0,
+                                   m_na0=0.9,
+                                   h_na0=0.0,
+                                   mm_k0=0.0,
+                                   m_q0=0.0)
+
+        self.motorneruons.add_node(self.name+'_MN4',
+                                   model='lif_daun_motorneruon',
+                                   x=5.0+anchor_x,
+                                   y=1.5+anchor_y,
+                                   color=color,
+                                   g_app=0.19,
+                                   e_app=0.0,
+                                   v0=-65.0,
+                                   m_na0=0.9,
+                                   h_na0=0.0,
+                                   mm_k0=0.0,
+                                   m_q0=0.0)
+        return
+
+    def add_connections(self):
+        pass
+
+
 class ConnectCPG2Interneurons(object):
     """Connect a CPG circuit with Interneuons
 

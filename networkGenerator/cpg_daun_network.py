@@ -7,7 +7,8 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from daun_net_gen import CPG, Interneurons, ConnectCPG2Interneurons
+from daun_net_gen import (CPG, ConnectCPG2Interneurons, Interneurons,
+                          Motorneurons)
 from network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -24,30 +25,43 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('PR_L1', anchor_x=0., anchor_y=12.)  #: Directed graph
-    net2 = CPG('PR_L2', anchor_x=0., anchor_y=0.)  #: Directed graph
-    net3 = CPG('PR_L3', anchor_x=0., anchor_y=-12.)  #: Directed graph
+    net1 = CPG('PR_L1', anchor_x=0., anchor_y=12.)
+    net2 = CPG('PR_L2', anchor_x=0., anchor_y=0.)
+    net3 = CPG('PR_L3', anchor_x=0., anchor_y=-12.)
 
-    net4 = CPG('LD_L1', anchor_x=12, anchor_y=12.)  #: Directed graph
-    net5 = CPG('LD_L2', anchor_x=12, anchor_y=0.)  #: Directed graph
-    net6 = CPG('LD_L3', anchor_x=12, anchor_y=-12.)  #: Directed graph
+    net4 = CPG('LD_L1', anchor_x=12, anchor_y=12.)
+    net5 = CPG('LD_L2', anchor_x=12, anchor_y=0.)
+    net6 = CPG('LD_L3', anchor_x=12, anchor_y=-12.)
 
-    net7 = CPG('EF_L1', anchor_x=24, anchor_y=12.)  #: Directed graph
-    net8 = CPG('EF_L2', anchor_x=24, anchor_y=0.)  #: Directed graph
-    net9 = CPG('EF_L3', anchor_x=24, anchor_y=-12.)  #: Directed graph
+    net7 = CPG('EF_L1', anchor_x=24, anchor_y=12.)
+    net8 = CPG('EF_L2', anchor_x=24, anchor_y=0.)
+    net9 = CPG('EF_L3', anchor_x=24, anchor_y=-12.)
 
-    #: Interneuron
-    net10 = Interneurons('PR_L1', anchor_x=0., anchor_y=12.)  #: Directed graph
-    net11 = Interneurons('PR_L2', anchor_x=0., anchor_y=0.)  #: Directed graph
-    net12 = Interneurons('PR_L3', anchor_x=0., anchor_y=-12.)  #: Directed graph
+    #: Interneurons
+    net10 = Interneurons('PR_L1', anchor_x=0., anchor_y=12.)
+    net11 = Interneurons('PR_L2', anchor_x=0., anchor_y=0.)
+    net12 = Interneurons('PR_L3', anchor_x=0., anchor_y=-12.)
 
-    net13 = Interneurons('LD_L1', anchor_x=12, anchor_y=12.)  #: Directed graph
-    net14 = Interneurons('LD_L2', anchor_x=12, anchor_y=0.)  #: Directed graph
-    net15 = Interneurons('LD_L3', anchor_x=12, anchor_y=-12.)  #: Directed graph
+    net13 = Interneurons('LD_L1', anchor_x=12, anchor_y=12.)
+    net14 = Interneurons('LD_L2', anchor_x=12, anchor_y=0.)
+    net15 = Interneurons('LD_L3', anchor_x=12, anchor_y=-12.)
 
-    net16 = Interneurons('EF_L1', anchor_x=24, anchor_y=12.)  #: Directed graph
-    net17 = Interneurons('EF_L2', anchor_x=24, anchor_y=0.)  #: Directed graph
-    net18 = Interneurons('EF_L3', anchor_x=24, anchor_y=-12.)  #: Directed graph
+    net16 = Interneurons('EF_L1', anchor_x=24, anchor_y=12.)
+    net17 = Interneurons('EF_L2', anchor_x=24, anchor_y=0.)
+    net18 = Interneurons('EF_L3', anchor_x=24, anchor_y=-12.)
+
+    #: Motorneurons
+    net19 = Motorneurons('PR_L1', anchor_x=0., anchor_y=12.)
+    net20 = Motorneurons('PR_L2', anchor_x=0., anchor_y=0.)
+    net21 = Motorneurons('PR_L3', anchor_x=0., anchor_y=-12.)
+
+    net22 = Motorneurons('LD_L1', anchor_x=12, anchor_y=12.)
+    net23 = Motorneurons('LD_L2', anchor_x=12, anchor_y=0.)
+    net24 = Motorneurons('LD_L3', anchor_x=12, anchor_y=-12.)
+
+    net25 = Motorneurons('EF_L1', anchor_x=24, anchor_y=12.)
+    net26 = Motorneurons('EF_L2', anchor_x=24, anchor_y=0.)
+    net27 = Motorneurons('EF_L3', anchor_x=24, anchor_y=-12.)
 
     # Connect CPG to Interneurons
     net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net10.interneurons)
@@ -69,7 +83,15 @@ def main():
                           net_C_IN_6.net,
                           net_C_IN_7.net,
                           net_C_IN_8.net,
-                          net_C_IN_9.net])
+                          net_C_IN_9.net,
+                          net19.motorneruons,
+                          net21.motorneruons,
+                          net22.motorneruons,
+                          net23.motorneruons,
+                          net24.motorneruons,
+                          net25.motorneruons,
+                          net26.motorneruons,
+                          net27.motorneruons])
 
     #: Connect Nodes Between Sub-Networks
 
