@@ -16,6 +16,13 @@ class Parameters(list):
         self._name_to_idx = {}  #: Dict to store name, index
         return
 
+    def get_idx(self, key):
+        """ Get the attribute value by name."""
+        if key not in self._name_to_idx:
+            raise AttributeError()
+        else:
+            return self[self._name_to_idx[key]].idx
+
     def get_val(self, key):
         """ Get the attribute value by name."""
         if key not in self._name_to_idx:
