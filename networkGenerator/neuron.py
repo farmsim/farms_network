@@ -513,8 +513,8 @@ class LIF_Daun_Interneuron(Neuron):
                                 kwargs.get('h0', 0.0))
 
         #: ODE
-        self.vdot = self.dae.add_ode('vdot_' + self.n_id)
-        self.hdot = self.dae.add_ode('hdot_' + self.n_id)
+        self.vdot = self.dae.add_ode('vdot_' + self.n_id, 0.0)
+        self.hdot = self.dae.add_ode('hdot_' + self.n_id, 0.0)
 
         self.z_i_syn = self.dae.add_z('z_i_syn_' + self.n_id,
                                       kwargs.get('z0_i_syn'))
@@ -530,7 +530,7 @@ class LIF_Daun_Interneuron(Neuron):
 
         return
 
-    def ode_add_input(self, neuron, **kwargs):
+    def add_ode_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -723,12 +723,12 @@ class LIF_Daun_Motorneuron(Neuron):
                                   kwargs.get('m_q0', 0.0))
 
         #: ODE
-        self.vdot = self.dae.add_ode('vdot_' + self.n_id)
-        self.hdot = self.dae.add_ode('hdot_' + self.n_id)
-        self.m_na_dot = self.dae.add_ode('m_na_dot_' + self.n_id)
-        self.h_na_dot = self.dae.add_ode('h_na_dot_' + self.n_id)
-        self.m_k_dot = self.dae.add_ode('m_k_dot_' + self.n_id)
-        self.m_q_dot = self.dae.add_ode('m_q_dot_' + self.n_id)
+        self.vdot = self.dae.add_ode('vdot_' + self.n_id, 0.0)
+        self.hdot = self.dae.add_ode('hdot_' + self.n_id, 0.0)
+        self.m_na_dot = self.dae.add_ode('m_na_dot_' + self.n_id, 0.0)
+        self.h_na_dot = self.dae.add_ode('h_na_dot_' + self.n_id, 0.0)
+        self.m_k_dot = self.dae.add_ode('m_k_dot_' + self.n_id, 0.0)
+        self.m_q_dot = self.dae.add_ode('m_q_dot_' + self.n_id, 0.0)
 
         #: External Input
         self.g_app = self.dae.add_u('g_app_' + self.n_id,
@@ -736,7 +736,7 @@ class LIF_Daun_Motorneuron(Neuron):
         self.e_app = self.dae.add_u('e_app_' + self.n_id,
                                     kwargs.get('e_app', 0.0))
 
-    def ode_add_input(self, neuron, **kwargs):
+    def add_ode_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
