@@ -63,17 +63,16 @@ class CPG(object):
         return
 
 
-class Commissural(object):
-    """Commissural Network template.
-
+class Interneurons(object):
+    """Interneuons Network template.
     """
 
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='y'):
         """ Initialization. """
-        super(Commissural, self).__init__()
-        self.commissural = nx.DiGraph()
+        super(Interneurons, self).__init__()
+        self.interneurons = nx.DiGraph()
         self.name = name
-        self.commissural.name = name
+        self.interneurons.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y, color)
@@ -82,79 +81,151 @@ class Commissural(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.commissural.add_node(self.name+'_CINe1',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=-1.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe2',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=1.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINi1',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=3.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINi2',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=5.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_Ini1',
-                                  model='lif_danner',
-                                  x=1.+anchor_x,
-                                  y=2+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
+        self.interneurons.add_node(self.name+'_IN1',
+                                   model='lif_daun_interneuron',
+                                   x=-3.0+anchor_x,
+                                   y=-2.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+        self.interneurons.add_node(self.name+'_IN2',
+                                   model='lif_daun_interneuron',
+                                   x=-5.0+anchor_x,
+                                   y=-2.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+        self.interneurons.add_node(self.name+'_IN3',
+                                   model='lif_daun_interneuron',
+                                   x=3.0+anchor_x,
+                                   y=-2.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+        self.interneurons.add_node(self.name+'_IN4',
+                                   model='lif_daun_interneuron',
+                                   x=5.0+anchor_x,
+                                   y=-2.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+        self.interneurons.add_node(self.name+'_IN5',
+                                   model='lif_daun_interneuron',
+                                   x=1.0+anchor_x,
+                                   y=3.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+        self.interneurons.add_node(self.name+'_IN6',
+                                   model='lif_daun_interneuron',
+                                   x=-1.0+anchor_x,
+                                   y=3.0+anchor_y,
+                                   color=color,
+                                   eps=0.01,
+                                   c_m=0.21,
+                                   g_app=1.6,
+                                   e_app=-80.0,
+                                   v0=-63.46,
+                                   h0=0.7910)
+
         return
 
     def add_connections(self):
+        self.interneurons.add_edge(self.name+'_IN6',
+                                   self.name+'_IN5',
+                                   weight=1.0,
+                                   g_syn=0.4,
+                                   e_syn=0.0,
+                                   v_h_s=-43.0,
+                                   gamma_s=-10.0)
         return
 
 
-class Ipsilateral(object):
-    """Ipsilateral Network template.
+class ConnectCPG2Interneurons(object):
+    """Connect a CPG circuit with Interneuons
 
     """
 
-    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
+    def __init__(self, cpg, interneurons):
         """ Initialization. """
-        super(Ipsilateral, self).__init__()
-        self.ipsilateral = nx.DiGraph()
-        self.name = name
-        self.ipsilateral.name = name
+        super(ConnectCPG2Interneurons, self).__init__()
+        self.net = nx.compose_all([cpg,
+                                   interneurons])
+        self.name = self.net.name
 
         #: Methods
-        self.add_neurons(anchor_x, anchor_y, color)
-        self.add_connections()
+        self.connect_circuits()
         return
 
-    def add_neurons(self, anchor_x, anchor_y, color):
-        """ Add neurons. """
-        self.ipsilateral.add_node(self.name+'F_Ini_fh',
-                                  model='lif_danner',
-                                  x=0.0+anchor_x,
-                                  y=0.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
+    def connect_circuits(self):
+        """ Connect CPG's to Interneurons. """
 
-        self.ipsilateral.add_node(self.name+'H_Ini_fh',
-                                  model='lif_danner',
-                                  x=0.0+anchor_x,
-                                  y=1.5+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
+        def _name(name):
+            """ Add the network name to the neuron."""
+            return self.name + '_' + name
 
-        return
+        self.net.add_edge(_name('C1'), _name('IN1'),
+                          weight=1.0,
+                          g_syn=0.5,
+                          e_syn=0.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
 
-    def add_connections(self):
-        return
+        self.net.add_edge(_name('C1'), _name('IN2'),
+                          weight=1.0,
+                          g_syn=0.5,
+                          e_syn=0.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
+
+        self.net.add_edge(_name('C2'), _name('IN3'),
+                          weight=1.0,
+                          g_syn=0.5,
+                          e_syn=0.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
+
+        self.net.add_edge(_name('C2'), _name('IN4'),
+                          weight=1.0,
+                          g_syn=0.5,
+                          e_syn=0.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
+
+        self.net.add_edge(_name('IN5'), _name('C2'),
+                          weight=-1.0,
+                          g_syn=0.5,
+                          e_syn=-80.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
+
+        self.net.add_edge(_name('IN6'), _name('C1'),
+                          weight=1.0,
+                          g_syn=0.1,
+                          e_syn=0.0,
+                          v_h_s=-43.0,
+                          gamma_s=-10.0)
+        return self.net
 
 
 def main():

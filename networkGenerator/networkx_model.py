@@ -109,16 +109,18 @@ class NetworkXModel(object):
 
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos,
-                                     edge_labels=labels)
+                                     edge_labels=labels,
+                                     font_size=5,
+                                     clip_on=True)
 
         nx.draw(self.graph, pos=self.pos,
                 with_labels=True, node_color=self.color_map,
-                node_size=1500,
-                font_size=8,
+                node_size=1200,
+                font_size=5,
                 font_weight='bold',
                 edge_color=self.color_map_edge,
                 arrowstyle='simple',
-                alpha=1.)
+                alpha=0.8)
         if plt_out is not None:
             plt_out.draw()
             plt_out.gca().invert_yaxis()

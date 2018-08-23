@@ -7,7 +7,7 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from daun_net_gen import CPG
+from daun_net_gen import CPG, Interneurons, ConnectCPG2Interneurons
 from network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -24,10 +24,52 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('PR_L1', anchor_x=0., anchor_y=0.)  #: Directed graph
+    net1 = CPG('PR_L1', anchor_x=0., anchor_y=12.)  #: Directed graph
+    net2 = CPG('PR_L2', anchor_x=0., anchor_y=0.)  #: Directed graph
+    net3 = CPG('PR_L3', anchor_x=0., anchor_y=-12.)  #: Directed graph
+
+    net4 = CPG('LD_L1', anchor_x=12, anchor_y=12.)  #: Directed graph
+    net5 = CPG('LD_L2', anchor_x=12, anchor_y=0.)  #: Directed graph
+    net6 = CPG('LD_L3', anchor_x=12, anchor_y=-12.)  #: Directed graph
+
+    net7 = CPG('EF_L1', anchor_x=24, anchor_y=12.)  #: Directed graph
+    net8 = CPG('EF_L2', anchor_x=24, anchor_y=0.)  #: Directed graph
+    net9 = CPG('EF_L3', anchor_x=24, anchor_y=-12.)  #: Directed graph
+
+    #: Interneuron
+    net10 = Interneurons('PR_L1', anchor_x=0., anchor_y=12.)  #: Directed graph
+    net11 = Interneurons('PR_L2', anchor_x=0., anchor_y=0.)  #: Directed graph
+    net12 = Interneurons('PR_L3', anchor_x=0., anchor_y=-12.)  #: Directed graph
+
+    net13 = Interneurons('LD_L1', anchor_x=12, anchor_y=12.)  #: Directed graph
+    net14 = Interneurons('LD_L2', anchor_x=12, anchor_y=0.)  #: Directed graph
+    net15 = Interneurons('LD_L3', anchor_x=12, anchor_y=-12.)  #: Directed graph
+
+    net16 = Interneurons('EF_L1', anchor_x=24, anchor_y=12.)  #: Directed graph
+    net17 = Interneurons('EF_L2', anchor_x=24, anchor_y=0.)  #: Directed graph
+    net18 = Interneurons('EF_L3', anchor_x=24, anchor_y=-12.)  #: Directed graph
+
+    # Connect CPG to Interneurons
+    net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net10.interneurons)
+    net_C_IN_2 = ConnectCPG2Interneurons(net2.cpg, net11.interneurons)
+    net_C_IN_3 = ConnectCPG2Interneurons(net3.cpg, net12.interneurons)
+    net_C_IN_4 = ConnectCPG2Interneurons(net4.cpg, net13.interneurons)
+    net_C_IN_5 = ConnectCPG2Interneurons(net5.cpg, net14.interneurons)
+    net_C_IN_6 = ConnectCPG2Interneurons(net6.cpg, net15.interneurons)
+    net_C_IN_7 = ConnectCPG2Interneurons(net7.cpg, net16.interneurons)
+    net_C_IN_8 = ConnectCPG2Interneurons(net8.cpg, net17.interneurons)
+    net_C_IN_9 = ConnectCPG2Interneurons(net9.cpg, net18.interneurons)
 
 #: Connecting sub graphs
-    net = nx.compose_all([net1.cpg])
+    net = nx.compose_all([net_C_IN_1.net,
+                          net_C_IN_2.net,
+                          net_C_IN_3.net,
+                          net_C_IN_4.net,
+                          net_C_IN_5.net,
+                          net_C_IN_6.net,
+                          net_C_IN_7.net,
+                          net_C_IN_8.net,
+                          net_C_IN_9.net])
 
     #: Connect Nodes Between Sub-Networks
 
@@ -61,34 +103,37 @@ def main():
 
     biolog.info('PARAMETERS')
     print('\n'.join(
-        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.p.param_list]))
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.p.param_list]))
 
     biolog.info('INPUTS')
     print('\n'.join(
-        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.u.param_list]))
-    
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.u.param_list]))
+
     biolog.info('INITIAL CONDITIONS')
     print('\n'.join(
-        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.x.param_list]))
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.x.param_list]))
 
     biolog.info('CONSTANTS')
     print('\n'.join(
-        ['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.c.param_list]))
-    
-    start_time = time.time()
-    for idx, _ in enumerate(time_vec):
-        res[idx] = net_.step()['xf'].full()[:, 0]
-    end_time = time.time()
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.c.param_list]))
 
-    biolog.info('Execution Time : {}'.format(
-        end_time - start_time))
+    # start_time = time.time()
+    # for idx, _ in enumerate(time_vec):
+    #     res[idx] = net_.step()['xf'].full()[:, 0]
+    # end_time = time.time()
+
+    # biolog.info('Execution Time : {}'.format(
+    #     end_time - start_time))
 
     # #: Results
     net_.save_network_to_dot()
     net_.visualize_network(plt)  #: Visualize network using Matplotlib
 
     plt.figure()
-    plt.subplot(211)
     plt.title('DAUNS NETWORK')
     plt.plot(time_vec*0.001,
              res[:, [net_.dae.x.get_idx('V_PR_L1_C1')]])
