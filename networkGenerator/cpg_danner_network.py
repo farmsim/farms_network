@@ -127,7 +127,11 @@ def main():
     #: opts
     opts = {'tf': dt,
             'jit': True,
-            "print_stats": False}
+            "enable_jacobian": True,
+            "print_time": False,
+            "print_stats": False,
+            "reltol": 1e-6,
+            "abstol": 1e-6}
 
     # #: Setup the integrator
     net_.setup_integrator(opts=opts)
