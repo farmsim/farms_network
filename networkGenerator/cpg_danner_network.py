@@ -120,13 +120,13 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 10000, dt)  #: Time
+    time_vec = np.arange(0, 100000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "print_stats": False}
 
     # #: Setup the integrator
@@ -137,7 +137,7 @@ def main():
 
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
-        net_.dae.u.set_all((idx*0.001/100.))
+        net_.dae.u.set_all_val(idx*0.001/100.)
         res[idx] = net_.step()['xf'].full()[:, 0]
     end_time = time.time()
 

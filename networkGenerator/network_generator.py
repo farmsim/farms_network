@@ -111,10 +111,10 @@ class NetworkGenerator(NetworkXModel):
         #: Generate Options for integration
         self.generate_opts(opts)
         #: Initialize states of the integrator
-        self.fin['x0'] = self.dae.x.vals()
-        self.fin['p'] = self.dae.u.vals() +\
-            self.dae.p.vals() + self.dae.c.vals()
-        self.fin['z0'] = self.dae.z.vals()
+        self.fin['x0'] = self.dae.x
+        self.fin['p'] = self.dae.u +\
+            self.dae.p + self.dae.c
+        self.fin['z0'] = self.dae.z
         self.fin['rx0'] = cas.DM([])
         self.fin['rp'] = cas.DM([])
         self.fin['rz0'] = cas.DM([])
@@ -131,8 +131,6 @@ class NetworkGenerator(NetworkXModel):
 
     def step(self):
         """Step integrator."""
-        self.fin['p'] = self.dae.u.vals() +\
-            self.dae.p.vals() + self.dae.c.vals()
         res = self.integrator.call(self.fin)
         self.fin['x0'] = res['xf']
         return res
