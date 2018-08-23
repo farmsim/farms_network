@@ -501,9 +501,6 @@ class LIF_Daun_Interneuron(Neuron):
         self.c_m = self.dae.add_c('c_m_' + self.n_id,
                                   kwargs.get('c_m', 0.9154))
 
-        #: Sum of external neuron connections
-        self.i_syn = 0.0
-
         #: State Variables
         #: pylint: disable=invalid-name
         #: Membrane potential
@@ -516,12 +513,9 @@ class LIF_Daun_Interneuron(Neuron):
         self.vdot = self.dae.add_ode('vdot_' + self.n_id, 0.0)
         self.hdot = self.dae.add_ode('hdot_' + self.n_id, 0.0)
 
-        self.z_i_syn = self.dae.add_z('z_i_syn_' + self.n_id,
-                                      kwargs.get('z0_i_syn'))
-
         #: External Input
         self.g_app = self.dae.add_u('g_app_' + self.n_id,
-                                    kwargs.get('g_app', 0.0))
+                                    kwargs.get('g_app', 0.2))
         self.e_app = self.dae.add_u('e_app_' + self.n_id,
                                     kwargs.get('e_app', 0.0))
 
@@ -590,7 +584,7 @@ class LIF_Daun_Interneuron(Neuron):
 
         #: dV
         self.vdot.sym = -(
-            i_nap + i_leak + i_app + self.i_syn)/self.c_m.sym
+            i_nap + i_leak + i_app)/self.c_m.sym
         return
 
     def ode_alg_eqn(self):
@@ -736,6 +730,9 @@ class LIF_Daun_Motorneuron(Neuron):
         self.e_app = self.dae.add_u('e_app_' + self.n_id,
                                     kwargs.get('e_app', 0.0))
 
+        #: ODE
+        self.ode_rhs()
+
     def add_ode_input(self, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
@@ -834,7 +831,7 @@ class LIF_Daun_Motorneuron(Neuron):
 
         #: dV
         self.vdot.sym = -(
-            i_nap + i_k + i_q + i_leak + i_app + self.i_syn)/self.c_m.sym
+            i_nap + i_k + i_q + i_leak + i_app)/self.c_m.sym
         return
 
     def ode_alg_eqn(self):
