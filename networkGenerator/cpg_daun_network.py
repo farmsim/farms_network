@@ -8,7 +8,7 @@ import numpy as np
 
 import biolog
 from daun_net_gen import (CPG, ConnectCPG2Interneurons, Interneurons,
-                          Motorneurons)
+                          Motorneurons, ConnectInterneurons2Motorneurons)
 from network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -74,24 +74,36 @@ def main():
     net_C_IN_8 = ConnectCPG2Interneurons(net8.cpg, net17.interneurons)
     net_C_IN_9 = ConnectCPG2Interneurons(net9.cpg, net18.interneurons)
 
-#: Connecting sub graphs
-    net = nx.compose_all([net_C_IN_1.net,
-                          net_C_IN_2.net,
-                          net_C_IN_3.net,
-                          net_C_IN_4.net,
-                          net_C_IN_5.net,
-                          net_C_IN_6.net,
-                          net_C_IN_7.net,
-                          net_C_IN_8.net,
-                          net_C_IN_9.net,
-                          net19.motorneruons,
-                          net21.motorneruons,
-                          net22.motorneruons,
-                          net23.motorneruons,
-                          net24.motorneruons,
-                          net25.motorneruons,
-                          net26.motorneruons,
-                          net27.motorneruons])
+    #: Connect Interneurons to Motorneurons
+    net_IN_MN_1 = ConnectInterneurons2Motorneurons(
+        net_C_IN_1.net, net19.motorneurons)
+    net_IN_MN_2 = ConnectInterneurons2Motorneurons(
+        net_C_IN_2.net, net20.motorneurons)
+    net_IN_MN_3 = ConnectInterneurons2Motorneurons(
+        net_C_IN_3.net, net21.motorneurons)
+    net_IN_MN_4 = ConnectInterneurons2Motorneurons(
+        net_C_IN_4.net, net22.motorneurons)
+    net_IN_MN_5 = ConnectInterneurons2Motorneurons(
+        net_C_IN_5.net, net23.motorneurons)
+    net_IN_MN_6 = ConnectInterneurons2Motorneurons(
+        net_C_IN_6.net, net24.motorneurons)
+    net_IN_MN_7 = ConnectInterneurons2Motorneurons(
+        net_C_IN_7.net, net25.motorneurons)
+    net_IN_MN_8 = ConnectInterneurons2Motorneurons(
+        net_C_IN_8.net, net26.motorneurons)
+    net_IN_MN_9 = ConnectInterneurons2Motorneurons(
+        net_C_IN_9.net, net27.motorneurons)
+
+    #: Connecting sub graphs
+    net = nx.compose_all([net_IN_MN_1.net,
+                          net_IN_MN_2.net,
+                          net_IN_MN_3.net,
+                          net_IN_MN_4.net,
+                          net_IN_MN_5.net,
+                          net_IN_MN_6.net,
+                          net_IN_MN_7.net,
+                          net_IN_MN_8.net,
+                          net_IN_MN_9.net])
 
     #: Connect Nodes Between Sub-Networks
 
@@ -104,7 +116,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 1000, dt)  #: Time
+    time_vec = np.arange(0, 100, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
@@ -123,33 +135,33 @@ def main():
     #: Integrate the network
     biolog.info('Begin Integration!')
 
-    biolog.info('PARAMETERS')
-    print('\n'.join(
-        ['{} : {}'.format(
-            p.sym.name(), p.val) for p in net_.dae.p.param_list]))
+    # biolog.info('PARAMETERS')
+    # print('\n'.join(
+    #     ['{} : {}'.format(
+    #         p.sym.name(), p.val) for p in net_.dae.p.param_list]))
 
-    biolog.info('INPUTS')
-    print('\n'.join(
-        ['{} : {}'.format(
-            p.sym.name(), p.val) for p in net_.dae.u.param_list]))
+    # biolog.info('INPUTS')
+    # print('\n'.join(
+    #     ['{} : {}'.format(
+    #         p.sym.name(), p.val) for p in net_.dae.u.param_list]))
 
-    biolog.info('INITIAL CONDITIONS')
-    print('\n'.join(
-        ['{} : {}'.format(
-            p.sym.name(), p.val) for p in net_.dae.x.param_list]))
+    # biolog.info('INITIAL CONDITIONS')
+    # print('\n'.join(
+    #     ['{} : {}'.format(
+    #         p.sym.name(), p.val) for p in net_.dae.x.param_list]))
 
-    biolog.info('CONSTANTS')
-    print('\n'.join(
-        ['{} : {}'.format(
-            p.sym.name(), p.val) for p in net_.dae.c.param_list]))
+    # biolog.info('CONSTANTS')
+    # print('\n'.join(
+    #     ['{} : {}'.format(
+    #         p.sym.name(), p.val) for p in net_.dae.c.param_list]))
 
-    # start_time = time.time()
-    # for idx, _ in enumerate(time_vec):
-    #     res[idx] = net_.step()['xf'].full()[:, 0]
-    # end_time = time.time()
+    start_time = time.time()
+    for idx, _ in enumerate(time_vec):
+        res[idx] = net_.step()['xf'].full()[:, 0]
+    end_time = time.time()
 
-    # biolog.info('Execution Time : {}'.format(
-    #     end_time - start_time))
+    biolog.info('Execution Time : {}'.format(
+        end_time - start_time))
 
     # #: Results
     net_.save_network_to_dot()

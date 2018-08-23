@@ -168,9 +168,9 @@ class Motorneurons(object):
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
         """ Initialization. """
         super(Motorneurons, self).__init__()
-        self.motorneruons = nx.DiGraph()
+        self.motorneurons = nx.DiGraph()
         self.name = name
-        self.motorneruons.name = name
+        self.motorneurons.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y, color)
@@ -179,7 +179,7 @@ class Motorneurons(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.motorneruons.add_node(self.name+'_MN1',
+        self.motorneurons.add_node(self.name+'_MN1',
                                    model='lif_daun_motorneruon',
                                    x=-3.0+anchor_x,
                                    y=1.5+anchor_y,
@@ -192,7 +192,7 @@ class Motorneurons(object):
                                    mm_k0=0.0,
                                    m_q0=0.0)
 
-        self.motorneruons.add_node(self.name+'_MN2',
+        self.motorneurons.add_node(self.name+'_MN2',
                                    model='lif_daun_motorneruon',
                                    x=-5.0+anchor_x,
                                    y=1.5+anchor_y,
@@ -205,7 +205,7 @@ class Motorneurons(object):
                                    mm_k0=0.0,
                                    m_q0=0.0)
 
-        self.motorneruons.add_node(self.name+'_MN3',
+        self.motorneurons.add_node(self.name+'_MN3',
                                    model='lif_daun_motorneruon',
                                    x=3.0+anchor_x,
                                    y=1.5+anchor_y,
@@ -218,7 +218,7 @@ class Motorneurons(object):
                                    mm_k0=0.0,
                                    m_q0=0.0)
 
-        self.motorneruons.add_node(self.name+'_MN4',
+        self.motorneurons.add_node(self.name+'_MN4',
                                    model='lif_daun_motorneruon',
                                    x=5.0+anchor_x,
                                    y=1.5+anchor_y,
@@ -300,6 +300,59 @@ class ConnectCPG2Interneurons(object):
                           e_syn=0.0,
                           v_h_s=-43.0,
                           gamma_s=-10.0)
+        return self.net
+
+
+class ConnectInterneurons2Motorneurons(object):
+    """Connect a Interneurons circuit with Motorneurons
+
+    """
+
+    def __init__(self, net, motorneurons):
+        """ Initialization. """
+        super(ConnectInterneurons2Motorneurons, self).__init__()
+        self.net = nx.compose_all([net,
+                                   motorneurons])
+        self.name = self.net.name
+
+        #: Methods
+        self.connect_circuits()
+        return
+
+    def connect_circuits(self):
+        """ Connect CPG's to Interneurons. """
+
+        def _name(name):
+            """ Add the network name to the neuron."""
+            return self.name + '_' + name
+
+        self.net.add_edge(_name('IN1'), _name('MN1'),
+                          weight=-1.0,
+                          g_syn=0.25,
+                          e_syn=-80.0,
+                          v_h_s=-43.0,
+                          gamma_s=-0.1)
+
+        self.net.add_edge(_name('IN2'), _name('MN2'),
+                          weight=-1.0,
+                          g_syn=0.25,
+                          e_syn=-80.0,
+                          v_h_s=-43.0,
+                          gamma_s=-0.1)
+
+        self.net.add_edge(_name('IN3'), _name('MN3'),
+                          weight=-1.0,
+                          g_syn=0.25,
+                          e_syn=-80.0,
+                          v_h_s=-43.0,
+                          gamma_s=-0.1)
+
+        self.net.add_edge(_name('IN4'), _name('MN4'),
+                          weight=-1.0,
+                          g_syn=0.25,
+                          e_syn=-80.0,
+                          v_h_s=-43.0,
+                          gamma_s=-0.1)
         return self.net
 
 
