@@ -705,8 +705,6 @@ class LIF_Daun_Motorneuron(Neuron):
         #: Membrane potential
         self.v = self.dae.add_x('V_' + self.n_id,
                                 kwargs.get('v0', 0.0))
-        self.h = self.dae.add_x('h_' + self.n_id,
-                                kwargs.get('h0', 0.0))
         self.m_na = self.dae.add_x(
             'm_na_' + self.n_id, kwargs.get('m_na0', 0.0))
         self.h_na = self.dae.add_x(
@@ -718,7 +716,6 @@ class LIF_Daun_Motorneuron(Neuron):
 
         #: ODE
         self.vdot = self.dae.add_ode('vdot_' + self.n_id, 0.0)
-        self.hdot = self.dae.add_ode('hdot_' + self.n_id, 0.0)
         self.m_na_dot = self.dae.add_ode('m_na_dot_' + self.n_id, 0.0)
         self.h_na_dot = self.dae.add_ode('h_na_dot_' + self.n_id, 0.0)
         self.m_k_dot = self.dae.add_ode('m_k_dot_' + self.n_id, 0.0)
