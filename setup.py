@@ -7,5 +7,5 @@ setup(name='network_generator',
       author='Shravan Tata Ramalingasetty',
       author_email='shravantr@gmail.com',
       license='MIT',
-      packages=['networkGenerator'],
+      packages=['network_generator'],
       zip_safe=False)
