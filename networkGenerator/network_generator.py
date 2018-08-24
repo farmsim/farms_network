@@ -104,7 +104,7 @@ class NetworkGenerator(NetworkXModel):
 
     #: pylint: disable=invalid-name
     def setup_integrator(self,
-                         integration_method='idas',
+                         integration_method='cvodes',
                          opts=None):
         """Setup casadi integrator."""
 
