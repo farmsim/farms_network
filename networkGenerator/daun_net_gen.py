@@ -88,6 +88,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
+                                   g_leak=2.8,
                                    g_app=1.6,
                                    e_app=-80.0,
                                    v0=-63.46,
@@ -99,6 +100,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
+                                   g_leak=2.8,
                                    g_app=1.6,
                                    e_app=-80.0,
                                    v0=-63.46,
@@ -110,6 +112,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
+                                   g_leak=2.8,
                                    g_app=1.6,
                                    e_app=-80.0,
                                    v0=-63.46,
@@ -121,6 +124,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
+                                   g_leak=2.8,
                                    g_app=1.6,
                                    e_app=-80.0,
                                    v0=-63.46,
@@ -132,8 +136,9 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
-                                   g_app=1.6,
-                                   e_app=-80.0,
+                                   g_leak=2.8,
+                                   g_app=0.0,
+                                   e_app=0.0,
                                    v0=-63.46,
                                    h0=0.7910)
         self.interneurons.add_node(self.name+'_IN6',
@@ -143,8 +148,9 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
-                                   g_app=1.6,
-                                   e_app=-80.0,
+                                   g_leak=2.8,
+                                   g_app=0.0,
+                                   e_app=0.0,
                                    v0=-63.46,
                                    h0=0.7910)
 
@@ -289,7 +295,7 @@ class ConnectCPG2Interneurons(object):
 
         self.net.add_edge(_name('IN5'), _name('C2'),
                           weight=-1.0,
-                          g_syn=0.5,
+                          g_syn=0.05,
                           e_syn=-80.0,
                           v_h_s=-43.0,
                           gamma_s=-10.0)
@@ -299,7 +305,7 @@ class ConnectCPG2Interneurons(object):
                           g_syn=0.1,
                           e_syn=0.0,
                           v_h_s=-43.0,
-                          gamma_s=-10.0)
+                          gamma_s=-0.42)
         return self.net
 
 
