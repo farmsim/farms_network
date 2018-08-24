@@ -1,2 +1,5 @@
 networkx
 casadi
+biolog
+matplotlib
+pyplot
