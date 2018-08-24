@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+			http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+
+   <!-- Attributes for nodes -->
+   <key id="neuron_name" for="node" attr.name="name" attr.type="string">
+     <default>"neuron"</default>
+   </key>
+   
+   <key id="neuron_type" for="node" attr.name="model" attr.type="string">
+     <default>lif_daun_interneuron</default>
+   </key>
+
+   <key id="pos_x" for="node" attr.name="x" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="pos_y" for="node" attr.name="y" attr.type="float">
+     <default>0.0</default>
+   </key>
+
+   <key id="color" for="node" attr.name="color" attr.type="string">
+     <default>red</default>
+   </key>
+
+   <key id="c_m" for="node" attr.name="c_m" attr.type="float">
+     <default>0.2</default>
+   </key>
+
+   <key id="eps" for="node" attr.name="eps" attr.type="float">
+     <default>0.0023</default>
+   </key>   
+
+   <key id="g_leak" for="node" attr.name="g_leak" attr.type="float">
+     <default>0.2</default>
+   </key>
+
+   <key id="g_q" for="node" attr.name="g_q" attr.type="float">
+     <default>12</default>
+   </key>   
+      
+   
+  <!-- Attributes for edges -->
+   <key id="weight" for="edge" attr.name="weight" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+   <key id="g_syn" for="edge" attr.name="g_syn" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+   <key id="e_syn" for="edge" attr.name="e_syn" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+   <key id="v_h_s" for="edge" attr.name="v_h_s" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+   <key id="gamma_s" for="edge" attr.name="gamma_s" attr.type="double">
+     <default>0.0</default>
+   </key>
+
+  <graph id="Motorneuron" edgedefault="directed">
+
+   <!-- Motorneuron -->
+       <node id="C1">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">g</data>
+	 <data key="eps">0.0023</data>
+	 <data key="c_m">0.9153</data>	 
+       </node>
+
+       <node id="C2">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">2.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">g</data>
+	 <data key="eps">0.0023</data>
+	 <data key="c_m">0.9153</data>	 	 
+       </node>
+
+       <node id="In1">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">0.0</data>
+	 <data key="pos_y">-1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">2.8</data>	 
+       </node>
+
+       <node id="In2">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">-1.0</data>
+	 <data key="pos_y">-1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">2.8</data>	 
+       </node>
+
+       <node id="In3">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">3.0</data>
+	 <data key="pos_y">-1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">2.8</data>	  
+       </node>
+
+       <node id="In4">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">-1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">2.8</data>	  
+       </node>
+
+       <node id="In5">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">2.0</data>
+	 <data key="pos_y">1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">6.8</data>	   
+       </node>
+
+       <node id="In6">
+	 <data key="neuron_type">lif_daun_interneuron</data>
+	 <data key="pos_x">1.0</data>
+	 <data key="pos_y">1.0</data>
+	 <data key="color">y</data>
+	 <data key="eps">0.01</data>
+	 <data key="c_m">0.21</data>
+	 <data key="g_leak">10.0</data>	    
+       </node>       
+
+       <node id="Mn1">
+	 <data key="neuron_type">lif_daun_motorneuron</data>
+	 <data key="pos_x">0.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+       </node>
+
+       <node id="Mn2">
+	 <data key="neuron_type">lif_daun_motorneuron</data>
+	 <data key="pos_x">-1.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+	 <data key="g_q">36.</data>	 	 
+       </node>
+
+       <node id="Mn3">
+	 <data key="neuron_type">lif_daun_motorneuron</data>
+	 <data key="pos_x">3.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>	 
+       </node>
+
+       <node id="Mn4">
+	 <data key="neuron_type">lif_daun_motorneuron</data>
+	 <data key="pos_x">4.0</data>
+	 <data key="pos_y">0.0</data>
+	 <data key="color">b</data>
+	 <data key="g_q">36.</data>	 	 
+       </node>       
+
+   <!-- EDGES -->     
+   <edge source="C1" target="C2">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">1.0</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C2" target="C1">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">1.0</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C1" target="In1">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C1" target="In2">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C2" target="In3">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="C2" target="In4">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.5</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>   
+
+   <edge source="In5" target="C2">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">0.05</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="In6" target="C1">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.1</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-0.42</data>
+   </edge>
+   
+   <edge source="In6" target="In5">
+     <data key="weight">1.0</data>
+     <data key="g_syn">0.4</data>
+     <data key="e_syn">0.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-10.0</data>
+   </edge>
+
+   <edge source="In1" target="Mn1">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-0.1</data>
+   </edge>
+
+   <edge source="In2" target="Mn2">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-0.1</data>
+   </edge>
+
+   <edge source="In3" target="Mn3">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-0.1</data>
+   </edge>
+
+   <edge source="In4" target="Mn4">
+     <data key="weight">-1.0</data>
+     <data key="g_syn">0.25</data>
+     <data key="e_syn">-80.0</data>
+     <data key="v_h_s">-43.0</data>
+     <data key="gamma_s">-0.1</data>
+   </edge>      
+   
+  </graph>
+</graphml>
