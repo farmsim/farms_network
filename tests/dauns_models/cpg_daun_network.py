@@ -5,10 +5,10 @@ import time
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+from daun_net_gen import SideNetwork
+from network_generator.network_generator import NetworkGenerator
 
 import biolog
-from daun_net_gen import (SideNetwork)
-from network_generator import NetworkGenerator
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -54,7 +54,7 @@ def main():
             "abstol": 1e-6}
 
     # #: Setup the integrator
-    net_.setup_integrator(opts=opts)
+    net_.setup_integrator(integration_method='cvodes', opts=opts)
 
     #: Integrate the network
     biolog.info('Begin Integration!')

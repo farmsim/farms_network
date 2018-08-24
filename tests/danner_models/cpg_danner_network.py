@@ -1,12 +1,14 @@
 """ Danner CPG Model. """
 
-from network_generator import NetworkGenerator
+import time
+
 import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
+from network_generator.network_generator import NetworkGenerator
+
 import biolog
 from danner_net_gen import CPG, Commissural, Ipsilateral
-import networkx as nx
-import time
 
 # Global settings for plotting
 # You may change as per your requirement
