@@ -37,8 +37,9 @@ class NeuralNetGen(NetworkXModel):
         self.dae = {}  #: Network DAE setup for integrator
         self.opts = {}  #: Network integration options
         self.integrator = None  #: CASADI Integrator
+        self.results = {}
         #: pylint: disable=invalid-name
-        self.x0 = []  #: Initial state of the network
+        self._x0 = []  #: Initial state of the network
 
         #: METHODS
         self.read_graph(graph_file_path)
@@ -46,10 +47,25 @@ class NeuralNetGen(NetworkXModel):
         # self.generate_neuron_models()
 
         #: Time Integration
-        self.dt = 1.
+        self._dt = 1.
         self.fin = {}
 
         return
+
+    @property
+    def dt(self):
+        """Set integration time step.  """
+        return self._dt
+
+    @dt.setter
+    def dt(self, value):
+        """
+        Parameters
+        ----------
+        value : <float>
+            Integration time step. No units.
+        """
+        self._dt = value
 
     def generate_neurons(self):
         """Generate the complete neural network.
@@ -98,7 +114,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_states(self):
         """Generate ode states for the network."""
 
-        for neuron in self.neurons.values():
+        for _, neuron in self.neurons.iteritems():
             self.states.extend(neuron.ode_states())
         self.num_states = len(self.states)
         biolog.info(15 * '#' +
@@ -112,7 +128,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_params(self):
         """Generate ode parameters for the network."""
 
-        for neuron in self.neurons.values():
+        for _, neuron in self.neurons.iteritems():
             self.params.extend(neuron.ode_params())
         self.num_params = len(self.params)
         biolog.info(15 * '#' +
@@ -126,7 +142,7 @@ class NeuralNetGen(NetworkXModel):
     def generate_algebraic_eqn_var(self):
         """ Generate Algebraic equations and states."""
 
-        for neuron in self.neurons.values():
+        for _, neuron in self.neurons.iteritems():
             self.alg_var.extend(neuron.ode_alg_var())
         self.num_alg_var = len(self.alg_var)
         self.alg_var = cas.vertcat(*self.alg_var)
@@ -138,7 +154,8 @@ class NeuralNetGen(NetworkXModel):
 
     def generate_ode(self):
         """ Generate ode rhs for the network."""
-        for _, neuron in enumerate(self.neurons.values()):
+        for name, neuron in self.neurons.iteritems():
+            print(name)
             self.ode.extend(neuron.ode_rhs())
         self.num_ode = len(self.ode)
         biolog.info(15 * '#' +
@@ -174,8 +191,37 @@ class NeuralNetGen(NetworkXModel):
                          "print_stats": False}
         return
 
-     #: pylint: disable=invalid-name
-    def setup_integrator(self, x0,
+    def set_init_states(self, x0):
+        """Set the initial conditions of the neurons.
+
+        Parameters
+        ----------
+            x0 : <dict>
+                Dictionary containing the initial states of the network
+        """
+
+        for neuron, _ in self.neurons.iteritems():
+            self._x0.extend([val for val in x0[neuron]])
+
+        return
+
+    def set_params(self, param):
+        """Set the parameters of the neurons.
+
+        Parameters
+        ----------
+            param : <dict>
+                Dictionary containing the network parameters
+        """
+
+        _param = []
+
+        for neuron, _ in self.neurons.iteritems():
+            _param.extend([val for val in param[neuron]])
+        return _param
+
+    #: pylint: disable=invalid-name
+    def setup_integrator(self,
                          integration_method='idas',
                          opts=None):
         """Setup casadi integrator."""
@@ -185,7 +231,7 @@ class NeuralNetGen(NetworkXModel):
         #: Generate Options for integration
         self.generate_opts(opts)
         #: Initialize states of the integrator
-        self.fin['x0'] = x0
+        self.fin['x0'] = self._x0
         self.fin['p'] = []
         self.fin['z0'] = cas.DM([])
         self.fin['rx0'] = cas.DM([])
@@ -207,6 +253,15 @@ class NeuralNetGen(NetworkXModel):
         res = self.integrator.call(self.fin)
         self.fin['x0'] = res['xf']
         return res
+
+    def resutls(self,):
+        """Save the results from integration.
+        Parameters
+        ----------
+         res : <array>
+             Array containing results at time step t."""
+
+        pass
 
 
 def main():

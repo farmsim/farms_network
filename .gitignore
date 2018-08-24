@@ -5,3 +5,6 @@
 # Temp Files
 *.*~
 \#.*
+
+# Auto-generated files
+auto*

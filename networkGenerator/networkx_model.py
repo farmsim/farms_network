@@ -2,12 +2,46 @@
 
 import os
 
+import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
 from networkx.drawing.nx_pydot import write_dot
+from PyQt5 import QtWidgets
 
 import biolog
+
+# Make sure that we are using QT5
+matplotlib.use('Qt5Agg')
+
+
+class ScrollableWindow(QtWidgets.QMainWindow):
+    def __init__(self, fig):
+        self.qapp = QtWidgets.QApplication([])
+
+        QtWidgets.QMainWindow.__init__(self)
+        self.widget = QtWidgets.QWidget()
+        self.setCentralWidget(self.widget)
+        self.widget.setLayout(QtWidgets.QVBoxLayout())
+        self.widget.layout().setContentsMargins(0, 0, 0, 0)
+        self.widget.layout().setSpacing(0)
+
+        self.fig = fig
+        self.canvas = FigureCanvas(self.fig)
+        self.canvas.draw()
+        self.scroll = QtWidgets.QScrollArea(self.widget)
+        self.scroll.setWidget(self.canvas)
+
+        self.nav = NavigationToolbar(self.canvas, self.widget)
+        self.widget.layout().addWidget(self.nav)
+        self.widget.layout().addWidget(self.scroll)
+
+        self.show()
+        exit(self.qapp.exec_())
 
 
 class NetworkXModel(object):
@@ -99,28 +133,36 @@ class NetworkXModel(object):
                 self.color_map_edge.extend('k')
         return
 
-    def visualize_network(self):
+    def visualize_network(self, plt_out=None):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
         self.read_edge_colors_in_graph()
 
         labels = nx.get_edge_attributes(self.graph, 'weight')
-
+        fig = plt.figure('Network')
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos,
-                                     edge_labels=labels)
+                                     edge_labels=labels,
+                                     font_size=5,
+                                     clip_on=True)
 
         nx.draw(self.graph, pos=self.pos,
                 with_labels=True, node_color=self.color_map,
-                node_size=1500,
-                font_size=8,
+                node_size=1250,
+                font_size=6.5,
                 font_weight='bold',
                 edge_color=self.color_map_edge,
                 arrowstyle='simple',
-                alpha=1.)
-        plt.draw()
-        plt.gca().invert_yaxis()
+                alpha=0.8)
+        if plt_out is not None:
+            plt_out.draw()
+            plt_out.gca().invert_yaxis()
+        else:
+            fig.draw()
+            fig.gca().invert_yaxis()
+            fig.show()
+        # ScrollableWindow(fig)
         return
 
     def save_network_to_dot(self, name='graph'):
