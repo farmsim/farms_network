@@ -7,8 +7,7 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from daun_net_gen import (CPG, ConnectCPG2Interneurons, Interneurons,
-                          Motorneurons, ConnectInterneurons2Motorneurons)
+from daun_net_gen import (SideNetwork)
 from network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -24,90 +23,14 @@ plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 def main():
     """Main."""
 
-    #: CPG
-    net1 = CPG('PR_L1', anchor_x=0., anchor_y=12.)
-    net2 = CPG('PR_L2', anchor_x=0., anchor_y=0.)
-    net3 = CPG('PR_L3', anchor_x=0., anchor_y=-12.)
+    #: Left side network
+    net_right = SideNetwork('R', 60.0, 0.0)
+    net_left = SideNetwork('L', 0.0, 0.0)
 
-    net4 = CPG('LD_L1', anchor_x=12, anchor_y=12.)
-    net5 = CPG('LD_L2', anchor_x=12, anchor_y=0.)
-    net6 = CPG('LD_L3', anchor_x=12, anchor_y=-12.)
-
-    net7 = CPG('EF_L1', anchor_x=24, anchor_y=12.)
-    net8 = CPG('EF_L2', anchor_x=24, anchor_y=0.)
-    net9 = CPG('EF_L3', anchor_x=24, anchor_y=-12.)
-
-    #: Interneurons
-    net10 = Interneurons('PR_L1', anchor_x=0., anchor_y=12.)
-    net11 = Interneurons('PR_L2', anchor_x=0., anchor_y=0.)
-    net12 = Interneurons('PR_L3', anchor_x=0., anchor_y=-12.)
-
-    net13 = Interneurons('LD_L1', anchor_x=12, anchor_y=12.)
-    net14 = Interneurons('LD_L2', anchor_x=12, anchor_y=0.)
-    net15 = Interneurons('LD_L3', anchor_x=12, anchor_y=-12.)
-
-    net16 = Interneurons('EF_L1', anchor_x=24, anchor_y=12.)
-    net17 = Interneurons('EF_L2', anchor_x=24, anchor_y=0.)
-    net18 = Interneurons('EF_L3', anchor_x=24, anchor_y=-12.)
-
-    #: Motorneurons
-    net19 = Motorneurons('PR_L1', anchor_x=0., anchor_y=12.)
-    net20 = Motorneurons('PR_L2', anchor_x=0., anchor_y=0.)
-    net21 = Motorneurons('PR_L3', anchor_x=0., anchor_y=-12.)
-
-    net22 = Motorneurons('LD_L1', anchor_x=12, anchor_y=12.)
-    net23 = Motorneurons('LD_L2', anchor_x=12, anchor_y=0.)
-    net24 = Motorneurons('LD_L3', anchor_x=12, anchor_y=-12.)
-
-    net25 = Motorneurons('EF_L1', anchor_x=24, anchor_y=12.)
-    net26 = Motorneurons('EF_L2', anchor_x=24, anchor_y=0.)
-    net27 = Motorneurons('EF_L3', anchor_x=24, anchor_y=-12.)
-
-    # Connect CPG to Interneurons
-    net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net10.interneurons)
-    net_C_IN_2 = ConnectCPG2Interneurons(net2.cpg, net11.interneurons)
-    net_C_IN_3 = ConnectCPG2Interneurons(net3.cpg, net12.interneurons)
-    net_C_IN_4 = ConnectCPG2Interneurons(net4.cpg, net13.interneurons)
-    net_C_IN_5 = ConnectCPG2Interneurons(net5.cpg, net14.interneurons)
-    net_C_IN_6 = ConnectCPG2Interneurons(net6.cpg, net15.interneurons)
-    net_C_IN_7 = ConnectCPG2Interneurons(net7.cpg, net16.interneurons)
-    net_C_IN_8 = ConnectCPG2Interneurons(net8.cpg, net17.interneurons)
-    net_C_IN_9 = ConnectCPG2Interneurons(net9.cpg, net18.interneurons)
-
-    #: Connect Interneurons to Motorneurons
-    net_IN_MN_1 = ConnectInterneurons2Motorneurons(
-        net_C_IN_1.net, net19.motorneurons)
-    net_IN_MN_2 = ConnectInterneurons2Motorneurons(
-        net_C_IN_2.net, net20.motorneurons)
-    net_IN_MN_3 = ConnectInterneurons2Motorneurons(
-        net_C_IN_3.net, net21.motorneurons)
-    net_IN_MN_4 = ConnectInterneurons2Motorneurons(
-        net_C_IN_4.net, net22.motorneurons)
-    net_IN_MN_5 = ConnectInterneurons2Motorneurons(
-        net_C_IN_5.net, net23.motorneurons)
-    net_IN_MN_6 = ConnectInterneurons2Motorneurons(
-        net_C_IN_6.net, net24.motorneurons)
-    net_IN_MN_7 = ConnectInterneurons2Motorneurons(
-        net_C_IN_7.net, net25.motorneurons)
-    net_IN_MN_8 = ConnectInterneurons2Motorneurons(
-        net_C_IN_8.net, net26.motorneurons)
-    net_IN_MN_9 = ConnectInterneurons2Motorneurons(
-        net_C_IN_9.net, net27.motorneurons)
-
-    #: Connecting sub graphs
-    net = nx.compose_all([net_IN_MN_1.net,
-                          net_IN_MN_2.net,
-                          net_IN_MN_3.net,
-                          net_IN_MN_4.net,
-                          net_IN_MN_5.net,
-                          net_IN_MN_6.net,
-                          net_IN_MN_7.net,
-                          net_IN_MN_8.net,
-                          net_IN_MN_9.net
-    ])
+    net = nx.compose_all([net_left.net,
+                          net_right.net])
 
     #: Connect Nodes Between Sub-Networks
-
     nx.write_graphml(net,
                      './conf/auto_gen_daun_cpg.graphml')
 
@@ -117,13 +40,13 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 1000, dt)  #: Time
+    time_vec = np.arange(0, 100, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
@@ -175,10 +98,12 @@ def main():
     plt.plot(time_vec*0.001,
              res[:, [net_.dae.x.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
-    plt.plot(time_vec*0.001,
-             res[:, [net_.dae.x.get_idx('V_PR_L1_IN6')]],
-             ':', markersize=5.)
-    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2', 'V_PR_L1_IN6'))
+    # plt.plot(time_vec*0.001,
+    #          res[:, [net_.dae.x.get_idx('V_PR_L1_IN6')]],
+    #          ':', markersize=5.)
+    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2',
+                # 'V_PR_L1_IN6'
+                ))
     plt.grid()
     plt.show()
 

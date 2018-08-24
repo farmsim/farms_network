@@ -362,14 +362,127 @@ class ConnectInterneurons2Motorneurons(object):
         return self.net
 
 
-def main():
-    """ Main. """
+class SideNetwork(object):
+    """Daun's Insect One Side Network Class.
+    """
 
-    net = CPG('FORE')  #: Directed graph
-    nx.write_graphml(net.cpg, './conf/auto_gen_danner_cpg.graphml')
+    def __init__(self, side, anchor_x=0.0, anchor_y=0.0):
+        super(SideNetwork, self).__init__()
+        self.side = side
+        self.net = None
 
-    return
+        #: Method
+        self._generate_network(anchor_x, anchor_y)
 
+    def _generate_network(self, x_pos, y_pos):
+        """ Generate the network. """
+        #: CPG
+        net1 = CPG('PR_{}1'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
+        net2 = CPG('PR_{}2'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=0.+y_pos)
+        net3 = CPG('PR_{}3'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=-12.+y_pos)
 
-if __name__ == '__main__':
-    main()
+        net4 = CPG('LD_{}1'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=12.+y_pos)
+        net5 = CPG('LD_{}2'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=0.+y_pos)
+        net6 = CPG('LD_{}3'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=-12.+y_pos)
+
+        net7 = CPG('EF_{}1'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=12.+y_pos)
+        net8 = CPG('EF_{}2'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=0.+y_pos)
+        net9 = CPG('EF_{}3'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
+
+        #: Interneurons
+        net10 = Interneurons('PR_{}1'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
+        net11 = Interneurons('PR_{}2'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=0.+y_pos)
+        net12 = Interneurons('PR_{}3'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=-12.+y_pos)
+
+        net13 = Interneurons('LD_{}1'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=12.+y_pos)
+        net14 = Interneurons('LD_{}2'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=0.+y_pos)
+        net15 = Interneurons('LD_{}3'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=-12.+y_pos)
+
+        net16 = Interneurons('EF_{}1'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=12.+y_pos)
+        net17 = Interneurons('EF_{}2'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=0.+y_pos)
+        net18 = Interneurons('EF_{}3'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
+
+        #: Motorneurons
+        net19 = Motorneurons('PR_{}1'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
+        net20 = Motorneurons('PR_{}2'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=0.+y_pos)
+        net21 = Motorneurons('PR_{}3'.format(
+            self.side), anchor_x=0.+x_pos, anchor_y=-12.+y_pos)
+
+        net22 = Motorneurons('LD_{}1'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=12.+y_pos)
+        net23 = Motorneurons('LD_{}2'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=0.+y_pos)
+        net24 = Motorneurons('LD_{}3'.format(
+            self.side), anchor_x=12+x_pos, anchor_y=-12.+y_pos)
+
+        net25 = Motorneurons('EF_{}1'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=12.+y_pos)
+        net26 = Motorneurons('EF_{}2'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=0.+y_pos)
+        net27 = Motorneurons('EF_{}3'.format(
+            self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
+
+        # Connect CPG to Interneurons
+        #: pylint: disable=invalid-name
+        net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net10.interneurons)
+        net_C_IN_2 = ConnectCPG2Interneurons(net2.cpg, net11.interneurons)
+        net_C_IN_3 = ConnectCPG2Interneurons(net3.cpg, net12.interneurons)
+        net_C_IN_4 = ConnectCPG2Interneurons(net4.cpg, net13.interneurons)
+        net_C_IN_5 = ConnectCPG2Interneurons(net5.cpg, net14.interneurons)
+        net_C_IN_6 = ConnectCPG2Interneurons(net6.cpg, net15.interneurons)
+        net_C_IN_7 = ConnectCPG2Interneurons(net7.cpg, net16.interneurons)
+        net_C_IN_8 = ConnectCPG2Interneurons(net8.cpg, net17.interneurons)
+        net_C_IN_9 = ConnectCPG2Interneurons(net9.cpg, net18.interneurons)
+
+        #: Connect Interneurons to Motorneurons
+        net_IN_MN_1 = ConnectInterneurons2Motorneurons(
+            net_C_IN_1.net, net19.motorneurons)
+        net_IN_MN_2 = ConnectInterneurons2Motorneurons(
+            net_C_IN_2.net, net20.motorneurons)
+        net_IN_MN_3 = ConnectInterneurons2Motorneurons(
+            net_C_IN_3.net, net21.motorneurons)
+        net_IN_MN_4 = ConnectInterneurons2Motorneurons(
+            net_C_IN_4.net, net22.motorneurons)
+        net_IN_MN_5 = ConnectInterneurons2Motorneurons(
+            net_C_IN_5.net, net23.motorneurons)
+        net_IN_MN_6 = ConnectInterneurons2Motorneurons(
+            net_C_IN_6.net, net24.motorneurons)
+        net_IN_MN_7 = ConnectInterneurons2Motorneurons(
+            net_C_IN_7.net, net25.motorneurons)
+        net_IN_MN_8 = ConnectInterneurons2Motorneurons(
+            net_C_IN_8.net, net26.motorneurons)
+        net_IN_MN_9 = ConnectInterneurons2Motorneurons(
+            net_C_IN_9.net, net27.motorneurons)
+
+        #: Connecting sub graphs
+        self.net = nx.compose_all([net_IN_MN_1.net,
+                                   net_IN_MN_2.net,
+                                   net_IN_MN_3.net,
+                                   net_IN_MN_4.net,
+                                   net_IN_MN_5.net,
+                                   net_IN_MN_6.net,
+                                   net_IN_MN_7.net,
+                                   net_IN_MN_8.net,
+                                   net_IN_MN_9.net
+                                   ])
+        return
