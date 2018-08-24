@@ -46,7 +46,7 @@ def main():
 
     #: opts
     opts = {'tf': dt,
-            'jit': True,
+            'jit': False,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
