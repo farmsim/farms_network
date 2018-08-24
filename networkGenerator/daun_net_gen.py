@@ -136,7 +136,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
-                                   g_leak=2.8,
+                                   g_leak=6.8,
                                    g_app=0.0,
                                    e_app=0.0,
                                    v0=-63.46,
@@ -148,7 +148,7 @@ class Interneurons(object):
                                    color=color,
                                    eps=0.01,
                                    c_m=0.21,
-                                   g_leak=2.8,
+                                   g_leak=10.,
                                    g_app=0.0,
                                    e_app=0.0,
                                    v0=-63.46,
@@ -293,7 +293,7 @@ class ConnectCPG2Interneurons(object):
                           v_h_s=-43.0,
                           gamma_s=-10.0)
 
-        self.net.add_edge(_name('IN5'), _name('C2'),
+        self.net.add_edge(_name('IN6'), _name('C2'),
                           weight=-1.0,
                           g_syn=0.05,
                           e_syn=-80.0,

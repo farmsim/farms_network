@@ -103,7 +103,8 @@ def main():
                           net_IN_MN_6.net,
                           net_IN_MN_7.net,
                           net_IN_MN_8.net,
-                          net_IN_MN_9.net])
+                          net_IN_MN_9.net
+    ])
 
     #: Connect Nodes Between Sub-Networks
 
@@ -116,7 +117,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 100, dt)  #: Time
+    time_vec = np.arange(0, 1000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
@@ -174,7 +175,10 @@ def main():
     plt.plot(time_vec*0.001,
              res[:, [net_.dae.x.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
-    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2'))
+    plt.plot(time_vec*0.001,
+             res[:, [net_.dae.x.get_idx('V_PR_L1_IN6')]],
+             ':', markersize=5.)
+    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2', 'V_PR_L1_IN6'))
     plt.grid()
     plt.show()
 
