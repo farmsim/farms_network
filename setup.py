@@ -7,5 +7,6 @@ setuptools.setup(name='network_generator',
                  author='Shravan Tata Ramalingasetty',
                  author_email='shravantr@gmail.com',
                  license='MIT',
-                 packages=setuptools.find_packages(),
+                 packages=setuptools.find_packages(
+                    exclude=['tests*']),
                  zip_safe=False)
