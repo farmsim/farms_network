@@ -8,8 +8,7 @@ import numpy as np
 from network_generator.network_generator import NetworkGenerator
 
 import biolog
-from danner_net_gen import (CPG, Commissural, ConnectIpsilateralRG2CIN,
-                            Ipsilateral)
+from danner_net_gen import CPG, Commissural, Ipsilateral
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -60,33 +59,46 @@ def main():
 
     #: Connect Nodes Between Sub-Networks
 
-    net_RG_CIN1 = ConnectIpsilateralRG2CIN(net1, net5)
-    net_RG_CIN2 = ConnectIpsilateralRG2CIN(net2, net6)
-    net_RG_CIN3 = ConnectIpsilateralRG2CIN(net3, net7)
-    net_RG_CIN4 = ConnectIpsilateralRG2CIN(net4, net8)     
-
-
+    net.add_edge('FL_RG_F', 'FL_CINe1', weight=0.25)
+    net.add_edge('FL_RG_F', 'FL_CINe2', weight=0.65)
+    net.add_edge('FL_RG_F', 'FL_CINi1', weight=0.4)
     net.add_edge('FL_RG_F', 'LF_Ini_fh', weight=0.5)
+    net.add_edge('FL_RG_E', 'FL_CINi2', weight=0.3)
 
+    net.add_edge('FR_RG_F', 'FR_CINe1', weight=0.25)
+    net.add_edge('FR_RG_F', 'FR_CINe2', weight=0.65)
+    net.add_edge('FR_RG_F', 'FR_CINi1', weight=0.4)
     net.add_edge('FR_RG_F', 'RF_Ini_fh', weight=0.5)
+    net.add_edge('FR_RG_E', 'FR_CINi2', weight=0.3)
 
+    net.add_edge('HL_RG_F', 'HL_CINe1', weight=0.25)
+    net.add_edge('HL_RG_F', 'HL_CINe2', weight=0.65)
+    net.add_edge('HL_RG_F', 'HL_CINi1', weight=0.4)
     net.add_edge('HL_RG_F', 'LH_Ini_fh', weight=0.5)
+    net.add_edge('HL_RG_E', 'HL_CINi2', weight=0.3)
 
+    net.add_edge('HR_RG_F', 'HR_CINe1', weight=0.25)
+    net.add_edge('HR_RG_F', 'HR_CINe2', weight=0.65)
+    net.add_edge('HR_RG_F', 'HR_CINi1', weight=0.4)
     net.add_edge('HR_RG_F', 'RH_Ini_fh', weight=0.5)
+    net.add_edge('HR_RG_E', 'HR_CINi2', weight=0.3)
 
-
+    net.add_edge('FL_Ini1', 'FL_RG_F', weight=-0.2)
     net.add_edge('FR_CINi1', 'FL_RG_F', weight=-0.0266)
     net.add_edge('FR_CINi2', 'FL_RG_F', weight=-0.012)
     net.add_edge('FR_CINe1', 'FL_RG_F', weight=0.02)
 
+    net.add_edge('FR_Ini1', 'FR_RG_F', weight=-0.2)
     net.add_edge('FL_CINi1', 'FR_RG_F', weight=-0.0266)
     net.add_edge('FL_CINi2', 'FR_RG_F', weight=-0.012)
     net.add_edge('FL_CINe1', 'FR_RG_F', weight=0.02)
 
+    net.add_edge('HL_Ini1', 'HL_RG_F', weight=-0.3)
     net.add_edge('HR_CINi1', 'HL_RG_F', weight=-0.04)
     net.add_edge('HR_CINi2', 'HL_RG_F', weight=-0.017)
     net.add_edge('HR_CINe1', 'HL_RG_F', weight=0.03)
 
+    net.add_edge('HR_Ini1', 'HR_RG_F', weight=-0.3)
     net.add_edge('HL_CINi1', 'HR_RG_F', weight=-0.04)
     net.add_edge('HL_CINi2', 'HR_RG_F', weight=-0.017)
     net.add_edge('HL_CINe1', 'HR_RG_F', weight=0.03)
