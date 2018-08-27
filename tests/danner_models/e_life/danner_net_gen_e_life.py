@@ -1,7 +1,8 @@
-""" Generate Danner Network."""
+""" Generate Danner Network. eLife"""
 
 import networkx as nx
 import numpy as np
+
 
 class CPG(object):
     """Generate CPG Network
@@ -25,7 +26,7 @@ class CPG(object):
                           model='lif_danner_nap',
                           x=1.0+anchor_x,
                           y=0.0+anchor_y,
-                          color='b',
+                          color='r',
                           m_e=0.1,
                           b_e=0.0,
                           v0=-60.0,
@@ -43,13 +44,13 @@ class CPG(object):
                           model='lif_danner',
                           x=0.0+anchor_x,
                           y=2.0+anchor_y,
-                          color='y',
+                          color='m',
                           v0=-60.0)
         self.cpg.add_node(self.name+'_In_E',
                           model='lif_danner',
                           x=2.0+anchor_x,
                           y=2.0+anchor_y,
-                          color='y',
+                          color='m',
                           v0=-60.0)
 
     def add_connections(self):
@@ -87,33 +88,48 @@ class Commissural(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.commissural.add_node(self.name+'_CINe1',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=-1.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe2',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=1.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
         self.commissural.add_node(self.name+'_CINi1',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
-                                  y=3.0+anchor_y,
-                                  color=color,
+                                  y=-1.0+anchor_y,
+                                  color='m',
+                                  v0=-60.0)
+        self.commissural.add_node(self.name+'_CINe1',
+                                  model='lif_danner',
+                                  x=1.0+anchor_x,
+                                  y=1.0+anchor_y,
+                                  color='g',
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_CINi2',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
+                                  y=3.0+anchor_y,
+                                  color='m',
+                                  v0=-60.0)
+        self.commissural.add_node(self.name+'_CINe2',
+                                  model='lif_danner',
+                                  x=1.0+anchor_x,
                                   y=5.0+anchor_y,
-                                  color=color,
+                                  color='g',
+                                  v0=-60.0)
+        self.commissural.add_node(self.name+'_CINe3',
+                                  model='lif_danner',
+                                  x=(0.0 if self.name[-1] ==
+                                     'L' else 2.0)+anchor_x,
+                                  y=1.0+anchor_y,
+                                  color='g',
+                                  v0=-60.0)
+        self.commissural.add_node(self.name+'_CINe4',
+                                  model='lif_danner',
+                                  x=(0.0 if self.name[-1] ==
+                                     'L' else 2.0)+anchor_x,
+                                  y=6.0+anchor_y,
+                                  color='g',
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_Ini1',
                                   model='lif_danner',
-                                  x=1.+anchor_x,
+                                  x=(0.0 if self.name[-1] ==
+                                     'L' else 2.0)+anchor_x,
                                   y=2+anchor_y,
                                   color=color,
                                   v0=-60.0)
@@ -123,17 +139,17 @@ class Commissural(object):
         return
 
 
-class Ipsilateral(object):
-    """Ipsilateral Network template.
+class LPSN(object):
+    """Long Propriospinal Neuron Network template.
 
     """
 
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
         """ Initialization. """
-        super(Ipsilateral, self).__init__()
-        self.ipsilateral = nx.DiGraph()
+        super(LPSN, self).__init__()
+        self.lpsn = nx.DiGraph()
         self.name = name
-        self.ipsilateral.name = name
+        self.lpsn.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y, color)
@@ -142,19 +158,31 @@ class Ipsilateral(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.ipsilateral.add_node(self.name+'F_Ini_fh',
-                                  model='lif_danner',
-                                  x=0.0+anchor_x,
-                                  y=0.0+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
-
-        self.ipsilateral.add_node(self.name+'H_Ini_fh',
-                                  model='lif_danner',
-                                  x=0.0+anchor_x,
-                                  y=1.5+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
+        self.lpsn.add_node(self.name+'_LPNi1',
+                           model='lif_danner',
+                           x=0.0+anchor_x,
+                           y=0.0+anchor_y,
+                           color='m',
+                           v0=-60.0)
+        self.lpsn.add_node(self.name+'_LPNe1',
+                           model='lif_danner',
+                           x=0.0+anchor_x,
+                           y=1.0+anchor_y,
+                           color='g',
+                           v0=-60.0)
+        self.lpsn.add_node(self.name+'_LPNe2',
+                           model='lif_danner',
+                           x=0.0+anchor_x,
+                           y=3.0+anchor_y,
+                           color='g',
+                           v0=-60.0)
+        self.lpsn.add_node(self.name+'_LPNI',
+                           model='lif_danner',
+                           x=(-4.0 if self.name[-1] ==
+                              'L' else 4.0)+anchor_x,
+                           y=3.0+anchor_y,
+                           color='g',
+                           v0=-60.0)
 
         return
 
