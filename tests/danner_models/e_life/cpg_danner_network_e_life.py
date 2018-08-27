@@ -136,7 +136,8 @@ def main():
             "abstol": 1e-6}
 
     # #: Setup the integrator
-    net_.setup_integrator(opts=opts)
+    net_.setup_integrator(integration_method='cvodes',
+                          opts=opts)
 
     #: Integrate the network
     biolog.info('Begin Integration!')

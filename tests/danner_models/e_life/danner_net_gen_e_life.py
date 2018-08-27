@@ -3,7 +3,6 @@
 import networkx as nx
 import numpy as np
 
-
 class CPG(object):
     """Generate CPG Network
     """
