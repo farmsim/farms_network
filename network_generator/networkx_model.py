@@ -128,8 +128,8 @@ class NetworkXModel(object):
             fig.draw()
             fig.gca().invert_yaxis()
             fig.show()
-        # ScrollableWindow(fig)
-        return
+
+        return fig
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
