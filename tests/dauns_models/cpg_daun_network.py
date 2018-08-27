@@ -24,7 +24,7 @@ def main():
     """Main."""
 
     #: Left side network
-    net_right = SideNetwork('R', 60.0, 0.0)
+    net_right = SideNetwork('R', 30.0, 0.0)
     net_left = SideNetwork('L', 0.0, 0.0)
 
     net = nx.compose_all([net_left.net,
@@ -40,13 +40,13 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 100, dt)  #: Time
+    time_vec = np.arange(0, 10000, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
@@ -89,7 +89,8 @@ def main():
 
     # #: Results
     net_.save_network_to_dot()
-    net_.visualize_network(plt)  #: Visualize network using Matplotlib
+    #: Visualize network using Matplotlib
+    fig = net_.visualize_network(plt)
 
     plt.figure()
     plt.title('DAUNS NETWORK')
@@ -98,6 +99,7 @@ def main():
     plt.plot(time_vec*0.001,
              res[:, [net_.dae.x.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
+    plt.xlabel('Time [s]')
     # plt.plot(time_vec*0.001,
     #          res[:, [net_.dae.x.get_idx('V_PR_L1_IN6')]],
     #          ':', markersize=5.)
