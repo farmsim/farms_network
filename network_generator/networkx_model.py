@@ -123,12 +123,16 @@ class NetworkXModel(object):
                 alpha=0.8)
         if plt_out is not None:
             plt_out.draw()
+            plt_out.subplots_adjust(
+                left=0, right=1, top=1, bottom=0)
             plt_out.gca().invert_yaxis()
         else:
             fig.draw()
-            fig.gca().invert_yaxis()
+            fig.invert_yaxis()
+            fig.subplots_adjust(
+                left=0, right=1, top=1, bottom=0)
+            fig.tight_layout()
             fig.show()
-
         return fig
 
     def save_network_to_dot(self, name='graph'):
