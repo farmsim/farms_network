@@ -3,6 +3,7 @@
 import networkx as nx
 import numpy as np
 
+
 class CPG(object):
     """Generate CPG Network
     """
@@ -142,14 +143,14 @@ class Ipsilateral(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.ipsilateral.add_node(self.name+'F_Ini_fh',
+        self.ipsilateral.add_node('F' + self.name+'_Ini_fh',
                                   model='lif_danner',
                                   x=0.0+anchor_x,
                                   y=0.0+anchor_y,
                                   color=color,
                                   v0=-60.0)
 
-        self.ipsilateral.add_node(self.name+'H_Ini_fh',
+        self.ipsilateral.add_node('H' + self.name+'_Ini_fh',
                                   model='lif_danner',
                                   x=0.0+anchor_x,
                                   y=1.5+anchor_y,
@@ -162,12 +163,13 @@ class Ipsilateral(object):
         return
 
 
-class ConnectIpsilateralRG2CIN(object):
+class ConnectRG2CIN(object):
     """Class to connection rhythm generation to contralteral rhythm generators
 
     """
+
     def __init__(self, rg_net, cin_net):
-        super(ConnectIpsilateralRG2CIN, self).__init__()
+        super(ConnectRG2CIN, self).__init__()
 
         #: Combine networks
         self.net = nx.compose_all([rg_net, cin_net])
@@ -176,7 +178,7 @@ class ConnectIpsilateralRG2CIN(object):
 
         #: Methods
         self.connect_circuits()
-        
+
         return
 
     def connect_circuits(self):
@@ -186,43 +188,19 @@ class ConnectIpsilateralRG2CIN(object):
             """ Add the network name to the neuron. """
             return self.name + '_' + name
 
+        #: Ipsilateral Connections
         self.net.add_edge(_name('RG_F'), _name('CINe1'), weight=0.25)
         self.net.add_edge(_name('RG_F'), _name('CINe2'), weight=0.65)
         self.net.add_edge(_name('RG_F'), _name('CINi1'), weight=0.4)
         self.net.add_edge(_name('RG_E'), _name('CINi2'), weight=0.3)
         self.net.add_edge(_name('Ini1'), _name('RG_F'), weight=-0.2)
 
+        #: Contralateral Connections
+        self.net.add_edge(_name('CINi1'), _name('RG_F'), weight=-0.0266)
+        self.net.add_edge(_name('CINi2'), _name('RG_F'), weight=-0.012)
+        self.net.add_edge(_name('CINe1'), _name('RG_F'), weight=0.02)
+
         return self.net
-
-class ConnectContralateralRG2CIN(object):
-    """Class to connection rhythm generation to contralteral rhythm generators
-    on the contralteral sides.
-    """
-    def __init__(self, rg_net, cin_net):
-        super(ConnectIpsilateralRG2CIN, self).__init__()
-
-        #: Combine networks
-        self.net = nx.compose_all([rg_net, cin_net])
-        #: Extract name of the network
-        self.name = self.net.name
-
-        #: Methods
-        self.connect_circuits()
-        
-        return
-
-    def connect_circuits(self):
-        """ Connect RG to CIN's."""
-
-        def _name(name):
-            """ Add the network name to the neuron. """
-            return self.name[0] + name
-
-            net.add_edge(_name('R_CINi1'), _name('L_RG_F'), weight=-0.0266)
-            net.add_edge(_name('R_CINi2'), _name('L_RG_F'), weight=-0.012)
-            net.add_edge(_name('R_CINe1'), _name('L_RG_F'), weight=0.02)
-
-        return self.net    
 
 
 def main():
