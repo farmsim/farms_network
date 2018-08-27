@@ -114,7 +114,8 @@ class NetworkXModel(object):
                                      clip_on=True)
 
         nx.draw(self.graph, pos=self.pos,
-                with_labels=True, node_color=self.color_map,
+                with_labels=True,
+                node_color=self.color_map,
                 node_size=1250,
                 font_size=6.5,
                 font_weight='bold',
@@ -125,6 +126,7 @@ class NetworkXModel(object):
             plt_out.draw()
             plt_out.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
+            plt_out.grid()
             plt_out.gca().invert_yaxis()
         else:
             fig.draw()
@@ -132,6 +134,7 @@ class NetworkXModel(object):
             fig.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
             fig.tight_layout()
+            fig.grid()
             fig.show()
         return fig
 
