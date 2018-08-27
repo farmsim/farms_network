@@ -162,6 +162,69 @@ class Ipsilateral(object):
         return
 
 
+class ConnectIpsilateralRG2CIN(object):
+    """Class to connection rhythm generation to contralteral rhythm generators
+
+    """
+    def __init__(self, rg_net, cin_net):
+        super(ConnectIpsilateralRG2CIN, self).__init__()
+
+        #: Combine networks
+        self.net = nx.compose_all([rg_net, cin_net])
+        #: Extract name of the network
+        self.name = self.net.name
+
+        #: Methods
+        self.connect_circuits()
+        
+        return
+
+    def connect_circuits(self):
+        """ Connect RG to CIN's."""
+
+        def _name(name):
+            """ Add the network name to the neuron. """
+            return self.name + '_' + name
+
+        self.net.add_edge(_name('RG_F'), _name('CINe1'), weight=0.25)
+        self.net.add_edge(_name('RG_F'), _name('CINe2'), weight=0.65)
+        self.net.add_edge(_name('RG_F'), _name('CINi1'), weight=0.4)
+        self.net.add_edge(_name('RG_E'), _name('CINi2'), weight=0.3)
+        self.net.add_edge(_name('Ini1'), _name('RG_F'), weight=-0.2)
+
+        return self.net
+
+class ConnectContralateralRG2CIN(object):
+    """Class to connection rhythm generation to contralteral rhythm generators
+    on the contralteral sides.
+    """
+    def __init__(self, rg_net, cin_net):
+        super(ConnectIpsilateralRG2CIN, self).__init__()
+
+        #: Combine networks
+        self.net = nx.compose_all([rg_net, cin_net])
+        #: Extract name of the network
+        self.name = self.net.name
+
+        #: Methods
+        self.connect_circuits()
+        
+        return
+
+    def connect_circuits(self):
+        """ Connect RG to CIN's."""
+
+        def _name(name):
+            """ Add the network name to the neuron. """
+            return self.name[0] + name
+
+            net.add_edge(_name('R_CINi1'), _name('L_RG_F'), weight=-0.0266)
+            net.add_edge(_name('R_CINi2'), _name('L_RG_F'), weight=-0.012)
+            net.add_edge(_name('R_CINe1'), _name('L_RG_F'), weight=0.02)
+
+        return self.net    
+
+
 def main():
     """ Main. """
 
