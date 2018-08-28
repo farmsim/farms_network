@@ -7,7 +7,7 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from danner_net_gen_e_life import CPG, Commissural, LPSN
+from danner_net_gen_e_life import CPG, LPSN, Commissural, ConnectRG2Commissural
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -24,36 +24,38 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('FL', anchor_x=0., anchor_y=0.)  #: Directed graph
-    net2 = CPG('FR', anchor_x=8., anchor_y=0.)  #: Directed graph
-    net3 = CPG('HL', anchor_x=0., anchor_y=16.)  #: Directed graph
-    net4 = CPG('HR', anchor_x=8., anchor_y=16.)  #: Directed graph
+    net1 = CPG('FL', anchor_x=-10., anchor_y=-10.)  #: Directed graph
+    net2 = CPG('FR', anchor_x=10., anchor_y=-10.)  #: Directed graph
+    net3 = CPG('HL', anchor_x=-10., anchor_y=15.)  #: Directed graph
+    net4 = CPG('HR', anchor_x=10, anchor_y=15.)  #: Directed graph
 
     #: Commussiral
-    net5 = Commissural('FL', anchor_x=3.5, anchor_y=0.,
+    net5 = Commissural('FL', anchor_x=-3, anchor_y=-10.,
                        color='c')  #: Directed graph
-    net6 = Commissural('FR', anchor_x=4.5, anchor_y=0.,
+    net6 = Commissural('FR', anchor_x=3, anchor_y=-10.,
                        color='c')  #: Directed graph
-    net7 = Commissural('HL', anchor_x=3.5, anchor_y=9.,
+    net7 = Commissural('HL', anchor_x=-3, anchor_y=15.,
                        color='c')  #: Directed graph
-    net8 = Commissural('HR', anchor_x=4.5, anchor_y=9.,
+    net8 = Commissural('HR', anchor_x=3, anchor_y=15.,
                        color='c')  #: Directed graph
 
     #: Ipsilateral
-    net9 = LPSN('L', anchor_x=3.5, anchor_y=0.,
+    net9 = LPSN('L', anchor_x=-3., anchor_y=4.,
                 color='c')  #: Directed graph
-
-    net10 = LPSN('R', anchor_x=4.5, anchor_y=0.,
+    net10 = LPSN('R', anchor_x=3., anchor_y=4.,
                  color='c')  #: Directed graph
+
     #: Connecting sub graphs
-    net = nx.compose_all([net1.cpg,
-                          net2.cpg,
-                          net3.cpg,
-                          net4.cpg,
-                          net5.commissural,
-                          net6.commissural,
-                          net7.commissural,
-                          net8.commissural,
+
+    net_RG_CIN1 = ConnectRG2Commissural(rg_l=net1.cpg, rg_r=net2.cpg,
+                                        comm_l=net5.commissural,
+                                        comm_r=net6.commissural)
+    net_RG_CIN2 = ConnectRG2Commissural(rg_l=net3.cpg, rg_r=net4.cpg,
+                                        comm_l=net7.commissural,
+                                        comm_r=net8.commissural)
+
+    net = nx.compose_all([net_RG_CIN1.net,
+                          net_RG_CIN2.net,
                           net9.lpsn,
                           net10.lpsn])
 
@@ -122,7 +124,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 1000, dt)  #: Time
+    time_vec = np.arange(0, 10, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 

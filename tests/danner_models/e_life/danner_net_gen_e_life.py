@@ -114,23 +114,23 @@ class Commissural(object):
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_CINe3',
                                   model='lif_danner',
-                                  x=(0.0 if self.name[-1] ==
-                                     'L' else 2.0)+anchor_x,
+                                  x=(-1.0 if self.name[-1] ==
+                                     'L' else 3.0)+anchor_x,
                                   y=1.0+anchor_y,
                                   color='g',
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_CINe4',
+                                  x=(-1.0 if self.name[-1] ==
+                                     'L' else 3.0)+anchor_x,
                                   model='lif_danner',
-                                  x=(0.0 if self.name[-1] ==
-                                     'L' else 2.0)+anchor_x,
                                   y=6.0+anchor_y,
                                   color='g',
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_Ini1',
                                   model='lif_danner',
-                                  x=(0.0 if self.name[-1] ==
-                                     'L' else 2.0)+anchor_x,
-                                  y=2+anchor_y,
+                                  x=(-1.0 if self.name[-1] ==
+                                     'L' else 3.0)+anchor_x,
+                                  y=3+anchor_y,
                                   color=color,
                                   v0=-60.0)
         return
@@ -160,34 +160,162 @@ class LPSN(object):
         """ Add neurons. """
         self.lpsn.add_node(self.name+'_LPNi1',
                            model='lif_danner',
-                           x=0.0+anchor_x,
+                           x=1.0+anchor_x,
                            y=0.0+anchor_y,
                            color='m',
                            v0=-60.0)
         self.lpsn.add_node(self.name+'_LPNe1',
                            model='lif_danner',
-                           x=0.0+anchor_x,
-                           y=1.0+anchor_y,
+                           x=1.0+anchor_x,
+                           y=2+anchor_y,
                            color='g',
                            v0=-60.0)
         self.lpsn.add_node(self.name+'_LPNe2',
                            model='lif_danner',
-                           x=0.0+anchor_x,
-                           y=3.0+anchor_y,
+                           x=1.0+anchor_x,
+                           y=4+anchor_y,
                            color='g',
                            v0=-60.0)
         self.lpsn.add_node(self.name+'_LPNI',
                            model='lif_danner',
-                           x=(-4.0 if self.name[-1] ==
+                           x=(-2.0 if self.name[-1] ==
                               'L' else 4.0)+anchor_x,
-                           y=3.0+anchor_y,
+                           y=4+anchor_y,
                            color='g',
                            v0=-60.0)
-
+        self.lpsn.add_node(self.name+'_LPNsh1',
+                           model='lif_danner',
+                           x=(-4.0 if self.name[-1] ==
+                              'L' else 6.0)+anchor_x,
+                           y=0+anchor_y,
+                           color='g',
+                           v0=-60.0)
+        self.lpsn.add_node(self.name+'_LPNsh2',
+                           model='lif_danner',
+                           x=(-4.0 if self.name[-1] ==
+                              'L' else 6.0)+anchor_x,
+                           y=4+anchor_y,
+                           color='g',
+                           v0=-60.0)
         return
 
     def add_connections(self):
         return
+
+
+class ConnectRG2Commissural(object):
+    """Connect a RG circuit with Commissural
+    """
+
+    def __init__(self, rg_l, rg_r, comm_l, comm_r):
+        """ Initialization. """
+        super(ConnectRG2Commissural, self).__init__()
+        self.net = nx.compose_all([rg_l,
+                                   rg_r,
+                                   comm_l,
+                                   comm_r])
+        self.name = self.net.name[0] + 'RG_COMM'
+
+        #: Methods
+        self.connect_circuits()
+        return
+
+    def connect_circuits(self):
+        """ Connect CPG's to Interneurons. """
+
+        def _name(side, name):
+            """ Add the network name to the neuron."""
+            return self.name[0] + side + '_' + name
+
+        self.net.add_edge(_name('L', 'RG_E'),
+                          _name('L', 'CINi1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_E'),
+                          _name('R', 'CINi1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F'),
+                          _name('L', 'CINe3'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F'),
+                          _name('R', 'CINe3'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F'),
+                          _name('L', 'CINi2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F'),
+                          _name('R', 'CINi2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F'),
+                          _name('L', 'CINe2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F'),
+                          _name('R', 'CINe2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F'),
+                          _name('L', 'CINe4'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F'),
+                          _name('R', 'CINe4'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'CINi1'),
+                          _name('R', 'RG_F'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('R', 'CINi1'),
+                          _name('L', 'RG_F'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('L', 'CINe1'),
+                          _name('R', 'Ini1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'CINe1'),
+                          _name('L', 'Ini1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'CINi2'),
+                          _name('R', 'RG_F'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('R', 'CINi2'),
+                          _name('L', 'RG_F'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('L', 'CINe2'),
+                          _name('R', 'RG_F'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'CINe2'),
+                          _name('L', 'RG_F'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'CINe3'),
+                          _name('L', 'CINe1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'CINe3'),
+                          _name('R', 'CINe1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'Ini1'),
+                          _name('L', 'RG_F'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('R', 'Ini1'),
+                          _name('R', 'RG_F'),
+                          weight=-0.08)
+
+        return self.net
 
 
 def main():
