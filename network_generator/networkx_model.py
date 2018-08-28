@@ -19,6 +19,7 @@ class NetworkXModel(object):
         super(NetworkXModel, self).__init__()
         self._graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
+        self.edge_pos = {}
         self.color_map = []  #: Neuron color map
         self.color_map_edge = []  #: Neuron edge color map
         self.edge_style = []  #: Arrow edge style
@@ -70,14 +71,17 @@ class NetworkXModel(object):
         """ Read the positions of neurons.
         Only if positions are defined. """
         for _neuron, data in self.graph.node.items():
-            self.pos[_neuron] = (data.pop('x', None),
-                                 data.pop('y', None))
+            self.pos[_neuron] = (data.get('x', None),
+                                 data.get('y', None))
+            self.edge_pos[_neuron] = (data.get('x', None),
+                                      data.get('y', None))
         check_pos_is_none = None in [
             val for x in self.pos.values() for val in x]
         if check_pos_is_none:
             biolog.warning('Missing neuron position information.')
             # self.pos = nx.kamada_kawai_layout(self.graph)
             self.pos = nx.spring_layout(self.graph)
+            self.edge_pos = self.pos
         return
 
     def read_neuron_colors_in_graph(self):
@@ -112,23 +116,40 @@ class NetworkXModel(object):
         else:
             fig = plt.figure('Network')
             ax = plt.gca()
-        ax.grid('on')
+
+        #: Draw Nodes
+        nx.draw_networkx_nodes(self.graph, pos=self.pos,
+                               with_labels=True,
+                               node_color=self.color_map,
+                               node_size=1250,
+                               font_size=6.5,
+                               font_weight='bold',
+                               edge_color='k',
+                               alpha=0.8,
+                               ax=ax)
+
+        nx.draw_networkx_labels(self.graph, pos=self.pos,
+                                with_labels=True,
+                                font_size=6.5,
+                                font_weight='bold',
+                                alpha=0.8,
+                                ax=ax)
+
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos,
                                      edge_labels=labels,
-                                     font_size=5,
-                                     clip_on=True)
+                                     font_size=10,
+                                     clip_on=True,
+                                     ax=ax)
 
-        nx.draw(self.graph, pos=self.pos,
-                with_labels=True,
-                node_color=self.color_map,
-                node_size=1250,
-                font_size=6.5,
-                font_weight='bold',
-                edge_color=self.color_map_edge,
-                arrowstyle='simple',
-                alpha=0.8,
-                ax=ax)
+        nx.draw_networkx_edges(self.graph,
+                               pos=self.pos,
+                               alpha=0.8,
+                               edge_color=self.color_map_edge,
+                               width=2.,
+                               arrowsize=10,
+                               ax=ax)
+
         if plt_out is not None:
             plt_out.draw()
             plt_out.subplots_adjust(
