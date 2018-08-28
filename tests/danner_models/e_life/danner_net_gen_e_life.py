@@ -99,12 +99,16 @@ class Commissural(object):
                                   x=1.0+anchor_x,
                                   y=1.0+anchor_y,
                                   color='g',
+                                  m_e=0.15,
+                                  b_e=0.0,
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_CINi2',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
                                   y=3.0+anchor_y,
                                   color='m',
+                                  m_e=0.75,
+                                  b_e=0.0,
                                   v0=-60.0)
         self.commissural.add_node(self.name+'_CINe2',
                                   model='lif_danner',
@@ -163,12 +167,16 @@ class LPSN(object):
                            x=1.0+anchor_x,
                            y=0.0+anchor_y,
                            color='m',
+                           m_e=0.75,
+                           b_e=0.0,
                            v0=-60.0)
         self.lpsn.add_node(self.name+'_LPNe1',
                            model='lif_danner',
                            x=1.0+anchor_x,
                            y=2+anchor_y,
                            color='g',
+                           m_e=0.15,
+                           b_e=0.0,
                            v0=-60.0)
         self.lpsn.add_node(self.name+'_LPNe2',
                            model='lif_danner',
