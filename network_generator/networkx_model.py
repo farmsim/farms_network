@@ -22,6 +22,7 @@ class NetworkXModel(object):
         self.edge_pos = {}
         self.color_map = []  #: Neuron color map
         self.color_map_edge = []  #: Neuron edge color map
+        self.alpha_edge = []  #: Neuron edge alpha
         self.edge_style = []  #: Arrow edge style
         self.net_matrix = None
 
@@ -93,17 +94,24 @@ class NetworkXModel(object):
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
         for _, _, attr in self.graph.edges(data=True):
+            _weight = attr.get('weight')
             #: pylint: disable=no-member
-            if np.sign(attr.get('weight')) == 1:
+            if np.sign(_weight) == 1:
                 self.color_map_edge.extend('g')
             #: pylint: disable=no-member
-            elif np.sign(attr.get('weight')) == -1:
+            elif np.sign(_weight) == -1:
                 self.color_map_edge.extend('r')
             else:
                 self.color_map_edge.extend('k')
+            self.alpha_edge.append(
+                max(np.abs(_weight), 0.1))
         return
 
-    def visualize_network(self, plt_out=None):
+    def visualize_network(self,
+                          node_size=1500,
+                          node_labels=True,
+                          edge_labels=True,
+                          edge_alpha=True, plt_out=None):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
@@ -118,36 +126,39 @@ class NetworkXModel(object):
             ax = plt.gca()
 
         #: Draw Nodes
-        node_size = 1500
-        nx.draw_networkx_nodes(self.graph, pos=self.pos,
-                               with_labels=True,
-                               node_color=self.color_map,
-                               node_size=node_size,
-                               font_size=6.5,
-                               font_weight='bold',
-                               edge_color='k',
-                               alpha=0.8,
-                               ax=ax)
-        nx.draw_networkx_labels(self.graph, pos=self.pos,
-                                with_labels=True,
-                                font_size=6.5,
-                                font_weight='bold',
-                                alpha=0.8,
-                                ax=ax)
-        nx.draw_networkx_edge_labels(self.graph,
-                                     pos=self.pos,
-                                     edge_labels=labels,
-                                     font_size=10,
-                                     clip_on=True,
-                                     ax=ax)
-        nx.draw_networkx_edges(self.graph,
-                               pos=self.pos,
-                               alpha=0.8,
-                               node_size=node_size,
-                               edge_color=self.color_map_edge,
-                               width=2.,
-                               arrowsize=10,
-                               ax=ax)
+        _ = nx.draw_networkx_nodes(self.graph, pos=self.pos,
+                                   with_labels=True,
+                                   node_color=self.color_map,
+                                   node_size=node_size,
+                                   font_size=6.5,
+                                   font_weight='bold',
+                                   edge_color='k',
+                                   alpha=0.8,
+                                   ax=ax)
+        if node_labels:
+            nx.draw_networkx_labels(self.graph, pos=self.pos,
+                                    with_labels=True,
+                                    font_size=6.5,
+                                    font_weight='bold',
+                                    alpha=0.8,
+                                    ax=ax)
+        if edge_labels:
+            nx.draw_networkx_edge_labels(self.graph,
+                                         pos=self.pos,
+                                         edge_labels=labels,
+                                         font_size=10,
+                                         clip_on=True,
+                                         ax=ax)
+        edges = nx.draw_networkx_edges(self.graph,
+                                       pos=self.pos,
+                                       node_size=node_size,
+                                       edge_color=self.color_map_edge,
+                                       width=2.,
+                                       arrowsize=10,
+                                       ax=ax)
+        if edge_alpha:
+            for edge in range(self.graph.number_of_edges()):
+                edges[edge].set_alpha(self.alpha_edge[edge])
 
         if plt_out is not None:
             plt_out.draw()
