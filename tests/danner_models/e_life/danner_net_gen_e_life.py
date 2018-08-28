@@ -344,99 +344,99 @@ class ConnectFore2Hind(object):
 
         self.net.add_edge(_name('L', 'RG_E', 'F'),
                           _name('L', 'LPNsh1'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_E', 'F'),
                           _name('R', 'LPNsh1'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('L', 'RG_E', 'H'),
                           _name('L', 'LPNsh2'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_E', 'H'),
                           _name('R', 'LPNsh2'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('L', 'RG_F', 'F'),
                           _name('L', 'LPNi'),
-                          weight=0.08)
+                          weight=0.70)
 
         self.net.add_edge(_name('R', 'RG_F', 'F'),
                           _name('R', 'LPNi'),
-                          weight=0.08)
+                          weight=0.70)
 
         self.net.add_edge(_name('L', 'RG_F', 'F'),
                           _name('L', 'LPNi1'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_F', 'F'),
                           _name('R', 'LPNi1'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('L', 'CINe4', 'F'),
                           _name('L', 'LPNe1'),
-                          weight=0.08)
+                          weight=0.90)
 
         self.net.add_edge(_name('R', 'CINe4', 'F'),
                           _name('R', 'LPNe1'),
-                          weight=0.08)
+                          weight=0.90)
 
         self.net.add_edge(_name('L', 'CINe4', 'H'),
                           _name('L', 'LPNe2'),
-                          weight=0.08)
+                          weight=0.90)
 
         self.net.add_edge(_name('R', 'CINe4', 'H'),
                           _name('R', 'LPNe2'),
-                          weight=0.08)
+                          weight=0.90)
 
         self.net.add_edge(_name('L', 'LPNi1'),
                           _name('R', 'RG_F', 'H'),
-                          weight=-0.08)
+                          weight=-0.01)
 
         self.net.add_edge(_name('R', 'LPNi1'),
                           _name('L', 'RG_F', 'H'),
-                          weight=-0.08)
+                          weight=-0.01)
 
         self.net.add_edge(_name('L', 'LPNe1'),
                           _name('R', 'RG_F', 'H'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('R', 'LPNe1'),
                           _name('L', 'RG_F', 'H'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('L', 'LPNe2'),
                           _name('R', 'RG_F', 'F'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('R', 'LPNe2'),
                           _name('L', 'RG_F', 'F'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('L', 'LPNi'),
                           _name('L', 'RG_F', 'H'),
-                          weight=-0.08)
+                          weight=-0.01)
 
         self.net.add_edge(_name('R', 'LPNi'),
                           _name('R', 'RG_F', 'H'),
-                          weight=-0.08)
+                          weight=-0.01)
 
         self.net.add_edge(_name('L', 'LPNsh1'),
                           _name('L', 'RG_F', 'H'),
-                          weight=0.08)
+                          weight=0.01)
 
         self.net.add_edge(_name('R', 'LPNsh1'),
                           _name('R', 'RG_F', 'H'),
-                          weight=0.08)
+                          weight=0.01)
 
         self.net.add_edge(_name('L', 'LPNsh2'),
                           _name('L', 'RG_F', 'F'),
-                          weight=0.08)
+                          weight=0.125)
 
         self.net.add_edge(_name('R', 'LPNsh2'),
                           _name('R', 'RG_F', 'F'),
-                          weight=0.08)
+                          weight=0.125)
 
         return self.net
 
