@@ -142,9 +142,12 @@ def main():
     #: Integrate the network
     biolog.info('Begin Integration!')
 
+    #: Network drive : Alpha
+    alpha = np.linspace(0, 1, len(time_vec))
+
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
-        net_.dae.u.set_all_val(idx*0.001/100.)
+        net_.dae.u.set_all_val(alpha)
         res[idx] = net_.step()['xf'].full()[:, 0]
     end_time = time.time()
 
@@ -155,19 +158,29 @@ def main():
     net_.save_network_to_dot()
     net_.visualize_network(plt)  #: Visualize network using Matplotlib
 
-    plt.figure()
-    plt.subplot(211)
-    plt.title('FORE LIMBS')
-    plt.plot(time_vec*0.001, res[:, [9]])
-    plt.plot(time_vec*0.001, res[:, [20]], ':', markersize=5.)
-    plt.legend(('V_FL_RG_F', 'V_FR_RG_F'))
-    plt.grid()
-    plt.subplot(212)
-    plt.title('HIND LIMBS')
-    plt.plot(time_vec*0.001, res[:, [29, 31]])
-    plt.plot(time_vec*0.001, res[:, [40, 42]], ':', markersize=5.)
-    plt.legend(('V_HL_RG_E', 'V_HL_RG_F', 'V_HR_RG_E', 'V_HR_RG_F'))
-    plt.grid()
+    _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
+    ax1.plot(time_vec*0.001,
+             res[:, net_.dae.x.get_idx('V_FR_RG_F')], 'b')
+    ax1.grid('on', axis='x')
+    ax1.set_ylabel('FR')
+    ax2.plot(time_vec*0.001,
+             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
+    ax2.grid('on', axis='x')
+    ax2.set_ylabel('FL')
+    ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
+             'r')
+    ax3.grid('on', axis='x')
+    ax3.set_ylabel('HR')
+    ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
+             'k')
+    ax4.grid('on', axis='x')
+    ax4.set_ylabel('HL')
+    ax5.fill_between(time_vec*0.001, 0, alpha,
+                     color=(0.2, 0.2, 0.2), alpha=0.5)
+    ax5.grid('on', axis='x')
+    ax5.set_ylabel('ALPHA')
+    ax5.set_xlabel('Time [s]')
+
     plt.show()
 
 
