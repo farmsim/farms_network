@@ -118,33 +118,32 @@ class NetworkXModel(object):
             ax = plt.gca()
 
         #: Draw Nodes
+        node_size = 1500
         nx.draw_networkx_nodes(self.graph, pos=self.pos,
                                with_labels=True,
                                node_color=self.color_map,
-                               node_size=1250,
+                               node_size=node_size,
                                font_size=6.5,
                                font_weight='bold',
                                edge_color='k',
                                alpha=0.8,
                                ax=ax)
-
         nx.draw_networkx_labels(self.graph, pos=self.pos,
                                 with_labels=True,
                                 font_size=6.5,
                                 font_weight='bold',
                                 alpha=0.8,
                                 ax=ax)
-
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos,
                                      edge_labels=labels,
                                      font_size=10,
                                      clip_on=True,
                                      ax=ax)
-
         nx.draw_networkx_edges(self.graph,
                                pos=self.pos,
                                alpha=0.8,
+                               node_size=node_size,
                                edge_color=self.color_map_edge,
                                width=2.,
                                arrowsize=10,
