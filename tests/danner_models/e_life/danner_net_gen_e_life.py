@@ -229,91 +229,91 @@ class ConnectRG2Commissural(object):
 
         self.net.add_edge(_name('L', 'RG_E'),
                           _name('L', 'CINi1'),
-                          weight=0.08)
+                          weight=0.40)
 
         self.net.add_edge(_name('R', 'RG_E'),
                           _name('R', 'CINi1'),
-                          weight=0.08)
+                          weight=0.40)
 
         self.net.add_edge(_name('L', 'RG_F'),
                           _name('L', 'CINe3'),
-                          weight=0.08)
+                          weight=1.0)
 
         self.net.add_edge(_name('R', 'RG_F'),
                           _name('R', 'CINe3'),
-                          weight=0.08)
+                          weight=1.0)
 
         self.net.add_edge(_name('L', 'RG_F'),
                           _name('L', 'CINi2'),
-                          weight=0.08)
+                          weight=0.70)
 
         self.net.add_edge(_name('R', 'RG_F'),
                           _name('R', 'CINi2'),
-                          weight=0.08)
+                          weight=0.70)
 
         self.net.add_edge(_name('L', 'RG_F'),
                           _name('L', 'CINe2'),
-                          weight=0.08)
+                          weight=0.35)
 
         self.net.add_edge(_name('R', 'RG_F'),
                           _name('R', 'CINe2'),
-                          weight=0.08)
+                          weight=0.35)
 
         self.net.add_edge(_name('L', 'RG_F'),
                           _name('L', 'CINe4'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_F'),
                           _name('R', 'CINe4'),
-                          weight=0.08)
+                          weight=0.50)
 
         self.net.add_edge(_name('L', 'CINi1'),
                           _name('R', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.03)
 
         self.net.add_edge(_name('R', 'CINi1'),
                           _name('L', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.03)
 
         self.net.add_edge(_name('L', 'CINe1'),
                           _name('R', 'Ini1'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('R', 'CINe1'),
                           _name('L', 'Ini1'),
-                          weight=0.08)
+                          weight=0.60)
 
         self.net.add_edge(_name('L', 'CINi2'),
                           _name('R', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.07)
 
         self.net.add_edge(_name('R', 'CINi2'),
                           _name('L', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.07)
 
         self.net.add_edge(_name('L', 'CINe2'),
                           _name('R', 'RG_F'),
-                          weight=0.08)
+                          weight=0.03)
 
         self.net.add_edge(_name('R', 'CINe2'),
                           _name('L', 'RG_F'),
-                          weight=0.08)
+                          weight=0.03)
 
         self.net.add_edge(_name('L', 'CINe3'),
                           _name('L', 'CINe1'),
-                          weight=0.08)
+                          weight=1.0)
 
         self.net.add_edge(_name('R', 'CINe3'),
                           _name('R', 'CINe1'),
-                          weight=0.08)
+                          weight=1.0)
 
         self.net.add_edge(_name('L', 'Ini1'),
                           _name('L', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.07)
 
         self.net.add_edge(_name('R', 'Ini1'),
                           _name('R', 'RG_F'),
-                          weight=-0.08)
+                          weight=-0.07)
 
         return self.net
 
