@@ -9,4 +9,8 @@ setuptools.setup(name='network_generator',
                  license='MIT',
                  packages=setuptools.find_packages(
                      exclude=['tests*']),
+                 install_requires=[
+                     'casadi',
+                     'networkx'
+                 ],
                  zip_safe=False)
