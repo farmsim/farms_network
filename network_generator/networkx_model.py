@@ -106,7 +106,13 @@ class NetworkXModel(object):
         self.read_edge_colors_in_graph()
 
         labels = nx.get_edge_attributes(self.graph, 'weight')
-        fig = plt.figure('Network')
+        if plt_out is not None:
+            fig = plt_out.figure('Network')
+            ax = plt_out.gca()
+        else:
+            fig = plt.figure('Network')
+            ax = plt.gca()
+        ax.grid('on')
         nx.draw_networkx_edge_labels(self.graph,
                                      pos=self.pos,
                                      edge_labels=labels,
@@ -121,16 +127,18 @@ class NetworkXModel(object):
                 font_weight='bold',
                 edge_color=self.color_map_edge,
                 arrowstyle='simple',
-                alpha=0.8)
+                alpha=0.8,
+                ax=ax)
         if plt_out is not None:
             plt_out.draw()
             plt_out.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
             plt_out.grid()
-            plt_out.gca().invert_yaxis()
+            plt_out.tight_layout()
+            ax.invert_yaxis()
         else:
             fig.draw()
-            fig.invert_yaxis()
+            ax.invert_yaxis()
             fig.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
             fig.tight_layout()
