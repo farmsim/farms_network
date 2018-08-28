@@ -6,6 +6,8 @@ This respository contains the necessary components to generate, integrate, analy
 
 `root_dir> python setup.py build`
 
+`root_dir> export PYTHONPATH=$PYTHONPATH:{path_to_network_generator}`
+
 ### Local Pip Install
 
 `root_dir> pip install .`
