@@ -71,7 +71,8 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 60, dt)  #: Time
+    time_vec = np.arange(0, 6000, dt)  #: Time
+
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
