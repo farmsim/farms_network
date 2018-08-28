@@ -5,6 +5,7 @@ import time
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+from matplotlib import rc
 
 import biolog
 from danner_net_gen_e_life import (CPG, LPSN, Commissural, ConnectFore2Hind,
@@ -70,7 +71,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 6000, dt)  #: Time
+    time_vec = np.arange(0, 60, dt)  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
@@ -109,23 +110,23 @@ def main():
     _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
     ax1.plot(time_vec*0.001,
              res[:, net_.dae.x.get_idx('V_FR_RG_F')], 'b')
-    ax1.grid('on')
+    ax1.grid('on', axis='x')
     ax1.set_ylabel('FR')
     ax2.plot(time_vec*0.001,
              res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
-    ax2.grid('on')
+    ax2.grid('on', axis='x')
     ax2.set_ylabel('FL')
     ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
              'r')
-    ax3.grid('on')
+    ax3.grid('on', axis='x')
     ax3.set_ylabel('HR')
     ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
              'k')
-    ax4.grid('on')
+    ax4.grid('on', axis='x')
     ax4.set_ylabel('HL')
     ax5.fill_between(time_vec*0.001, 0, alpha,
                      color=(0.2, 0.2, 0.2), alpha=0.5)
-    ax5.grid('on')
+    ax5.grid('on', axis='x')
     ax5.set_ylabel('ALPHA')
     ax5.set_xlabel('Time [s]')
 
