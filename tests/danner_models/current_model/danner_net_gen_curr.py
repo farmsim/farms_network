@@ -1,4 +1,4 @@
-""" Generate Danner Network. eLife"""
+""" Generate Danner Network. Current Model"""
 
 import networkx as nx
 import numpy as np

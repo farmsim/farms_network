@@ -1,4 +1,4 @@
-""" Danner CPG Model. eLife """
+""" Danner CPG Model. Current Model """
 
 import time
 
@@ -8,8 +8,8 @@ import numpy as np
 from matplotlib import rc
 
 import biolog
-from danner_net_gen_e_life import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                   ConnectRG2Commissural)
+from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
+                                 ConnectRG2Commissural)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -49,18 +49,23 @@ def main():
 
     #: Connecting sub graphs
 
-    net_RG_CIN1 = ConnectRG2Commissural(rg_l=net1.cpg, rg_r=net2.cpg,
-                                        comm_l=net5.commissural,
-                                        comm_r=net6.commissural)
-    net_RG_CIN2 = ConnectRG2Commissural(rg_l=net3.cpg, rg_r=net4.cpg,
-                                        comm_l=net7.commissural,
-                                        comm_r=net8.commissural)
+    # net_RG_CIN1 = ConnectRG2Commissural(rg_l=net1.cpg, rg_r=net2.cpg,
+    #                                     comm_l=net5.commissural,
+    #                                     comm_r=net6.commissural)
+    # net_RG_CIN2 = ConnectRG2Commissural(rg_l=net3.cpg, rg_r=net4.cpg,
+    #                                     comm_l=net7.commissural,
+    #                                     comm_r=net8.commissural)
 
-    net = ConnectFore2Hind(net_RG_CIN1.net,
-                           net_RG_CIN2.net, net9.lpsn,
-                           net10.lpsn)
+    # net = ConnectFore2Hind(net_RG_CIN1.net,
+    #                        net_RG_CIN2.net, net9.lpsn,
+    #                        net10.lpsn)
 
-    net = net.net
+    # net = net.net
+
+    net = nx.compose_all([net1.cpg,
+                          net2.cpg,
+                          net3.cpg,
+                          net4.cpg])
 
     nx.write_graphml(net,
                      './conf/auto_gen_danner_cpg.graphml')
@@ -71,7 +76,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 6000, dt)  #: Time
+    time_vec = np.arange(0, 6, dt)  #: Time
 
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
