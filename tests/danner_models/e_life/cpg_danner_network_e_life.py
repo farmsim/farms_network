@@ -7,7 +7,8 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from danner_net_gen_e_life import CPG, LPSN, Commissural, ConnectRG2Commissural
+from danner_net_gen_e_life import (CPG, LPSN, Commissural, ConnectFore2Hind,
+                                   ConnectRG2Commissural)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -54,10 +55,11 @@ def main():
                                         comm_l=net7.commissural,
                                         comm_r=net8.commissural)
 
-    net = nx.compose_all([net_RG_CIN1.net,
-                          net_RG_CIN2.net,
-                          net9.lpsn,
-                          net10.lpsn])
+    net = ConnectFore2Hind(net_RG_CIN1.net,
+                           net_RG_CIN2.net, net9.lpsn,
+                           net10.lpsn)
+
+    net = net.net
 
     # #: Connect Nodes Between Sub-Networks
 

@@ -176,7 +176,7 @@ class LPSN(object):
                            y=4+anchor_y,
                            color='g',
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNI',
+        self.lpsn.add_node(self.name+'_LPNi',
                            model='lif_danner',
                            x=(-2.0 if self.name[-1] ==
                               'L' else 4.0)+anchor_x,
@@ -314,6 +314,129 @@ class ConnectRG2Commissural(object):
         self.net.add_edge(_name('R', 'Ini1'),
                           _name('R', 'RG_F'),
                           weight=-0.08)
+
+        return self.net
+
+
+class ConnectFore2Hind(object):
+    """Connect a Fore limb circuit with Hind Limb
+    """
+
+    def __init__(self, fore, hind, lspn_l, lspn_r):
+        """ Initialization. """
+        super(ConnectFore2Hind, self).__init__()
+        self.net = nx.compose_all([fore,
+                                   hind,
+                                   lspn_l,
+                                   lspn_r])
+        self.name = self.net.name[0] + 'MODEL'
+
+        #: Methods
+        self.connect_circuits()
+        return
+
+    def connect_circuits(self):
+        """ Connect CPG's to Interneurons. """
+
+        def _name(side, name, f_h=''):
+            """ Add the network name to the neuron."""
+            return f_h + side + '_' + name
+
+        self.net.add_edge(_name('L', 'RG_E', 'F'),
+                          _name('L', 'LPNsh1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_E', 'F'),
+                          _name('R', 'LPNsh1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_E', 'H'),
+                          _name('L', 'LPNsh2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_E', 'H'),
+                          _name('R', 'LPNsh2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F', 'F'),
+                          _name('L', 'LPNi'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F', 'F'),
+                          _name('R', 'LPNi'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'RG_F', 'F'),
+                          _name('L', 'LPNi1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'RG_F', 'F'),
+                          _name('R', 'LPNi1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'CINe4', 'F'),
+                          _name('L', 'LPNe1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'CINe4', 'F'),
+                          _name('R', 'LPNe1'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'CINe4', 'H'),
+                          _name('L', 'LPNe2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'CINe4', 'H'),
+                          _name('R', 'LPNe2'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'LPNi1'),
+                          _name('R', 'RG_F', 'H'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('R', 'LPNi1'),
+                          _name('L', 'RG_F', 'H'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('L', 'LPNe1'),
+                          _name('R', 'RG_F', 'H'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'LPNe1'),
+                          _name('L', 'RG_F', 'H'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'LPNe2'),
+                          _name('R', 'RG_F', 'F'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'LPNe2'),
+                          _name('L', 'RG_F', 'F'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'LPNi'),
+                          _name('L', 'RG_F', 'H'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('R', 'LPNi'),
+                          _name('R', 'RG_F', 'H'),
+                          weight=-0.08)
+
+        self.net.add_edge(_name('L', 'LPNsh1'),
+                          _name('L', 'RG_F', 'H'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'LPNsh1'),
+                          _name('R', 'RG_F', 'H'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('L', 'LPNsh2'),
+                          _name('L', 'RG_F', 'F'),
+                          weight=0.08)
+
+        self.net.add_edge(_name('R', 'LPNsh2'),
+                          _name('R', 'RG_F', 'F'),
+                          weight=0.08)
 
         return self.net
 
