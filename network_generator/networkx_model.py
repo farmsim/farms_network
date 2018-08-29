@@ -6,8 +6,14 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from networkx.drawing.nx_pydot import write_dot
-
+import matplotlib.colors as mcolors
 import biolog
+
+try:
+    from mayavi import mlab
+except ImportError:
+    biolog.warning(
+        'Can not import mayavi. 3D Visualization wont be available')
 
 
 class NetworkXModel(object):
@@ -21,6 +27,7 @@ class NetworkXModel(object):
         self.pos = {}   #: Neuron positions
         self.edge_pos = {}
         self.color_map = []  #: Neuron color map
+        self.color_map_arr = []  #: Neuron color map
         self.color_map_edge = []  #: Neuron edge color map
         self.alpha_edge = []  #: Neuron edge alpha
         self.edge_style = []  #: Arrow edge style
@@ -88,7 +95,9 @@ class NetworkXModel(object):
     def read_neuron_colors_in_graph(self):
         """ Read the neuron display colors."""
         for data in self.graph.node.values():
-            self.color_map.extend(data.pop('color', 'r'))
+            self.color_map.extend(data.get('color', 'r'))
+            self.color_map_arr.append(mcolors.colorConverter.to_rgb(
+                self.color_map[-1]))
         return
 
     def read_edge_colors_in_graph(self):
@@ -176,6 +185,31 @@ class NetworkXModel(object):
             fig.grid()
             fig.show()
         return fig
+
+    def visualize_network_3D(self):
+        """ Visualize network in 3D using Mayavi."""
+
+        # reorder nodes from 0,len(G)-1
+        G = nx.convert_node_labels_to_integers(self.graph)
+
+        # scalar colors
+        scalars = np.array(G.nodes())+5
+
+        mlab.figure(1, bgcolor=(0, 0, 0))
+        mlab.clf()
+        xpos = [pos[0] for pos in self.pos.values()]
+        ypos = [pos[1] for pos in self.pos.values()]
+        pts = mlab.points3d(xpos, ypos, np.zeros(np.shape(xpos)),
+                            scale_factor=1,
+                            scale_mode='none',
+                            resolution=20)
+        pts.mlab_source.dataset.point_data.scalars = self.color_map_arr
+        pts.mlab_source.dataset.lines = np.array(G.edges())
+        tube = mlab.pipeline.tube(pts, tube_radius=.05)
+        mlab.pipeline.surface(tube)
+
+        # mlab.savefig('mayavi2_spring.png')
+        mlab.show()  # interactive window
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
