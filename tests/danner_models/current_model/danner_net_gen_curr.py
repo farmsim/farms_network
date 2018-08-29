@@ -188,6 +188,42 @@ class PatterFormation(object):
         return
 
 
+class Motorneurons(object):
+    """Motorneurons layers. Also contains interneurons.
+
+    """
+
+    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='r'):
+        super(Motorneurons, self).__init__()
+        self.name = name
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+        self.color = color
+
+        self.mn_net = nx.DiGraph()
+
+        return
+
+        #: Methods
+        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_connections()
+
+        return
+
+    def add_neurons(self, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        self.mn_net.add_node(self.name+'_Inp_St',
+                             model='lif_danner',
+                             x=2.0+anchor_x,
+                             y=-6.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+    def add_connections(self):
+        """ Connect the neurons."""
+        pass
+
+
 class Commissural(object):
     """Commissural Network template.
 
