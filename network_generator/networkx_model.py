@@ -120,9 +120,11 @@ class NetworkXModel(object):
         labels = nx.get_edge_attributes(self.graph, 'weight')
         if plt_out is not None:
             fig = plt_out.figure('Network')
+            plt_out.autoscale(True)
             ax = plt_out.gca()
         else:
             fig = plt.figure('Network')
+            plt.autoscale(True)
             ax = plt.gca()
 
         #: Draw Nodes
@@ -165,14 +167,12 @@ class NetworkXModel(object):
             plt_out.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
             plt_out.grid()
-            plt_out.tight_layout()
             ax.invert_yaxis()
         else:
             fig.draw()
             ax.invert_yaxis()
             fig.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
-            fig.tight_layout()
             fig.grid()
             fig.show()
         return fig
