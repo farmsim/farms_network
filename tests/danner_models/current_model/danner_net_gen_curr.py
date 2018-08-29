@@ -69,6 +69,125 @@ class CPG(object):
         return
 
 
+class PatterFormation(object):
+    """Pattern Formation Layer
+
+    """
+
+    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='g'):
+        super(PatterFormation, self).__init__()
+        self.name = name
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+        self.color = color
+
+        self.pf_net = nx.DiGraph()
+
+        #: Methods
+        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_connections()
+
+        return
+
+    def add_neurons(self, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        self.pf_net.add_node(self.name+'_PF_F',
+                             model='lif_danner_nap',
+                             x=1.0+anchor_x,
+                             y=0.0+anchor_y,
+                             color='r',
+                             m_e=0.1,
+                             b_e=0.0,
+                             v0=-60.0,
+                             h0=np.random.uniform(0, 1))
+
+        self.pf_net.add_node(self.name+'_PF_E',
+                             model='lif_danner_nap',
+                             x=1.0+anchor_x,
+                             y=4.0+anchor_y,
+                             color='b',
+                             m_e=0.0,
+                             b_e=0.1,
+                             v0=-60.0,
+                             h0=np.random.uniform(0, 1))
+
+        self.pf_net.add_node(self.name+'_Inp_F',
+                             model='lif_danner',
+                             x=0.0+anchor_x,
+                             y=2.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+        self.pf_net.add_node(self.name+'_Inp_E',
+                             model='lif_danner',
+                             x=2.0+anchor_x,
+                             y=2.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+        self.pf_net.add_node(self.name+'_PF_Sw',
+                             model='lif_danner_nap',
+                             x=1.0+anchor_x,
+                             y=-4.0+anchor_y,
+                             color='r',
+                             m_e=0.1,
+                             b_e=0.0,
+                             v0=-60.0,
+                             h0=np.random.uniform(0, 1))
+
+        self.pf_net.add_node(self.name+'_PF_St',
+                             model='lif_danner_nap',
+                             x=1.0+anchor_x,
+                             y=-8.0+anchor_y,
+                             color='b',
+                             m_e=0.0,
+                             b_e=0.1,
+                             v0=-60.0,
+                             h0=np.random.uniform(0, 1))
+
+        self.pf_net.add_node(self.name+'_Inp_Sw',
+                             model='lif_danner',
+                             x=0.0+anchor_x,
+                             y=-6.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+        self.pf_net.add_node(self.name+'_Inp_St',
+                             model='lif_danner',
+                             x=2.0+anchor_x,
+                             y=-6.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+    def add_connections(self):
+        self.pf_net.add_edge(self.name+'_PF_F',
+                             self.name+'_Inp_F',
+                             weight=0.4)
+        self.pf_net.add_edge(self.name+'_Inp_F',
+                             self.name+'_PF_E',
+                             weight=-1.0)
+        self.pf_net.add_edge(self.name+'_PF_E',
+                             self.name+'_Inp_E',
+                             weight=0.4)
+        self.pf_net.add_edge(self.name+'_Inp_E',
+                             self.name+'_PF_F',
+                             weight=-0.08)
+
+        self.pf_net.add_edge(self.name+'_PF_Sw',
+                             self.name+'_Inp_Sw',
+                             weight=0.4)
+        self.pf_net.add_edge(self.name+'_Inp_Sw',
+                             self.name+'_PF_St',
+                             weight=-1.0)
+        self.pf_net.add_edge(self.name+'_PF_St',
+                             self.name+'_Inp_St',
+                             weight=0.4)
+        self.pf_net.add_edge(self.name+'_Inp_St',
+                             self.name+'_PF_Sw',
+                             weight=-0.08)
+        return
+
+
 class Commissural(object):
     """Commissural Network template.
 

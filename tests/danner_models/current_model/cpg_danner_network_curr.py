@@ -9,7 +9,7 @@ from matplotlib import rc
 
 import biolog
 from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                 ConnectRG2Commissural)
+                                 ConnectRG2Commissural, PatterFormation)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -26,20 +26,11 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('FL', anchor_x=-10., anchor_y=-10.)  #: Directed graph
-    net2 = CPG('FR', anchor_x=10., anchor_y=-10.)  #: Directed graph
-    net3 = CPG('HL', anchor_x=-10., anchor_y=15.)  #: Directed graph
-    net4 = CPG('HR', anchor_x=10, anchor_y=15.)  #: Directed graph
+    net1 = CPG('FL', anchor_x=-10., anchor_y=-20.)  #: Directed graph
 
+    #: Pattern Formation
+    net2 = PatterFormation('FL', anchor_x=-10, anchor_y=0)
     #: Commussiral
-    net5 = Commissural('FL', anchor_x=-3, anchor_y=-10.,
-                       color='c')  #: Directed graph
-    net6 = Commissural('FR', anchor_x=3, anchor_y=-10.,
-                       color='c')  #: Directed graph
-    net7 = Commissural('HL', anchor_x=-3, anchor_y=15.,
-                       color='c')  #: Directed graph
-    net8 = Commissural('HR', anchor_x=3, anchor_y=15.,
-                       color='c')  #: Directed graph
 
     #: Ipsilateral
     net9 = LPSN('L', anchor_x=-3., anchor_y=4.,
@@ -63,9 +54,7 @@ def main():
     # net = net.net
 
     net = nx.compose_all([net1.cpg,
-                          net2.cpg,
-                          net3.cpg,
-                          net4.cpg])
+                          net2.pf_net])
 
     nx.write_graphml(net,
                      './conf/auto_gen_danner_cpg.graphml')
@@ -117,21 +106,21 @@ def main():
 
     _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
     ax1.plot(time_vec*0.001,
-             res[:, net_.dae.x.get_idx('V_FR_RG_F')], 'b')
+             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'b')
     ax1.grid('on', axis='x')
-    ax1.set_ylabel('FR')
-    ax2.plot(time_vec*0.001,
-             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
-    ax2.grid('on', axis='x')
-    ax2.set_ylabel('FL')
-    ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
-             'r')
-    ax3.grid('on', axis='x')
-    ax3.set_ylabel('HR')
-    ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
-             'k')
-    ax4.grid('on', axis='x')
-    ax4.set_ylabel('HL')
+    ax1.set_ylabel('FL')
+    # ax2.plot(time_vec*0.001,
+    #          res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
+    # ax2.grid('on', axis='x')
+    # ax2.set_ylabel('FL')
+    # ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
+    #          'r')
+    # ax3.grid('on', axis='x')
+    # ax3.set_ylabel('HR')
+    # ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
+    #          'k')
+    # ax4.grid('on', axis='x')
+    # ax4.set_ylabel('HL')
     ax5.fill_between(time_vec*0.001, 0, alpha,
                      color=(0.2, 0.2, 0.2), alpha=0.5)
     ax5.grid('on', axis='x')
