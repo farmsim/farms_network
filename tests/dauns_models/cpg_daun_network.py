@@ -46,7 +46,7 @@ def main():
 
     #: opts
     opts = {'tf': dt,
-            'jit': True,
+            'jit': False,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
@@ -59,25 +59,25 @@ def main():
     #: Integrate the network
     biolog.info('Begin Integration!')
 
-    # biolog.info('PARAMETERS')
-    # print('\n'.join(
-    #     ['{} : {}'.format(
-    #         p.sym.name(), p.val) for p in net_.dae.p.param_list]))
+    biolog.info('PARAMETERS')
+    print('\n'.join(
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.p.param_list]))
 
-    # biolog.info('INPUTS')
-    # print('\n'.join(
-    #     ['{} : {}'.format(
-    #         p.sym.name(), p.val) for p in net_.dae.u.param_list]))
+    biolog.info('INPUTS')
+    print('\n'.join(
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.u.param_list]))
 
-    # biolog.info('INITIAL CONDITIONS')
-    # print('\n'.join(
-    #     ['{} : {}'.format(
-    #         p.sym.name(), p.val) for p in net_.dae.x.param_list]))
+    biolog.info('INITIAL CONDITIONS')
+    print('\n'.join(
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.x.param_list]))
 
-    # biolog.info('CONSTANTS')
-    # print('\n'.join(
-    #     ['{} : {}'.format(
-    #         p.sym.name(), p.val) for p in net_.dae.c.param_list]))
+    biolog.info('CONSTANTS')
+    print('\n'.join(
+        ['{} : {}'.format(
+            p.sym.name(), p.val) for p in net_.dae.c.param_list]))
 
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
@@ -90,7 +90,7 @@ def main():
     # #: Results
     net_.save_network_to_dot()
     #: Visualize network using Matplotlib
-    fig = net_.visualize_network(plt)
+    fig = net_.visualize_network(plt_out=plt)
 
     plt.figure()
     plt.title('DAUNS NETWORK')
