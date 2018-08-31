@@ -1,4 +1,3 @@
-
 """ Generate neural network. """
 
 import casadi as cas
@@ -7,9 +6,9 @@ import numpy as np
 from collections import OrderedDict
 
 import biolog
-from dae_generator import DaeGenerator
-from networkx_model import NetworkXModel
-from neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
+from .dae_generator import DaeGenerator
+from .networkx_model import NetworkXModel
+from .neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
 
 
@@ -50,8 +49,7 @@ class NetworkGenerator(NetworkXModel):
         out : <bool>
             Return true if successfully created the neurons
         """
-
-        for name, neuron in sorted(self.graph.node.iteritems()):
+        for name, neuron in sorted(self.graph.node.items()):
 
             #: Add neuron to list
             biolog.debug(
@@ -83,7 +81,7 @@ class NetworkGenerator(NetworkXModel):
         """
         Generate the network.
         """
-        for name, neuron in self.neurons.iteritems():
+        for name, neuron in self.neurons.items():
             biolog.debug(
                 'Establishing neuron {} network connections'.format(
                     name))
