@@ -159,7 +159,7 @@ class DaeGenerator(object):
 
     def add_x(self, name, value=0.0):
         """Add a new state.
-        []       ----------
+         ----------
         name : <str>
             Name of the new state to be defined
         value : <float>
@@ -171,7 +171,7 @@ class DaeGenerator(object):
 
     def add_z(self, name, value=0.0):
         """Add a new algebraic variable.
-        []       ----------
+         ----------
         name : <str>
             Name of the new algebraic variable to be defined
         value : <float>
@@ -182,7 +182,7 @@ class DaeGenerator(object):
 
     def add_p(self, name, value=0.0):
         """Add a new parameter.
-        []       ----------
+         ----------
         name : <str>
             Name of the new param to be defined
         value : <float>
@@ -193,7 +193,7 @@ class DaeGenerator(object):
 
     def add_u(self, name, value=0.0):
         """Add a new Input.
-        []       ----------
+         ----------
         name : <str>
             Name of the new input to be defined
         value : <float>
@@ -204,7 +204,7 @@ class DaeGenerator(object):
 
     def add_c(self, name, value=0.0):
         """Add a new constant.
-        []       ----------
+         ----------
         name : <str>
             Name of the new constant to be defined
         value : <float>
@@ -215,7 +215,7 @@ class DaeGenerator(object):
 
     def add_ode(self, name, ode):
         """Add a new ode rhs.
-        []       ----------
+         ----------
         name : <str>
             Name of the new ode
         ode : <cas.SX.sym>
@@ -226,7 +226,7 @@ class DaeGenerator(object):
 
     def add_alg(self, name, alg_eqn):
         """Add a new algebraic equation.
-        []       ----------
+         ----------
         name : <str>
             Name of the new ode
         alg_eqn : <cas.SX.sym>

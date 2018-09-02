@@ -9,7 +9,7 @@ import biolog
 from .dae_generator import DaeGenerator
 from .networkx_model import NetworkXModel
 from .neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
-                    LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
+                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
 
 
 class NetworkGenerator(NetworkXModel):
@@ -129,6 +129,8 @@ class NetworkGenerator(NetworkXModel):
 
     def step(self):
         """Step integrator."""
+        self.fin['p'] = self.dae.u +\
+            self.dae.p + self.dae.c
         res = self.integrator.call(self.fin)
         self.fin['x0'] = res['xf']
         return res

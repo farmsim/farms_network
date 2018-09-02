@@ -128,7 +128,7 @@ def main():
 
     #: opts
     opts = {'tf': dt,
-            'jit': True,
+            'jit': False,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
@@ -147,7 +147,7 @@ def main():
 
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
-        net_.dae.u.set_all_val(alpha)
+        net_.dae.u.set_all_val(alpha[idx])
         res[idx] = net_.step()['xf'].full()[:, 0]
     end_time = time.time()
 
@@ -156,7 +156,7 @@ def main():
 
     # #: Results
     net_.save_network_to_dot()
-    net_.visualize_network(plt)  #: Visualize network using Matplotlib
+    net_.visualize_network(plt_out=plt)  #: Visualize network using Matplotlib
 
     _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
     ax1.plot(time_vec*0.001,
