@@ -325,21 +325,6 @@ class LIF_Danner(Neuron):
         self.c_m = self.dae.add_c('c_m_' + self.n_id,
                                   kwargs.get('c_m', 10.0))  # : pF
 
-        self.v1_2_m = self.dae.add_c('v1_2_m_' + self.n_id,
-                                     kwargs.get('v1_2_m', -40.0))  # : mV
-        self.k_m = self.dae.add_c('k_m_' + self.n_id,
-                                  kwargs.get('k_m', -6.0))  #: mV
-
-        self.v1_2_h = self.dae.add_c('v1_2_h_' + self.n_id,
-                                     kwargs.get('v1_2_h', -45.0))  #: mV
-        self.k_h = self.dae.add_c('k_h_' + self.n_id,
-                                  kwargs.get('k_h', -4.0))  #: mV
-
-        self.v1_2_t = self.dae.add_c('v1_2_t_' + self.n_id,
-                                     kwargs.get('v1_2_t', -35.0))  #: mV
-        self.k_t = self.dae.add_c('k_t_' + self.n_id,
-                                  kwargs.get('k_t', -15.0))  #: mV
-
         self.g_leak = self.dae.add_c('g_leak_' + self.n_id,
                                      kwargs.get('g_leak', 2.8))  #: nS
         self.e_leak = self.dae.add_c('e_leak_' + self.n_id,

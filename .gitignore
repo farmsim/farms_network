@@ -8,3 +8,9 @@
 
 # Auto-generated files
 auto*
+
+graph.dot
+graph.png
+jit_tmp.c
+
+network_generator.egg-info

@@ -29,7 +29,7 @@ class CPG(object):
                           color='r',
                           m_e=0.1,
                           b_e=0.0,
-                          v0=-60.0,
+                          v0=-62.5,
                           h0=np.random.uniform(0, 1))
         self.cpg.add_node(self.name+'_RG_E',
                           model='lif_danner_nap',
@@ -38,7 +38,7 @@ class CPG(object):
                           color='b',
                           m_e=0.0,
                           b_e=0.1,
-                          v0=-60.0,
+                          v0=-62.5,
                           h0=np.random.uniform(0, 1))
         self.cpg.add_node(self.name+'_In_F',
                           model='lif_danner',
@@ -88,49 +88,49 @@ class Commissural(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
+        self.commissural.add_node(self.name+'_V2a_diag',
+                            x=(-1.0 if self.name[-1] ==
+                                'L' else 3.0)+anchor_x,
+                            model='lif_danner',
+                            y=6.0+anchor_y,
+                            color='g',
+                            v0=-60.0)
         self.commissural.add_node(self.name+'_CINi1',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
                                   y=-1.0+anchor_y,
                                   color='m',
                                   v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe1',
+        self.commissural.add_node(self.name+'_V0V',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
                                   y=1.0+anchor_y,
                                   color='g',
-                                  m_e=0.15,
-                                  b_e=0.0,
+                                  m_i=0.15,
+                                  b_i=0.0,
                                   v0=-60.0)
-        self.commissural.add_node(self.name+'_CINi2',
+        self.commissural.add_node(self.name+'_V0D',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
                                   y=3.0+anchor_y,
                                   color='m',
-                                  m_e=0.75,
-                                  b_e=0.0,
+                                  m_i=0.75,
+                                  b_i=0.0,
                                   v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe2',
+        self.commissural.add_node(self.name+'_V3',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
                                   y=5.0+anchor_y,
                                   color='g',
                                   v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe3',
+        self.commissural.add_node(self.name+'_V2a',
                                   model='lif_danner',
                                   x=(-1.0 if self.name[-1] ==
                                      'L' else 3.0)+anchor_x,
                                   y=1.0+anchor_y,
                                   color='g',
                                   v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe4',
-                                  x=(-1.0 if self.name[-1] ==
-                                     'L' else 3.0)+anchor_x,
-                                  model='lif_danner',
-                                  y=6.0+anchor_y,
-                                  color='g',
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_Ini1',
+        self.commissural.add_node(self.name+'_IniV0V',
                                   model='lif_danner',
                                   x=(-1.0 if self.name[-1] ==
                                      'L' else 3.0)+anchor_x,
@@ -162,43 +162,41 @@ class LPSN(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.lpsn.add_node(self.name+'_LPNi1',
+        self.lpsn.add_node(self.name+'_V0D_diag',
                            model='lif_danner',
                            x=1.0+anchor_x,
                            y=0.0+anchor_y,
                            color='m',
-                           m_e=0.75,
-                           b_e=0.0,
+                           m_i=0.75,
+                           b_i=0.0,
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNe1',
+        self.lpsn.add_node(self.name+'_V0V_diag_fh',
                            model='lif_danner',
                            x=1.0+anchor_x,
                            y=2+anchor_y,
                            color='g',
-                           m_e=0.15,
-                           b_e=0.0,
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNe2',
+        self.lpsn.add_node(self.name+'_V0V_diag_hf',
                            model='lif_danner',
                            x=1.0+anchor_x,
                            y=4+anchor_y,
                            color='g',
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNi',
+        self.lpsn.add_node(self.name+'_Ini_hom_fh',
                            model='lif_danner',
                            x=(-2.0 if self.name[-1] ==
                               'L' else 4.0)+anchor_x,
                            y=4+anchor_y,
                            color='g',
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNsh1',
+        self.lpsn.add_node(self.name+'_Sh2_hom_fh',
                            model='lif_danner',
                            x=(-4.0 if self.name[-1] ==
                               'L' else 6.0)+anchor_x,
                            y=0+anchor_y,
                            color='g',
                            v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNsh2',
+        self.lpsn.add_node(self.name+'_Sh2_hom_hf',
                            model='lif_danner',
                            x=(-4.0 if self.name[-1] ==
                               'L' else 6.0)+anchor_x,
@@ -244,35 +242,35 @@ class ConnectRG2Commissural(object):
                           weight=0.40)
 
         self.net.add_edge(_name('L', 'RG_F'),
-                          _name('L', 'CINe3'),
+                          _name('L', 'V2a'),
                           weight=1.0)
 
         self.net.add_edge(_name('R', 'RG_F'),
-                          _name('R', 'CINe3'),
+                          _name('R', 'V2a'),
                           weight=1.0)
 
         self.net.add_edge(_name('L', 'RG_F'),
-                          _name('L', 'CINi2'),
+                          _name('L', 'V0D'),
                           weight=0.70)
 
         self.net.add_edge(_name('R', 'RG_F'),
-                          _name('R', 'CINi2'),
+                          _name('R', 'V0D'),
                           weight=0.70)
 
         self.net.add_edge(_name('L', 'RG_F'),
-                          _name('L', 'CINe2'),
+                          _name('L', 'V3'),
                           weight=0.35)
 
         self.net.add_edge(_name('R', 'RG_F'),
-                          _name('R', 'CINe2'),
+                          _name('R', 'V3'),
                           weight=0.35)
 
         self.net.add_edge(_name('L', 'RG_F'),
-                          _name('L', 'CINe4'),
+                          _name('L', 'V2a_diag'),
                           weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_F'),
-                          _name('R', 'CINe4'),
+                          _name('R', 'V2a_diag'),
                           weight=0.50)
 
         self.net.add_edge(_name('L', 'CINi1'),
@@ -283,43 +281,43 @@ class ConnectRG2Commissural(object):
                           _name('L', 'RG_F'),
                           weight=-0.03)
 
-        self.net.add_edge(_name('L', 'CINe1'),
-                          _name('R', 'Ini1'),
+        self.net.add_edge(_name('L', 'V0V'),
+                          _name('R', 'IniV0V'),
                           weight=0.60)
 
-        self.net.add_edge(_name('R', 'CINe1'),
-                          _name('L', 'Ini1'),
+        self.net.add_edge(_name('R', 'V0V'),
+                          _name('L', 'IniV0V'),
                           weight=0.60)
 
-        self.net.add_edge(_name('L', 'CINi2'),
+        self.net.add_edge(_name('L', 'V0D'),
                           _name('R', 'RG_F'),
                           weight=-0.07)
 
-        self.net.add_edge(_name('R', 'CINi2'),
+        self.net.add_edge(_name('R', 'V0D'),
                           _name('L', 'RG_F'),
                           weight=-0.07)
 
-        self.net.add_edge(_name('L', 'CINe2'),
+        self.net.add_edge(_name('L', 'V3'),
                           _name('R', 'RG_F'),
                           weight=0.03)
 
-        self.net.add_edge(_name('R', 'CINe2'),
+        self.net.add_edge(_name('R', 'V3'),
                           _name('L', 'RG_F'),
                           weight=0.03)
 
-        self.net.add_edge(_name('L', 'CINe3'),
-                          _name('L', 'CINe1'),
+        self.net.add_edge(_name('L', 'V2a'),
+                          _name('L', 'V0V'),
                           weight=1.0)
 
-        self.net.add_edge(_name('R', 'CINe3'),
-                          _name('R', 'CINe1'),
+        self.net.add_edge(_name('R', 'V2a'),
+                          _name('R', 'V0V'),
                           weight=1.0)
 
-        self.net.add_edge(_name('L', 'Ini1'),
+        self.net.add_edge(_name('L', 'IniV0V'),
                           _name('L', 'RG_F'),
                           weight=-0.07)
 
-        self.net.add_edge(_name('R', 'Ini1'),
+        self.net.add_edge(_name('R', 'IniV0V'),
                           _name('R', 'RG_F'),
                           weight=-0.07)
 
@@ -351,98 +349,98 @@ class ConnectFore2Hind(object):
             return f_h + side + '_' + name
 
         self.net.add_edge(_name('L', 'RG_E', 'F'),
-                          _name('L', 'LPNsh1'),
+                          _name('L', 'Sh2_hom_fh'),
                           weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_E', 'F'),
-                          _name('R', 'LPNsh1'),
+                          _name('R', 'Sh2_hom_fh'),
                           weight=0.50)
 
         self.net.add_edge(_name('L', 'RG_E', 'H'),
-                          _name('L', 'LPNsh2'),
+                          _name('L', 'Sh2_hom_hf'),
                           weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_E', 'H'),
-                          _name('R', 'LPNsh2'),
+                          _name('R', 'Sh2_hom_hf'),
                           weight=0.50)
 
         self.net.add_edge(_name('L', 'RG_F', 'F'),
-                          _name('L', 'LPNi'),
+                          _name('L', 'Ini_hom_fh'),
                           weight=0.70)
 
         self.net.add_edge(_name('R', 'RG_F', 'F'),
-                          _name('R', 'LPNi'),
+                          _name('R', 'Ini_hom_fh'),
                           weight=0.70)
 
         self.net.add_edge(_name('L', 'RG_F', 'F'),
-                          _name('L', 'LPNi1'),
+                          _name('L', 'V0D_diag'),
                           weight=0.50)
 
         self.net.add_edge(_name('R', 'RG_F', 'F'),
-                          _name('R', 'LPNi1'),
+                          _name('R', 'V0D_diag'),
                           weight=0.50)
 
-        self.net.add_edge(_name('L', 'CINe4', 'F'),
-                          _name('L', 'LPNe1'),
+        self.net.add_edge(_name('L', 'V2a_diag', 'F'),
+                          _name('L', 'V0V_diag_fh'),
                           weight=0.90)
 
-        self.net.add_edge(_name('R', 'CINe4', 'F'),
-                          _name('R', 'LPNe1'),
+        self.net.add_edge(_name('R', 'V2a_diag', 'F'),
+                          _name('R', 'V0V_diag_fh'),
                           weight=0.90)
 
-        self.net.add_edge(_name('L', 'CINe4', 'H'),
-                          _name('L', 'LPNe2'),
+        self.net.add_edge(_name('L', 'V2a_diag', 'H'),
+                          _name('L', 'V0V_diag_hf'),
                           weight=0.90)
 
-        self.net.add_edge(_name('R', 'CINe4', 'H'),
-                          _name('R', 'LPNe2'),
+        self.net.add_edge(_name('R', 'V2a_diag', 'H'),
+                          _name('R', 'V0V_diag_hf'),
                           weight=0.90)
 
-        self.net.add_edge(_name('L', 'LPNi1'),
+        self.net.add_edge(_name('L', 'V0D_diag'),
                           _name('R', 'RG_F', 'H'),
-                          weight=-0.01)
+                          weight=-0.075)
 
-        self.net.add_edge(_name('R', 'LPNi1'),
+        self.net.add_edge(_name('R', 'V0D_diag'),
                           _name('L', 'RG_F', 'H'),
-                          weight=-0.01)
+                          weight=-0.075)
 
-        self.net.add_edge(_name('L', 'LPNe1'),
+        self.net.add_edge(_name('L', 'V0V_diag_fh'),
                           _name('R', 'RG_F', 'H'),
-                          weight=0.60)
+                          weight=0.02)
 
-        self.net.add_edge(_name('R', 'LPNe1'),
+        self.net.add_edge(_name('R', 'V0V_diag_fh'),
                           _name('L', 'RG_F', 'H'),
-                          weight=0.60)
+                          weight=0.02)
 
-        self.net.add_edge(_name('L', 'LPNe2'),
+        self.net.add_edge(_name('L', 'V0V_diag_hf'),
                           _name('R', 'RG_F', 'F'),
-                          weight=0.60)
+                          weight=0.065)
 
-        self.net.add_edge(_name('R', 'LPNe2'),
+        self.net.add_edge(_name('R', 'V0V_diag_hf'),
                           _name('L', 'RG_F', 'F'),
-                          weight=0.60)
+                          weight=0.065)
 
-        self.net.add_edge(_name('L', 'LPNi'),
+        self.net.add_edge(_name('L', 'Ini_hom_fh'),
                           _name('L', 'RG_F', 'H'),
                           weight=-0.01)
 
-        self.net.add_edge(_name('R', 'LPNi'),
+        self.net.add_edge(_name('R', 'Ini_hom_fh'),
                           _name('R', 'RG_F', 'H'),
                           weight=-0.01)
 
-        self.net.add_edge(_name('L', 'LPNsh1'),
+        self.net.add_edge(_name('L', 'Sh2_hom_fh'),
                           _name('L', 'RG_F', 'H'),
                           weight=0.01)
 
-        self.net.add_edge(_name('R', 'LPNsh1'),
+        self.net.add_edge(_name('R', 'Sh2_hom_fh'),
                           _name('R', 'RG_F', 'H'),
                           weight=0.01)
 
-        self.net.add_edge(_name('L', 'LPNsh2'),
+        self.net.add_edge(_name('L', 'Sh2_hom_hf'),
                           _name('L', 'RG_F', 'F'),
                           weight=0.125)
 
-        self.net.add_edge(_name('R', 'LPNsh2'),
+        self.net.add_edge(_name('R', 'Sh2_hom_hf'),
                           _name('R', 'RG_F', 'F'),
                           weight=0.125)
 

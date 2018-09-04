@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from matplotlib import rc
+import os
 
 import biolog
 from danner_net_gen_e_life import (CPG, LPSN, Commissural, ConnectFore2Hind,
@@ -62,16 +63,18 @@ def main():
 
     net = net.net
 
-    nx.write_graphml(net,
-                     './conf/auto_gen_danner_cpg.graphml')
+    nx.write_graphml(net,os.path.join(os.path.dirname(__file__),
+                            './conf/auto_gen_danner_cpg.graphml'))
 
     #: Initialize network
-    net_ = NetworkGenerator('./conf/auto_gen_danner_cpg.graphml')
+    net_ = NetworkGenerator(os.path.join(os.path.dirname(__file__),
+                                './conf/auto_gen_danner_cpg.graphml'))
 
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 6000, dt)  #: Time
+    dur = 6000
+    time_vec = np.arange(0, dur, dt)  #: Time
 
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
@@ -93,9 +96,16 @@ def main():
     biolog.info('Begin Integration!')
 
     #: Network drive : Alpha
-    alpha = np.linspace(0, 1, len(time_vec))
+    alpha = np.floor(time_vec*1e-3)/(dur*1e-3-1.0)+0.05
+
+    biolog.info('INPUTS')
+    #print('\n'.join(['{} : {}'.format(p.sym.name(), p.val) for p in net_.dae.u.param_list]))
 
     start_time = time.time()
+    net_.dae.u.set_all_val(alpha[0])
+    for idx in range(1000):
+        net_.step()
+
     for idx, _ in enumerate(time_vec):
         net_.dae.u.set_all_val(alpha[idx])
         res[idx] = net_.step()['xf'].full()[:, 0]
@@ -112,19 +122,21 @@ def main():
 
     _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
     ax1.plot(time_vec*0.001,
-             res[:, net_.dae.x.get_idx('V_FR_RG_F')], 'b')
+             res[:, net_.dae.x.get_idx('V_FR_RG_F')], 'b',
+             linewidth=1)
     ax1.grid('on', axis='x')
     ax1.set_ylabel('FR')
     ax2.plot(time_vec*0.001,
-             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
+             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g',
+             linewidth=1)
     ax2.grid('on', axis='x')
     ax2.set_ylabel('FL')
     ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
-             'r')
+             'r',linewidth=1)
     ax3.grid('on', axis='x')
     ax3.set_ylabel('HR')
     ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
-             'k')
+             'k',linewidth=1)
     ax4.grid('on', axis='x')
     ax4.set_ylabel('HL')
     ax5.fill_between(time_vec*0.001, 0, alpha,
