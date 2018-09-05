@@ -303,12 +303,22 @@ class LIF_Danner_Nap(Neuron):
         self.vdot.sym = -(i_nap + i_leak + i_syn_e + i_syn_i)/self.c_m.sym
         return
 
-    def neuron_out(self):
+    def neuron_out(self, res=None):
         """ Output of the neuron model."""
-        _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
-                              self.v.sym < self.v_max.sym)
-        _f = (self.v.sym - self.v_thr.sym) / (self.v_max.sym - self.v_thr.sym)
-        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr.sym)
+        if res is None:
+            _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
+                                  self.v.sym < self.v_max.sym)
+            _f = (self.v.sym - self.v_thr.sym) / \
+                (self.v_max.sym - self.v_thr.sym)
+            return cas.if_else(_cond, _f, 1.) * (
+                self.v.sym > self.v_thr.sym)
+        else:
+            _cond = cas.logic_and(self.v_thr.val <= res,
+                                  res < self.v_max.val)
+            _f = (res - self.v_thr.val) / \
+                (self.v_max.val - self.v_thr.val)
+            return cas.if_else(_cond, _f, 1.) * (
+                res > self.v_thr.val)
 
 
 class LIF_Danner(Neuron):
@@ -430,12 +440,22 @@ class LIF_Danner(Neuron):
         self.vdot.sym = - (i_leak + i_syn_e + i_syn_i)/self.c_m.sym
         return
 
-    def neuron_out(self):
+    def neuron_out(self, res=None):
         """ Output of the neuron model."""
-        _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
-                              self.v.sym < self.v_max.sym)
-        _f = (self.v.sym - self.v_thr.sym) / (self.v_max.sym - self.v_thr.sym)
-        return cas.if_else(_cond, _f, 1.) * (self.v.sym > self.v_thr.sym)
+        if res is None:
+            _cond = cas.logic_and(self.v_thr.sym <= self.v.sym,
+                                  self.v.sym < self.v_max.sym)
+            _f = (self.v.sym - self.v_thr.sym) / \
+                (self.v_max.sym - self.v_thr.sym)
+            return cas.if_else(_cond, _f, 1.) * (
+                self.v.sym > self.v_thr.sym)
+        else:
+            _cond = cas.logic_and(self.v_thr.val <= res,
+                                  res < self.v_max.val)
+            _f = (res - self.v_thr.val) / \
+                (self.v_max.val - self.v_thr.val)
+            return cas.if_else(_cond, _f, 1.) * (
+                res > self.v_thr.val)
 
 
 class LIF_Daun_Interneuron(Neuron):
@@ -739,7 +759,7 @@ class LIF_Daun_Motorneuron(Neuron):
                 neuron.neuron_out() - v_h_s.sym)))
 
         self.vdot.sym += -(g_syn.sym*s_inf *
-                          (self.v.sym - e_syn.sym))/self.c_m.sym
+                           (self.v.sym - e_syn.sym))/self.c_m.sym
         return
 
     def ode_rhs(self):
