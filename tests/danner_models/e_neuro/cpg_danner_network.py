@@ -1,14 +1,15 @@
 """ Danner CPG Model. """
 
+import os
 import time
 
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from network_generator.network_generator import NetworkGenerator
 
 import biolog
 from danner_net_gen import CPG, Commissural, Ipsilateral
+from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -113,8 +114,20 @@ def main():
     net.add_edge('RF_Ini_fh', 'HR_RG_F', weight=-0.015)
     net.add_edge('RH_Ini_fh', 'FR_RG_F', weight=-0.035)
 
-    nx.write_graphml(net,
-                     './conf/auto_gen_danner_cpg.graphml')
+    #: Location to save the network
+    net_dir = os.path.join(
+        os.path.dirname(__file__),
+        './conf/auto_gen_danner_cpg.graphml')
+    try:
+        nx.write_graphml(net, net_dir)
+    except IOError:
+        if not os.path.isdir(os.path.split(net_dir)[0]):
+            biolog.info('Creating directory : {}'.format(net_dir))
+            os.mkdir(os.path.split(net_dir)[0])
+            nx.write_graphml(net, net_dir)
+        else:
+            biolog.error('Error in creating directory!')
+            raise IOError()
 
     #: Initialize network
     net_ = NetworkGenerator('./conf/auto_gen_danner_cpg.graphml')

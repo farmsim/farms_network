@@ -1,5 +1,6 @@
 """ Danner CPG Model. Current Model """
 
+import os
 import time
 
 import matplotlib.pyplot as plt
@@ -56,8 +57,20 @@ def main():
     net = nx.compose_all([net1.cpg,
                           net2.pf_net])
 
-    nx.write_graphml(net,
-                     './conf/auto_gen_danner_cpg.graphml')
+    #: Location to save the network
+    net_dir = os.path.join(
+        os.path.dirname(__file__),
+        './conf/auto_gen_danner_cpg.graphml')
+    try:
+        nx.write_graphml(net, net_dir)
+    except IOError:
+        if not os.path.isdir(os.path.split(net_dir)[0]):
+            biolog.info('Creating directory : {}'.format(net_dir))
+            os.mkdir(os.path.split(net_dir)[0])
+            nx.write_graphml(net, net_dir)
+        else:
+            biolog.error('Error in creating directory!')
+            raise IOError()
 
     #: Initialize network
     net_ = NetworkGenerator('./conf/auto_gen_danner_cpg.graphml')
