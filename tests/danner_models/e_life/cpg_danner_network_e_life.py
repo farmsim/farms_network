@@ -212,6 +212,7 @@ def main():
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
         act_binary = (np.array(act) > 0.1).astype(np.int)
+        act_binary = np.logical_not(act_binary).astype(np.int)
         act_binary[0] = 0
         gait_cycle = []
         start = (np.where(np.diff(act_binary[:, 0]) == 1.))[0]
