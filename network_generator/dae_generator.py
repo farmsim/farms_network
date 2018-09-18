@@ -1,7 +1,10 @@
 """ Describe/Generate DAE Model. """
 
 from collections import OrderedDict
+
 import casadi as cas
+import numpy as np
+
 import biolog
 
 
@@ -39,8 +42,7 @@ class Parameters(list):
 
     def set_all_val(self, value):
         """ Set the attribute value by name."""
-        for idx, _ in enumerate(self):
-            self[idx] = value
+        self[:] = [value]*len(self)
 
     def get_sym(self, key):
         """ Get the attribute symbol by name."""
@@ -150,6 +152,7 @@ class DaeGenerator(object):
         self.z = Parameters()  #: Algebraic variables
         self.p = Parameters()  #: Parameters
         self.u = Parameters()  #: Inputs
+        self.params = []
         self.c = Parameters()  #: Named Constants
         self.y = Parameters()  #: Outputs
 
@@ -250,6 +253,7 @@ class DaeGenerator(object):
                'z': cas.vertcat(*self.z.get_all_sym()),
                'alg': cas.vertcat(*self.alg.get_all_sym()),
                'ode': cas.vertcat(*self.ode.get_all_sym())}
+        self.params = [self.u, self.p, self.c]
         return dae
 
     def print_dae(self):
