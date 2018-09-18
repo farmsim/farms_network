@@ -1,11 +1,14 @@
 """ Generate neural network. """
 
+import itertools
+from collections import OrderedDict
+
 import casadi as cas
 import casadi.tools as cast
 import numpy as np
-from collections import OrderedDict
 
 import biolog
+
 from .dae_generator import DaeGenerator
 from .networkx_model import NetworkXModel
 from .neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
@@ -129,8 +132,7 @@ class NetworkGenerator(NetworkXModel):
 
     def step(self):
         """Step integrator."""
-        self.fin['p'] = self.dae.u +\
-            self.dae.p + self.dae.c
+        self.fin['p'] = list(itertools.chain(*self.dae.params))
         res = self.integrator.call(self.fin)
         self.fin['x0'] = res['xf']
         return res
