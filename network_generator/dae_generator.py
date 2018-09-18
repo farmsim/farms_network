@@ -1,11 +1,14 @@
 """ Describe/Generate DAE Model. """
 
 from collections import OrderedDict
+
 import casadi as cas
+import numpy as np
+
 import biolog
 
 
-class Parameters(list):
+class Parameters():
     """Book keeping for casadi objects.
     """
 
@@ -39,8 +42,7 @@ class Parameters(list):
 
     def set_all_val(self, value):
         """ Set the attribute value by name."""
-        for idx, _ in enumerate(self):
-            self[idx] = value
+        self[:] = [value]*len(self)
 
     def get_sym(self, key):
         """ Get the attribute symbol by name."""
