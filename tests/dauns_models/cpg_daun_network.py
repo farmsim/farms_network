@@ -8,7 +8,7 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from tests.dauns_models.daun_net_gen import SideNetwork
+from network_models.daun_cpg.daun_net_gen import SideNetwork
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
