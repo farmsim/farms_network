@@ -8,7 +8,7 @@ import networkx as nx
 import numpy as np
 
 import biolog
-from daun_net_gen import SideNetwork
+from tests.dauns_models.daun_net_gen import SideNetwork
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -102,8 +102,7 @@ def main():
     # #: Results
     net_.save_network_to_dot()
     #: Visualize network using Matplotlib
-    fig = net_.visualize_network(plt_out=plt)
-
+    net_.visualize_network(plt_out=plt)
     plt.figure()
     plt.title('DAUNS NETWORK')
     plt.plot(time_vec*0.001,
@@ -112,12 +111,7 @@ def main():
              res[:, [net_.dae.x.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
     plt.xlabel('Time [s]')
-    # plt.plot(time_vec*0.001,
-    #          res[:, [net_.dae.x.get_idx('V_PR_L1_IN6')]],
-    #          ':', markersize=5.)
-    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2',
-                # 'V_PR_L1_IN6'
-                ))
+    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2'))
     plt.grid()
     plt.show()
 
