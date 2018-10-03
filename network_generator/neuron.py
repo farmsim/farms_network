@@ -525,7 +525,9 @@ class LIF_Daun_Interneuron(Neuron):
                                     kwargs.get('e_app', 0.0))
 
         #: Add outputs
-        self.dae.add_y(self.v)
+        if kwargs.get('output'):
+            self.dae.add_y(self.v)
+            self.dae.add_y(self.h)
 
         #: ODE
         self.ode_rhs()
