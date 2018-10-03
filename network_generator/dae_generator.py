@@ -131,7 +131,7 @@ class ParametersAlias(object):
         if key not in self._name_to_idx:
             raise AttributeError()
         else:
-            return [self._name_to_idx[key]]
+            return self._name_to_idx[key]
 
     def add(self, param):
         """Add an alias to an existing parameter.

@@ -54,7 +54,7 @@ def main():
     dt = 1  #: Time step
     time_vec = np.arange(0, 10000, dt)  #: Time
     #: Vector to store results
-    res = np.empty([len(time_vec), len(net_.dae.x)])
+    res = np.empty([len(time_vec), len(net_.dae.y)])
 
     #: opts
     opts = {'tf': dt,
@@ -93,7 +93,8 @@ def main():
 
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
-        res[idx] = net_.step()['xf'].full()[:, 0]
+        net_.step()
+        res[idx] = net_.dae.y
     end_time = time.time()
 
     biolog.info('Execution Time : {}'.format(
@@ -106,9 +107,9 @@ def main():
     plt.figure()
     plt.title('DAUNS NETWORK')
     plt.plot(time_vec*0.001,
-             res[:, [net_.dae.x.get_idx('V_PR_L1_C1')]])
+             res[:, [net_.dae.y.get_idx('V_PR_L1_C1')]])
     plt.plot(time_vec*0.001,
-             res[:, [net_.dae.x.get_idx('V_PR_L1_C2')]],
+             res[:, [net_.dae.y.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
     plt.xlabel('Time [s]')
     plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2'))
