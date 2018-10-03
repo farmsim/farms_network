@@ -212,7 +212,7 @@ class DaeGenerator(object):
         self.u = Parameters()  #: Inputs
         self.params = []
         self.c = Parameters()  #: Named Constants
-        self.y = ParametersAlias()
+        self.y = ParametersAlias()  #: Outputs
 
         #: Equations
         self.alg = Parameters()  #: Algebraic equations
