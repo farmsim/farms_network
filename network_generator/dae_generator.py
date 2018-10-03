@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """ Describe/Generate DAE Model. """
 
 from collections import OrderedDict
@@ -90,6 +91,63 @@ class Parameters(list):
         return
 
 
+class ParametersAlias(object):
+    """Class used for creating simplified access to already
+    created Parameters class.
+    """
+
+    def __init__(self):
+        """ Initilization."""
+        super(ParametersAlias, self).__init__()
+        self._values = []
+        self.__param = None
+        self._name_to_idx = {}
+
+    def __len__(self):
+        """ Get the length of the list."""
+        return len(self._values)
+
+    def __getitem__(self, key):
+        """ Get item in the list."""
+        if key == str:
+            return self._values[self, name_to_idx[key]].val
+        else:
+            return self._values[key].val
+
+    def __iter__(self):
+        """ Return an iterator of the list"""
+        return iter([par.val for par in self._values])
+
+    def __repr__(self):
+        """ Return a list."""
+        return [par.val for par in self._values]
+
+    def __str__(self):
+        """ Return human readable list."""
+        return repr([par.val for par in self._values])
+
+    def get_idx(self, key):
+        """ Get the attribute value by name."""
+        if key not in self._name_to_idx:
+            raise AttributeError()
+        else:
+            return [self._name_to_idx[key]]
+
+    def add(self, param):
+        """Add an alias to an existing parameter.
+        Parameters
+        ----------
+        name : <str>
+            Name of the parameter.
+        param : <Param>
+            Original parameter whose value will be used as output
+        """
+        _idx = len(self._values)
+        self._name_to_idx[param.sym.name()] = _idx
+        self._values.insert(_idx, param)
+        return
+
+
 class Param(object):
     """Wrapper for parameters in the system.
     Can be a casadi symbolic or numeric value.
@@ -154,7 +212,7 @@ class DaeGenerator(object):
         self.u = Parameters()  #: Inputs
         self.params = []
         self.c = Parameters()  #: Named Constants
-        self.y = Parameters()  #: Outputs
+        self.y = ParametersAlias()
 
         #: Equations
         self.alg = Parameters()  #: Algebraic equations
@@ -215,6 +273,19 @@ class DaeGenerator(object):
         """
         self.c.add(name, cas.SX.sym(name), value)
         return self.c.param_list[-1]
+
+    def add_y(self, param):
+        """Add a new constant.
+         ----------
+        param : <Param>
+            Instantiated Param object. Can be,
+        1. x
+        2. c
+        3. u
+        4. p
+        """
+        self.y.add(param)
+        return None
 
     def add_ode(self, name, ode):
         """Add a new ode rhs.
@@ -301,3 +372,22 @@ class DaeGenerator(object):
         print('\n'.join(['{}. {}'.format(
             j, s) for j, s in enumerate(self.alg.get_all_sym())]))
         return
+
+
+def main():
+    """Main function testing"""
+    dae = DaeGenerator()
+    #: Add x
+    x = dae.add_x('x', 10.0)
+    z = dae.add_x('z', 100.0)
+    #: Set x as an output
+    dae.add_y(x)
+    dae.add_y(z)
+    #: print y
+    biolog.debug(dae.y)
+    x.val = 123
+    biolog.debug([p**2 for p in dae.y])
+
+
+if __name__ == '__main__':
+    main()
