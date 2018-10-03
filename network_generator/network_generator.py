@@ -132,9 +132,12 @@ class NetworkGenerator(NetworkXModel):
 
     def step(self):
         """Step integrator."""
-        self.fin['p'] = list(itertools.chain(*self.dae.params))
+        self.fin['p'][:] = list(itertools.chain(*self.dae.params))
         res = self.integrator.call(self.fin)
-        self.fin['x0'] = res['xf']
+        self.fin['x0'][:] = res['xf'].full()[:, 0]
+        self.fin['z0'][:] = res['zf'].full()[:, 0]
+        self.fin['rx0'] = res['rxf']
+        self.fin['rz0'] = res['rzf']
         return res
 
 
