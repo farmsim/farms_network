@@ -110,7 +110,7 @@ class ParametersAlias(object):
     def __getitem__(self, key):
         """ Get item in the list."""
         if key == str:
-            return self._values[self, name_to_idx[key]].val
+            return self._values[self._name_to_idx[key]].val
         else:
             return self._values[key].val
 
@@ -120,7 +120,8 @@ class ParametersAlias(object):
 
     def __repr__(self):
         """ Return a list."""
-        return [par.val for par in self._values]
+        return '<ParametersAlias> {}'.format(
+            [par.val for par in self._values])
 
     def __str__(self):
         """ Return human readable list."""
@@ -383,7 +384,7 @@ def main():
     #: Set x as an output
     dae.add_y(x)
     dae.add_y(z)
-    #: print y
+    dae.y
     biolog.debug(dae.y)
     x.val = 123
     biolog.debug([p**2 for p in dae.y])
