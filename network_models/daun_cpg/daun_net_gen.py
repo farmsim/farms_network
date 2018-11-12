@@ -32,7 +32,8 @@ class CPG(object):
                           eps=0.0023,
                           c_m=0.9153,
                           v0=-70.0,
-                          h0=0.8)
+                          h0=0.8,
+                          output=True)
         self.cpg.add_node(self.name+'_C2',
                           model='lif_daun_interneuron',
                           x=1.0+anchor_x,
@@ -43,7 +44,8 @@ class CPG(object):
                           eps=0.0023,
                           c_m=0.9153,
                           v0=-10.0,
-                          h0=0.1)
+                          h0=0.1,
+                          output=True)
 
     def add_connections(self):
         self.cpg.add_edge(self.name+'_C1',
