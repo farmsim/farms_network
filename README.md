@@ -1,4 +1,5 @@
-This respository contains the necessary components to generate, integrate, analyze and visualize neural network models. 
+This respository contains the necessary components to generate, integrate,
+analyze and visualize neural network models.
 
 # Installation :
 
@@ -23,7 +24,7 @@ This respository contains the necessary components to generate, integrate, analy
 * **Dauns Models**:
     * Location : tests/dauns_models
     * Description : Neural networks describing stick insect spinal circuits
-    
+
 # Running the examples
 
 * **Danner Models**
