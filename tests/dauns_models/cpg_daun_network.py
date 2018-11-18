@@ -1,4 +1,4 @@
-""" Danner CPG Model. """
+""" Dauns CPG Model. """
 
 import os
 import time
@@ -19,6 +19,9 @@ plt.rc('axes', titlesize=14.0)     # fontsize of the axes title
 plt.rc('axes', labelsize=14.0)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=14.0)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
+
+TIME_SCALE = 0.1
+TIME_UNITS = 0.001
 
 
 def main():
@@ -51,8 +54,8 @@ def main():
 
     #: initialize network parameters
     #: pylint: disable=invalid-name
-    dt = 1  #: Time step
-    time_vec = np.arange(0, 10000, dt)  #: Time
+    dt = 2*TIME_SCALE  #: Time step
+    time_vec = np.arange(0, 1000, dt)*TIME_SCALE*TIME_UNITS  #: Time
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.y)])
 
@@ -106,9 +109,9 @@ def main():
     net_.visualize_network(plt_out=plt)
     plt.figure()
     plt.title('DAUNS NETWORK')
-    plt.plot(time_vec*0.001,
+    plt.plot(time_vec,
              res[:, [net_.dae.y.get_idx('V_PR_L1_C1')]])
-    plt.plot(time_vec*0.001,
+    plt.plot(time_vec,
              res[:, [net_.dae.y.get_idx('V_PR_L1_C2')]],
              ':', markersize=5.)
     plt.xlabel('Time [s]')
