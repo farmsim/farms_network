@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ Dauns CPG Model. """
 
 import os
@@ -20,7 +22,7 @@ plt.rc('axes', labelsize=14.0)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=14.0)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 
-TIME_SCALE = 0.1
+TIME_SCALE = 1
 TIME_UNITS = 0.001
 
 
@@ -61,12 +63,13 @@ def main():
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
             "reltol": 1e-6,
-            "abstol": 1e-6}
+            "abstol": 1e-6,
+            "nonlinear_solver_iteration": "functional"}
 
     # #: Setup the integrator
     net_.setup_integrator(integration_method='cvodes', opts=opts)

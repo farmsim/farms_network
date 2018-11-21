@@ -295,7 +295,7 @@ class ConnectCPG2Interneurons(object):
                           v_h_s=-43.0,
                           gamma_s=-10.0)
 
-        self.net.add_edge(_name('IN6'), _name('C2'),
+        self.net.add_edge(_name('IN5'), _name('C2'),
                           weight=-1.0,
                           g_syn=0.05,
                           e_syn=-80.0,
