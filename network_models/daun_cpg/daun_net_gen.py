@@ -188,7 +188,7 @@ class Motorneurons(object):
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
         self.motorneurons.add_node(self.name+'_MN1',
-                                   model='lif_daun_motorneruon',
+                                   model='lif_daun_motorneuron',
                                    x=-3.0+anchor_x,
                                    y=1.5+anchor_y,
                                    color=color,
