@@ -31,15 +31,17 @@ def main():
     """Main."""
 
     #: Left side network
-    # net_right = SideNetwork('R', 30.0, 0.0)
-    # net_left = SideNetwork('L', 0.0, 0.0)
+    net_right = SideNetwork('R', 30.0, 0.0)
+    net_left = SideNetwork('L', 0.0, 0.0)
 
-    net1 = CPG('PR_L1', anchor_x=0, anchor_y=0)
-    net2 = Interneurons('PR_L1', anchor_x=0., anchor_y=0.)
+    # net1 = CPG('PR_L1', anchor_x=0, anchor_y=0)
+    # net2 = Interneurons('PR_L1', anchor_x=0., anchor_y=0.)
 
-    net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net2.interneurons)
+    # net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net2.interneurons)
 
-    net = nx.compose_all([net_C_IN_1.net])
+    # net = nx.compose_all([net_C_IN_1.net])
+
+    net = nx.compose_all([net_right.net, net_left.net])
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -63,7 +65,7 @@ def main():
     #: pylint: disable=invalid-name
 
     dt = 1  #: Time step
-    time_vec = np.arange(0, 10000, dt)  #: Time
+    time_vec = np.arange(0, 100, dt)  #: Time
 
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
