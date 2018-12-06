@@ -1,4 +1,6 @@
-""" Danner CPG Model. """
+#!/usr/bin/env python
+
+""" Dauns CPG Model. """
 
 import os
 import time
@@ -6,10 +8,11 @@ import time
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+from network_generator.network_generator import NetworkGenerator
 
 import biolog
-from network_models.daun_cpg.daun_net_gen import SideNetwork
-from network_generator.network_generator import NetworkGenerator
+from network_models.daun_cpg.daun_net_gen import (CPG, ConnectCPG2Interneurons,
+                                                  Interneurons, SideNetwork)
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -20,6 +23,9 @@ plt.rc('axes', labelsize=14.0)    # fontsize of the x and y labels
 plt.rc('xtick', labelsize=14.0)    # fontsize of the tick labels
 plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 
+TIME_SCALE = 1
+TIME_UNITS = 0.001
+
 
 def main():
     """Main."""
@@ -28,8 +34,14 @@ def main():
     net_right = SideNetwork('R', 30.0, 0.0)
     net_left = SideNetwork('L', 0.0, 0.0)
 
-    net = nx.compose_all([net_left.net,
-                          net_right.net])
+    # net1 = CPG('PR_L1', anchor_x=0, anchor_y=0)
+    # net2 = Interneurons('PR_L1', anchor_x=0., anchor_y=0.)
+
+    # net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net2.interneurons)
+
+    # net = nx.compose_all([net_C_IN_1.net])
+
+    net = nx.compose_all([net_right.net, net_left.net])
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -51,10 +63,12 @@ def main():
 
     #: initialize network parameters
     #: pylint: disable=invalid-name
+
     dt = 1  #: Time step
-    time_vec = np.arange(0, 10000, dt)  #: Time
+    time_vec = np.arange(0, 100, dt)  #: Time
+
     #: Vector to store results
-    res = np.empty([len(time_vec), len(net_.dae.y)])
+    res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
@@ -63,7 +77,8 @@ def main():
             "print_time": False,
             "print_stats": False,
             "reltol": 1e-6,
-            "abstol": 1e-6}
+            "abstol": 1e-6,
+            "nonlinear_solver_iteration": "functional"}
 
     # #: Setup the integrator
     net_.setup_integrator(integration_method='cvodes', opts=opts)
@@ -94,7 +109,7 @@ def main():
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
         net_.step()
-        res[idx] = net_.dae.y
+        res[idx] = net_.dae.x
     end_time = time.time()
 
     biolog.info('Execution Time : {}'.format(
@@ -106,6 +121,7 @@ def main():
     net_.visualize_network(plt_out=plt)
     plt.figure()
     plt.title('DAUNS NETWORK')
+
     plt.plot(time_vec*0.001,
              res[:, [net_.dae.y.get_idx('V_PR_L1_C1')]])
     plt.plot(time_vec*0.001,

@@ -787,7 +787,7 @@ class LIF_Daun_Motorneuron(Neuron):
             cas.exp(self.bh3_nap.sym * (self.bh2_nap.sym - self.v.sym)) + 1)
 
         #: m_na_dot
-        self.m_na_dot.sym = a_m_nap.sym*(
+        self.m_na_dot.sym = a_m_nap*(
             1 - self.m_na.sym) - b_m_nap*self.m_na.sym
 
         #: h_na_dot
