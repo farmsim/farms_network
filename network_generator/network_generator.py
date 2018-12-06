@@ -12,7 +12,7 @@ import biolog
 from .dae_generator import DaeGenerator
 from .networkx_model import NetworkXModel
 from .neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
-                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron)
+                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron, ConstantAndInhibit)
 
 
 class NetworkGenerator(NetworkXModel):
@@ -74,6 +74,10 @@ class NetworkGenerator(NetworkXModel):
                                                           **neuron)
             elif neuron['model'] == 'lif_daun_motorneuron':
                 self.neurons[name] = LIF_Daun_Motorneuron(name,
+                                                          self.dae,
+                                                          **neuron)
+            elif neuron['model'] == 'constant_and_inhibit':
+                self.neurons[name] = ConstantAndInhibit(name,
                                                           self.dae,
                                                           **neuron)
             else:
