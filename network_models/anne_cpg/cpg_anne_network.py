@@ -1,4 +1,4 @@
-""" Danner CPG Model. """
+""" Anne CPG Model. """
 
 import os
 import time
@@ -110,10 +110,16 @@ def main():
 
     # #: Results
     # net_.save_network_to_dot()
-    #: Visualize network using Matplotlib
-    fig = net_.visualize_network(plt_out=plt)
+    ##: Visualize network using Matplotlib
+    #fig = net_.visualize_network(plt_out=plt)
     plt.figure()
-    plt.plot(res)
+    plt.plot(time_vec,res[:,0])
+    plt.plot(time_vec,res[:,2])
+    #plt.plot(time_vec,res[:,3])
+    #plt.plot(time_vec,res[:,5])
+    plt.xlabel('Time [s]')
+    plt.ylabel('CPG activation signal')
+    plt.legend(['Left Extensor', 'Left Flexor'])#, 'Right Extensor', 'Right Flexor'])
     print(res)
     plt.show()
     
