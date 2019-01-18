@@ -69,13 +69,13 @@ class CPG(object):
         return
 
 
-class PatterFormation(object):
+class PatternFormation(object):
     """Pattern Formation Layer
 
     """
 
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='g'):
-        super(PatterFormation, self).__init__()
+        super(PatternFormation, self).__init__()
         self.name = name
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
