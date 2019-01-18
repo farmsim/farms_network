@@ -59,8 +59,7 @@ def main():
                                   net11.commissural, net12.commissural)
     net17 = ConnectFore2Hind(net15.net, net16.net, net13.lpsn, net14.lpsn)
 
-    net = nx.compose_all([net15.net, net16.net,
-                          net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net,
+    net = nx.compose_all([net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net,
                           net17.net])
 
     #: Location to save the network
