@@ -93,7 +93,7 @@ class PatternFormation(object):
         """ Add neurons. """
         self.pf_net.add_node(self.name+'_PF_F',
                              model='lif_danner_nap',
-                             x=1.0+anchor_x,
+                             x=-3.0+anchor_x,
                              y=0.0+anchor_y,
                              color='r',
                              m_e=0.1,
@@ -103,7 +103,7 @@ class PatternFormation(object):
 
         self.pf_net.add_node(self.name+'_PF_E',
                              model='lif_danner_nap',
-                             x=1.0+anchor_x,
+                             x=-3.0+anchor_x,
                              y=4.0+anchor_y,
                              color='b',
                              m_e=0.0,
@@ -113,22 +113,22 @@ class PatternFormation(object):
 
         self.pf_net.add_node(self.name+'_Inp_F',
                              model='lif_danner',
-                             x=0.0+anchor_x,
+                             x=-4.0+anchor_x,
                              y=2.0+anchor_y,
                              color='m',
                              v0=-60.0)
 
         self.pf_net.add_node(self.name+'_Inp_E',
                              model='lif_danner',
-                             x=2.0+anchor_x,
+                             x=-2.0+anchor_x,
                              y=2.0+anchor_y,
                              color='m',
                              v0=-60.0)
 
         self.pf_net.add_node(self.name+'_PF_Sw',
                              model='lif_danner_nap',
-                             x=1.0+anchor_x,
-                             y=-4.0+anchor_y,
+                             x=5.0+anchor_x,
+                             y=0.0+anchor_y,
                              color='r',
                              m_e=0.1,
                              b_e=0.0,
@@ -137,8 +137,8 @@ class PatternFormation(object):
 
         self.pf_net.add_node(self.name+'_PF_St',
                              model='lif_danner_nap',
-                             x=1.0+anchor_x,
-                             y=-8.0+anchor_y,
+                             x=5.0+anchor_x,
+                             y=4.0+anchor_y,
                              color='b',
                              m_e=0.0,
                              b_e=0.1,
@@ -147,15 +147,15 @@ class PatternFormation(object):
 
         self.pf_net.add_node(self.name+'_Inp_Sw',
                              model='lif_danner',
-                             x=0.0+anchor_x,
-                             y=-6.0+anchor_y,
+                             x=6.0+anchor_x,
+                             y=2.0+anchor_y,
                              color='m',
                              v0=-60.0)
 
         self.pf_net.add_node(self.name+'_Inp_St',
                              model='lif_danner',
-                             x=2.0+anchor_x,
-                             y=-6.0+anchor_y,
+                             x=4.0+anchor_x,
+                             y=2.0+anchor_y,
                              color='m',
                              v0=-60.0)
 

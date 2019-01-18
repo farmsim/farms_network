@@ -10,7 +10,7 @@ from matplotlib import rc
 
 import biolog
 from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                 ConnectRG2Commissural, PatterFormation)
+                                 ConnectRG2Commissural, PatternFormation)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -27,12 +27,23 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('HL', anchor_x=-20., anchor_y=20.)  #: Directed graph
-    net2 = CPG('HR', anchor_x=20., anchor_y=20.)  #: Directed graph
-    net3 = CPG('FL', anchor_x=-20., anchor_y=-20.)  #: Directed graph
-    net4 = CPG('FR', anchor_x=20., anchor_y=-20.)  #: Directed graph
+    net1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
+    net2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
+    net3 = CPG('FL', anchor_x=0., anchor_y=-20.)  #: Directed graph
+    net4 = CPG('FR', anchor_x=40., anchor_y=-20.)  #: Directed graph
 
-    net = nx.compose_all([net1.cpg, net2.cpg, net3.cpg, net4.cpg])
+    #: PATTERN FORMATION LAYER
+    net5 = PatternFormation('HL', anchor_x=0.,
+                            anchor_y=45.)  #: Directed graph
+    net6 = PatternFormation(
+        'HR', anchor_x=40., anchor_y=45.)  #: Directed graph
+    net7 = PatternFormation('FL', anchor_x=0.,
+                            anchor_y=-15.)  #: Directed graph
+    net8 = PatternFormation(
+        'FR', anchor_x=40., anchor_y=-15.)  #: Directed graph
+
+    net = nx.compose_all([net1.cpg, net2.cpg, net3.cpg, net4.cpg,
+                          net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net])
 
     #: Location to save the network
     net_dir = os.path.join(
