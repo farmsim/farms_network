@@ -27,35 +27,12 @@ def main():
     """Main."""
 
     #: CPG
-    net1 = CPG('FL', anchor_x=-10., anchor_y=-20.)  #: Directed graph
+    net1 = CPG('HL', anchor_x=-20., anchor_y=20.)  #: Directed graph
+    net2 = CPG('HR', anchor_x=20., anchor_y=20.)  #: Directed graph
+    net3 = CPG('FL', anchor_x=-20., anchor_y=-20.)  #: Directed graph
+    net4 = CPG('FR', anchor_x=20., anchor_y=-20.)  #: Directed graph
 
-    #: Pattern Formation
-    net2 = PatterFormation('FL', anchor_x=-10, anchor_y=0)
-    #: Commussiral
-
-    #: Ipsilateral
-    net9 = LPSN('L', anchor_x=-3., anchor_y=4.,
-                color='c')  #: Directed graph
-    net10 = LPSN('R', anchor_x=3., anchor_y=4.,
-                 color='c')  #: Directed graph
-
-    #: Connecting sub graphs
-
-    # net_RG_CIN1 = ConnectRG2Commissural(rg_l=net1.cpg, rg_r=net2.cpg,
-    #                                     comm_l=net5.commissural,
-    #                                     comm_r=net6.commissural)
-    # net_RG_CIN2 = ConnectRG2Commissural(rg_l=net3.cpg, rg_r=net4.cpg,
-    #                                     comm_l=net7.commissural,
-    #                                     comm_r=net8.commissural)
-
-    # net = ConnectFore2Hind(net_RG_CIN1.net,
-    #                        net_RG_CIN2.net, net9.lpsn,
-    #                        net10.lpsn)
-
-    # net = net.net
-
-    net = nx.compose_all([net1.cpg,
-                          net2.pf_net])
+    net = nx.compose_all([net1.cpg, net2.cpg, net3.cpg, net4.cpg])
 
     #: Location to save the network
     net_dir = os.path.join(
