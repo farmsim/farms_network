@@ -604,6 +604,33 @@ class ConnectFore2Hind(object):
         return self.net
 
 
+class ConnectPF2RG(object):
+    """Connect a PF circuit with RG"""
+
+    def __init__(self, rg, pf):
+        """ Initialization. """
+        super(ConnectPF2RG, self).__init__()
+        self.net = nx.compose_all([rg,
+                                   pf])
+        self.name = self.net.name
+
+        #: Methods
+        self.connect_circuits()
+        return
+
+    def connect_circuits(self):
+        """ Connect CPG's to Interneurons. """
+
+        def _name(name):
+            """ Add the network name to the neuron."""
+            return self.name + '_' + name
+
+        self.net.add_edge(_name('RG_F'),
+                          _name('PF_F'),
+                          weight=10.)
+        return self.net
+
+
 def main():
     """ Main. """
 

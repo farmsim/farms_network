@@ -10,7 +10,8 @@ from matplotlib import rc
 
 import biolog
 from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                 ConnectRG2Commissural, PatternFormation)
+                                 ConnectRG2Commissural, PatternFormation,
+                                 ConnectPF2RG)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -53,14 +54,15 @@ def main():
     net14 = LPSN('R', anchor_x=25., anchor_y=25.)
 
     #: Network Connections
-    net15 = ConnectRG2Commissural(net1.cpg, net2.cpg,
-                                  net9.commissural, net10.commissural)
-    net16 = ConnectRG2Commissural(net3.cpg, net4.cpg,
-                                  net11.commissural, net12.commissural)
-    net17 = ConnectFore2Hind(net15.net, net16.net, net13.lpsn, net14.lpsn)
+    net15 = ConnectPF2RG(net1.cpg, net5.pf_net)
 
-    net = nx.compose_all([net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net,
-                          net17.net])
+    # net15 = ConnectRG2Commissural(net1.cpg, net2.cpg,
+    #                               net9.commissural, net10.commissural)
+    # net16 = ConnectRG2Commissural(net3.cpg, net4.cpg,
+    #                               net11.commissural, net12.commissural)
+    # net17 = ConnectFore2Hind(net15.net, net16.net, net13.lpsn, net14.lpsn)
+
+    net = nx.compose_all([net15.net])
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -122,28 +124,28 @@ def main():
                            edge_labels=False,
                            plt_out=plt)  #: Visualize network using Matplotlib
 
-    _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
-    ax1.plot(time_vec*0.001,
-             res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'b')
-    ax1.grid('on', axis='x')
-    ax1.set_ylabel('FL')
-    # ax2.plot(time_vec*0.001,
-    #          res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
-    # ax2.grid('on', axis='x')
-    # ax2.set_ylabel('FL')
-    # ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
-    #          'r')
-    # ax3.grid('on', axis='x')
-    # ax3.set_ylabel('HR')
-    # ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
-    #          'k')
-    # ax4.grid('on', axis='x')
-    # ax4.set_ylabel('HL')
-    ax5.fill_between(time_vec*0.001, 0, alpha,
-                     color=(0.2, 0.2, 0.2), alpha=0.5)
-    ax5.grid('on', axis='x')
-    ax5.set_ylabel('ALPHA')
-    ax5.set_xlabel('Time [s]')
+    # _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
+    # ax1.plot(time_vec*0.001,
+    #          res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'b')
+    # ax1.grid('on', axis='x')
+    # ax1.set_ylabel('FL')
+    # # ax2.plot(time_vec*0.001,
+    # #          res[:, net_.dae.x.get_idx('V_FL_RG_F')], 'g')
+    # # ax2.grid('on', axis='x')
+    # # ax2.set_ylabel('FL')
+    # # ax3.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HR_RG_F')],
+    # #          'r')
+    # # ax3.grid('on', axis='x')
+    # # ax3.set_ylabel('HR')
+    # # ax4.plot(time_vec*0.001, res[:, net_.dae.x.get_idx('V_HL_RG_F')],
+    # #          'k')
+    # # ax4.grid('on', axis='x')
+    # # ax4.set_ylabel('HL')
+    # ax5.fill_between(time_vec*0.001, 0, alpha,
+    #                  color=(0.2, 0.2, 0.2), alpha=0.5)
+    # ax5.grid('on', axis='x')
+    # ax5.set_ylabel('ALPHA')
+    # ax5.set_xlabel('Time [s]')
 
     plt.show()
 
