@@ -42,8 +42,26 @@ def main():
     net8 = PatternFormation(
         'FR', anchor_x=40., anchor_y=-15.)  #: Directed graph
 
-    net = nx.compose_all([net1.cpg, net2.cpg, net3.cpg, net4.cpg,
-                          net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net])
+    #: Commissural
+    net9 = Commissural('HL', anchor_x=10., anchor_y=40.)
+    net10 = Commissural('HR', anchor_x=30., anchor_y=40.)
+    net11 = Commissural('FL', anchor_x=10., anchor_y=10.)
+    net12 = Commissural('FR', anchor_x=30., anchor_y=10.)
+
+    #: LPSN
+    net13 = LPSN('L', anchor_x=15, anchor_y=25.)
+    net14 = LPSN('R', anchor_x=25., anchor_y=25.)
+
+    #: Network Connections
+    net15 = ConnectRG2Commissural(net1.cpg, net2.cpg,
+                                  net9.commissural, net10.commissural)
+    net16 = ConnectRG2Commissural(net3.cpg, net4.cpg,
+                                  net11.commissural, net12.commissural)
+    net17 = ConnectFore2Hind(net15.net, net16.net, net13.lpsn, net14.lpsn)
+
+    net = nx.compose_all([net15.net, net16.net,
+                          net5.pf_net, net6.pf_net, net7.pf_net, net8.pf_net,
+                          net17.net])
 
     #: Location to save the network
     net_dir = os.path.join(
