@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """ Generate Danner Network. Current Model"""
 
 import networkx as nx
