@@ -102,18 +102,20 @@ class NetworkXModel(object):
 
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
+        max_weight = max(dict(self.graph.edges).items(),
+                         key=lambda x: x[1]['weight'])[-1]['weight']
         for _, _, attr in self.graph.edges(data=True):
             _weight = attr.get('weight')
             #: pylint: disable=no-member
-            if np.sign(_weight) == 1:
+            if np.sign(_weight/max_weight) == 1:
                 self.color_map_edge.extend('g')
             #: pylint: disable=no-member
-            elif np.sign(_weight) == -1:
+            elif np.sign(_weight/max_weight) == -1:
                 self.color_map_edge.extend('r')
             else:
                 self.color_map_edge.extend('k')
             self.alpha_edge.append(
-                max(np.abs(_weight), 0.1))
+                max(np.abs(_weight/max_weight), 0.1))
         return
 
     def visualize_network(self,
