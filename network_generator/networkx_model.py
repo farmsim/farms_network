@@ -103,7 +103,8 @@ class NetworkXModel(object):
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
         max_weight = max(dict(self.graph.edges).items(),
-                         key=lambda x: x[1]['weight'])[-1]['weight']
+                         key=lambda x: abs(x[1]['weight']))[-1]['weight']
+        max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
             _weight = attr.get('weight')
             #: pylint: disable=no-member
