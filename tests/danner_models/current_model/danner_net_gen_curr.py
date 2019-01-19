@@ -164,29 +164,29 @@ class PatternFormation(object):
     def add_connections(self):
         self.pf_net.add_edge(self.name+'_PF_F',
                              self.name+'_Inp_F',
-                             weight=0.4)
+                             weight=8.)
         self.pf_net.add_edge(self.name+'_Inp_F',
                              self.name+'_PF_E',
-                             weight=-1.0)
+                             weight=-15.)
         self.pf_net.add_edge(self.name+'_PF_E',
                              self.name+'_Inp_E',
-                             weight=0.4)
+                             weight=10.)
         self.pf_net.add_edge(self.name+'_Inp_E',
                              self.name+'_PF_F',
-                             weight=-0.08)
+                             weight=-10.)
 
         self.pf_net.add_edge(self.name+'_PF_Sw',
                              self.name+'_Inp_Sw',
-                             weight=0.4)
+                             weight=15.)
         self.pf_net.add_edge(self.name+'_Inp_Sw',
                              self.name+'_PF_St',
-                             weight=-1.0)
+                             weight=-20.)
         self.pf_net.add_edge(self.name+'_PF_St',
                              self.name+'_Inp_St',
-                             weight=0.4)
+                             weight=15.)
         self.pf_net.add_edge(self.name+'_Inp_St',
                              self.name+'_PF_Sw',
-                             weight=-0.08)
+                             weight=-2.5)
         return
 
 
@@ -630,6 +630,19 @@ class ConnectPF2RG(object):
         self.net.add_edge(_name('RG_F'),
                           _name('PF_F'),
                           weight=10.)
+
+        self.net.add_edge(_name('RG_E'),
+                          _name('PF_E'),
+                          weight=7.)
+
+        self.net.add_edge(_name('RG_F'),
+                          _name('PF_Sw'),
+                          weight=6.)
+
+        self.net.add_edge(_name('RG_E'),
+                          _name('PF_St'),
+                          weight=5.)
+
         return self.net
 
 
