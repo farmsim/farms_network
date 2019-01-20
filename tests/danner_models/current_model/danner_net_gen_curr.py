@@ -214,11 +214,33 @@ class Motorneurons(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.mn_net.add_node(self.name+'_Inp_St',
+        biolog.debug("Adding motorneurons")
+        self.mn_net.add_node(self.name+'_InIaSw',
                              model='lif_danner',
                              x=2.0+anchor_x,
-                             y=-6.0+anchor_y,
-                             color='m',
+                             y=6.0+anchor_y,
+                             color='k',
+                             v0=-60.0)
+
+        self.mn_net.add_node(self.name+'_InIaSt',
+                             model='lif_danner',
+                             x=0.0+anchor_x,
+                             y=6.0+anchor_y,
+                             color='k',
+                             v0=-60.0)
+
+        self.mn_net.add_node(self.name+'_InIaF',
+                             model='lif_danner',
+                             x=-2.0+anchor_x,
+                             y=6.0+anchor_y,
+                             color='k',
+                             v0=-60.0)
+
+        self.mn_net.add_node(self.name+'_InIaE',
+                             model='lif_danner',
+                             x=-4.0+anchor_x,
+                             y=6.0+anchor_y,
+                             color='k',
                              v0=-60.0)
 
     def add_connections(self):
