@@ -13,9 +13,9 @@ class CPG(object):
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0):
         """ Initialization. """
         super(CPG, self).__init__()
-        self.cpg = nx.DiGraph()
+        self.cpg_net = nx.DiGraph()
         self.name = name
-        self.cpg.name = name
+        self.cpg_net.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y)
@@ -24,50 +24,50 @@ class CPG(object):
 
     def add_neurons(self, anchor_x, anchor_y):
         """ Add neurons. """
-        self.cpg.add_node(self.name+'_RG_F',
-                          model='lif_danner_nap',
-                          x=1.0+anchor_x,
-                          y=0.0+anchor_y,
-                          color='r',
-                          m_e=0.1,
-                          b_e=0.0,
-                          v0=-60.0,
-                          h0=np.random.uniform(0, 1))
-        self.cpg.add_node(self.name+'_RG_E',
-                          model='lif_danner_nap',
-                          x=1.0+anchor_x,
-                          y=4.0+anchor_y,
-                          color='b',
-                          m_e=0.0,
-                          b_e=0.1,
-                          v0=-60.0,
-                          h0=np.random.uniform(0, 1))
-        self.cpg.add_node(self.name+'_In_F',
-                          model='lif_danner',
-                          x=0.0+anchor_x,
-                          y=2.0+anchor_y,
-                          color='m',
-                          v0=-60.0)
-        self.cpg.add_node(self.name+'_In_E',
-                          model='lif_danner',
-                          x=2.0+anchor_x,
-                          y=2.0+anchor_y,
-                          color='m',
-                          v0=-60.0)
+        self.cpg_net.add_node(self.name+'_RG_F',
+                              model='lif_danner_nap',
+                              x=1.0+anchor_x,
+                              y=0.0+anchor_y,
+                              color='r',
+                              m_e=0.1,
+                              b_e=0.0,
+                              v0=-60.0,
+                              h0=np.random.uniform(0, 1))
+        self.cpg_net.add_node(self.name+'_RG_E',
+                              model='lif_danner_nap',
+                              x=1.0+anchor_x,
+                              y=4.0+anchor_y,
+                              color='b',
+                              m_e=0.0,
+                              b_e=0.1,
+                              v0=-60.0,
+                              h0=np.random.uniform(0, 1))
+        self.cpg_net.add_node(self.name+'_In_F',
+                              model='lif_danner',
+                              x=0.0+anchor_x,
+                              y=2.0+anchor_y,
+                              color='m',
+                              v0=-60.0)
+        self.cpg_net.add_node(self.name+'_In_E',
+                              model='lif_danner',
+                              x=2.0+anchor_x,
+                              y=2.0+anchor_y,
+                              color='m',
+                              v0=-60.0)
 
     def add_connections(self):
-        self.cpg.add_edge(self.name+'_RG_F',
-                          self.name+'_In_F',
-                          weight=0.4)
-        self.cpg.add_edge(self.name+'_In_F',
-                          self.name+'_RG_E',
-                          weight=-1.0)
-        self.cpg.add_edge(self.name+'_RG_E',
-                          self.name+'_In_E',
-                          weight=0.4)
-        self.cpg.add_edge(self.name+'_In_E',
-                          self.name+'_RG_F',
-                          weight=-0.08)
+        self.cpg_net.add_edge(self.name+'_RG_F',
+                              self.name+'_In_F',
+                              weight=0.4)
+        self.cpg_net.add_edge(self.name+'_In_F',
+                              self.name+'_RG_E',
+                              weight=-1.0)
+        self.cpg_net.add_edge(self.name+'_RG_E',
+                              self.name+'_In_E',
+                              weight=0.4)
+        self.cpg_net.add_edge(self.name+'_In_E',
+                              self.name+'_RG_F',
+                              weight=-0.08)
         return
 
 
@@ -158,6 +158,20 @@ class PatternFormation(object):
                              model='lif_danner',
                              x=4.0+anchor_x,
                              y=2.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+        self.pf_net.add_node(self.name+'_Inp_F_Sw',
+                             model='lif_danner',
+                             x=6.0+anchor_x,
+                             y=0.0+anchor_y,
+                             color='m',
+                             v0=-60.0)
+
+        self.pf_net.add_node(self.name+'_Inp_E_St',
+                             model='lif_danner',
+                             x=4.0+anchor_x,
+                             y=0.0+anchor_y,
                              color='m',
                              v0=-60.0)
 
@@ -256,9 +270,9 @@ class Commissural(object):
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='y'):
         """ Initialization. """
         super(Commissural, self).__init__()
-        self.commissural = nx.DiGraph()
+        self.comm_net = nx.DiGraph()
         self.name = name
-        self.commissural.name = name
+        self.comm_net.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y, color)
@@ -267,72 +281,64 @@ class Commissural(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.commissural.add_node(self.name+'_CINi1',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=-1.0+anchor_y,
-                                  color='m',
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe1',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=1.0+anchor_y,
-                                  color='g',
-                                  m_e=0.15,
-                                  b_e=0.0,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINi2',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=3.0+anchor_y,
-                                  color='m',
-                                  m_e=0.75,
-                                  b_e=0.0,
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe2',
-                                  model='lif_danner',
-                                  x=1.0+anchor_x,
-                                  y=5.0+anchor_y,
-                                  color='g',
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe3',
-                                  model='lif_danner',
-                                  x=(-1.0 if self.name[-1] ==
+        self.comm_net.add_node(self.name+'_V0D',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=-1.0+anchor_y,
+                               color='m',
+                               v0=-60.0)
+        self.comm_net.add_node(self.name+'_V3',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=1.0+anchor_y,
+                               color='g',
+                               m_e=0.15,
+                               b_e=0.0,
+                               v0=-60.0)
+        self.comm_net.add_node(self.name+'_V0V',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=3.0+anchor_y,
+                               color='m',
+                               m_e=0.75,
+                               b_e=0.0,
+                               v0=-60.0)
+        self.comm_net.add_node(self.name+'_InV0V',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=5.0+anchor_y,
+                               color='g',
+                               v0=-60.0)
+        self.comm_net.add_node(self.name+'_V0D2',
+                               model='lif_danner',
+                               x=(-1.0 if self.name[-1] ==
                                      'L' else 3.0)+anchor_x,
-                                  y=1.0+anchor_y,
-                                  color='g',
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_CINe4',
-                                  x=(-1.0 if self.name[-1] ==
-                                     'L' else 3.0)+anchor_x,
-                                  model='lif_danner',
-                                  y=6.0+anchor_y,
-                                  color='g',
-                                  v0=-60.0)
-        self.commissural.add_node(self.name+'_Ini1',
-                                  model='lif_danner',
-                                  x=(-1.0 if self.name[-1] ==
-                                     'L' else 3.0)+anchor_x,
-                                  y=3+anchor_y,
-                                  color=color,
-                                  v0=-60.0)
+                               y=1.0+anchor_y,
+                               color='g',
+                               v0=-60.0)
+        self.comm_net.add_node(self.name+'_V3e',
+                               x=(-1.0 if self.name[-1] ==
+                                  'L' else 3.0)+anchor_x,
+                               model='lif_danner',
+                               y=6.0+anchor_y,
+                               color='g',
+                               v0=-60.0)
         return
 
     def add_connections(self):
         return
 
 
-class LPSN(object):
-    """Long Propriospinal Neuron Network template.
-
+class HomoLateral(object):
+    """Homo-lateral connections
     """
 
     def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
         """ Initialization. """
-        super(LPSN, self).__init__()
-        self.lpsn = nx.DiGraph()
+        super(HomoLateral, self).__init__()
+        self.homo_net = nx.DiGraph()
         self.name = name
-        self.lpsn.name = name
+        self.homo_net.name = name
 
         #: Methods
         self.add_neurons(anchor_x, anchor_y, color)
@@ -341,49 +347,86 @@ class LPSN(object):
 
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
-        self.lpsn.add_node(self.name+'_LPNi1',
-                           model='lif_danner',
-                           x=1.0+anchor_x,
-                           y=0.0+anchor_y,
-                           color='m',
-                           m_e=0.75,
-                           b_e=0.0,
-                           v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNe1',
-                           model='lif_danner',
-                           x=1.0+anchor_x,
-                           y=2+anchor_y,
-                           color='g',
-                           m_e=0.15,
-                           b_e=0.0,
-                           v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNe2',
-                           model='lif_danner',
-                           x=1.0+anchor_x,
-                           y=4+anchor_y,
-                           color='g',
-                           v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNi',
-                           model='lif_danner',
-                           x=(-2.0 if self.name[-1] ==
-                              'L' else 4.0)+anchor_x,
-                           y=4+anchor_y,
-                           color='g',
-                           v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNsh1',
-                           model='lif_danner',
-                           x=(-4.0 if self.name[-1] ==
-                              'L' else 6.0)+anchor_x,
-                           y=0+anchor_y,
-                           color='g',
-                           v0=-60.0)
-        self.lpsn.add_node(self.name+'_LPNsh2',
-                           model='lif_danner',
-                           x=(-4.0 if self.name[-1] ==
-                              'L' else 6.0)+anchor_x,
-                           y=4+anchor_y,
-                           color='g',
-                           v0=-60.0)
+        self.homo_net.add_node('H'+self.name+'_V2aHom',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=0.0+anchor_y,
+                               color='m',
+                               m_e=0.75,
+                               b_e=0.0,
+                               v0=-60.0)
+        self.homo_net.add_node('F'+self.name+'_V2aHom',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=0.0+anchor_y,
+                               color='m',
+                               m_e=0.75,
+                               b_e=0.0,
+                               v0=-60.0)
+        self.homo_net.add_node(self.name+'_InFront',
+                               model='lif_danner',
+                               x=1.0+anchor_x,
+                               y=2+anchor_y,
+                               color='g',
+                               m_e=0.15,
+                               b_e=0.0,
+                               v0=-60.0)
+        return
+
+    def add_connections(self):
+        return
+
+
+class ContraLateral(object):
+    """Contra-lateral connections
+    """
+
+    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='c'):
+        """ Initialization. """
+        super(ContraLateral, self).__init__()
+        self.contra_net = nx.DiGraph()
+        self.name = name
+        self.contra_net.name = name
+
+        #: Methods
+        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_connections()
+        return
+
+    def add_neurons(self, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        self.contra_net.add_node(self.name+'_V0V_diag',
+                                 model='lif_danner',
+                                 x=1.0+anchor_x,
+                                 y=0.0+anchor_y,
+                                 color='m',
+                                 m_e=0.75,
+                                 b_e=0.0,
+                                 v0=-60.0)
+        self.contra_net.add_node(self.name+'_V0D_diag',
+                                 model='lif_danner',
+                                 x=1.0+anchor_x,
+                                 y=0.0+anchor_y,
+                                 color='m',
+                                 m_e=0.75,
+                                 b_e=0.0,
+                                 v0=-60.0)
+        self.contra_net.add_node(self.name+'_V2aV0V',
+                                 model='lif_danner',
+                                 x=1.0+anchor_x,
+                                 y=2+anchor_y,
+                                 color='g',
+                                 m_e=0.15,
+                                 b_e=0.0,
+                                 v0=-60.0)
+        self.contra_net.add_node(self.name+'_V3e',
+                                 model='lif_danner',
+                                 x=1.0+anchor_x,
+                                 y=2+anchor_y,
+                                 color='g',
+                                 m_e=0.15,
+                                 b_e=0.0,
+                                 v0=-60.0)
         return
 
     def add_connections(self):
@@ -665,6 +708,30 @@ class ConnectPF2RG(object):
                           _name('PF_St'),
                           weight=5.)
 
+        self.net.add_edge(_name('In_F'),
+                          _name('PF_E'),
+                          weight=-15.)
+
+        self.net.add_edge(_name('In_E'),
+                          _name('PF_F'),
+                          weight=-15.)
+
+        self.net.add_edge(_name('RG_F'),
+                          _name('Inp_F_Sw'),
+                          weight=4.)
+
+        self.net.add_edge(_name('RG_E'),
+                          _name('Inp_E_St'),
+                          weight=3.75)
+
+        self.net.add_edge(_name('Inp_F_Sw'),
+                          _name('PF_Sw'),
+                          weight=-30.)
+
+        self.net.add_edge(_name('Inp_E_St'),
+                          _name('PF_St'),
+                          weight=-30.)
+
         return self.net
 
 
@@ -672,7 +739,7 @@ def main():
     """ Main. """
 
     net = CPG('FORE')  #: Directed graph
-    nx.write_graphml(net.cpg, './conf/auto_gen_danner_cpg.graphml')
+    nx.write_graphml(net.cpg_net, './conf/auto_gen_danner_cpg_net.graphml')
 
     return
 
