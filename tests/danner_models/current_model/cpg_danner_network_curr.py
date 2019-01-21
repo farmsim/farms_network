@@ -11,7 +11,9 @@ from matplotlib import rc
 import biolog
 from danner_net_gen_curr import (CPG, PatternFormation, Commissural,
                                  HomoLateral, ContraLateral,
-                                 ConnectPF2RG)
+                                 ConnectPF2RG,
+                                 ConnectRG2Commissural,
+                                 ConnectFore2Hind)
 
 from network_generator.network_generator import NetworkGenerator
 
@@ -45,10 +47,26 @@ def main():
         'FR', anchor_x=40., anchor_y=-15.)  #: Directed graph
 
     #: Commissural
-    net_comm1 = Commissural('HL', anchor_x=10., anchor_y=40.)
-    net_comm2 = Commissural('HR', anchor_x=30., anchor_y=40.)
+    net_comm1 = Commissural('HL', anchor_x=10., anchor_y=20.)
+    net_comm2 = Commissural('HR', anchor_x=30., anchor_y=20.)
     net_comm3 = Commissural('FL', anchor_x=10., anchor_y=10.)
     net_comm4 = Commissural('FR', anchor_x=30., anchor_y=10.)
+
+    #: HomoLateral
+    net_homo_l = HomoLateral('L')
+    net_homo_r = HomoLateral('R')
+    net_homo = nx.compose_all([net_homo_l.homo_net,
+                               net_homo_r.homo_net])
+
+    #: ContraLateral
+    net_contra1 = ContraLateral('HL', anchor_x=15., anchor_y=20.)
+    net_contra2 = ContraLateral('HR', anchor_x=25., anchor_y=20.)
+    net_contra3 = ContraLateral('FL', anchor_x=15., anchor_y=10.)
+    net_contra4 = ContraLateral('FR', anchor_x=25., anchor_y=10.)
+    net_contra = nx.compose_all([net_contra1.contra_net,
+                                 net_contra2.contra_net,
+                                 net_contra3.contra_net,
+                                 net_contra4.contra_net])
 
     #: Network Connections
     net_rg1_pf1 = ConnectPF2RG(net_cpg1.cpg_net, net_pf1.pf_net)
@@ -56,10 +74,31 @@ def main():
     net_rg3_pf3 = ConnectPF2RG(net_cpg3.cpg_net, net_pf3.pf_net)
     net_rg4_pf4 = ConnectPF2RG(net_cpg4.cpg_net, net_pf4.pf_net)
 
-    net = nx.compose_all([net_rg1_pf1.net, net_rg2_pf2.net,
-                          net_rg3_pf3.net, net_rg4_pf4.net,
-                          net_comm1.comm_net, net_comm2.comm_net,
-                          net_comm3.comm_net, net_comm4.comm_net])
+    net_rg1_comm1 = ConnectRG2Commissural(net_rg1_pf1.net,
+                                          net_rg2_pf2.net,
+                                          net_comm1.comm_net,
+                                          net_comm2.comm_net)
+
+    net_rg2_comm2 = ConnectRG2Commissural(net_rg3_pf3.net,
+                                          net_rg4_pf4.net,
+                                          net_comm3.comm_net,
+                                          net_comm4.comm_net)
+
+    net_pf1_comm1 = ConnectRG2Commissural(net_rg1_pf1.net,
+                                          net_rg2_pf2.net,
+                                          net_comm1.comm_net,
+                                          net_comm2.comm_net)
+
+    net_pf2_comm2 = ConnectRG2Commissural(net_rg3_pf3.net,
+                                          net_rg4_pf4.net,
+                                          net_comm3.comm_net,
+                                          net_comm4.comm_net)
+
+    net_fore = nx.compose_all([net_rg1_comm1.net, net_pf1_comm1.net])
+    net_hind = nx.compose_all([net_rg2_comm2.net, net_pf2_comm2.net])
+
+    net = ConnectFore2Hind(net_fore, net_hind, net_homo,
+                           net_contra).net
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -82,19 +121,19 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    time_vec = np.arange(0, 6, dt)  #: Time
+    time_vec = np.arange(0, 1, dt)  #: Time
 
     #: Vector to store results
     res = np.empty([len(time_vec), len(net_.dae.x)])
 
     #: opts
     opts = {'tf': dt,
-            'jit': False,
+            'jit': True,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
-            "reltol": 1e-6,
-            "abstol": 1e-6}
+            "reltol": 1e-4,
+            "abstol": 1e-3}
 
     # #: Setup the integrator
     net_.setup_integrator(integration_method='cvodes',
@@ -120,6 +159,7 @@ def main():
     net_.visualize_network(node_size=250,
                            node_labels=False,
                            edge_labels=False,
+                           edge_alpha=False,
                            plt_out=plt)  #: Visualize network using Matplotlib
 
     # _, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, sharex='all')
