@@ -139,7 +139,7 @@ def main():
 
     #: opts
     opts = {'tf': dt,
-            'jit': True,
+            'jit': False,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
@@ -168,7 +168,7 @@ def main():
     # #: Results
     net_.save_network_to_dot()
     net_.visualize_network(node_size=250,
-                           node_labels=True,
+                           node_labels=False,
                            edge_labels=False,
                            edge_alpha=False,
                            plt_out=plt)  #: Visualize network using Matplotlib
