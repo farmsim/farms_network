@@ -11,6 +11,7 @@ from matplotlib import rc
 import biolog
 from danner_net_gen_curr import (CPG, PatternFormation, Commissural,
                                  HomoLateral, ContraLateral,
+                                 Motorneurons,
                                  ConnectPF2RG,
                                  ConnectRG2Commissural,
                                  ConnectFore2Hind)
@@ -53,8 +54,8 @@ def main():
     net_comm4 = Commissural('FR', anchor_x=30., anchor_y=10.)
 
     #: HomoLateral
-    net_homo_l = HomoLateral('L')
-    net_homo_r = HomoLateral('R')
+    net_homo_l = HomoLateral('L', anchor_x=17.2, anchor_y=20.)
+    net_homo_r = HomoLateral('R', anchor_x=22.5, anchor_y=20.)
     net_homo = nx.compose_all([net_homo_l.homo_net,
                                net_homo_r.homo_net])
 
@@ -67,6 +68,13 @@ def main():
                                  net_contra2.contra_net,
                                  net_contra3.contra_net,
                                  net_contra4.contra_net])
+
+    #: Motorneurons
+    hind_muscles = ['PMA', 'CF', 'SM', 'POP', 'RF', 'TA', 'SOL', 'LG']
+    net_motorneurons_hl = Motorneurons('HL', hind_muscles, anchor_x=0.,
+                                       anchor_y=60.)
+    net_motorneurons_hr = Motorneurons('HR', hind_muscles, anchor_x=40.,
+                                       anchor_y=60.)
 
     #: Network Connections
     net_rg1_pf1 = ConnectPF2RG(net_cpg1.cpg_net, net_pf1.pf_net)
@@ -98,7 +106,10 @@ def main():
     net_hind = nx.compose_all([net_rg2_comm2.net, net_pf2_comm2.net])
 
     net = ConnectFore2Hind(net_fore, net_hind, net_homo,
-                           net_contra).net
+                           net_contra)
+
+    net = nx.compose_all([net.net, net_motorneurons_hl.mn_net,
+                          net_motorneurons_hr.mn_net])
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -157,7 +168,7 @@ def main():
     # #: Results
     net_.save_network_to_dot()
     net_.visualize_network(node_size=250,
-                           node_labels=False,
+                           node_labels=True,
                            edge_labels=False,
                            edge_alpha=False,
                            plt_out=plt)  #: Visualize network using Matplotlib

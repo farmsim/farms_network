@@ -4,6 +4,7 @@
 
 import networkx as nx
 import numpy as np
+import biolog
 
 
 class CPG(object):
@@ -209,53 +210,31 @@ class Motorneurons(object):
 
     """
 
-    def __init__(self, name, anchor_x=0.0, anchor_y=0.0, color='r'):
+    def __init__(self, name, muscles=None, anchor_x=0.0, anchor_y=0.0, color='k'):
         super(Motorneurons, self).__init__()
         self.name = name
-        self.anchor_x = anchor_x
-        self.anchor_y = anchor_y
-        self.color = color
-
         self.mn_net = nx.DiGraph()
 
-        return
-
         #: Methods
-        self.add_neurons(anchor_x, anchor_y, color)
+        self.add_neurons(muscles, anchor_x, anchor_y, color)
         self.add_connections()
 
         return
 
-    def add_neurons(self, anchor_x, anchor_y, color):
+    def add_neurons(self, muscles, anchor_x, anchor_y, color):
         """ Add neurons. """
         biolog.debug("Adding motorneurons")
-        self.mn_net.add_node(self.name+'_InIaSw',
-                             model='lif_danner',
-                             x=2.0+anchor_x,
-                             y=6.0+anchor_y,
-                             color='k',
-                             v0=-60.0)
+        _num_muscles = np.size(muscles)
+        _pos = np.arange(-_num_muscles, _num_muscles,
+                         2.)
 
-        self.mn_net.add_node(self.name+'_InIaSt',
-                             model='lif_danner',
-                             x=0.0+anchor_x,
-                             y=6.0+anchor_y,
-                             color='k',
-                             v0=-60.0)
-
-        self.mn_net.add_node(self.name+'_InIaF',
-                             model='lif_danner',
-                             x=-2.0+anchor_x,
-                             y=6.0+anchor_y,
-                             color='k',
-                             v0=-60.0)
-
-        self.mn_net.add_node(self.name+'_InIaE',
-                             model='lif_danner',
-                             x=-4.0+anchor_x,
-                             y=6.0+anchor_y,
-                             color='k',
-                             v0=-60.0)
+        for j, muscle in enumerate(muscles):
+            self.mn_net.add_node(self.name + '_Mn' + muscle,
+                                 model='lif_danner',
+                                 x=float(_pos[j])+anchor_x,
+                                 y=0.0+anchor_y,
+                                 color=color,
+                                 v0=-60.0)
 
     def add_connections(self):
         """ Connect the neurons."""
@@ -350,7 +329,7 @@ class HomoLateral(object):
         self.homo_net.add_node('H'+self.name+'_V2aHom',
                                model='lif_danner',
                                x=1.0+anchor_x,
-                               y=0.0+anchor_y,
+                               y=5.0+anchor_y,
                                color='m',
                                m_e=0.75,
                                b_e=0.0,
@@ -358,7 +337,7 @@ class HomoLateral(object):
         self.homo_net.add_node('F'+self.name+'_V2aHom',
                                model='lif_danner',
                                x=1.0+anchor_x,
-                               y=0.0+anchor_y,
+                               y=-5.0+anchor_y,
                                color='m',
                                m_e=0.75,
                                b_e=0.0,
@@ -405,7 +384,7 @@ class ContraLateral(object):
                                  v0=-60.0)
         self.contra_net.add_node(self.name+'_V0D_diag',
                                  model='lif_danner',
-                                 x=1.0+anchor_x,
+                                 x=2.0+anchor_x,
                                  y=0.0+anchor_y,
                                  color='y',
                                  m_e=0.75,
@@ -429,7 +408,7 @@ class ContraLateral(object):
                                  v0=-60.0)
         self.contra_net.add_node(self.name+'_V3e',
                                  model='lif_danner',
-                                 x=1.0+anchor_x,
+                                 x=2.0+anchor_x,
                                  y=2.+anchor_y,
                                  color='y',
                                  m_e=0.15,
