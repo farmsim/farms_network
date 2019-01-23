@@ -27,7 +27,7 @@ class CPG(object):
                           x=-1.0+anchor_x,
                           y=0.0+anchor_y,
                           color='b',
-                          K = -500,
+                          K = -400,
                           B = -20,
                           ades = 0.4,
                           output=True)
@@ -45,7 +45,7 @@ class CPG(object):
                           x=-1.0+anchor_x,
                           y=1.0+anchor_y,
                           color='b',
-                          K = -500,
+                          K = -400,
                           B = -20,
                           ades = 0.4,
                           output=True)
