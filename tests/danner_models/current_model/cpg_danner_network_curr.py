@@ -13,9 +13,9 @@ from scipy.stats import circstd, circmean
 
 import biolog
 from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                   ConnectRG2Commissural,PatternFormation,
-                                   ConnectPF2RG,Motorneurons,
-                                   ConnectMN2CPG)
+                                 ConnectRG2Commissural, PatternFormation,
+                                 ConnectPF2RG, Motorneurons,
+                                 ConnectMN2CPG)
 from network_generator.network_generator import NetworkGenerator
 
 # Global settings for plotting
@@ -63,14 +63,14 @@ def main():
     net_rg_pf2 = ConnectPF2RG(net_cpg2.cpg, net_pf2.pf_net)
     net_rg_pf3 = ConnectPF2RG(net_cpg3.cpg, net_pf3.pf_net)
     net_rg_pf4 = ConnectPF2RG(net_cpg4.cpg, net_pf4.pf_net)
-    
+
     #: Motorneurons
     hind_muscles = ['PMA', 'CF', 'SM', 'POP', 'RF', 'TA', 'SOL', 'LG']
     net_motorneurons_hl = Motorneurons('HL', hind_muscles, anchor_x=0.,
                                        anchor_y=60.)
     net_motorneurons_hr = Motorneurons('HR', hind_muscles, anchor_x=40.,
                                        anchor_y=60.)
-    fore_muscles = ['HFL','HEX','KFL','KEX','AFL','AEX']
+    fore_muscles = ['HFL', 'HEX', 'KFL', 'KEX', 'AFL', 'AEX']
     net_motorneurons_fl = Motorneurons('FL', hind_muscles, anchor_x=0.,
                                        anchor_y=-60.)
     net_motorneurons_fr = Motorneurons('FR', hind_muscles, anchor_x=40.,
@@ -79,8 +79,8 @@ def main():
     net_rg_pf_mn1 = ConnectMN2CPG(net_rg_pf1.net, net_motorneurons_hl.net)
     net_rg_pf_mn2 = ConnectMN2CPG(net_rg_pf2.net, net_motorneurons_hr.net)
     net_rg_pf_mn3 = ConnectMN2CPG(net_rg_pf3.net, net_motorneurons_fl.net)
-    net_rg_pf_mn4 = ConnectMN2CPG(net_rg_pf4.net, net_motorneurons_fr.net) 
-    
+    net_rg_pf_mn4 = ConnectMN2CPG(net_rg_pf4.net, net_motorneurons_fr.net)
+
     net_RG_CIN1 = ConnectRG2Commissural(rg_l=net_rg_pf_mn1.net, rg_r=net_rg_pf_mn2.net,
                                         comm_l=net_comm1.commissural,
                                         comm_r=net_comm2.commissural)
@@ -93,7 +93,7 @@ def main():
                            net10.lpsn)
 
     net = net.net
-    
+
     #: Location to save the network
     net_dir = os.path.join(
         os.path.dirname(__file__),
@@ -110,7 +110,8 @@ def main():
             raise IOError()
 
     #: Initialize network
-    net_ = NetworkGenerator(os.path.join(os.path.dirname(__file__),'./conf/auto_gen_danner_current.graphml'))
+    net_ = NetworkGenerator(os.path.join(os.path.dirname(
+        __file__), './conf/auto_gen_danner_current.graphml'))
 
     #: initialize network parameters
     #: pylint: disable=invalid-name
@@ -124,14 +125,13 @@ def main():
     #: opts
     opts = {'tf': dt,
             "nonlinear_solver_iteration": "functional",
-            "linear_multistep_method":"bdf",
+            "linear_multistep_method": "bdf",
             'jit': True,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
             "reltol": 1e-4,
             "abstol": 1e-3}
-    
 
     # #: Setup the integrator
     net_.setup_integrator(integration_method='cvodes',
@@ -152,8 +152,8 @@ def main():
     biolog.info('Execution Time : {}'.format(
         end_time - start_time))
 
-
     # #: Results
+
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
         act_binary = (np.array(act) > 0.1).astype(np.int)
@@ -171,41 +171,38 @@ def main():
     net_.visualize_network(node_size=250,
                            node_labels=False,
                            edge_labels=False,
-                           edge_alpha=False,
+                           edge_alpha=True,
                            plt_out=plt)  #: Visualize network using Matplotlib
 
+    plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
-    plot_names = ['FR_RG_F','FL_RG_F','HR_RG_F','HL_RG_F']
-    
-
-    plot_names = ['FR_RG_F','FL_RG_F','HR_RG_F','HL_RG_F',
-                    'HL_RG_E','HL_PF_F','HL_PF_E','HL_PF_Sw','HL_PF_St',
-                    'HL_Mn_PMA','HL_Mn_CF','HL_Mn_SM']
+    plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F',
+                  'HL_RG_E', 'HL_PF_F', 'HL_PF_E', 'HL_PF_Sw', 'HL_PF_St',
+                  'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_SM']
     plot_traces = list()
-    for n in plot_names: 
+    for n in plot_names:
         plot_traces.append(net_.neurons[n].neuron_out(
-                    res[:, net_.dae.x.get_idx('V_'+n)]))
+            res[:, net_.dae.x.get_idx('V_'+n)]))
 
     fig, ax = plt.subplots(len(plot_names)+2, 1, sharex='all')
     fig.canvas.set_window_title('Model Performance')
     fig.suptitle('Model Performance', fontsize=12)
-    for i,tr in enumerate(plot_traces):
+    for i, tr in enumerate(plot_traces):
         ax[i].plot(time_vec*0.001, tr, 'b',
-                linewidth=1)
+                   linewidth=1)
         ax[i].grid('on', axis='x')
-        ax[i].set_ylabel(plot_names[i],fontsize=10)
+        ax[i].set_ylabel(plot_names[i], fontsize=10)
         ax[i].set_yticks([0, 1])
 
-
     _width = 0.2
-    colors = ['blue','green','red','black']
-    for i,tr in enumerate(plot_traces):
-        if i>3:
+    colors = ['blue', 'green', 'red', 'black']
+    for i, tr in enumerate(plot_traces):
+        if i > 3:
             break
         ax[len(plot_names)].broken_barh(get_gait_plot_from_neuron_act(tr),
-                    (1.6-i*0.2, _width), facecolors=colors[i])
+                                        (1.6-i*0.2, _width), facecolors=colors[i])
     ax[len(plot_names)].broken_barh(get_gait_plot_from_neuron_act(plot_traces[3]),
-                    (1.0, _width*4), facecolors=(0.2, 0.2, 0.2), alpha=0.5)
+                                    (1.0, _width*4), facecolors=(0.2, 0.2, 0.2), alpha=0.5)
     ax[len(plot_names)].set_ylim(1.0, 1.8)
     ax[len(plot_names)].set_xlim(0)
     ax[len(plot_names)].set_xlabel('Time')
@@ -214,11 +211,11 @@ def main():
     ax[len(plot_names)].grid(True)
 
     ax[len(plot_names)+1].fill_between(time_vec*0.001, 0, alpha,
-                     color=(0.2, 0.2, 0.2), alpha=0.5)
+                                       color=(0.2, 0.2, 0.2), alpha=0.5)
     ax[len(plot_names)+1].grid('on', axis='x')
     ax[len(plot_names)+1].set_ylabel('ALPHA')
     ax[len(plot_names)+1].set_xlabel('Time [s]')
-    
+
     plt.show()
 
 
