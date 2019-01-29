@@ -64,7 +64,7 @@ class Parameters(list):
         """ Get list of all symbols. """
         return [param.sym for param in self.param_list]
 
-    def add(self, name, sym, value=None):
+    def add(self, name, sym, value=None, param_type='sym'):
         """Add new element to the parameter list.
         Parameters
         ----------
@@ -85,7 +85,8 @@ class Parameters(list):
 
         _idx = len(self)
         self._name_to_idx[name] = _idx
-        _param = Param(p_list=self, idx=_idx, sym=sym, value=value)
+        _param = Param(p_list=self, idx=_idx, sym=sym, value=value,
+                       param_type=param_type)
         self.param_list.insert(_idx, _param)
 
         return
@@ -154,7 +155,7 @@ class Param(object):
     Can be a casadi symbolic or numeric value.
     """
 
-    def __init__(self, p_list, idx, sym, value):
+    def __init__(self, p_list, idx, sym, value, param_type='sym'):
         """ Initialization. """
         super(Param, self).__init__()
 
@@ -172,6 +173,9 @@ class Param(object):
 
         #: Store the symbol
         self.sym = sym
+
+        #: Type of parameter to be used
+        self.param_type = param_type
 
         return
 
@@ -196,6 +200,18 @@ class Param(object):
                 self.idx, self._p_list))
             raise IndexError()
 
+    @property
+    def param(self):
+        """Return the parameter based on initial configuration. """
+        if self.param_type == 'sym':
+            return self.sym
+        elif self.param_type == 'val':
+            return self.val
+        else:
+            raise ValueError(
+                'Invalid param_type : Parameter can be either sym or'
+                ' val but found {}'.format(self.param_type))
+
 
 class DaeGenerator(object):
     """Dae Generator class
@@ -219,7 +235,7 @@ class DaeGenerator(object):
         self.alg = Parameters()  #: Algebraic equations
         self.ode = Parameters()  #: ODE RHS
 
-    def add_x(self, name, value=0.0):
+    def add_x(self, name, value=0.0, param_type='sym'):
         """Add a new state.
          ----------
         name : <str>
@@ -228,10 +244,10 @@ class DaeGenerator(object):
             Initial value for the state variable
         """
 
-        self.x.add(name, cas.SX.sym(name), value)
+        self.x.add(name, cas.SX.sym(name), value, param_type)
         return self.x.param_list[-1]
 
-    def add_z(self, name, value=0.0):
+    def add_z(self, name, value=0.0, param_type='sym'):
         """Add a new algebraic variable.
          ----------
         name : <str>
@@ -239,10 +255,10 @@ class DaeGenerator(object):
         value : <float>
             Initial value for the algebraic variable
         """
-        self.z.add(name, cas.SX.sym(name), value)
+        self.z.add(name, cas.SX.sym(name), value, param_type)
         return self.z.param_list[-1]
 
-    def add_p(self, name, value=0.0):
+    def add_p(self, name, value=0.0, param_type='sym'):
         """Add a new parameter.
          ----------
         name : <str>
@@ -250,10 +266,10 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        self.p.add(name, cas.SX.sym(name), value)
+        self.p.add(name, cas.SX.sym(name), value, param_type)
         return self.p.param_list[-1]
 
-    def add_u(self, name, value=0.0):
+    def add_u(self, name, value=0.0, param_type='sym'):
         """Add a new Input.
          ----------
         name : <str>
@@ -261,10 +277,10 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        self.u.add(name, cas.SX.sym(name), value)
+        self.u.add(name, cas.SX.sym(name), value, param_type)
         return self.u.param_list[-1]
 
-    def add_c(self, name, value=0.0):
+    def add_c(self, name, value=0.0, param_type='sym'):
         """Add a new constant.
          ----------
         name : <str>
@@ -272,7 +288,7 @@ class DaeGenerator(object):
         value : <float>
             Default parameter value to be used during run time
         """
-        self.c.add(name, cas.SX.sym(name), value)
+        self.c.add(name, cas.SX.sym(name), value, param_type)
         return self.c.param_list[-1]
 
     def add_y(self, param):
