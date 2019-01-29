@@ -520,42 +520,14 @@ class SensoryDanner(Neuron):
         self.dae = dae
 
         #: Initialize parameters
-        self.weight = self.dae.add_p('weight_' + self.n_id,
-                                     kwargs.get('weight', 0.1))
+        self.weight = self.dae.add_c('weight_' + self.n_id,
+                                     kwargs.get('weight', 0.1),
+                                     param_type='val')
 
+        self.aff_inp = self.dae.add_p('aff_' + self.n_id,
+                                      kwargs.get('init', 0.0),
+                                      param_type='sym')
         return
-
-    def add_ode_input(self, neuron, **kwargs):
-        """Add relevant external inputs to the ode.
-        Parameters
-        ----------
-        neuron : <LIF_Danner>
-            Neuron model from which the input is received.
-        kwargs : <dict>
-             Contains the weight/synaptic information from the receiving neuron.
-        """
-        raise NotImplementedError(
-            'add_ode_input : Method not implemented in child class')
-
-    def ode_rhs(self):
-        """ ODE RHS.
-        Returns
-        ----------
-        ode_rhs: <list>
-            List containing the rhs equations of the ode states in the system
-        """
-        raise NotImplementedError(
-            'ode_rhs : Method not implemented in child class')
-
-    def ode_alg_eqn(self):
-        """ ODE Algebraic equations.
-        Returns
-        ----------
-        alg_eqn: <list>
-            List containing the ode algebraic equations
-        """
-        raise NotImplementedError(
-            'ode_alg_eqn : Method not implemented in child class')
 
     def neuron_out(self):
         """ Output of the neuron model.
@@ -564,8 +536,7 @@ class SensoryDanner(Neuron):
         out: <cas.SX.sym>
             Output of the neuron  model
         """
-        raise NotImplementedError(
-            'neuron_out : Method not implemented in child class')
+        raise self.aff_inp.sym
 
 
 class LIF_Daun_Interneuron(Neuron):
