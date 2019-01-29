@@ -71,6 +71,7 @@ class CPG(object):
                           weight=-0.08)
         return
 
+
 class Commissural(object):
     """Commissural Network template.
 
@@ -91,12 +92,12 @@ class Commissural(object):
     def add_neurons(self, anchor_x, anchor_y, color):
         """ Add neurons. """
         self.commissural.add_node(self.name+'_V2a_diag',
-                            x=(-1.0 if self.name[-1] ==
-                                'L' else 3.0)+anchor_x,
-                            model='lif_danner',
-                            y=6.0+anchor_y,
-                            color='g',
-                            v0=-60.0)
+                                  x=(-1.0 if self.name[-1] ==
+                                     'L' else 3.0)+anchor_x,
+                                  model='lif_danner',
+                                  y=6.0+anchor_y,
+                                  color='g',
+                                  v0=-60.0)
         self.commissural.add_node(self.name+'_CINi1',
                                   model='lif_danner',
                                   x=1.0+anchor_x,
@@ -211,6 +212,93 @@ class LPSN(object):
         return
 
 
+class Motorneurons(object):
+    """Motorneurons layers. Also contains interneurons.
+    """
+
+    def __init__(self, name, muscles=None, anchor_x=0.0, anchor_y=0.0, color='k'):
+        super(Motorneurons, self).__init__()
+        self.name = name
+        self.net = nx.DiGraph()
+
+        #: Methods
+        self.add_neurons(muscles, anchor_x, anchor_y, color)
+        self.add_connections()
+
+        return
+
+    def add_neurons(self, muscles, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        biolog.debug("Adding motorneurons")
+        _num_muscles = np.size(muscles)
+        _pos = np.arange(-_num_muscles, _num_muscles,
+                         2.)
+
+        for j, muscle in enumerate(muscles):
+            self.net.add_node(self.name + '_Mn_' + muscle,
+                              model='lif_danner',
+                              x=float(_pos[j])+anchor_x,
+                              y=0.0+anchor_y,
+                              color=color,
+                              v0=-60.0,
+                              e_leak=-52.5,
+                              g_leak=1.0)
+
+    def add_connections(self):
+        """ Connect the neurons."""
+        pass
+
+
+class Afferents(object):
+    """Generate Afferents Network
+    """
+
+    def __init__(self, name, muscles, anchor_x=0.0, anchor_y=0.0, color='y'):
+        """ Initialization. """
+        super(Afferents, self).__init__()
+        self.afferents = nx.DiGraph()
+        self.name = name
+        self.afferents.name = name
+
+        #: Methods
+        self.add_neurons(muscles, anchor_x, anchor_y, color)
+        self.add_connections()
+        return
+
+    def add_neurons(self, muscles, anchor_x, anchor_y, color):
+        """ Add neurons. """
+        biolog.debug("Adding sensory afferents")
+        _num_muscles = np.size(muscles)
+        _pos = np.arange(-_num_muscles, _num_muscles,
+                         2.)
+
+        for j, muscle in enumerate(muscles):
+            self.afferents.add_node(self.name+'_' + muscle + '_Ia',
+                                    model='sensory_danner',
+                                    x=float(_pos[j])+anchor_x,
+                                    y=0.0+anchor_y,
+                                    color=color,
+                                    init=0.1)
+
+            self.afferents.add_node(self.name+'_' + muscle + '_II',
+                                    model='sensory_danner',
+                                    x=float(_pos[j])+anchor_x,
+                                    y=3.0+anchor_y,
+                                    color=color,
+                                    init=0.1)
+
+            self.afferents.add_node(self.name+'_' + muscle + '_Ib',
+                                    model='sensory_danner',
+                                    x=float(_pos[j])+anchor_x,
+                                    y=-3.0+anchor_y,
+                                    color=color,
+                                    init=0.1)
+
+    def add_connections(self):
+
+        return
+
+
 class ConnectRG2Commissural(object):
     """Connect a RG circuit with Commissural
     """
@@ -229,7 +317,7 @@ class ConnectRG2Commissural(object):
         return
 
     def connect_circuits(self):
-        """ Connect CPG's to Interneurons. """
+        """ Connect Afferents's to Interneurons. """
 
         def _name(side, name):
             """ Add the network name to the neuron."""
@@ -625,52 +713,6 @@ class PatternFormation(object):
         return
 
 
-class Motorneurons(object):
-    """Motorneurons layers. Also contains interneurons.
-
-    """
-
-    def __init__(self, name, muscles=None, anchor_x=0.0, anchor_y=0.0, color='k'):
-        super(Motorneurons, self).__init__()
-        self.name = name
-        self.net = nx.DiGraph()
-
-        #: Methods
-        self.add_neurons(muscles, anchor_x, anchor_y, color)
-        self.add_connections()
-
-        return
-
-    def add_neurons(self, muscles, anchor_x, anchor_y, color):
-        """ Add neurons. """
-        biolog.debug("Adding motorneurons")
-        _num_muscles = np.size(muscles)
-        _pos = np.arange(-_num_muscles, _num_muscles,
-                         2.)
-
-        for j, muscle in enumerate(muscles):
-            self.net.add_node(self.name + '_Mn_' + muscle,
-                                 model='lif_danner',
-                                 x=float(_pos[j])+anchor_x,
-                                 y=0.0+anchor_y,
-                                 color=color,
-                                 v0=-60.0,
-                                 e_leak=-52.5,
-                                 g_leak= 1.0)
-            # self.net.add_node(self.name + '_Ia_' + muscle,
-            #                      model='lif_danner',
-            #                      x=float(_pos[j])+anchor_x,
-            #                      y=0.0+anchor_y,
-            #                      color=color,
-            #                      v0=-60.0)
-
-    def add_connections(self):
-        """ Connect the neurons."""
-        pass
-
-
-
-
 class ConnectPF2Commissural(object):
     """Connect a PF circuit with Commissural
     """
@@ -718,7 +760,6 @@ class ConnectPF2Commissural(object):
         self.net.add_edge(_name('R', 'V3'),
                           _name('R', 'PF_F'),
                           weight=2.)
-
 
 
 class ConnectPF2RG(object):
@@ -771,6 +812,7 @@ class ConnectPF2RG(object):
 
         return self.net
 
+
 class ConnectMN2CPG(object):
     """Connect a PF circuit with RG"""
 
@@ -796,21 +838,21 @@ class ConnectMN2CPG(object):
         for nm in self.mn_names:
             if "_Mn_" in nm:
                 self.net.add_edge(_name('PF_F'), nm,
-                                    weight=np.random.uniform(0, 1))
+                                  weight=np.random.uniform(0, 1))
                 self.net.add_edge(_name('PF_E'), nm,
-                                    weight=np.random.uniform(0, 1))
+                                  weight=np.random.uniform(0, 1))
                 self.net.add_edge(_name('PF_St'), nm,
-                                    weight=np.random.uniform(0, 1))
+                                  weight=np.random.uniform(0, 1))
                 self.net.add_edge(_name('PF_Sw'), nm,
-                                    weight=np.random.uniform(0, 1))
+                                  weight=np.random.uniform(0, 1))
                 self.net.add_edge(_name('Inp_F'), nm,
-                                    weight=-np.random.uniform(0, 1))
+                                  weight=-np.random.uniform(0, 1))
                 self.net.add_edge(_name('Inp_E'), nm,
-                                    weight=-np.random.uniform(0, 1))
+                                  weight=-np.random.uniform(0, 1))
                 self.net.add_edge(_name('Inp_St'), nm,
-                                    weight=-np.random.uniform(0, 1))
+                                  weight=-np.random.uniform(0, 1))
                 self.net.add_edge(_name('Inp_Sw'), nm,
-                                    weight=-np.random.uniform(0, 1))
+                                  weight=-np.random.uniform(0, 1))
         return self.net
 
 

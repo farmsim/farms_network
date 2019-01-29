@@ -15,6 +15,7 @@ import biolog
 from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
                                  ConnectRG2Commissural, PatternFormation,
                                  ConnectPF2RG, Motorneurons,
+                                 Afferents,
                                  ConnectMN2CPG)
 from network_generator.network_generator import NetworkGenerator
 
@@ -76,6 +77,16 @@ def main():
     net_motorneurons_fr = Motorneurons('FR', hind_muscles, anchor_x=40.,
                                        anchor_y=-60.)
 
+    #: Sensory Afferents
+    net_afferents_hl = Afferents('HL', hind_muscles, anchor_x=0.,
+                                 anchor_y=70.)
+    net_afferents_hr = Afferents('HR', hind_muscles, anchor_x=40.,
+                                 anchor_y=70.)
+    net_afferents_fl = Afferents('FL', hind_muscles, anchor_x=0.,
+                                 anchor_y=-70.)
+    net_afferents_fr = Afferents('FR', hind_muscles, anchor_x=40.,
+                                 anchor_y=-70.)
+
     net_rg_pf_mn1 = ConnectMN2CPG(net_rg_pf1.net, net_motorneurons_hl.net)
     net_rg_pf_mn2 = ConnectMN2CPG(net_rg_pf2.net, net_motorneurons_hr.net)
     net_rg_pf_mn3 = ConnectMN2CPG(net_rg_pf3.net, net_motorneurons_fl.net)
@@ -90,9 +101,14 @@ def main():
 
     net = ConnectFore2Hind(net_RG_CIN1.net,
                            net_RG_CIN2.net, net9.lpsn,
-                           net10.lpsn)
+                           net10.lpsn
+                           )
 
-    net = net.net
+    net = nx.compose_all([net_afferents_hl.afferents,
+                          net_afferents_hr.afferents,
+                          net_afferents_fl.afferents,
+                          net_afferents_fr.afferents,
+                          net.net])
 
     #: Location to save the network
     net_dir = os.path.join(
@@ -116,7 +132,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    dur = 6000
+    dur = 600
     time_vec = np.arange(0, dur, dt)  #: Time
 
     #: Vector to store results
@@ -126,7 +142,7 @@ def main():
     opts = {'tf': dt,
             "nonlinear_solver_iteration": "functional",
             "linear_multistep_method": "bdf",
-            'jit': True,
+            'jit': False,
             "enable_jacobian": True,
             "print_time": False,
             "print_stats": False,
