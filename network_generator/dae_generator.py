@@ -350,44 +350,44 @@ class DaeGenerator(object):
         biolog.info(15 * '#' +
                     ' STATES : {} '.format(len(self.x)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.x.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.x.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' INPUTS : {} '.format(len(self.u)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.u.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.u.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' PARAMETERS : {} '.format(len(self.p)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.p.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.p.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' CONSTANTS : {} '.format(len(self.c)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.c.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.c.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' ODE : {} '.format(len(self.ode)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.ode.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.ode.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' ALGEBRAIC VARIABLES : {} '.format(len(self.z)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.z.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.z.get_all_sym())])))
 
         biolog.info(15 * '#' +
                     ' ALGEBRAIC EQUATIONS : {} '.format(len(self.alg)) +
                     15 * '#')
-        print('\n'.join(['{}. {}'.format(
-            j, s) for j, s in enumerate(self.alg.get_all_sym())]))
+        print(('\n'.join(['{}. {}'.format(
+            j, s) for j, s in enumerate(self.alg.get_all_sym())])))
         return
 
 

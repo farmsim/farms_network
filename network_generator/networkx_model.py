@@ -78,13 +78,13 @@ class NetworkXModel(object):
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
         Only if positions are defined. """
-        for _neuron, data in self.graph.node.items():
+        for _neuron, data in list(self.graph.node.items()):
             self.pos[_neuron] = (data.get('x', None),
                                  data.get('y', None))
             self.edge_pos[_neuron] = (data.get('x', None),
                                       data.get('y', None))
         check_pos_is_none = None in [
-            val for x in self.pos.values() for val in x]
+            val for x in list(self.pos.values()) for val in x]
         if check_pos_is_none:
             biolog.warning('Missing neuron position information.')
             # self.pos = nx.kamada_kawai_layout(self.graph)
@@ -94,7 +94,7 @@ class NetworkXModel(object):
 
     def read_neuron_colors_in_graph(self):
         """ Read the neuron display colors."""
-        for data in self.graph.node.values():
+        for data in list(self.graph.node.values()):
             self.color_map.extend(data.get('color', 'r'))
             self.color_map_arr.append(mcolors.colorConverter.to_rgb(
                 self.color_map[-1]))
@@ -102,7 +102,7 @@ class NetworkXModel(object):
 
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
-        max_weight = max(dict(self.graph.edges).items(),
+        max_weight = max(list(dict(self.graph.edges).items()),
                          key=lambda x: abs(x[1]['weight']))[-1]['weight']
         max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
@@ -200,8 +200,8 @@ class NetworkXModel(object):
 
         mlab.figure(1, bgcolor=(0, 0, 0))
         mlab.clf()
-        xpos = [pos[0] for pos in self.pos.values()]
-        ypos = [pos[1] for pos in self.pos.values()]
+        xpos = [pos[0] for pos in list(self.pos.values())]
+        ypos = [pos[1] for pos in list(self.pos.values())]
         pts = mlab.points3d(xpos, ypos, np.zeros(np.shape(xpos)),
                             scale_factor=1,
                             scale_mode='none',

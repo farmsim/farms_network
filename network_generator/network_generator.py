@@ -93,12 +93,12 @@ class NetworkGenerator(NetworkXModel):
         """
         Generate the network.
         """
-        for name, neuron in self.neurons.items():
+        for name, neuron in list(self.neurons.items()):
             biolog.debug(
                 'Establishing neuron {} network connections'.format(
                     name))
             for pred in self.graph.predecessors(name):
-                print('{} -> {}'.format(pred, name))
+                print(('{} -> {}'.format(pred, name)))
                 neuron.add_ode_input(
                     self.neurons[pred], **self.graph[pred][name])
 
