@@ -16,8 +16,7 @@ setuptools.setup(
         'casadi',
         'farms_pylog',
         'matplotlib',
-        'networkx',
-        'collections',
+        'networkx'
     ],
     zip_safe=False
 )
