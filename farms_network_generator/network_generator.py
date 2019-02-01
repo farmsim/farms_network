@@ -4,16 +4,14 @@ import itertools
 from collections import OrderedDict
 
 import casadi as cas
-import casadi.tools as cast
-import numpy as np
 
-import biolog
+import farms_pylog as biolog
 
 from .dae_generator import DaeGenerator
 from .networkx_model import NetworkXModel
-from .neuron import (IntegrateAndFire, LIF_Danner, LIF_Danner_Nap,
-                     LIF_Daun_Interneuron, LIF_Daun_Motorneuron,
-                     ConstantAndInhibit, SensoryDanner)
+from .neuron import (ConstantAndInhibit, IntegrateAndFire, LIF_Danner,
+                     LIF_Danner_Nap, LIF_Daun_Interneuron,
+                     LIF_Daun_Motorneuron, SensoryDanner)
 
 
 class NetworkGenerator(NetworkXModel):

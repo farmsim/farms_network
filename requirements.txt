@@ -1,6 +1,0 @@
-networkx
-casadi
-biolog
-matplotlib
-pyplot
-numpy

@@ -6,7 +6,7 @@ from collections import OrderedDict
 import casadi as cas
 import numpy as np
 
-import biolog
+import farms_pylog as biolog
 
 
 class Parameters(list):

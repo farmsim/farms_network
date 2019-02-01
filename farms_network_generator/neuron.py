@@ -1,9 +1,8 @@
 """Implementation of different neuron models."""
 import casadi as cas
-import casadi.tools as cast
 import numpy as np
 
-import biolog
+import farms_pylog as biolog
 
 
 class Neuron(object):
