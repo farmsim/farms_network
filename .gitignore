@@ -13,7 +13,8 @@ graph.dot
 graph.png
 jit_tmp.c
 
-network_generator.egg-info
-
 # System Files
 .DS_Store
+
+#: install files
+farms_network_generator.egg-info
