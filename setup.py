@@ -10,8 +10,10 @@ setuptools.setup(
     license='MIT',
     packages=setuptools.find_packages(exclude=['tests*']),
     dependency_links=[
-        'https://gitlab.com/FARMSIM/farms_pylog.git'],
+        'https://gitlab.com/FARMSIM/farms_pylog.git',
+        'https://gitlab.com/FARMSIM/farms_dae_generator.git'],
     install_requires=[
+        'farms_dae_generator',
         'numpy',
         'casadi',
         'farms_pylog',

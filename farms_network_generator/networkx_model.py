@@ -68,7 +68,6 @@ class NetworkXModel(object):
         """Show network connectivity matrix."""
         biolog.info('Showing network connectivity matrix')
         biolog.info(self.net_matrix)
-        return
 
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
@@ -85,7 +84,6 @@ class NetworkXModel(object):
             # self.pos = nx.kamada_kawai_layout(self.graph)
             self.pos = nx.spring_layout(self.graph)
             self.edge_pos = self.pos
-        return
 
     def read_neuron_colors_in_graph(self):
         """ Read the neuron display colors."""
@@ -93,7 +91,6 @@ class NetworkXModel(object):
             self.color_map.extend(data.get('color', 'r'))
             self.color_map_arr.append(mcolors.colorConverter.to_rgb(
                 self.color_map[-1]))
-        return
 
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
@@ -103,16 +100,20 @@ class NetworkXModel(object):
         for _, _, attr in self.graph.edges(data=True):
             _weight = attr.get('weight')
             #: pylint: disable=no-member
-            if np.sign(_weight/max_weight) == 1:
+            try:
+                _weight_ratio = _weight/max_weight
+            except ZeroDivisionError:
+                _weight_ratio = 0.0
+
+            if np.sign(_weight_ratio) == 1:
                 self.color_map_edge.extend('g')
             #: pylint: disable=no-member
-            elif np.sign(_weight/max_weight) == -1:
+            elif np.sign(_weight_ratio) == -1:
                 self.color_map_edge.extend('r')
             else:
                 self.color_map_edge.extend('k')
             self.alpha_edge.append(
-                max(np.abs(_weight/max_weight), 0.1))
-        return
+                max(np.abs(_weight_ratio), 0.1))
 
     def visualize_network(self,
                           node_size=1500,
@@ -176,12 +177,11 @@ class NetworkXModel(object):
             plt_out.grid()
             ax.invert_yaxis()
         else:
-            fig.draw()
+            # fig.draw()
             ax.invert_yaxis()
             fig.subplots_adjust(
                 left=0, right=1, top=1, bottom=0)
-            fig.grid()
-            fig.show()
+            ax.grid()
         return fig
 
     def save_network_to_dot(self, name='graph'):
@@ -191,8 +191,6 @@ class NetworkXModel(object):
             os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
         except BaseException:
             biolog.error('Command not found')
-
-        return
 
 
 def main():

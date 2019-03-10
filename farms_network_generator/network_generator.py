@@ -6,12 +6,11 @@ from collections import OrderedDict
 import casadi as cas
 
 import farms_pylog as biolog
+from neuron_factory import NeuronFactory
 
-from .dae_generator import DaeGenerator
-from .networkx_model import NetworkXModel
-from .neuron import (ConstantAndInhibit, IntegrateAndFire, LIF_Danner,
-                     LIF_Danner_Nap, LIF_Daun_Interneuron,
-                     LIF_Daun_Motorneuron, SensoryDanner)
+import farms_dae_generator as farms_dae
+from networkx_model import NetworkXModel
+biolog.set_level('debug')
 
 
 class NetworkGenerator(NetworkXModel):
@@ -30,7 +29,7 @@ class NetworkGenerator(NetworkXModel):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
-        self.dae = DaeGenerator()
+        self.dae = farms_dae.DaeGenerator()
         self.opts = {}  #: Integration parameters
         self.fin = {}
         self.integrator = {}
@@ -39,8 +38,6 @@ class NetworkGenerator(NetworkXModel):
         self.read_graph(graph_file_path)
         self.generate_neurons()
         self.generate_network()
-
-        return
 
     def generate_neurons(self):
         """Generate the complete neural network.
@@ -51,41 +48,17 @@ class NetworkGenerator(NetworkXModel):
         out : <bool>
             Return true if successfully created the neurons
         """
-        for name, neuron in sorted(self.graph.node.items()):
 
+        factory = NeuronFactory()
+
+        for name, neuron in sorted(self.graph.node.items()):
             #: Add neuron to list
             biolog.debug(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['model']))
             #: Generate Neuron Models
-            if neuron['model'] == 'if':
-                self.neurons[name] = IntegrateAndFire(name, self.dae,
-                                                      ** neuron)
-            elif neuron['model'] == 'lif_danner_nap':
-                self.neurons[name] = LIF_Danner_Nap(name, self.dae,
-                                                    **neuron)
-            elif neuron['model'] == 'lif_danner':
-                self.neurons[name] = LIF_Danner(name, self.dae,
-                                                **neuron)
-            elif neuron['model'] == 'lif_daun_interneuron':
-                self.neurons[name] = LIF_Daun_Interneuron(name,
-                                                          self.dae,
-                                                          **neuron)
-            elif neuron['model'] == 'lif_daun_motorneuron':
-                self.neurons[name] = LIF_Daun_Motorneuron(name,
-                                                          self.dae,
-                                                          **neuron)
-            elif neuron['model'] == 'constant_and_inhibit':
-                self.neurons[name] = ConstantAndInhibit(name,
-                                                        self.dae,
-                                                        **neuron)
-            elif neuron['model'] == 'sensory_danner':
-                self.neurons[name] = SensoryDanner(name,
-                                                   self.dae,
-                                                   **neuron)
-            else:
-                pass
-        return
+            _neuron = factory.gen_neuron(neuron['model'])
+            self.neurons[name] = _neuron(name, self.dae, **neuron)
 
     def generate_network(self):
         """
@@ -108,9 +81,9 @@ class NetworkGenerator(NetworkXModel):
             self.opts = {'tf': 1.,
                          'jit': False,
                          "print_stats": False}
-        return
 
     #: pylint: disable=invalid-name
+
     def setup_integrator(self,
                          integration_method='cvodes',
                          opts=None):
@@ -126,8 +99,6 @@ class NetworkGenerator(NetworkXModel):
         self.fin['rx0'] = cas.DM([])
         self.fin['rp'] = cas.DM([])
         self.fin['rz0'] = cas.DM([])
-
-        self.dae.print_dae()
 
         #: Set up the integrator
         self.integrator = cas.integrator('network',
@@ -161,8 +132,11 @@ class NetworkGenerator(NetworkXModel):
 
 def main():
     """ Main function."""
-    net = NetworkGenerator('./conf/motorneuron_daun_test.graphml')
+    net = NetworkGenerator(
+        '/Users/tatarama/Documents/EPFL-PhD/Projects/BioRobAnimals/network_generator/tests/integrate_fire/conf/integrate_and_fire_test.graphml')
+    import matplotlib.pyplot as plt
     net.visualize_network()
+    plt.show()
 
 
 if __name__ == '__main__':
