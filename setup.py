@@ -1,4 +1,6 @@
 import setuptools
+from Cython.Build import cythonize
+import numpy
 
 setuptools.setup(
     name='farms_network_generator',
@@ -21,5 +23,7 @@ setuptools.setup(
         'networkx',
         'pydot'
     ],
-    zip_safe=False
+    zip_safe=False,
+    ext_modules=cythonize("farms_network_generator/*.pyx"),
+    include_dirs=[numpy.get_include()]
 )
