@@ -4,6 +4,7 @@ from farms_network_generator.network_generator import NetworkGenerator
 import timeit
 import numpy as np
 import time
+import pstats, cProfile
 setup = """
 from farms_dae_generator.dae_generator import DaeGenerator
 from farms_network_generator.leaky_integrator import LeakyIntegrator
@@ -23,19 +24,28 @@ d.initialize_dae()
 
 
 neurons = NetworkGenerator(
-    '/home/tatarama/Stata-PhD/Projects/BioRobAnimals/network_generator/tests/integrate_fire/conf/four_neuron_cpg.graphml')
+    '/Users/tatarama/Documents/EPFL/PROJECTS/BIOROBANIMALS/NETWORK_GENERATOR/tests/integrate_fire/conf/four_neuron_cpg.graphml')
 x0 = np.random.random((4, 1))
 neurons.setup_integrator(x0)
 print(neurons.dae.x.log)
-start = time.time()
-N = 100000
-for j in range(0, N):
+# start = time.time()
+N = 10000
     # neurons.dae.u.values = np.array([1.0, 0.5], dtype=np.float)
-    neurons.step()
     # print("Time {} : state {}".format(j, neurons.dae.y.values))
-end = time.time()
-print('TIME {}'.format(end-start))
+# end = time.time()
+# print('TIME {}'.format(end-start))
+
+cProfile.runctx("for j in range(0, N):neurons.step()", globals(), locals(), "Profile.prof")
+
+s = pstats.Stats("Profile.prof")
+# s.strip_dirs().sort_stats("time").print_stats()
+s.strip_dirs().print_stats()
+
+
+# for j in range(0, N):
+#     neurons.step()
 print(neurons.dae.p.values)
 data_x = neurons.dae.x.log
 plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
+plt.grid(True)
 plt.show()

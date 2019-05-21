@@ -1,4 +1,5 @@
 """ Generate neural network. """
+# cython: profile=True
 
 import itertools
 from scipy.integrate import ode
@@ -80,7 +81,11 @@ cdef class NetworkGenerator(object):
     def setup_integrator(self, x0):
         """Setup system."""
         self.dae.initialize_dae()
-        self.integrator = ode(self.ode).set_integrator('zvode', method='bdf')
+        self.integrator = ode(self.ode).set_integrator(
+            'dopri5',
+            # method='bdf',
+            atol=1e-6,
+            rtol=1e-6)
         self.integrator.set_initial_value(x0, 0.0)
 
     cdef void c_step(self):
