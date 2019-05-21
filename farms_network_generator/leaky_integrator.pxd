@@ -2,7 +2,7 @@
 
 from farms_dae_generator.parameters cimport Param
 cimport numpy as cnp
-
+cimport cython
 
 ctypedef double real
 
@@ -13,7 +13,7 @@ cdef class NeuronInput(object):
 
 cdef class LeakyIntegrator(object):
     cdef:
-        dict __dict__
+        # dict __dict__
         readonly str n_id
         readonly str neuron_type
 
@@ -21,7 +21,7 @@ cdef class LeakyIntegrator(object):
         #: constants
         Param tau
         Param bias
-        Param d
+        Param D
 
         #: states
         Param m
@@ -33,7 +33,7 @@ cdef class LeakyIntegrator(object):
         Param mdot
 
         #: neuron connenctions
-        list neuron_inputs
+        NeuronInput[:] neuron_inputs
 
     cdef:
         void c_ode_rhs(self)
