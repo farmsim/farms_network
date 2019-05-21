@@ -1,6 +1,7 @@
 """ Generate neural network. """
 # cython: profile=True
 
+from farms_network_generator.leaky_integrator cimport LeakyIntegrator
 import itertools
 from scipy.integrate import ode
 import farms_pylog as biolog
@@ -8,8 +9,9 @@ from farms_network_generator.neuron_factory import NeuronFactory
 from collections import OrderedDict
 import numpy as np
 from farms_dae_generator.dae_generator import DaeGenerator
+from farms_dae_generator.parameters cimport Parameters
 from networkx_model import NetworkXModel
-
+cimport cython
 biolog.set_level('debug')
 
 
@@ -31,7 +33,10 @@ cdef class NetworkGenerator(object):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
+        self.c_neurons = np.ndarray((4,), dtype=LeakyIntegrator)
         self.dae = DaeGenerator()
+
+        self.odes = []
 
         self.fin = {}
         self.integrator = {}
@@ -54,7 +59,7 @@ cdef class NetworkGenerator(object):
 
         factory = NeuronFactory()
 
-        for name, neuron in sorted(self.graph.node.items()):
+        for j, (name, neuron) in enumerate(sorted(self.graph.node.items())):
             #: Add neuron to list
 
             print(name, neuron.keys())
@@ -64,6 +69,7 @@ cdef class NetworkGenerator(object):
             #: Generate Neuron Models
             _neuron = factory.gen_neuron(neuron['model'])
             self.neurons[name] = _neuron(name, self.dae, **neuron)
+            self.c_neurons[j] = <LeakyIntegrator > self.neurons[name]
 
     def generate_network(self):
         """
@@ -73,36 +79,56 @@ cdef class NetworkGenerator(object):
             biolog.debug(
                 'Establishing neuron {} network connections'.format(
                     name))
-            for pred in self.graph.predecessors(name):
+            for j, pred in enumerate(self.graph.predecessors(name)):
                 print(('{} -> {}'.format(pred, name)))
                 neuron.add_ode_input(
-                    self.neurons[pred], **self.graph[pred][name])
+                    self.dae, self.neurons[pred], j, **self.graph[pred][name])
 
-    def setup_integrator(self, x0):
+    def setup_integrator(self, x0, integrator='dopri853', atol=1e-20,
+                         rtol=1e-20):
         """Setup system."""
         self.dae.initialize_dae()
         self.integrator = ode(self.ode).set_integrator(
-            'dopri5',
+            integrator,
             # method='bdf',
-            atol=1e-6,
-            rtol=1e-6)
+            atol=atol,
+            rtol=rtol)
         self.integrator.set_initial_value(x0, 0.0)
 
+        # for neuron in self.neurons.values():
+        #     self.odes.append(*neuron.ode_rhs)
+        #     print(*neuron.ode_rhs)
+
+    @cython.profile(True)
+    @cython.boundscheck(False)  # Deactivate bounds checking
+    @cython.wraparound(False)   # Deactivate negative indexing.
+    @cython.nonecheck(False)
+    @cython.cdivision(False)
     cdef void c_step(self):
         """Step ode system. """
-        cdef LeakyIntegrator neuron
         cdef unsigned int j
-        for j, neuron in enumerate(self.neurons.values()):
-            neuron.ode_rhs()
+        for j in range(4):
+            self.c_neurons[j].ode_rhs()
+
+    @cython.profile(True)
+    @cython.boundscheck(False)  # Deactivate bounds checking
+    @cython.wraparound(False)   # Deactivate negative indexing.
+    @cython.nonecheck(False)
+    @cython.cdivision(False)
+    cdef real[:] c_ode(self, real t, real[:] state):
+        cdef Parameters x = <Parameters > self.dae.x
+        cdef Parameters y = <Parameters > self.dae.y
+        x.c_set_values(state)
+        self.c_step()
+        return y.c_get_values()
 
     def ode(self, t, state):
-        self.dae.x.values = np.array(state, dtype=np.float)
-        self.c_step()
-        return self.dae.y.values
+        return self.c_ode(t, state)
 
     def step(self):
         """Step integrator."""
         time = self.integrator.t
         dt = 0.001
         self.integrator.integrate(time+dt)
+        assert(self.integrator.successful())
         self.dae.update_log()
