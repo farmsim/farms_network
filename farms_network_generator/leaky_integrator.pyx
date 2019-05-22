@@ -1,8 +1,10 @@
 """Leaky Integrator Neuron."""
 
 import numpy as np
+cimport numpy as cnp
 from libc.math cimport exp
 cimport cython
+from farms_network_generator.leaky_integrator cimport NeuronInput as NI
 
 cdef class NeuronInput(object):
 
@@ -48,10 +50,10 @@ cdef class LeakyIntegrator(object):
         self.mdot = dae.add_y('mdot_' + self.n_id, 0.0)
 
         #: Neuron inputs
-        self.neuron_inputs = np.ndarray((2,), dtype=NeuronInput)
+        self.neuron_inputs = cnp.ndarray((2,), dtype=NI)
 
-    @cython.cdivision(False)
-    cdef real c_neuron_input_eval(self, NeuronInput n):
+    @cython.cdivision(True)
+    cdef real c_neuron_input_eval(self, NI n) nogil:
         """ Evaluate neuron input."""
         return n.neuron.c_output()*n.weight.c_get_value()/self.tau.c_get_value()
 
@@ -73,18 +75,15 @@ cdef class LeakyIntegrator(object):
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
-    @cython.cdivision(False)
+    @cython.cdivision(True)
     cdef void c_ode_rhs(self):
         """ Compute the ODE. Internal Setup Function."""
         #: Neuron inputs
         cdef real _sum = 0.0
         cdef unsigned int j
-        cdef int n
 
-        j = len(self.neuron_inputs)
-
-        for n in range(2):
-            _sum += self.c_neuron_input_eval(self.neuron_inputs[n])
+        for j in range(2):
+            _sum += self.c_neuron_input_eval(self.neuron_inputs[j])
 
         self.mdot.c_set_value((
             (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau.c_get_value()) + _sum)
@@ -92,8 +91,8 @@ cdef class LeakyIntegrator(object):
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
-    @cython.cdivision(False)
-    cdef real c_output(self):
+    @cython.cdivision(True)
+    cdef real c_output(self) nogil:
         """ Neuron output. """
         return 1. / (1. + exp(-self.D.c_get_value() * (
             self.m.c_get_value() + self.bias.c_get_value())))

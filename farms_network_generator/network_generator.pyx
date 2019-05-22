@@ -116,19 +116,20 @@ cdef class NetworkGenerator(object):
     @cython.nonecheck(False)
     @cython.cdivision(False)
     cdef real[:] c_ode(self, real t, real[:] state):
-        cdef Parameters x = <Parameters > self.dae.x
-        cdef Parameters y = <Parameters > self.dae.y
-        x.c_set_values(state)
+        self.dae.x.c_set_values(state)
         self.c_step()
-        return y.c_get_values()
+        return self.dae.y.c_get_values()
 
     def ode(self, t, state):
-        return self.c_ode(t, state)
+        self.dae.x.values = state
+        self.c_step()
+        return self.dae.y.values
 
     def step(self):
         """Step integrator."""
-        time = self.integrator.t
-        dt = 0.001
+        cdef double time = float(self.integrator.t)
+        cdef double dt = 0.001
         self.integrator.integrate(time+dt)
+        # print(time, self.integrator.integrate(time+dt))
         assert(self.integrator.successful())
         self.dae.update_log()

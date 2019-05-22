@@ -3,6 +3,7 @@
 from farms_dae_generator.parameters cimport Param
 cimport numpy as cnp
 cimport cython
+from farms_network_generator.leaky_integrator cimport NeuronInput as NI
 
 ctypedef double real
 
@@ -33,9 +34,9 @@ cdef class LeakyIntegrator(object):
         Param mdot
 
         #: neuron connenctions
-        NeuronInput[:] neuron_inputs
+        NI[:] neuron_inputs
 
     cdef:
         void c_ode_rhs(self)
-        real c_output(self)
-        real c_neuron_input_eval(self, NeuronInput n)
+        real c_output(self) nogil
+        real c_neuron_input_eval(self, NeuronInput n) nogil

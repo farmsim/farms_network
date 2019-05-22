@@ -24,12 +24,11 @@ d.initialize_dae()
 # print(timeit.timeit(stmt="n1.ode_rhs();n2.ode_rhs()", setup=setup, number=1))
 
 
-neurons = NetworkGenerator(
-    '/home/tatarama/Stata-PhD/Projects/BioRobAnimals/network_generator/tests/integrate_fire/conf/four_neuron_cpg.graphml')
+neurons = NetworkGenerator('./four_neuron_cpg.graphml')
 x0 = np.random.random((4, 1))
-neurons.setup_integrator(x0, integrator='dopri5',
-                         atol=1e-4,
-                         rtol=1e-4)
+neurons.setup_integrator(x0, integrator='dorpi853',
+                         atol=1e-6,
+                         rtol=1e-6)
 print(neurons.dae.x.log)
 # start = time.time()
 N = 10000
@@ -60,6 +59,6 @@ pstat.sort_stats('cumtime').print_stats(30)
 print(neurons.dae.p.values)
 data_x = neurons.dae.x.log
 plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :], 'o')
+plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :], 'o', markersize=1)
 plt.grid(True)
 plt.show()
