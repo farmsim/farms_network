@@ -2,7 +2,7 @@ import farms_pylog as pylog
 pylog.set_level('error')
 
 
-class Neuron(object):
+cdef class Neuron(object):
     """Base neuron class.
     """
 
