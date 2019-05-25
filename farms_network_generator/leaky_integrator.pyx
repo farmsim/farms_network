@@ -2,6 +2,8 @@
 import numpy as np
 cimport numpy as cnp
 cimport cython
+from libc.math cimport exp
+
 
 cdef class LeakyIntegrator(Neuron):
 
@@ -41,14 +43,15 @@ cdef class LeakyIntegrator(Neuron):
 
         #: Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
-                                         dtype=NeuronInput)
+                                         dtype=[('neuron_idx', 'i'),
+                                                ('weight_idx', 'i')])
 
         self.num_inputs = num_inputs
 
     def add_ode_input(self, idx, neuron_idx, weight_idx, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
-        cdef NeuronInput n = NeuronInput()
+        cdef LeakyIntegratorNeuronInput n = LeakyIntegratorNeuronInput()
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
         #: Append the struct to the list
@@ -60,15 +63,19 @@ cdef class LeakyIntegrator(Neuron):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef void c_ode_rhs(self):
+    @cython.initializedcheck(False)
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
         #: Neuron inputs
-        cdef real _sum = 0.0
+        cdef double _sum = 0.0
         cdef unsigned int j
-
+        cdef double _neuron_out
+        cdef double _weight
+        
         for j in range(self.num_inputs):
-            _sum += self.c_neuron_input_eval(self.neuron_inputs[j])
-
+             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
+             _weight = _p[self.neuron_inputs[j].weight_idx]
+             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
         self.mdot.c_set_value((
             (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau.c_get_value()) + _sum)
 
@@ -78,16 +85,16 @@ cdef class LeakyIntegrator(Neuron):
     @cython.cdivision(True)
     cdef void c_output(self) nogil:
         """ Neuron output. """
-        self.nout.set_value(1. / (1. + exp(-self.D.c_get_value() * (
+        self.nout.c_set_value(1. / (1. + exp(-self.D.c_get_value() * (
             self.m.c_get_value() + self.bias.c_get_value()))))
 
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef real c_neuron_input_eval(self, NI n) nogil:
-        """ Evaluate neuron input."""
-        return n.neuron.c_output()*n.weight.c_get_value()/self.tau.c_get_value()
+    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
+        """ Evaluate neuron inputs."""
+        return _neuron_out*_weight/self.tau.c_get_value()
 
     def output(self):
         """Neuron activation function.
@@ -98,6 +105,6 @@ cdef class LeakyIntegrator(Neuron):
         """
         return self.c_output()
 
-    def ode_rhs(self):
+    def ode_rhs(self, y, p):
         """ Python interface to the ode_rhs computation."""
-        self.c_ode_rhs()
+        self.c_ode_rhs(y, p)

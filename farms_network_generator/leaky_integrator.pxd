@@ -3,10 +3,9 @@
 from farms_dae_generator.parameters cimport Param
 from farms_network_generator.neuron cimport Neuron
 
-cdef struct NeuronInput:
-    cdef:
-        int neuron_idx
-        int weight_idx
+cdef struct LeakyIntegratorNeuronInput:
+    int neuron_idx
+    int weight_idx
 
 cdef class LeakyIntegrator(Neuron):
     cdef:
@@ -29,10 +28,13 @@ cdef class LeakyIntegrator(Neuron):
         #: ode
         Param mdot
 
+        #: Ouputs
+        Param nout
+
         #: neuron connenctions
-        NeuronInput[:] neuron_inputs
+        LeakyIntegratorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self)
+        void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
         void c_output(self) nogil
-        real c_neuron_input_eval(self, NeuronInput n) nogil
+        double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil

@@ -57,10 +57,10 @@ cdef class Neuron(object):
         self._model_type = value
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self):
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         pylog.error('c_ode_rhs : Method not implemented in child class')
         raise NotImplementedError()
 
-    cdef void c_output(self):
+    cdef void c_output(self) nogil:
         pylog.error('c_output : Method not implemented in child class')
         raise NotImplementedError()
