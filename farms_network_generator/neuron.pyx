@@ -19,17 +19,19 @@ cdef class Neuron(object):
         kwargs : <dict>
              Contains the weight/synaptic information from the receiving neuron.
         """
-        pylog.error('add_ode_input : Method not implemented in child class')
+        pylog.error(
+            'add_ode_input : Method not implemented in Neuron child class')
         raise NotImplementedError()
 
-    def ode_rhs(self):
+    def ode_rhs(self, y, p):
         """ ODE RHS.
         Returns
         ----------
         ode_rhs: <list>
             List containing the rhs equations of the ode states in the system
         """
-        self.c_ode_rhs()
+        pylog.error('ode_rhs : Method not implemented in Neuron child class')
+        raise NotImplementedError()
 
     def output(self):
         """ Output of the neuron model.
@@ -38,6 +40,8 @@ cdef class Neuron(object):
         out: <cas.SX.sym>
             Output of the neuron  model
         """
+        pylog.error('output : Method not implemented in Neuron child class')
+        raise NotImplementedError()
         self.c_output()
 
     #################### PROPERTIES ####################
@@ -58,9 +62,7 @@ cdef class Neuron(object):
 
     #################### C-FUNCTIONS ####################
     cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
-        pylog.error('c_ode_rhs : Method not implemented in child class')
-        raise NotImplementedError()
+        pass
 
     cdef void c_output(self) nogil:
-        pylog.error('c_output : Method not implemented in child class')
-        raise NotImplementedError()
+        pass

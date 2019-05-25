@@ -5,7 +5,7 @@ cdef class Neuron(object):
     """
 
     cdef:
-        str model_type
+        str _model_type
 
     cdef:
         void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
