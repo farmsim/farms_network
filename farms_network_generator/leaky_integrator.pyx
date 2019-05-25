@@ -1,8 +1,8 @@
+from libc.math cimport exp
 """Leaky Integrator Neuron."""
 import numpy as np
 cimport numpy as cnp
 cimport cython
-from libc.math cimport exp
 
 
 cdef class LeakyIntegrator(Neuron):
@@ -39,7 +39,7 @@ cdef class LeakyIntegrator(Neuron):
         self.mdot = dae.add_xdot('mdot_' + self.n_id, 0.0)
 
         #: Output
-        self.neuron_out = dae.add_y('nout_' + self.n_id, 0.0)
+        self.nout = dae.add_y('nout_' + self.n_id, 0.0)
 
         #: Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
@@ -84,11 +84,11 @@ cdef class LeakyIntegrator(Neuron):
         cdef unsigned int j
         cdef double _neuron_out
         cdef double _weight
-        
+
         for j in range(self.num_inputs):
-             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
-             _weight = _p[self.neuron_inputs[j].weight_idx]
-             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
+            _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
+            _weight = _p[self.neuron_inputs[j].weight_idx]
+            _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
         self.mdot.c_set_value((
             (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau.c_get_value()) + _sum)
 
