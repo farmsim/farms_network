@@ -41,6 +41,7 @@ cdef class NetworkGenerator(object):
         self.u = <Parameters > self.dae.u
         self.p = <Parameters > self.dae.p
         self.y = <Parameters > self.dae.y
+        self.xdot = <Parameters > self.dae.xdot
 
         self.odes = []
 
@@ -129,7 +130,7 @@ cdef class NetworkGenerator(object):
         self.dae.x.values = state
         cdef unsigned int j
         for j in range(4):
-            self.c_neurons[j].c_ode_rhs()
+            self.c_neurons[j].c_ode_rhs(self.y, self.p)
 
     @cython.profile(True)
     def ode(self, t, state):
