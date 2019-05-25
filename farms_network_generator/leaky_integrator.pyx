@@ -48,12 +48,21 @@ cdef class LeakyIntegrator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, idx, neuron_idx, weight_idx, **kwargs):
+    def add_ode_input(self, idx, neuron, dae, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef LeakyIntegratorNeuronInput n = LeakyIntegratorNeuronInput()
+
+        #: Get the neuron parameter
+        neuron_idx = dae.y.get_idx('nout_'+neuron.n_id)
+
+        #: Add the weight parameter
+        weight = dae.add_p(
+            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight'))
+        weight_idx = dae.p.get_idx('w_' + neuron.n_id + '_to_' + self.n_id)
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
+
         #: Append the struct to the list
         self.neuron_inputs[idx] = n
 

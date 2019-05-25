@@ -4,15 +4,16 @@
 from farms_network_generator.leaky_integrator cimport LeakyIntegrator
 import itertools
 from scipy.integrate import ode
-import farms_pylog as biolog
+import farms_pylog as pylog
 from farms_network_generator.neuron_factory import NeuronFactory
 from collections import OrderedDict
 import numpy as np
 from farms_dae_generator.dae_generator import DaeGenerator
 from farms_dae_generator.parameters cimport Parameters
 from networkx_model import NetworkXModel
+from farms_network_generator.neuron cimport Neuron
 cimport cython
-biolog.set_level('debug')
+pylog.set_level('debug')
 
 
 cdef class NetworkGenerator(object):
@@ -68,27 +69,30 @@ cdef class NetworkGenerator(object):
 
         for j, (name, neuron) in enumerate(sorted(self.graph.node.items())):
             #: Add neuron to list
-            print(name, neuron.keys())
-            biolog.debug(
+            pylog.debug(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['model']))
             #: Generate Neuron Models
             _neuron = factory.gen_neuron(neuron['model'])
-            self.neurons[name] = _neuron(name, self.dae, **neuron)
-            self.c_neurons[j] = <LeakyIntegrator > self.neurons[name]
+            self.neurons[name] = _neuron(name, self.dae,
+                                         self.graph.in_degree(name),
+                                         **neuron)
+            self.c_neurons[j] = <Neuron > self.neurons[name]
 
     def generate_network(self):
         """
         Generate the network.
         """
         for name, neuron in list(self.neurons.items()):
-            biolog.debug(
+            pylog.debug(
                 'Establishing neuron {} network connections'.format(
                     name))
             for j, pred in enumerate(self.graph.predecessors(name)):
                 print(('{} -> {}'.format(pred, name)))
+                #: Set the weight of the parameter
                 neuron.add_ode_input(
-                    self.dae, self.neurons[pred], j, **self.graph[pred][name])
+                    j, self.neurons[pred],
+                    self.dae, **self.graph[pred][name])
 
     def setup_integrator(self, x0, integrator='dopri853', atol=1e-6,
                          rtol=1e-6, method='adams'):
@@ -129,8 +133,10 @@ cdef class NetworkGenerator(object):
     cdef c_ode(self, real t, real[:] state):
         self.dae.x.values = state
         cdef unsigned int j
+        cdef double[:] t1 = np.ndarray((2,), dtype=np.float64)
+        cdef double[:] t2 = np.ndarray((2,), dtype=np.float64)
         for j in range(4):
-            self.c_neurons[j].c_ode_rhs(self.y, self.p)
+            print(self.c_neurons[j], type(self.c_neurons[j]))
 
     @cython.profile(True)
     def ode(self, t, state):
