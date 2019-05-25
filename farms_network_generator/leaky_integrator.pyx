@@ -57,7 +57,20 @@ cdef class LeakyIntegrator(Neuron):
         #: Append the struct to the list
         self.neuron_inputs[idx] = n
 
-    # cython: linetrace=True
+    def output(self):
+        """Neuron activation function.
+        Parameters
+        ----------
+        m_potential: float
+            Neuron membrane potential
+        """
+        return self.c_output()
+
+    def ode_rhs(self, y, p):
+        """ Python interface to the ode_rhs computation."""
+        self.c_ode_rhs(y, p)
+
+    #################### C-FUNCTIONS ####################
     @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
@@ -95,16 +108,3 @@ cdef class LeakyIntegrator(Neuron):
     cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
         """ Evaluate neuron inputs."""
         return _neuron_out*_weight/self.tau.c_get_value()
-
-    def output(self):
-        """Neuron activation function.
-        Parameters
-        ----------
-        m_potential: float
-            Neuron membrane potential
-        """
-        return self.c_output()
-
-    def ode_rhs(self, y, p):
-        """ Python interface to the ode_rhs computation."""
-        self.c_ode_rhs(y, p)
