@@ -1,22 +1,18 @@
 """Leaky Integrator Neuron."""
 
 from farms_dae_generator.parameters cimport Param
-cimport numpy as cnp
-cimport cython
-from farms_network_generator.leaky_integrator cimport NeuronInput as NI
+from farms_network_generator.neuron cimport Neuron
 
-ctypedef double real
-
-cdef class NeuronInput(object):
+cdef struct NeuronInput:
     cdef:
-        LeakyIntegrator neuron
-        Param weight
+        int neuron_idx
+        int weight_idx
 
-cdef class LeakyIntegrator(object):
+cdef class LeakyIntegrator(Neuron):
     cdef:
-        # dict __dict__
         readonly str n_id
-        readonly str neuron_type
+
+        unsigned int num_inputs
 
         #: parameters
         #: constants
@@ -34,9 +30,9 @@ cdef class LeakyIntegrator(object):
         Param mdot
 
         #: neuron connenctions
-        NI[:] neuron_inputs
+        NeuronInput[:] neuron_inputs
 
     cdef:
         void c_ode_rhs(self)
-        real c_output(self) nogil
+        void c_output(self) nogil
         real c_neuron_input_eval(self, NeuronInput n) nogil

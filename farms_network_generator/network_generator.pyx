@@ -36,6 +36,12 @@ cdef class NetworkGenerator(object):
         self.c_neurons = np.ndarray((4,), dtype=LeakyIntegrator)
         self.dae = DaeGenerator()
 
+        self.x = <Parameters > self.dae.x
+        self.c = <Parameters > self.dae.c
+        self.u = <Parameters > self.dae.u
+        self.p = <Parameters > self.dae.p
+        self.y = <Parameters > self.dae.y
+
         self.odes = []
 
         self.fin = {}
@@ -61,7 +67,6 @@ cdef class NetworkGenerator(object):
 
         for j, (name, neuron) in enumerate(sorted(self.graph.node.items())):
             #: Add neuron to list
-
             print(name, neuron.keys())
             biolog.debug(
                 'Generating neuron model : {} of type {}'.format(
@@ -84,52 +89,54 @@ cdef class NetworkGenerator(object):
                 neuron.add_ode_input(
                     self.dae, self.neurons[pred], j, **self.graph[pred][name])
 
-    def setup_integrator(self, x0, integrator='dopri853', atol=1e-20,
-                         rtol=1e-20):
+    def setup_integrator(self, x0, integrator='dopri853', atol=1e-6,
+                         rtol=1e-6, method='adams'):
         """Setup system."""
         self.dae.initialize_dae()
         self.integrator = ode(self.ode).set_integrator(
             integrator,
-            # method='bdf',
+            method=method,
             atol=atol,
             rtol=rtol)
         self.integrator.set_initial_value(x0, 0.0)
 
-        # for neuron in self.neurons.values():
-        #     self.odes.append(*neuron.ode_rhs)
-        #     print(*neuron.ode_rhs)
+    @cython.profile(True)
+    @cython.boundscheck(False)  # Deactivate bounds checking
+    @cython.wraparound(False)   # Deactivate negative indexing.
+    @cython.nonecheck(False)
+    @cython.cdivision(False)
+    cdef void c_step(self, real[:] inputs):
+        """Step ode system. """
+        cdef double time = self.integrator.t
+        cdef double dt = 0.001
+        self.dae.u.values = inputs
+        self.dae.x.c_set_values(self.integrator.integrate(time+dt))
+        self.integrator.set_initial_value(self.integrator.y,
+                                          self.integrator.t)
+        assert(self.integrator.successful())
+        self.x.c_update_log()
+        self.p.c_update_log()
+        self.c.c_update_log()
+        self.u.c_update_log()
+        self.y.c_update_log()
 
     @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(False)
-    cdef void c_step(self):
-        """Step ode system. """
+    cdef c_ode(self, real t, real[:] state):
+        self.dae.x.values = state
         cdef unsigned int j
         for j in range(4):
-            self.c_neurons[j].ode_rhs()
+            self.c_neurons[j].c_ode_rhs()
 
     @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(False)
-    cdef real[:] c_ode(self, real t, real[:] state):
-        self.dae.x.c_set_values(state)
-        self.c_step()
-        return self.dae.y.c_get_values()
-
     def ode(self, t, state):
-        self.dae.x.values = state
-        self.c_step()
+        self.c_ode(t, state)
         return self.dae.y.values
 
-    def step(self):
+    @cython.profile(True)
+    def step(self, u):
         """Step integrator."""
-        cdef double time = float(self.integrator.t)
-        cdef double dt = 0.001
-        self.integrator.integrate(time+dt)
-        # print(time, self.integrator.integrate(time+dt))
-        assert(self.integrator.successful())
-        self.dae.update_log()
+        self.c_step(u)

@@ -25,22 +25,25 @@ d.initialize_dae()
 
 
 neurons = NetworkGenerator('./four_neuron_cpg.graphml')
-x0 = np.random.random((4, 1))
-neurons.setup_integrator(x0, integrator='dorpi853',
-                         atol=1e-6,
-                         rtol=1e-6)
+x0 = np.array([1, 0.5, 1, 0.5], dtype=np.float64)
+neurons.setup_integrator(x0, integrator='dopri5',
+                         atol=1e-3,
+                         rtol=1e-3)
 print(neurons.dae.x.log)
-# start = time.time()
-N = 10000
+N = 100000
 # neurons.dae.u.values = np.array([1.0, 0.5], dtype=np.float)
 # print("Time {} : state {}".format(j, neurons.dae.y.values))
-# end = time.time()
-# print('TIME {}'.format(end-start))
+
+# np.ones((4,))*np.sin(2*3.14*1.*time)
 
 
 def main():
+    start = time.time()
     for j in range(0, N):
-        neurons.step()
+        u = np.ones((4,))*np.sin(2*3.14*1.*j*0.001)
+        neurons.step(u)
+    end = time.time()
+    print('TIME {}'.format(end-start))
 
 
 # s = pstats.Stats("Profile.prof")
@@ -56,9 +59,11 @@ pstat.sort_stats('cumtime').print_stats(30)
 
 # for j in range(0, N):
 #     neurons.step()
-print(neurons.dae.p.values)
+print('Parameters {}'.format(neurons.dae.p.log))
+print('Constants {}'.format(neurons.dae.c.log))
+
 data_x = neurons.dae.x.log
 plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :], 'o', markersize=1)
+plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :], 'o', markersize=0.5)
 plt.grid(True)
 plt.show()
