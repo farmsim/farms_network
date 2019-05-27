@@ -2,35 +2,45 @@ import setuptools
 from Cython.Build import cythonize
 from distutils.extension import Extension
 import numpy
+import Cython
 
+directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
 extensions = [
     Extension("farms_network_generator.network_generator",
               ["farms_network_generator/network_generator.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3']),
+              extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')]),
     Extension("farms_network_generator.leaky_integrator",
               ["farms_network_generator/leaky_integrator.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3']),
+              extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')]),
     Extension("farms_network_generator.neuron",
               ["farms_network_generator/neuron.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3']),
+              extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')]),
     Extension("farms_network_generator.lif_danner_nap",
               ["farms_network_generator/lif_danner_nap.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3']),
+              extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')]),
     Extension("farms_network_generator.lif_danner",
               ["farms_network_generator/lif_danner.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'])
+              extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')])
 ]
+
+directive_defaults['linetrace'] = True,
+directive_defaults['binding'] = True
 
 setuptools.setup(
     name='farms_network_generator',
@@ -54,4 +64,5 @@ setuptools.setup(
         'pydot'
     ],
     zip_safe=False,
-    ext_modules=cythonize(extensions, annotate=True))
+    ext_modules=cythonize(extensions, annotate=True)
+)

@@ -129,7 +129,7 @@ cdef class NetworkGenerator(object):
     #     self.u.c_update_log()
     #     self.y.c_update_log()
 
-    @cython.profile(False)
+    @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
@@ -150,7 +150,7 @@ cdef class NetworkGenerator(object):
                         self.p.c_get_values())
         return self.xdot.c_get_values()
 
-    @cython.profile(False)
+    @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)

@@ -49,7 +49,7 @@ def setup_integrator(x0, integrator='dop853', atol=1e-6,
 
 
 integrator = setup_integrator(neurons.dae.x.values,
-                              integrator='vode', atol=1e-3,
+                              integrator='lsoda', atol=1e-3,
                               rtol=1e-3)
 
 pylog.debug("Number of states {}".format(len(neurons.dae.x.values)))
@@ -88,15 +88,15 @@ pstat = pstats.Stats("Profile.prof")
 pstat.sort_stats('time').print_stats()
 pstat.sort_stats('cumtime').print_stats()
 
-data_x = neurons.dae.x.log
-plt.title('X')
-plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-plt.legend(tuple([str(key) for key in range(len(neurons.dae.x.values))]))
-plt.grid(True)
+# data_x = neurons.dae.x.log
+# plt.title('X')
+# plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
+# plt.legend(tuple([str(key) for key in range(len(neurons.dae.x.values))]))
+# plt.grid(True)
 
-plt.figure(3)
-plt.title('Y')
-data_y = neurons.dae.y.log
-plt.plot(np.linspace(0, N*0.001, N), data_y[:N, :])
-plt.grid(True)
-plt.show()
+# plt.figure(3)
+# plt.title('Y')
+# data_y = neurons.dae.y.log
+# plt.plot(np.linspace(0, N*0.001, N), data_y[:N, :])
+# plt.grid(True)
+# plt.show()

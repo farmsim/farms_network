@@ -86,7 +86,7 @@ cdef class LeakyIntegrator(Neuron):
     @cython.nonecheck(False)
     @cython.cdivision(True)
     @cython.initializedcheck(False)
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
         #: Neuron inputs
         cdef double _sum = 0.0
@@ -106,7 +106,7 @@ cdef class LeakyIntegrator(Neuron):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         self.nout.c_set_value(1. / (1. + exp(-self.D * (
             self.m.c_get_value() + self.bias))))
@@ -115,6 +115,6 @@ cdef class LeakyIntegrator(Neuron):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
+    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight):
         """ Evaluate neuron inputs."""
         return _neuron_out*_weight/self.tau
