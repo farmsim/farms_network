@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+import pprint
+from IPython import embed
 from matplotlib import pyplot as plt
 from farms_network_generator.network_generator import NetworkGenerator
 import timeit
 import numpy as np
 import time
 import pstats
+import farms_pylog as pylog
 import cProfile
 setup = """
 from farms_dae_generator.dae_generator import DaeGenerator
@@ -24,24 +27,35 @@ d.initialize_dae()
 # print(timeit.timeit(stmt="n1.ode_rhs();n2.ode_rhs()", setup=setup, number=1))
 
 
-neurons = NetworkGenerator('./four_neuron_cpg.graphml')
-x0 = np.array([1, 0.5, 1, 0.5], dtype=np.float64)
-neurons.setup_integrator(x0, integrator='dopri5',
+neurons = NetworkGenerator('./auto_gen_danner_current_openloop_opti.graphml')
+
+neurons.initialize_dae()
+pylog.warning('X0 Shape {}'.format(np.shape(neurons.dae.xdot.values)))
+
+pylog.debug(np.array(neurons.dae.x.values))
+
+neurons.setup_integrator(neurons.dae.x.values, integrator='lsoda',
                          atol=1e-3,
                          rtol=1e-3)
-print(neurons.dae.x.log)
-N = 100000
+
+pylog.debug("Number of states {}".format(len(neurons.dae.x.values)))
+pylog.debug("Number of state derivatives {}".format(
+    len(neurons.dae.xdot.values)))
+pylog.debug("Number of parameters {}".format(len(neurons.dae.p.values)))
+pylog.debug("Number of inputs {}".format(len(neurons.dae.u.values)))
+pylog.debug("Number of outputs {}".format(len(neurons.dae.y.values)))
+
+N = 6000
 # neurons.dae.u.values = np.array([1.0, 0.5], dtype=np.float)
 # print("Time {} : state {}".format(j, neurons.dae.y.values))
 
-u = np.ones((4,))*np.sin(2*3.14*1.*0.01)
+u = np.ones(np.shape(neurons.dae.u.values))
 
 
 def main():
     start = time.time()
     for j in range(0, N):
-        u = np.zeros((4,))*np.sin(2*3.14*1.*j*0.001)
-        neurons.step(u)
+        neurons.step(u*j/N)
     end = time.time()
     print('TIME {}'.format(end-start))
 
@@ -56,22 +70,10 @@ pstat = pstats.Stats("Profile.prof")
 pstat.sort_stats('time').print_stats(30)
 pstat.sort_stats('cumtime').print_stats(30)
 
-
-# for j in range(0, N):
-#     neurons.step(u)
-print('Parameters {}'.format(neurons.dae.p.log))
-print('Constants {}'.format(neurons.dae.c.log))
-
 data_x = neurons.dae.x.log
 plt.title('X')
 plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-# plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :], 'o', markersize=0.5)
-plt.grid(True)
-
-plt.figure(2)
-plt.title('XDOT')
-data_xdot = neurons.dae.xdot.log
-plt.plot(np.linspace(0, N*0.001, N), data_xdot[:N, :])
+plt.legend(tuple([str(key) for key in range(len(neurons.dae.x.values))]))
 plt.grid(True)
 
 plt.figure(3)

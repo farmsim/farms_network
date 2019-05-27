@@ -1,3 +1,4 @@
+from libc.stdio cimport printf
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 import numpy as np
 from libc.math cimport exp as cexp
@@ -69,6 +70,7 @@ cdef class LIFDanner(Neuron):
         self.alpha = dae.add_u('alpha_' + self.n_id, 0.22)
 
         #: Neuron inputs
+        self.num_inputs = num_inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
@@ -163,7 +165,7 @@ cdef class LIFDanner(Neuron):
             _n_out = 1.
         elif self.v_thr <= _v < self.v_max:
             _n_out = (_v - self.v_thr) / (self.v_max - self.v_thr)
-        else:
+        elif _v < self.v_thr:
             _n_out = 0.0
         #: Set the neuron output
         self.nout.c_set_value(_n_out)
@@ -178,9 +180,7 @@ cdef class LIFDanner(Neuron):
 
         if _weight >= 0.0:
             #: Excitatory Synapse
-            return -(
-                self.g_syn_e*cfabs(_weight)*_neuron_out*(_v - self.e_syn_e))
+            return self.g_syn_e*cfabs(_weight)*_neuron_out*(_v - self.e_syn_e)
         elif _weight < 0.0:
             #: Inhibitory Synapse
-            return -(
-                self.g_syn_i*cfabs(_weight)*_neuron_out*(_v - self.e_syn_i))
+            return self.g_syn_i*cfabs(_weight)*_neuron_out*(_v - self.e_syn_i)

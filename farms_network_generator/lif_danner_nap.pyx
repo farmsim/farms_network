@@ -13,7 +13,7 @@ cdef class LIFDannerNap(Neuron):
 
     def __init__(self, n_id, dae, num_inputs, **kwargs):
         super(
-            LIFDannerNap, self).__init__(neuron_type='lif_danner_nap')
+            LIFDannerNap, self).__init__('lif_danner_nap')
 
         self.n_id = n_id  #: Unique neuron identifier
 
@@ -95,6 +95,7 @@ cdef class LIFDannerNap(Neuron):
         self.alpha = dae.add_u('alpha_' + self.n_id, 0.22)
 
         #: Neuron inputs
+        self.num_inputs = num_inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
@@ -222,9 +223,9 @@ cdef class LIFDannerNap(Neuron):
 
         if _weight >= 0.0:
             #: Excitatory Synapse
-            return -(
+            return (
                 self.g_syn_e*cfabs(_weight)*_neuron_out*(_v - self.e_syn_e))
         elif _weight < 0.0:
             #: Inhibitory Synapse
-            return -(
+            return (
                 self.g_syn_i*cfabs(_weight)*_neuron_out*(_v - self.e_syn_i))

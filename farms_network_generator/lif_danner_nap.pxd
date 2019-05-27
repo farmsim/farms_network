@@ -4,8 +4,8 @@ from farms_dae_generator.parameters cimport Param
 from farms_network_generator.neuron cimport Neuron
 
 cdef struct DannerNapNeuronInput:
-    unsigned int neuron_idx
-    unsigned int weight_idx
+    int neuron_idx
+    int weight_idx
 
 cdef class LIFDannerNap(Neuron):
     cdef:
