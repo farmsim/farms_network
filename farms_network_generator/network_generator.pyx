@@ -34,7 +34,6 @@ cdef class NetworkGenerator(object):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
-        self.c_neurons = np.ndarray((4,), dtype=LeakyIntegrator)
         self.dae = DaeGenerator()
 
         self.x = <Parameters > self.dae.x
@@ -49,9 +48,13 @@ cdef class NetworkGenerator(object):
         self.fin = {}
         self.integrator = {}
 
-        #: METHODS
+        #:  Read the graph
         self.graph = self.nx.read_graph(graph_file_path)
-        print(graph_file_path)
+
+        #: Get the number of neurons in the model
+        self.num_neurons = len(self.graph)
+
+        self.c_neurons = np.ndarray((self.num_neurons,), dtype=Neuron)
         self.generate_neurons()
         self.generate_network()
 
@@ -110,16 +113,15 @@ cdef class NetworkGenerator(object):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(False)
-    cdef void c_step(self, real[:] inputs):
+    cdef void c_step(self, double[:] inputs):
         """Step ode system. """
         cdef double time = self.integrator.t
         cdef double dt = 0.001
-        self.dae.u.values = inputs
-        self.dae.x.c_set_values(self.integrator.integrate(time+dt))
-        self.integrator.set_initial_value(self.integrator.y,
-                                          self.integrator.t)
-        assert(self.integrator.successful())
+        self.u.c_set_values(inputs)
+        self.x.c_set_values(self.integrator.integrate(time+dt))
+        # assert(self.integrator.successful())
         self.x.c_update_log()
+        self.xdot.c_update_log()
         self.p.c_update_log()
         self.c.c_update_log()
         self.u.c_update_log()
@@ -130,20 +132,30 @@ cdef class NetworkGenerator(object):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(False)
-    cdef c_ode(self, real t, real[:] state):
-        self.dae.x.values = state
+    @cython.initializedcheck(False)
+    cdef double[:] c_ode(self, double t, double[:] state):
+        self.x.c_set_values(state)
         cdef unsigned int j
-        cdef double[:] t1 = np.ndarray((2,), dtype=np.float64)
-        cdef double[:] t2 = np.ndarray((2,), dtype=np.float64)
-        for j in range(4):
-            print(self.c_neurons[j], type(self.c_neurons[j]))
+        cdef Neuron n
+
+        for j in range(self.num_neurons):
+            n = self.c_neurons[j]
+            n.c_output()
+
+        for j in range(self.num_neurons):
+            n = self.c_neurons[j]
+            n.c_ode_rhs(self.y.c_get_values(),
+                        self.p.c_get_values())
+
+        return self.xdot.c_get_values()
 
     @cython.profile(True)
     def ode(self, t, state):
-        self.c_ode(t, state)
-        return self.dae.y.values
+        return self.c_ode(t, state)
 
     @cython.profile(True)
     def step(self, u):
         """Step integrator."""
+        self.integrator.set_initial_value(self.integrator.y,
+                                          self.integrator.t)
         self.c_step(u)
