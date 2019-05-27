@@ -19,6 +19,11 @@ extensions = [
               ["farms_network_generator/neuron.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-O3'],
+              extra_link_args=['-O3']),
+    Extension("farms_network_generator.lif_danner_nap",
+              ["farms_network_generator/lif_danner_nap.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-O3'],
               extra_link_args=['-O3'])
 ]
 
