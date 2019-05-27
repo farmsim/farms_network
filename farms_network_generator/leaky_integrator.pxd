@@ -4,8 +4,8 @@ from farms_dae_generator.parameters cimport Param
 from farms_network_generator.neuron cimport Neuron
 
 cdef struct LeakyIntegratorNeuronInput:
-    int neuron_idx
-    int weight_idx
+    unsigned int neuron_idx
+    unsigned int weight_idx
 
 cdef class LeakyIntegrator(Neuron):
     cdef:
@@ -15,9 +15,9 @@ cdef class LeakyIntegrator(Neuron):
 
         #: parameters
         #: constants
-        Param tau
-        Param bias
-        Param D
+        double tau
+        double bias
+        double D
 
         #: states
         Param m

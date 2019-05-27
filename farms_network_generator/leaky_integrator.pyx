@@ -1,5 +1,5 @@
-from libc.math cimport exp
 """Leaky Integrator Neuron."""
+from libc.math cimport exp
 import numpy as np
 cimport numpy as cnp
 cimport cython
@@ -21,13 +21,13 @@ cdef class LeakyIntegrator(Neuron):
         self.n_id = n_id
 
         #: Initialize parameters
-        self.tau = dae.add_c('tau_' + self.n_id,
-                             kwargs.get('tau', 0.1))
-        self.bias = dae.add_c('bias_' + self.n_id,
-                              kwargs.get('bias', -2.75))
+        (self.tau, _) = dae.add_c('tau_' + self.n_id,
+                                  kwargs.get('tau', 0.1))
+        (self.bias, _) = dae.add_c('bias_' + self.n_id,
+                                   kwargs.get('bias', -2.75))
         #: pylint: disable=invalid-name
-        self.D = dae.add_c('D_' + self.n_id,
-                           kwargs.get('D', 1.0))
+        (self.D, _) = dae.add_c('D_' + self.n_id,
+                                kwargs.get('D', 1.0))
 
         #: Initialize states
         self.m = dae.add_x('m_' + self.n_id,
@@ -98,8 +98,9 @@ cdef class LeakyIntegrator(Neuron):
             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
             _weight = _p[self.neuron_inputs[j].weight_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
+
         self.mdot.c_set_value((
-            (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau.c_get_value()) + _sum)
+            (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau) + _sum)
 
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
@@ -107,8 +108,8 @@ cdef class LeakyIntegrator(Neuron):
     @cython.cdivision(True)
     cdef void c_output(self) nogil:
         """ Neuron output. """
-        self.nout.c_set_value(1. / (1. + exp(-self.D.c_get_value() * (
-            self.m.c_get_value() + self.bias.c_get_value()))))
+        self.nout.c_set_value(1. / (1. + exp(-self.D * (
+            self.m.c_get_value() + self.bias))))
 
     @cython.boundscheck(False)  # Deactivate bounds checking
     @cython.wraparound(False)   # Deactivate negative indexing.
@@ -116,4 +117,4 @@ cdef class LeakyIntegrator(Neuron):
     @cython.cdivision(True)
     cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
         """ Evaluate neuron inputs."""
-        return _neuron_out*_weight/self.tau.c_get_value()
+        return _neuron_out*_weight/self.tau
