@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import pprint
+from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
 from farms_network_generator.network_generator import NetworkGenerator
@@ -34,9 +35,22 @@ pylog.warning('X0 Shape {}'.format(np.shape(neurons.dae.xdot.values)))
 
 pylog.debug(np.array(neurons.dae.x.values))
 
-neurons.setup_integrator(neurons.dae.x.values, integrator='lsoda',
-                         atol=1e-3,
-                         rtol=1e-3)
+
+def setup_integrator(x0, integrator='dop853', atol=1e-6,
+                     rtol=1e-6, method='bdf'):
+    """Setup system."""
+    integrator = ode(neurons.ode).set_integrator(
+        integrator,
+        method=method,
+        atol=atol,
+        rtol=rtol)
+    integrator.set_initial_value(x0, 0.0)
+    return integrator
+
+
+integrator = setup_integrator(neurons.dae.x.values,
+                              integrator='vode', atol=1e-3,
+                              rtol=1e-3)
 
 pylog.debug("Number of states {}".format(len(neurons.dae.x.values)))
 pylog.debug("Number of state derivatives {}".format(
@@ -55,7 +69,11 @@ u = np.ones(np.shape(neurons.dae.u.values))
 def main():
     start = time.time()
     for j in range(0, N):
-        neurons.step(u*j/N)
+        neurons.dae.u.values = u*j/N
+        integrator.set_initial_value(integrator.y,
+                                     integrator.t)
+        neurons.dae.x.values = integrator.integrate(integrator.t+1)
+        neurons.dae.update_log()
     end = time.time()
     print('TIME {}'.format(end-start))
 
@@ -67,8 +85,8 @@ def main():
 cProfile.runctx("main()",
                 globals(), locals(), "Profile.prof")
 pstat = pstats.Stats("Profile.prof")
-pstat.sort_stats('time').print_stats(30)
-pstat.sort_stats('cumtime').print_stats(30)
+pstat.sort_stats('time').print_stats()
+pstat.sort_stats('cumtime').print_stats()
 
 data_x = neurons.dae.x.log
 plt.title('X')
