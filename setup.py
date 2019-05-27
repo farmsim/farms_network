@@ -1,6 +1,26 @@
 import setuptools
 from Cython.Build import cythonize
+from distutils.extension import Extension
 import numpy
+
+
+extensions = [
+    Extension("farms_network_generator.network_generator",
+              ["farms_network_generator/network_generator.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-O3'],
+              extra_link_args=['-O3']),
+    Extension("farms_network_generator.leaky_integrator",
+              ["farms_network_generator/leaky_integrator.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-O3'],
+              extra_link_args=['-O3']),
+    Extension("farms_network_generator.neuron",
+              ["farms_network_generator/neuron.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-O3'],
+              extra_link_args=['-O3'])
+]
 
 setuptools.setup(
     name='farms_network_generator',
@@ -24,6 +44,4 @@ setuptools.setup(
         'pydot'
     ],
     zip_safe=False,
-    ext_modules=cythonize("farms_network_generator/*.pyx"),
-    include_dirs=[numpy.get_include()]
-)
+    ext_modules=cythonize(extensions, annotate=True))
