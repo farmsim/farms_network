@@ -97,10 +97,12 @@ cdef class NetworkGenerator(object):
                     j, self.neurons[pred],
                     self.dae, **self.graph[pred][name])
 
+    def initialize_dae(self):
+        self.dae.initialize_dae()
+
     def setup_integrator(self, x0, integrator='dopri853', atol=1e-6,
                          rtol=1e-6, method='adams'):
         """Setup system."""
-        self.dae.initialize_dae()
         self.integrator = ode(self.ode).set_integrator(
             integrator,
             method=method,
@@ -115,10 +117,10 @@ cdef class NetworkGenerator(object):
     @cython.cdivision(False)
     cdef void c_step(self, double[:] inputs):
         """Step ode system. """
-        cdef double time = self.integrator.t
-        cdef double dt = 0.001
+        cdef double dt = 1
         self.u.c_set_values(inputs)
-        self.x.c_set_values(self.integrator.integrate(time+dt))
+        self.x.c_set_values(self.integrator.integrate(
+            self.integrator.t+dt))
         # assert(self.integrator.successful())
         self.x.c_update_log()
         self.xdot.c_update_log()
@@ -150,6 +152,11 @@ cdef class NetworkGenerator(object):
         return self.xdot.c_get_values()
 
     @cython.profile(True)
+    @cython.boundscheck(False)  # Deactivate bounds checking
+    @cython.wraparound(False)   # Deactivate negative indexing.
+    @cython.nonecheck(False)
+    @cython.cdivision(False)
+    @cython.initializedcheck(False)
     def ode(self, t, state):
         return self.c_ode(t, state)
 
