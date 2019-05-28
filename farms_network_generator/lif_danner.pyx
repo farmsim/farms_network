@@ -1,5 +1,5 @@
-from libc.stdio cimport printf
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
+from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
 from libc.math cimport cosh as ccosh
@@ -118,7 +118,6 @@ cdef class LIFDanner(Neuron):
     @cython.nonecheck(False)
     @cython.cdivision(True)
     @cython.initializedcheck(False)
-    @profile
     cdef void c_ode_rhs(self, double[:] _y, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
