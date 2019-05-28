@@ -10,46 +10,45 @@ extensions = [
     Extension("farms_network_generator.network_generator",
               ["farms_network_generator/network_generator.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.leaky_integrator",
               ["farms_network_generator/leaky_integrator.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.neuron",
               ["farms_network_generator/neuron.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.lif_danner_nap",
               ["farms_network_generator/lif_danner_nap.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.lif_danner",
               ["farms_network_generator/lif_danner.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.lif_daun_interneuron",
               ["farms_network_generator/lif_daun_interneuron.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')]),
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network_generator.hh_daun_motorneuron",
               ["farms_network_generator/hh_daun_motorneuron.pyx"],
               include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math'],
-              extra_link_args=['-O3'],
-              define_macros=[('CYTHON_TRACE', '1')])
-]
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              )]
 
 directive_defaults['linetrace'] = True,
 directive_defaults['binding'] = True

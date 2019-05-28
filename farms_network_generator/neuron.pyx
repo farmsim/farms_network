@@ -2,7 +2,7 @@ import farms_pylog as pylog
 pylog.set_level('error')
 
 
-cdef class Neuron(object):
+cdef class Neuron:
     """Base neuron class.
     """
 
@@ -61,8 +61,8 @@ cdef class Neuron(object):
         self._model_type = value
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p):
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         pass
 
-    cdef void c_output(self):
+    cdef void c_output(self) nogil:
         pass

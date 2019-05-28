@@ -143,7 +143,7 @@ cdef class LIFDannerNap(Neuron):
     @cython.nonecheck(False)
     @cython.cdivision(True)
     @cython.initializedcheck(False)
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p):
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
         #: States
@@ -200,7 +200,7 @@ cdef class LIFDannerNap(Neuron):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef void c_output(self):
+    cdef void c_output(self) nogil:
         """ Neuron output. """
         cdef double _v = self.v.c_get_value()
         cdef double _n_out
@@ -219,7 +219,7 @@ cdef class LIFDannerNap(Neuron):
     @cython.wraparound(False)   # Deactivate negative indexing.
     @cython.nonecheck(False)
     @cython.cdivision(True)
-    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight):
+    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
         """ Evaluate neuron inputs."""
         cdef double _v = self.v.c_get_value()
 
