@@ -25,7 +25,7 @@ cdef class LIFDaunInterneuron(Neuron):
         double gamma_h
         double v_t_h
         double eps
-        double gamme_t
+        double gamma_t
         double v_h_m
         double gamma_m
         double g_leak

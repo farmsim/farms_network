@@ -64,25 +64,25 @@ cdef class HHDaunMotorneuron(Neuron):
         double c_m
 
         #: State Variables
-        double v
-        double m_na
-        double h_na
-        double m_k
-        double m_q
+        Param v
+        Param m_na
+        Param h_na
+        Param m_k
+        Param m_q
 
         #: ODE
-        double vdot
-        double m_na_dot
-        double h_na_dot
-        double m_k_dot
-        double m_q_dot
+        Param vdot
+        Param m_na_dot
+        Param h_na_dot
+        Param m_k_dot
+        Param m_q_dot
 
         #: External Input
-        double g_app
-        double e_app
+        Param g_app
+        Param e_app
 
         #: Output
-        double nout
+        Param nout
 
         #: neuron connenctions
         DaunMotorNeuronInput[:] neuron_inputs

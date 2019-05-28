@@ -65,7 +65,7 @@ cdef class LIFDaunInterneuron(Neuron):
 
         #: ODE
         self.vdot = dae.add_xdot('vdot_' + self.n_id, 0.0)
-        self.hdot = dae.add_hdot('hdot_' + self.n_id, 0.0)
+        self.hdot = dae.add_xdot('hdot_' + self.n_id, 0.0)
 
         #: External Input
         self.g_app = dae.add_u('g_app_' + self.n_id,
@@ -110,10 +110,10 @@ cdef class LIFDaunInterneuron(Neuron):
                           kwargs.pop('v_h_s', 0.0))
 
         #: Get neuron parameter indices
-        g_syn_idx = dae.add_p('g_syn_' + self.n_id)
-        e_syn_idx = dae.add_p('e_syn_' + self.n_id)
-        gamma_s_idx = dae.add_p('gamma_s_' + self.n_id)
-        v_h_s_idx = dae.add_p('v_h_s_' + self.n_id)
+        g_syn_idx = dae.p.get_idx('g_syn_' + self.n_id)
+        e_syn_idx = dae.p.get_idx('e_syn_' + self.n_id)
+        gamma_s_idx = dae.p.get_idx('gamma_s_' + self.n_id)
+        v_h_s_idx = dae.p.get_idx('v_h_s_' + self.n_id)
 
         #: Add the indices to the struct
         n.neuron_idx = neuron_idx

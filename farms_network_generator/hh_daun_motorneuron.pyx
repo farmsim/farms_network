@@ -97,12 +97,6 @@ cdef class HHDaunMotorneuron(Neuron):
         (self.gamma_s, _) = dae.add_c('gamma_s' + self.n_id,
                                       kwargs.get('gamma_s', -0.42))
 
-        #: Parameters of Iapp
-        (self.g_app, _) = dae.add_c('g_app' + self.n_id,
-                                    kwargs.get('g_app', 0.19))
-        (self.e_app, _) = dae.add_c('e_app' + self.n_id,
-                                    kwargs.get('e_app', 0.0))
-
         #: Other constants
         (self.c_m, _) = dae.add_c('c_m' + self.n_id,
                                   kwargs.get('c_m', 1.0))
@@ -130,7 +124,7 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: External Input
         self.g_app = dae.add_u('g_app_' + self.n_id,
-                               kwargs.get('g_app', 0.0))
+                               kwargs.get('g_app', 0.19))
         self.e_app = dae.add_u('e_app_' + self.n_id,
                                kwargs.get('e_app', 0.0))
 
@@ -171,10 +165,10 @@ cdef class HHDaunMotorneuron(Neuron):
                           kwargs.pop('v_h_s', 0.0))
 
         #: Get neuron parameter indices
-        g_syn_idx = dae.add_p('g_syn_' + self.n_id)
-        e_syn_idx = dae.add_p('e_syn_' + self.n_id)
-        gamma_s_idx = dae.add_p('gamma_s_' + self.n_id)
-        v_h_s_idx = dae.add_p('v_h_s_' + self.n_id)
+        g_syn_idx = dae.p.get_idx('g_syn_' + self.n_id)
+        e_syn_idx = dae.p.get_idx('e_syn_' + self.n_id)
+        gamma_s_idx = dae.p.get_idx('gamma_s_' + self.n_id)
+        v_h_s_idx = dae.p.get_idx('v_h_s_' + self.n_id)
 
         #: Add the indices to the struct
         n.neuron_idx = neuron_idx
@@ -235,7 +229,7 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: Inap
         #: pylint: disable=no-member
-        cdef double i_nap = self.g_nap * self.m_na * self.h_na * (
+        cdef double i_nap = self.g_nap * _m_na * _h_na * (
             _v - self.e_nap)
 
         #: alpha_m_K
@@ -247,7 +241,7 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: Ik
         #: pylint: disable=no-member
-        cdef double i_k = self.g_k * self.m_k * (_v - self.e_k)
+        cdef double i_k = self.g_k * _m_k * (_v - self.e_k)
 
         #: m_q_inf
         cdef double m_q_inf = 1./(1 + cexp(self.gamma_q * (_v - self.v_m_q)))
@@ -262,19 +256,20 @@ cdef class HHDaunMotorneuron(Neuron):
         cdef double i_leak = self.g_leak * (_v - self.e_leak)
 
         #: Iapp
-        cdef double i_app = self.g_app * (_v - self.e_app)
+        cdef double i_app = self.g_app.c_get_value() * (
+            _v - self.e_app.c_get_value())
 
         #: m_na_dot
-        self.m_na_dot.c_set_value(a_m_nap*(1 - self.m_na) - b_m_nap*self.m_na)
+        self.m_na_dot.c_set_value(a_m_nap*(1 - _m_na) - b_m_nap*_m_na)
 
         #: h_na_dot
-        self.h_na_dot.c_set_value(a_h_nap*(1 - self.h_na) - b_h_nap*self.h_na)
+        self.h_na_dot.c_set_value(a_h_nap*(1 - _h_na) - b_h_nap*_h_na)
 
         #: m_k_dot
-        self.m_k_dot.c_set_value(a_m_k*(1 - self.m_k) - b_m_k*self.m_k)
+        self.m_k_dot.c_set_value(a_m_k*(1 - _m_k) - b_m_k*_m_k)
 
         #: m_q_dot
-        self.m_q_dot.c_set_value(a_m_q * (1 - self.m_q) - b_m_q * self.m_q)
+        self.m_q_dot.c_set_value(a_m_q * (1 - _m_q) - b_m_q * _m_q)
 
         #: Iq
         #: pylint: disable=no-member
@@ -302,7 +297,7 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: dV
         self.vdot.c_set_value((
-            -i_nap - i_k - i_q - i_leak - i_app - _sum)/self.c_m.sym)
+            -i_nap - i_k - i_q - i_leak - i_app - _sum)/self.c_m)
 
     @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking

@@ -28,7 +28,7 @@ d.initialize_dae()
 # print(timeit.timeit(stmt="n1.ode_rhs();n2.ode_rhs()", setup=setup, number=1))
 
 
-neurons = NetworkGenerator('./auto_gen_danner_current_openloop_opti.graphml')
+neurons = NetworkGenerator('./auto_gen_daun_cpg.graphml')
 
 neurons.initialize_dae()
 pylog.warning('X0 Shape {}'.format(np.shape(neurons.dae.xdot.values)))
@@ -36,7 +36,7 @@ pylog.warning('X0 Shape {}'.format(np.shape(neurons.dae.xdot.values)))
 pylog.debug(np.array(neurons.dae.x.values))
 
 
-def setup_integrator(x0, integrator='dop853', atol=1e-6,
+def setup_integrator(x0, integrator='dopri5', atol=1e-6,
                      rtol=1e-6, method='bdf'):
     """Setup system."""
     integrator = ode(neurons.ode).set_integrator(
@@ -49,7 +49,7 @@ def setup_integrator(x0, integrator='dop853', atol=1e-6,
 
 
 integrator = setup_integrator(neurons.dae.x.values,
-                              integrator='lsoda', atol=1e-3,
+                              integrator='dopri5', atol=1e-3,
                               rtol=1e-3)
 
 pylog.debug("Number of states {}".format(len(neurons.dae.x.values)))
@@ -59,7 +59,7 @@ pylog.debug("Number of parameters {}".format(len(neurons.dae.p.values)))
 pylog.debug("Number of inputs {}".format(len(neurons.dae.u.values)))
 pylog.debug("Number of outputs {}".format(len(neurons.dae.y.values)))
 
-N = 6000
+N = 1000
 # neurons.dae.u.values = np.array([1.0, 0.5], dtype=np.float)
 # print("Time {} : state {}".format(j, neurons.dae.y.values))
 
@@ -69,7 +69,7 @@ u = np.ones(np.shape(neurons.dae.u.values))
 def main():
     start = time.time()
     for j in range(0, N):
-        neurons.dae.u.values = u*j/N
+        # neurons.dae.u.values = u*j/N
         integrator.set_initial_value(integrator.y,
                                      integrator.t)
         neurons.dae.x.values = integrator.integrate(integrator.t+1)
@@ -94,9 +94,9 @@ pstat.sort_stats('cumtime').print_stats()
 # plt.legend(tuple([str(key) for key in range(len(neurons.dae.x.values))]))
 # plt.grid(True)
 
-# plt.figure(3)
-# plt.title('Y')
-# data_y = neurons.dae.y.log
-# plt.plot(np.linspace(0, N*0.001, N), data_y[:N, :])
-# plt.grid(True)
-# plt.show()
+plt.figure(3)
+plt.title('Y')
+data_y = neurons.dae.y.log
+plt.plot(np.linspace(0, N*0.001, N), data_y[:N, 1:20])
+plt.grid(True)
+plt.show()
