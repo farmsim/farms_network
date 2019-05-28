@@ -1,0 +1,354 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key attr.name="gamma_s" attr.type="double" for="edge" id="d20"/>
+<key attr.name="weight" attr.type="double" for="edge" id="d19"/>
+<key attr.name="e_syn" attr.type="double" for="edge" id="d18"/>
+<key attr.name="g_syn" attr.type="double" for="edge" id="d17"/>
+<key attr.name="v_h_s" attr.type="double" for="edge" id="d16"/>
+<key attr.name="m_q0" attr.type="double" for="node" id="d15"/>
+<key attr.name="e_app" attr.type="double" for="node" id="d14"/>
+<key attr.name="model" attr.type="string" for="node" id="d13"/>
+<key attr.name="x" attr.type="double" for="node" id="d12"/>
+<key attr.name="y" attr.type="double" for="node" id="d11"/>
+<key attr.name="g_app" attr.type="double" for="node" id="d10"/>
+<key attr.name="v0" attr.type="double" for="node" id="d9"/>
+<key attr.name="eps" attr.type="double" for="node" id="d8"/>
+<key attr.name="mm_k0" attr.type="double" for="node" id="d7"/>
+<key attr.name="m_na0" attr.type="double" for="node" id="d6"/>
+<key attr.name="g_leak" attr.type="double" for="node" id="d5"/>
+<key attr.name="h0" attr.type="double" for="node" id="d4"/>
+<key attr.name="c_m" attr.type="double" for="node" id="d3"/>
+<key attr.name="color" attr.type="string" for="node" id="d2"/>
+<key attr.name="h_na0" attr.type="double" for="node" id="d1"/>
+<key attr.name="name" attr.type="string" for="graph" id="d0"/>
+<graph edgedefault="directed"><data key="d0">LD</data>
+<node id="PR_MN2">
+  <data key="d1">0.0</data>
+  <data key="d2">c</data>
+  <data key="d6">0.9</data>
+  <data key="d7">0.0</data>
+  <data key="d9">-65.0</data>
+  <data key="d10">0.19</data>
+  <data key="d11">9.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">hh_daun_motorneuron</data>
+  <data key="d14">0.0</data>
+  <data key="d15">0.0</data>
+</node>
+<node id="LD_IN1">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">-3.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="LD_IN2">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">-3.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="PR_MN1">
+  <data key="d1">0.0</data>
+  <data key="d2">c</data>
+  <data key="d6">0.9</data>
+  <data key="d7">0.0</data>
+  <data key="d9">-65.0</data>
+  <data key="d10">0.19</data>
+  <data key="d11">9.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">hh_daun_motorneuron</data>
+  <data key="d14">0.0</data>
+  <data key="d15">0.0</data>
+</node>
+<node id="LD_IN4">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">3.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="PR_C1">
+  <data key="d2">b</data>
+  <data key="d4">0.8</data>
+  <data key="d3">0.9153</data>
+  <data key="d8">0.0023</data>
+  <data key="d9">-70.0</data>
+  <data key="d10">0.2</data>
+  <data key="d11">12.0</data>
+  <data key="d12">-1.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">0.0</data>
+</node>
+<node id="PR_IN4">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">15.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="PR_IN2">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">9.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="PR_IN3">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">15.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="LD_C1">
+  <data key="d2">b</data>
+  <data key="d4">0.8</data>
+  <data key="d3">0.9153</data>
+  <data key="d8">0.0023</data>
+  <data key="d9">-70.0</data>
+  <data key="d10">0.2</data>
+  <data key="d11">0.0</data>
+  <data key="d12">-1.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">0.0</data>
+</node>
+<node id="PR_IN1">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">9.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="LD_C2">
+  <data key="d2">b</data>
+  <data key="d4">0.1</data>
+  <data key="d3">0.9153</data>
+  <data key="d8">0.0023</data>
+  <data key="d9">-10.0</data>
+  <data key="d10">0.2</data>
+  <data key="d11">0.0</data>
+  <data key="d12">1.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">0.0</data>
+</node>
+<node id="LD_IN3">
+  <data key="d5">2.8</data>
+  <data key="d2">y</data>
+  <data key="d4">0.791</data>
+  <data key="d3">0.21</data>
+  <data key="d8">0.01</data>
+  <data key="d9">-63.46</data>
+  <data key="d10">1.6</data>
+  <data key="d11">3.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">-80.0</data>
+</node>
+<node id="LD_MN2">
+  <data key="d1">0.0</data>
+  <data key="d2">c</data>
+  <data key="d6">0.9</data>
+  <data key="d7">0.0</data>
+  <data key="d9">-65.0</data>
+  <data key="d10">0.19</data>
+  <data key="d11">9.0</data>
+  <data key="d12">3.0</data>
+  <data key="d13">hh_daun_motorneuron</data>
+  <data key="d14">0.0</data>
+  <data key="d15">0.0</data>
+</node>
+<node id="LD_MN1">
+  <data key="d1">0.0</data>
+  <data key="d2">c</data>
+  <data key="d6">0.9</data>
+  <data key="d7">0.0</data>
+  <data key="d9">-65.0</data>
+  <data key="d10">0.19</data>
+  <data key="d11">9.0</data>
+  <data key="d12">-3.0</data>
+  <data key="d13">hh_daun_motorneuron</data>
+  <data key="d14">0.0</data>
+  <data key="d15">0.0</data>
+</node>
+<node id="PR_C2">
+  <data key="d2">b</data>
+  <data key="d4">0.1</data>
+  <data key="d3">0.9153</data>
+  <data key="d8">0.0023</data>
+  <data key="d9">-10.0</data>
+  <data key="d10">0.2</data>
+  <data key="d11">12.0</data>
+  <data key="d12">1.0</data>
+  <data key="d13">lif_daun_interneuron</data>
+  <data key="d14">0.0</data>
+</node>
+<edge source="LD_IN1" target="LD_MN1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.25</data>
+  <data key="d18">-80.0</data>
+  <data key="d20">-0.1</data>
+  <data key="d19">-1.0</data>
+</edge>
+<edge source="LD_IN2" target="LD_MN2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.25</data>
+  <data key="d18">-80.0</data>
+  <data key="d20">-0.1</data>
+  <data key="d19">-1.0</data>
+</edge>
+<edge source="LD_IN4" target="LD_IN3">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.4</data>
+  <data key="d18">0.0</data>
+  <data key="d19">1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="LD_IN4" target="LD_C2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.05</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_C1" target="PR_C2">
+  <data key="d16">-43.0</data>
+  <data key="d17">1.0</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_C1" target="PR_IN1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.5</data>
+  <data key="d18">0.0</data>
+  <data key="d20">-10.0</data>
+  <data key="d19">1.0</data>
+</edge>
+<edge source="PR_IN4" target="PR_IN3">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.4</data>
+  <data key="d18">0.0</data>
+  <data key="d19">1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_IN4" target="PR_C2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.05</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_IN2" target="PR_MN2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.25</data>
+  <data key="d18">-80.0</data>
+  <data key="d20">-0.1</data>
+  <data key="d19">-1.0</data>
+</edge>
+<edge source="PR_IN3" target="PR_C1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.1</data>
+  <data key="d18">0.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">0.42</data>
+</edge>
+<edge source="LD_C1" target="LD_IN1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.5</data>
+  <data key="d18">0.0</data>
+  <data key="d20">-10.0</data>
+  <data key="d19">1.0</data>
+</edge>
+<edge source="LD_C1" target="LD_C2">
+  <data key="d16">-43.0</data>
+  <data key="d17">1.0</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_IN1" target="PR_MN1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.25</data>
+  <data key="d18">-80.0</data>
+  <data key="d20">-0.1</data>
+  <data key="d19">-1.0</data>
+</edge>
+<edge source="LD_C2" target="LD_IN2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.5</data>
+  <data key="d18">0.0</data>
+  <data key="d20">-10.0</data>
+  <data key="d19">1.0</data>
+</edge>
+<edge source="LD_C2" target="LD_C1">
+  <data key="d16">-43.0</data>
+  <data key="d17">1.0</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="LD_IN3" target="LD_C1">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.1</data>
+  <data key="d18">0.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">0.42</data>
+</edge>
+<edge source="PR_C2" target="PR_C1">
+  <data key="d16">-43.0</data>
+  <data key="d17">1.0</data>
+  <data key="d18">-80.0</data>
+  <data key="d19">-1.0</data>
+  <data key="d20">-10.0</data>
+</edge>
+<edge source="PR_C2" target="PR_IN2">
+  <data key="d16">-43.0</data>
+  <data key="d17">0.5</data>
+  <data key="d18">0.0</data>
+  <data key="d20">-10.0</data>
+  <data key="d19">1.0</data>
+</edge>
+</graph></graphml>
