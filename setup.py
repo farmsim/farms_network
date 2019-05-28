@@ -42,6 +42,12 @@ extensions = [
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math'],
               extra_link_args=['-O3'],
+              define_macros=[('CYTHON_TRACE', '1')]),
+    Extension("farms_network_generator.hh_daun_motorneuron",
+              ["farms_network_generator/hh_daun_motorneuron.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-ffast-math'],
+              extra_link_args=['-O3'],
               define_macros=[('CYTHON_TRACE', '1')])
 ]
 
