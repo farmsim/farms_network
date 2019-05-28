@@ -8,5 +8,5 @@ cdef class Neuron(object):
         str _model_type
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _p)
+        void c_output(self)
