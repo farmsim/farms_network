@@ -1,10 +1,20 @@
+# cython: cdivision=True
+# cython: language_level=3
+# cython: infer_types=True
+# cython: profile=False
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: nonecheck=False
+# cython: initializedcheck=False
+# cython: overflowcheck=False
+
+
 """ Generate neural network. """
 from farms_network_generator.neuron cimport Neuron
-from networkx_model import NetworkXModel
+from farms_network_generator.networkx_model import NetworkXModel
 from farms_dae_generator.parameters cimport Parameters
 from cython.parallel import prange
 from farms_network_generator.leaky_integrator cimport LeakyIntegrator
-import itertools
 import farms_pylog as pylog
 from farms_network_generator.neuron_factory import NeuronFactory
 from collections import OrderedDict
@@ -95,12 +105,11 @@ cdef class NetworkGenerator(object):
                     j, self.neurons[pred],
                     self.dae, **self.graph[pred][name])
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.initializedcheck(False)
-    @cython.linetrace(True)
+    def ode(self, t, cnp.ndarray[double, ndim=1] state):
+        return self.c_ode(t, state)
+
+    #################### C-FUNCTIONS ####################
+
     cdef double[:] c_ode(self, double t, double[:] state):
         self.x.c_set_values(state)
         cdef unsigned int j
@@ -115,18 +124,3 @@ cdef class NetworkGenerator(object):
             n.c_ode_rhs(self.y.c_get_values(),
                         self.p.c_get_values())
         return self.xdot.c_get_values()
-
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.initializedcheck(False)
-    def ode(self, t, cnp.ndarray[double, ndim=1] state):
-        return self.c_ode(t, state)
-
-    # @cython.profile(True)
-    # def step(self, u):
-    #     """Step integrator."""
-    #     self.integrator.set_initial_value(self.integrator.y,
-    #                                       self.integrator.t)
-    #     self.c_step(u)

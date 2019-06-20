@@ -28,31 +28,27 @@ d.initialize_dae()
 
 # print(timeit.timeit(stmt="n1.ode_rhs();n2.ode_rhs()", setup=setup, number=1))
 
-dae = DaeGenerator()
+neural = NeuralSystem('./auto_gen_daun_cpg.graphml')
 
-neural = NeuralSystem(dae, './auto_gen_daun_cpg.graphml')
+neural.setup_integrator()
 
-dae.initialize_dae()
+pylog.warning('X0 Shape {}'.format(np.shape(neural.dae.xdot.values)))
 
+pylog.debug(np.array(neural.dae.x.values))
 
-pylog.warning('X0 Shape {}'.format(np.shape(dae.xdot.values)))
-
-pylog.debug(np.array(dae.x.values))
-
-pylog.debug("Number of states {}".format(len(dae.x.values)))
+pylog.debug("Number of states {}".format(len(neural.dae.x.values)))
 pylog.debug("Number of state derivatives {}".format(
-    len(dae.xdot.values)))
-pylog.debug("Number of parameters {}".format(len(dae.p.values)))
-pylog.debug("Number of inputs {}".format(len(dae.u.values)))
-pylog.debug("Number of outputs {}".format(len(dae.y.values)))
+    len(neural.dae.xdot.values)))
+pylog.debug("Number of parameters {}".format(len(neural.dae.p.values)))
+pylog.debug("Number of inputs {}".format(len(neural.dae.u.values)))
+pylog.debug("Number of outputs {}".format(len(neural.dae.y.values)))
 
 N = 1000
 # dae.u.values = np.array([1.0, 0.5], dtype=np.float)
 # print("Time {} : state {}".format(j, dae.y.values))
 
-neural.setup_integrator(x0=dae.x.values)
 
-u = np.ones(np.shape(dae.u.values))
+u = np.ones(np.shape(neural.dae.u.values))
 
 
 def main():
@@ -60,7 +56,6 @@ def main():
     for j in range(0, N):
         # dae.u.values = u*j/N
         neural.step()
-        dae.update_log()
     end = time.time()
     print('TIME {}'.format(end-start))
 
@@ -75,15 +70,15 @@ pstat = pstats.Stats("Profile.prof")
 pstat.sort_stats('time').print_stats()
 pstat.sort_stats('cumtime').print_stats()
 
-# data_x = dae.x.log
+# data_x = neural.dae.x.log
 # plt.title('X')
 # plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-# plt.legend(tuple([str(key) for key in range(len(dae.x.values))]))
+# plt.legend(tuple([str(key) for key in range(len(neural.neural.dae.x.values))]))
 # plt.grid(True)
 
 plt.figure(3)
 plt.title('Y')
-data_y = dae.y.log
+data_y = neural.dae.y.log
 plt.plot(np.linspace(0, N*0.001, N), data_y[:N, 1:20])
 plt.grid(True)
 plt.show()
