@@ -19,7 +19,7 @@ cdef class NetworkGenerator(object):
     """ Generate Neural Network.
     """
 
-    def __init__(self, graph_file_path, dae):
+    def __init__(self, dae, graph_file_path):
         """Initialize.
 
         Parameters
