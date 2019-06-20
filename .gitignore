@@ -18,3 +18,14 @@ jit_tmp.c
 
 #: install files
 farms_network_generator.egg-info
+
+# build
+build/
+*.so
+*.dylib
+
+#: Generated cython c-files
+*.c
+
+#: Generated cython perf html files
+*.html
