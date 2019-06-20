@@ -14,6 +14,7 @@ class NeuralSystem(object):
         super(NeuralSystem, self).__init__()
         self.dae = DaeGenerator()
         self.config_path = config_path
+        self.integrator = None
         self.network = NetworkGenerator(self.dae, config_path)
 
     def setup_integrator(self, x0=None, integrator='dopri5', atol=1e-6,
@@ -30,6 +31,8 @@ class NeuralSystem(object):
 
         if not x0:
             self.integrator.set_initial_value(self.dae.x.values, 0.0)
+        else:
+            self.integrator.set_initial_value(x0, 0.0)
 
     def step(self, dt=1, update=True):
         """Step ode system. """
