@@ -1,5 +1,4 @@
 """ Generate neural network. """
-from farms_dae_generator.dae_generator import DaeGenerator
 from farms_network_generator.neuron cimport Neuron
 from networkx_model import NetworkXModel
 from farms_dae_generator.parameters cimport Parameters
@@ -20,7 +19,7 @@ cdef class NetworkGenerator(object):
     """ Generate Neural Network.
     """
 
-    def __init__(self, graph_file_path):
+    def __init__(self, graph_file_path, dae):
         """Initialize.
 
         Parameters
@@ -34,7 +33,7 @@ cdef class NetworkGenerator(object):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
-        self.dae = DaeGenerator()
+        self.dae = dae
 
         self.x = <Parameters > self.dae.x
         self.c = <Parameters > self.dae.c
