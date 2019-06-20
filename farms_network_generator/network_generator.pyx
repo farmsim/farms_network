@@ -5,7 +5,6 @@ from farms_dae_generator.parameters cimport Parameters
 from cython.parallel import prange
 from farms_network_generator.leaky_integrator cimport LeakyIntegrator
 import itertools
-from scipy.integrate import ode
 import farms_pylog as pylog
 from farms_network_generator.neuron_factory import NeuronFactory
 from collections import OrderedDict
@@ -95,38 +94,6 @@ cdef class NetworkGenerator(object):
                 neuron.add_ode_input(
                     j, self.neurons[pred],
                     self.dae, **self.graph[pred][name])
-
-    def initialize_dae(self):
-        self.dae.initialize_dae()
-
-    # def setup_integrator(self, x0, integrator='dopri853', atol=1e-6,
-    #                      rtol=1e-6, method='adams'):
-    #     """Setup system."""
-    #     self.integrator = ode(self.ode).set_integrator(
-    #         integrator,
-    #         method=method,
-    #         atol=atol,
-    #         rtol=rtol)
-    #     self.integrator.set_initial_value(x0, 0.0)
-
-    # @cython.profile(False)
-    # @cython.boundscheck(False)  # Deactivate bounds checking
-    # @cython.wraparound(False)   # Deactivate negative indexing.
-    # @cython.nonecheck(False)
-    # @cython.cdivision(False)
-    # cdef void c_step(self, double[:] inputs):
-    #     """Step ode system. """
-    #     cdef double dt = 1
-    #     self.u.c_set_values(inputs)
-    #     # self.x.c_set_values(self.integrator.integrate(
-    #     #     self.integrator.t+dt))
-    #     # assert(self.integrator.successful())
-    #     self.x.c_update_log()
-    #     self.xdot.c_update_log()
-    #     self.p.c_update_log()
-    #     self.c.c_update_log()
-    #     self.u.c_update_log()
-    #     self.y.c_update_log()
 
     @cython.profile(True)
     @cython.boundscheck(False)  # Deactivate bounds checking
