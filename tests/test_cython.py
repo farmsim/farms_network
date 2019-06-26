@@ -28,7 +28,7 @@ d.initialize_dae()
 
 # print(timeit.timeit(stmt="n1.ode_rhs();n2.ode_rhs()", setup=setup, number=1))
 
-neural = NeuralSystem('./auto_gen_daun_cpg.graphml')
+neural = NeuralSystem('./auto_oscillator.graphml')
 
 neural.setup_integrator()
 
@@ -43,7 +43,7 @@ pylog.debug("Number of parameters {}".format(len(neural.dae.p.values)))
 pylog.debug("Number of inputs {}".format(len(neural.dae.u.values)))
 pylog.debug("Number of outputs {}".format(len(neural.dae.y.values)))
 
-N = 1000
+N = 10000
 # dae.u.values = np.array([1.0, 0.5], dtype=np.float)
 # print("Time {} : state {}".format(j, dae.y.values))
 
@@ -55,7 +55,7 @@ def main():
     start = time.time()
     for j in range(0, N):
         # dae.u.values = u*j/N
-        neural.step()
+        neural.step(dt=0.01)
     end = time.time()
     print('TIME {}'.format(end-start))
 
@@ -70,15 +70,15 @@ pstat = pstats.Stats("Profile.prof")
 pstat.sort_stats('time').print_stats()
 pstat.sort_stats('cumtime').print_stats()
 
-# data_x = neural.dae.x.log
-# plt.title('X')
-# plt.plot(np.linspace(0, N*0.001, N), data_x[:N, :])
-# plt.legend(tuple([str(key) for key in range(len(neural.neural.dae.x.values))]))
-# plt.grid(True)
+data_x = neural.dae.x.log
+plt.title('X')
+plt.plot(np.linspace(0, N*0.001, N), data_x[:N, -1])
+plt.legend(tuple([str(key) for key in range(len(neural.dae.x.values))]))
+plt.grid(True)
 
 plt.figure(3)
 plt.title('Y')
 data_y = neural.dae.y.log
-plt.plot(np.linspace(0, N*0.001, N), data_y[:N, 1:20])
+plt.plot(np.linspace(0, N*0.001, N), data_y[:N, :])
 plt.grid(True)
 plt.show()
