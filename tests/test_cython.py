@@ -67,8 +67,8 @@ def main():
 cProfile.runctx("main()",
                 globals(), locals(), "Profile.prof")
 pstat = pstats.Stats("Profile.prof")
-pstat.sort_stats('time').print_stats()
-pstat.sort_stats('cumtime').print_stats()
+# pstat.sort_stats('time').print_stats()
+# pstat.sort_stats('cumtime').print_stats()
 
 data_x = neural.dae.x.log
 plt.title('X')
@@ -79,6 +79,6 @@ plt.grid(True)
 plt.figure(3)
 plt.title('Y')
 data_y = neural.dae.y.log
-plt.plot(np.linspace(0, N*0.001, N), data_y[:N, :])
+plt.plot(np.linspace(0, N*0.001, N), np.sin(data_y[:N, :]))
 plt.grid(True)
 plt.show()

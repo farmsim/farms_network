@@ -9,6 +9,8 @@
 # cython: overflowcheck=False
 
 """Oscillator model"""
+from libc.stdio cimport printf
+import farms_pylog as pylog
 from libc.math cimport exp
 from libc.math cimport M_PI
 from libc.math cimport sin as csin
@@ -78,8 +80,9 @@ cdef class Oscillator(Neuron):
             'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight'))
         phi = dae.add_p(
             'phi_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('phi'))
-        weight_idx = dae.p.get_idx('w_' + neuron.n_id + '_to_' + self.n_id)
-        phi_idx = dae.p.get_idx('w_' + neuron.n_id + '_to_' + self.n_id)
+
+        weight_idx = weight.idx
+        phi_idx = phi.idx
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx
@@ -136,4 +139,4 @@ cdef class Oscillator(Neuron):
             self, double _neuron_out, double _weight, double _phi,
             double _phase, double _amp) nogil:
         """ Evaluate neuron inputs."""
-        return _weight*_amp**csin(_neuron_out - _phase - _phi)
+        return _weight*_amp*csin(_neuron_out - _phase - _phi)
