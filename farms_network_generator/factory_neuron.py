@@ -8,6 +8,7 @@ from constant_and_inhibit import ConstantAndInhibit
 from sensory_neuron import SensoryNeuron
 from integrate_and_fire import IntegrateAndFire
 from leaky_integrator import LeakyIntegrator
+from oscillator import Oscillator
 
 
 class FactoryNeuron(object):

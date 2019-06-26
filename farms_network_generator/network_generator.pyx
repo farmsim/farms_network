@@ -10,6 +10,7 @@
 
 
 """ Generate neural network. """
+from libc.stdio cimport printf
 from farms_network_generator.neuron cimport Neuron
 from farms_network_generator.networkx_model import NetworkXModel
 from farms_dae_generator.parameters cimport Parameters

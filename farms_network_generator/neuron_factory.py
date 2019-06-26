@@ -8,6 +8,7 @@ from farms_network_generator.hh_daun_motorneuron import HHDaunMotorneuron
 # from farms_network_generator.sensory_neuron import SensoryNeuron
 # from farms_network_generator.integrate_and_fire import IntegrateAndFire
 from farms_network_generator.leaky_integrator import LeakyIntegrator
+from farms_network_generator.oscillator import Oscillator
 
 
 class NeuronFactory(object):
@@ -23,6 +24,7 @@ class NeuronFactory(object):
             'lif_danner': LIFDanner,
             'lif_daun_interneuron': LIFDaunInterneuron,
             'hh_daun_motorneuron': HHDaunMotorneuron,
+            'oscillator': Oscillator,
             # 'constant_and_inhibit': ConstantAndInhibit,
             # 'sensory_neuron': SensoryNeuron
         }
