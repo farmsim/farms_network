@@ -1,3 +1,13 @@
+# cython: cdivision=True
+# cython: language_level=3
+# cython: infer_types=True
+# cython: profile=False
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: nonecheck=False
+# cython: initializedcheck=False
+# cython: overflowcheck=False
+
 """Leaky Integrate and Fire Interneuron. Daun et """
 
 from libc.stdio cimport printf
@@ -195,12 +205,6 @@ cdef class HHDaunMotorneuron(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
-    @cython.initializedcheck(False)
     cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
@@ -299,21 +303,11 @@ cdef class HHDaunMotorneuron(Neuron):
         self.vdot.c_set_value((
             -i_nap - i_k - i_q - i_leak - i_app - _sum)/self.c_m)
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
     cdef void c_output(self) nogil:
         """ Neuron output. """
         #: Set the neuron output
         self.nout.c_set_value(self.v.c_get_value())
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _g_syn, double _e_syn,
             double _gamma_s, double _v_h_s) nogil:

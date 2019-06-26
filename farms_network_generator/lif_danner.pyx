@@ -1,3 +1,13 @@
+# cython: cdivision=True
+# cython: language_level=3
+# cython: infer_types=True
+# cython: profile=False
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: nonecheck=False
+# cython: initializedcheck=False
+# cython: overflowcheck=False
+
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 from libc.stdio cimport printf
 import numpy as np
@@ -112,12 +122,6 @@ cdef class LIFDanner(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
-    @cython.initializedcheck(False)
     cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
@@ -152,11 +156,6 @@ cdef class LIFDanner(Neuron):
         self.vdot.c_set_value(
             (-i_leak - i_syn_e - i_syn_i - _sum)/self.c_m)
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
     cdef void c_output(self) nogil:
         """ Neuron output. """
         cdef double _v = self.v.c_get_value()
@@ -171,11 +170,6 @@ cdef class LIFDanner(Neuron):
         #: Set the neuron output
         self.nout.c_set_value(_n_out)
 
-    @cython.profile(True)
-    @cython.boundscheck(False)  # Deactivate bounds checking
-    @cython.wraparound(False)   # Deactivate negative indexing.
-    @cython.nonecheck(False)
-    @cython.cdivision(True)
     cdef inline double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
         """ Evaluate neuron inputs."""
         cdef double _v = self.v.c_get_value()
