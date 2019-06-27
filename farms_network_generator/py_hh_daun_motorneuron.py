@@ -6,7 +6,7 @@ import farms_pylog as biolog
 
 
 class HHDaunMotorneuron(Neuron):
-    """Leaky Integrate and Fire Interneuron.
+    """Hodgkin Huxley Neuron Model
     Based on Silvia Daun and Tbor's model.
     """
 
