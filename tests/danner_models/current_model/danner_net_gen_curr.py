@@ -926,13 +926,14 @@ class ConnectPF2RG(object):
 class ConnectMN2CPG(object):
     """Connect a PF circuit with RG"""
 
-    def __init__(self, cpg, mn):
+    def __init__(self, cpg, mn, mn_names_flex):
         """ Initialization. """
         super(ConnectMN2CPG, self).__init__()
         self.net = nx.compose_all([cpg,
                                    mn])
         self.name = self.net.name
         self.mn_names = list(mn.node)
+        self.mn_names_flex = mn_names_flex
 
         #: Methods
         self.connect_circuits()
@@ -947,14 +948,21 @@ class ConnectMN2CPG(object):
 
         for nm in self.mn_names:
             if "_Mn_" in nm:
-                self.net.add_edge(_name('PF_F'), nm,
-                                  weight=1.0)
-                self.net.add_edge(_name('PF_E'), nm,
-                                  weight=1.0)
-                self.net.add_edge(_name('PF_St'), nm,
-                                  weight=1.0)
-                self.net.add_edge(_name('PF_Sw'), nm,
-                                  weight=1.0)
+                if any([ mnf in nm for mnf in self.mn_names_flex]):
+                    self.net.add_edge(_name('PF_F'), nm,
+                                  weight=2.0)
+                    self.net.add_edge(_name('PF_Sw'), nm,
+                                  weight=2.0)
+                else:
+                    self.net.add_edge(_name('PF_E'), nm,
+                                    weight=2.0)
+                    self.net.add_edge(_name('PF_St'), nm,
+                                    weight=2.0)
+                    self.net.add_edge(_name('PF_F'), nm,
+                                  weight=0.5)
+                    self.net.add_edge(_name('PF_Sw'), nm,
+                                  weight=0.5)
+                
                 self.net.add_edge(_name('Inp_F'), nm,
                                   weight=-1.0)
                 self.net.add_edge(_name('Inp_E'), nm,

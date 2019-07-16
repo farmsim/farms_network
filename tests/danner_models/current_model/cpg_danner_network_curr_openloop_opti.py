@@ -112,10 +112,10 @@ def main():
     net_motorneurons_fr = Motorneurons('FR', fore_muscles, {}, {}, anchor_x=40.,
                                        anchor_y=-60.)
 
-    net_rg_pf_mn1 = ConnectMN2CPG(net_rg_pf1.net, net_motorneurons_hl.net)
-    net_rg_pf_mn2 = ConnectMN2CPG(net_rg_pf2.net, net_motorneurons_hr.net)
-    net_rg_pf_mn3 = ConnectMN2CPG(net_rg_pf3.net, net_motorneurons_fl.net)
-    net_rg_pf_mn4 = ConnectMN2CPG(net_rg_pf4.net, net_motorneurons_fr.net)
+    net_rg_pf_mn1 = ConnectMN2CPG(net_rg_pf1.net, net_motorneurons_hl.net,['TA','PMA'])
+    net_rg_pf_mn2 = ConnectMN2CPG(net_rg_pf2.net, net_motorneurons_hr.net,['TA','PMA'])
+    net_rg_pf_mn3 = ConnectMN2CPG(net_rg_pf3.net, net_motorneurons_fl.net,['HFL','KFL','AFL'])
+    net_rg_pf_mn4 = ConnectMN2CPG(net_rg_pf4.net, net_motorneurons_fr.net,['HFL','KFL','AFL'])
 
     #: Sensory Afferents
     net_afferents_hl = Afferents('HL', hind_muscles, anchor_x=0.,
@@ -155,7 +155,7 @@ def main():
     #: Location to save the network
     net_dir = os.path.join(
         os.path.dirname(__file__),
-        './conf/auto_gen_danner_current_openloop_opti.graphml')
+        '../../auto_gen_danner_current_openloop_opti.graphml')
     try:
         nx.write_graphml(net, net_dir)
     except IOError:
