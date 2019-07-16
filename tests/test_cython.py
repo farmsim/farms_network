@@ -86,13 +86,15 @@ neural_names = neural.dae.y.names
 
 plt.figure()
 plt.title('neural_y')
+_idx = []
 _names = []
 for j, name in enumerate(neural_names):
     if 'Mn' in name:
         if ('HL' in name) or ('HR' in name):
             print(j, name)
-            _names.append(j)
-plt.plot(neural_y[_names], '*')
+            _idx.append(j)
+            _names.append(name)
+plt.plot(neural_y[:, _idx])
 plt.legend(tuple(_names))
 plt.grid(True)
 plt.show()
