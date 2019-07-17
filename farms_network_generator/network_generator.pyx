@@ -12,7 +12,6 @@
 """ Generate neural network. """
 from libc.stdio cimport printf
 from farms_network_generator.neuron cimport Neuron
-from farms_network_generator.networkx_model import NetworkXModel
 from farms_dae_generator.parameters cimport Parameters
 from cython.parallel import prange
 from farms_network_generator.leaky_integrator cimport LeakyIntegrator
@@ -29,7 +28,7 @@ cdef class NetworkGenerator(object):
     """ Generate Neural Network.
     """
 
-    def __init__(self, dae, graph_file_path):
+    def __init__(self, dae, graph):
         """Initialize.
 
         Parameters
@@ -38,8 +37,6 @@ cdef class NetworkGenerator(object):
             File path to the graphml structure.
         """
         super(NetworkGenerator, self).__init__()
-
-        self.nx = NetworkXModel()
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
@@ -58,7 +55,7 @@ cdef class NetworkGenerator(object):
         self.integrator = {}
 
         #:  Read the graph
-        self.graph = self.nx.read_graph(graph_file_path)
+        self.graph = graph
 
         #: Get the number of neurons in the model
         self.num_neurons = len(self.graph)

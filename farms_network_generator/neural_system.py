@@ -3,9 +3,10 @@
 from farms_network_generator.network_generator import NetworkGenerator
 from scipy.integrate import ode
 from farms_dae_generator.dae_generator import DaeGenerator
+from .networkx_model import NetworkXModel
 
 
-class NeuralSystem(object):
+class NeuralSystem(NetworkXModel):
     """Neural System.
     """
 
@@ -15,7 +16,8 @@ class NeuralSystem(object):
         self.dae = DaeGenerator()
         self.config_path = config_path
         self.integrator = None
-        self.network = NetworkGenerator(self.dae, config_path)
+        self.read_graph(config_path)
+        self.network = NetworkGenerator(self.dae, self.graph)
 
     def setup_integrator(self, x0=None, integrator='dopri5', atol=1e-6,
                          rtol=1e-6, method='adams'):
