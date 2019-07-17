@@ -165,7 +165,8 @@ def main():
                            net10.lpsn
                            )
 
-    net = nx.compose_all([net.net])
+    # net = nx.compose_all([net.net])
+    net = nx.compose_all([net_RG_CIN1.net])
 
     #: Location to save the network
     net_dir = os.path.join(
