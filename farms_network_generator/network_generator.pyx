@@ -97,7 +97,7 @@ cdef class NetworkGenerator(object):
                 'Establishing neuron {} network connections'.format(
                     name))
             for j, pred in enumerate(self.graph.predecessors(name)):
-                print(('{} -> {}'.format(pred, name)))
+                pylog.debug(('{} -> {}'.format(pred, name)))
                 #: Set the weight of the parameter
                 neuron.add_ode_input(
                     j, self.neurons[pred],
