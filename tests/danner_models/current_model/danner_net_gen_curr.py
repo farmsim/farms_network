@@ -966,7 +966,7 @@ class ConnectMN2CPG(object):
                                   weight=0.5)
                     self.net.add_edge(_name('PF_Sw'), nm,
                                   weight=0.5)
-                     elf.net.add_edge(_name('Inp_F'), nm,
+                    self.net.add_edge(_name('Inp_F'), nm,
                                   weight=-1.0)
                     self.net.add_edge(_name('Inp_Sw'), nm,
                                   weight=-1.0)
