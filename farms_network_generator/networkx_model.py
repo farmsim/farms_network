@@ -2,13 +2,10 @@
 
 import os
 
-import matplotlib.colors as mcolors
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from networkx.drawing.nx_pydot import write_dot
 
-import farms_pylog as biolog
+import farms_pylog as pylog
 
 
 class NetworkXModel(object):
@@ -66,8 +63,8 @@ class NetworkXModel(object):
 
     def show_network_sparse_matrix(self):
         """Show network connectivity matrix."""
-        biolog.info('Showing network connectivity matrix')
-        biolog.info(self.net_matrix)
+        pylog.info('Showing network connectivity matrix')
+        pylog.info(self.net_matrix)
 
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
@@ -80,13 +77,14 @@ class NetworkXModel(object):
         check_pos_is_none = None in [
             val for x in list(self.pos.values()) for val in x]
         if check_pos_is_none:
-            biolog.warning('Missing neuron position information.')
+            pylog.warning('Missing neuron position information.')
             # self.pos = nx.kamada_kawai_layout(self.graph)
             self.pos = nx.spring_layout(self.graph)
             self.edge_pos = self.pos
 
     def read_neuron_colors_in_graph(self):
         """ Read the neuron display colors."""
+        import matplotlib.colors as mcolors
         for data in list(self.graph.node.values()):
             self.color_map.extend(data.get('color', 'r'))
             self.color_map_arr.append(mcolors.colorConverter.to_rgb(
@@ -131,6 +129,7 @@ class NetworkXModel(object):
             plt_out.autoscale(True)
             ax = plt_out.gca()
         else:
+            import matplotlib.pyplot as plt
             fig = plt.figure('Network')
             plt.autoscale(True)
             ax = plt.gca()
@@ -186,11 +185,12 @@ class NetworkXModel(object):
 
     def save_network_to_dot(self, name='graph'):
         """ Save network file to dot format."""
+        from networkx.drawing.nx_pydot import write_dot
         write_dot(self.graph, name + '.dot')
         try:
             os.system('dot -Tpng {0}.dot > {0}.png'.format(name))
         except BaseException:
-            biolog.error('Command not found')
+            pylog.error('Command not found')
 
 
 def main():
