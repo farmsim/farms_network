@@ -399,6 +399,9 @@ class ConnectAfferents2CPG(object):
             self.net.add_edge(self.name + '_' + muscle + '_Ia',
                               self.name + '_Mn_' + muscle,
                               weight=1.0)
+            self.net.add_edge(self.name + '_' + muscle + '_Ib',
+                              self.name + '_Mn_' + muscle,
+                              weight=1.0)
             self.net.add_edge(self.name + '_' + muscle + '_Ia',
                               self.name + '_IaIn_' + muscle,
                               weight=1.0)
