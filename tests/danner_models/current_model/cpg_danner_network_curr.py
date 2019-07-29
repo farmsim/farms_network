@@ -141,20 +141,20 @@ def main():
                                  anchor_y=-70.)
 
     net_rg_pf_mn1_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn1.net, net_afferents_hl.afferents, hind_muscles)
+        net_rg_pf_mn1.net, net_afferents_hl.afferents, hind_muscles,['TA','PMA'],['LG','SOL'])
     net_rg_pf_mn2_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn2.net, net_afferents_hr.afferents, hind_muscles)
+        net_rg_pf_mn2.net, net_afferents_hr.afferents, hind_muscles,['TA','PMA'],['LG','SOL'])
     net_rg_pf_mn3_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn3.net, net_afferents_fl.afferents, fore_muscles)
+        net_rg_pf_mn3.net, net_afferents_fl.afferents, fore_muscles,['HFL','AFL'],['AEX'])
     net_rg_pf_mn4_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn4.net, net_afferents_fr.afferents, fore_muscles)
+        net_rg_pf_mn4.net, net_afferents_fr.afferents, fore_muscles,['HFL','AFL'],['AEX'])
 
-    net_RG_CIN1 = ConnectRG2Commissural(rg_l=net_rg_pf_mn1.net,
-                                        rg_r=net_rg_pf_mn2.net,
+    net_RG_CIN1 = ConnectRG2Commissural(rg_l=net_rg_pf_mn1_aff.net,
+                                        rg_r=net_rg_pf_mn2_aff.net,
                                         comm_l=net_comm1.commissural,
                                         comm_r=net_comm2.commissural)
-    net_RG_CIN2 = ConnectRG2Commissural(rg_l=net_rg_pf_mn3.net,
-                                        rg_r=net_rg_pf_mn4.net,
+    net_RG_CIN2 = ConnectRG2Commissural(rg_l=net_rg_pf_mn3_aff.net,
+                                        rg_r=net_rg_pf_mn4_aff.net,
                                         comm_l=net_comm3.commissural,
                                         comm_r=net_comm4.commissural)
 
@@ -168,7 +168,7 @@ def main():
     #: Location to save the network
     net_dir = os.path.join(
         os.path.dirname(__file__),
-        '../../auto_gen_danner_current.graphml')
+        '../../auto_gen_danner_current_fb_4limb.graphml')
     try:
         nx.write_graphml(net, net_dir)
     except IOError:
