@@ -182,7 +182,7 @@ def main():
 
     # #: Initialize network
     net_ = NeuralSystem(os.path.join(os.path.dirname(
-        __file__), '../../auto_gen_danner_current.graphml'))
+        __file__), '../../auto_gen_danner_current_fb_4limb.graphml'))
 
     net_.setup_integrator()
 

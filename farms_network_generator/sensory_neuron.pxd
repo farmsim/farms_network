@@ -5,8 +5,8 @@ from farms_network_generator.neuron cimport Neuron
 
 cdef class SensoryNeuron(Neuron):
     cdef:
-        int neuron_idx
-
+        readonly str n_id
+        
         #: Input from external system
         Param aff_inp
 

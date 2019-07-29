@@ -24,8 +24,8 @@ class NeuronFactory(object):
             'lif_danner': LIFDanner,
             'lif_daun_interneuron': LIFDaunInterneuron,
             'hh_daun_motorneuron': HHDaunMotorneuron,
+            'sensory_neuron': SensoryNeuron,
             'oscillator': Oscillator,
-            'sensory_neuron': SensoryNeuron
             # 'constant_and_inhibit': ConstantAndInhibit,
         }
 
