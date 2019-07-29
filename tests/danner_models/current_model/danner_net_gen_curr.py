@@ -321,7 +321,7 @@ class Afferents(object):
                          2.)
 
         self.afferents.add_node(self.name+'_Plantar_Cutaneous',
-                                    model='sensory_danner',
+                                    model='sensory_neuron',
                                     x=float(_pos[int(np.floor(_num_muscles/2.0))])+anchor_x,
                                     y=5.0+anchor_y,
                                     color=color,
@@ -329,21 +329,21 @@ class Afferents(object):
 
         for j, muscle in enumerate(muscles):
             self.afferents.add_node(self.name+'_' + muscle + '_Ia',
-                                    model='sensory_danner',
+                                    model='sensory_neuron',
                                     x=float(_pos[j])+anchor_x,
                                     y=0.0+anchor_y,
                                     color=color,
                                     init=0.0)
 
             self.afferents.add_node(self.name+'_' + muscle + '_II',
-                                    model='sensory_danner',
+                                    model='sensory_neuron',
                                     x=float(_pos[j])+anchor_x,
                                     y=3.0+anchor_y,
                                     color=color,
                                     init=0.0)
 
             self.afferents.add_node(self.name+'_' + muscle + '_Ib',
-                                    model='sensory_danner',
+                                    model='sensory_neuron',
                                     x=float(_pos[j])+anchor_x,
                                     y=-3.0+anchor_y,
                                     color=color,
@@ -357,18 +357,17 @@ class Afferents(object):
 class ConnectAfferents2CPG(object):
     """Connect a PF circuit with RG"""
 
-    def __init__(self, cpg, afferents, muscles):
+    def __init__(self, cpg, afferents, muscles, flex_RGF_muscles, ext_RGE_muscles):
         """ Initialization. """
         super(ConnectAfferents2CPG, self).__init__()
         self.net = nx.compose_all([cpg,
                                    afferents])
         self.name = self.net.name
-
         #: Methods
-        self.connect_circuits(muscles)
+        self.connect_circuits(muscles,flex_RGF_muscles, ext_RGE_muscles)
         return
 
-    def connect_circuits(self, muscles):
+    def connect_circuits(self, muscles,flex_RGF_muscles, ext_RGE_muscles):
         """ Connect CPG's to Interneurons. """
         
         
@@ -378,7 +377,7 @@ class ConnectAfferents2CPG(object):
         self.net.add_edge(self.name+'_Plantar_Cutaneous',
                             self.name + '_In_E',
                             weight=1.0)
-        for muscle in ['IP','TA']:
+        for muscle in flex_RGF_muscles:
             if muscle in muscles:
                 self.net.add_edge(self.name + '_' + muscle + '_II',
                                     self.name + '_RG_F',
@@ -387,7 +386,7 @@ class ConnectAfferents2CPG(object):
                                     self.name + '_In_F',
                                     weight=1.0)
 
-        for muscle in ['SOL','LG','RF']:
+        for muscle in ext_RGE_muscles:
             if muscle in muscles:
                 self.net.add_edge(self.name + '_' + muscle + '_Ib',
                                     self.name + '_RG_E',
