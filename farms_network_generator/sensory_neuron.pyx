@@ -25,7 +25,7 @@ cdef class SensoryNeuron(Neuron):
         #: Output
         self.nout = dae.add_y('nout_' + self.n_id, 0.0)
 
-    def reset_sensory_input(self, param):
+    def reset_sensory_param(self, param):
         """ Add the sensory input. """
         self.aff_inp = param
 
