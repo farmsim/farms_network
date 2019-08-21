@@ -1,7 +1,7 @@
 """Sensory afferent neurons."""
 
 from neuron import Neuron
-
+from libc.stdio cimport printf
 
 cdef class SensoryNeuron(Neuron):
     """Sensory afferent neurons connecting muscle model with the network.
@@ -25,9 +25,14 @@ cdef class SensoryNeuron(Neuron):
         #: Output
         self.nout = dae.add_y('nout_' + self.n_id, 0.0)
 
+    def reset_sensory_input(self, param):
+        """ Add the sensory input. """
+        self.aff_inp = param
+
     def add_ode_input(self, idx, neuron, dae, **kwargs):
         """Abstract method"""
         pass
+
 
     def ode_rhs(self, y, p):
         """Abstract method"""
