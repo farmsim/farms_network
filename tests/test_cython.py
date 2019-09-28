@@ -3,8 +3,8 @@ import pprint
 from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
-from farms_network_generator.neural_system import NeuralSystem
-from farms_dae_generator.dae_generator import DaeGenerator
+from farms_network.neural_system import NeuralSystem
+from farms_dae.dae_generator import DaeGenerator
 import timeit
 import numpy as np
 import time
@@ -12,8 +12,8 @@ import pstats
 import farms_pylog as pylog
 import cProfile
 setup = """
-from farms_dae_generator.dae_generator import DaeGenerator
-from farms_network_generator.leaky_integrator import LeakyIntegrator
+from farms_dae.dae_generator import DaeGenerator
+from farms_network.leaky_integrator import LeakyIntegrator
 
 d = DaeGenerator()
 

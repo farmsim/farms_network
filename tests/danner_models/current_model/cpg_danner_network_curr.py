@@ -13,8 +13,8 @@ import pprint
 from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
-from farms_network_generator.neural_system import NeuralSystem
-from farms_dae_generator.dae_generator import DaeGenerator
+from farms_network.neural_system import NeuralSystem
+from farms_dae.dae_generator import DaeGenerator
 import timeit
 import numpy as np
 import time
@@ -28,7 +28,7 @@ from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
                                  ConnectPF2RG, Motorneurons, ConnectAfferents2CPG,
                                  Afferents,
                                  ConnectMN2CPG)
-# from farms_network_generator.network_generator import NetworkGenerator
+
 
 # Global settings for plotting
 # You may change as per your requirement

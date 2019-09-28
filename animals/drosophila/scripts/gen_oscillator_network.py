@@ -3,7 +3,7 @@
 import farms_pylog as pylog
 import networkx as nx
 import os
-from farms_network_generator.neural_system import NeuralSystem
+from farms_network.neural_system import NeuralSystem
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
