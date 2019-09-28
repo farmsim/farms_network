@@ -1,7 +1,7 @@
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 
-from farms_dae_generator.parameters cimport Param
-from farms_network_generator.neuron cimport Neuron
+from farms_dae.parameters cimport Param
+from farms_network.neuron cimport Neuron
 
 cdef struct DannerNapNeuronInput:
     int neuron_idx

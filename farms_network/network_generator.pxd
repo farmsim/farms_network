@@ -1,6 +1,6 @@
-from farms_network_generator.leaky_integrator cimport LeakyIntegrator
-from farms_dae_generator.parameters cimport Parameters
-from farms_network_generator.neuron cimport Neuron
+from farms_network.leaky_integrator cimport LeakyIntegrator
+from farms_dae.parameters cimport Parameters
+from farms_network.neuron cimport Neuron
 
 
 cdef class NetworkGenerator(object):

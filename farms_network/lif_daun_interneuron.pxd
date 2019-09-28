@@ -1,7 +1,7 @@
 """Leaky Integrate and Fire InterNeuron Based on Daun et.al."""
 
-from farms_dae_generator.parameters cimport Param
-from farms_network_generator.neuron cimport Neuron
+from farms_dae.parameters cimport Param
+from farms_network.neuron cimport Neuron
 
 cdef struct DaunInterNeuronInput:
     int neuron_idx
