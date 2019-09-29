@@ -11,12 +11,12 @@
 
 """ Generate neural network. """
 from libc.stdio cimport printf
-from farms_network_generator.neuron cimport Neuron
-from farms_dae_generator.parameters cimport Parameters
+from farms_network.neuron cimport Neuron
+from farms_dae.parameters cimport Parameters
 from cython.parallel import prange
-from farms_network_generator.leaky_integrator cimport LeakyIntegrator
+from farms_network.leaky_integrator cimport LeakyIntegrator
 import farms_pylog as pylog
-from farms_network_generator.neuron_factory import NeuronFactory
+from farms_network.neuron_factory import NeuronFactory
 from collections import OrderedDict
 import numpy as np
 cimport numpy as cnp

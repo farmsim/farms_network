@@ -1,7 +1,7 @@
 """Oscillator model."""
 
-from farms_dae_generator.parameters cimport Param
-from farms_network_generator.neuron cimport Neuron
+from farms_dae.parameters cimport Param
+from farms_network.neuron cimport Neuron
 
 cdef struct OscillatorNeuronInput:
     int neuron_idx

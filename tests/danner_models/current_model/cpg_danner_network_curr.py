@@ -13,8 +13,8 @@ import pprint
 from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
-from farms_network_generator.neural_system import NeuralSystem
-from farms_dae_generator.dae_generator import DaeGenerator
+from farms_network.neural_system import NeuralSystem
+from farms_dae.dae_generator import DaeGenerator
 import timeit
 import numpy as np
 import time
@@ -28,7 +28,7 @@ from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
                                  ConnectPF2RG, Motorneurons, ConnectAfferents2CPG,
                                  Afferents,
                                  ConnectMN2CPG)
-# from farms_network_generator.network_generator import NetworkGenerator
+
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -182,7 +182,7 @@ def main():
 
     # #: Initialize network
     net_ = NeuralSystem(os.path.join(os.path.dirname(
-        __file__), '../../auto_gen_danner_current_fb_4limb.graphml'))
+        __file__), '../../../../../BIOROBANIMALS/MOUSE/webots/controllers/simple_mouse_world_full_cython/conf/auto_gen_danner_current_fb_4limb.graphml'))
 
     net_.setup_integrator()
 
@@ -198,11 +198,17 @@ def main():
     #: Network drive : Alpha
     alpha = np.linspace(0, 1, len(time_vec))
 
-    u = np.ones(np.shape(net_.dae.u.values))
-
+    alpha_ids = []
+    for name, idx in net_.dae.u.name_idx.items():            
+        if 'alpha' in name:
+            alpha_ids.append(idx)
+    _alphas = list(net_.dae.u.values)
+    u = np.ones(np.shape(alpha_ids))
+    
     start = time.time()
     for j in range(0, int(dur/dt)):
-        net_.dae.u.values = u*alpha[j]
+        for _alpha in alpha_ids:
+            net_.dae.u.values[_alpha]= alpha[j]
         net_.step(dt=dt)
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
@@ -225,11 +231,11 @@ def main():
 
     if PLOT:
         # net_.save_network_to_dot()
-        net_.visualize_network(node_size=100,
-                               node_labels=False,
-                               edge_labels=False,
-                               edge_alpha=True,
-                               plt_out=plt)  #: Visualize network using Matplotlib
+        # net_.visualize_network(node_size=100,
+        #                        node_labels=False,
+        #                        edge_labels=False,
+        #                        edge_alpha=True,
+        #                        plt_out=plt)  #: Visualize network using Matplotlib
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
@@ -283,6 +289,14 @@ def main():
         ax[len(plot_names)+1].set_ylabel('ALPHA')
         ax[len(plot_names)+1].set_xlabel('Time [s]')
 
+        plt.figure()
+        plt.title('Sensory')
+        _name_id = {}
+        for name, idx in net_.dae.y.name_idx.items():            
+            if 'II' in name:
+                print("Hey!!", name)
+                _name_id[name] = idx
+        plt.plot(y_log[:, list(_name_id.values())])
         plt.show()
 
 

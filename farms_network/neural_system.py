@@ -1,8 +1,8 @@
 """ Class to Generate network and integrate over time. """
 
-from farms_network_generator.network_generator import NetworkGenerator
+from farms_network.network_generator import NetworkGenerator
 from scipy.integrate import ode
-from farms_dae_generator.dae_generator import DaeGenerator
+from farms_dae.dae_generator import DaeGenerator
 from .networkx_model import NetworkXModel
 
 

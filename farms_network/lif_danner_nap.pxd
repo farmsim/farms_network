@@ -1,13 +1,13 @@
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 
-from farms_dae_generator.parameters cimport Param
-from farms_network_generator.neuron cimport Neuron
+from farms_dae.parameters cimport Param
+from farms_network.neuron cimport Neuron
 
-cdef struct DannerNeuronInput:
+cdef struct DannerNapNeuronInput:
     int neuron_idx
     int weight_idx
 
-cdef class LIFDanner(Neuron):
+cdef class LIFDannerNap(Neuron):
     cdef:
         readonly str n_id
 
@@ -16,8 +16,18 @@ cdef class LIFDanner(Neuron):
         #: parameters
         #: constants
         double c_m
+        double g_nap
+        double e_na
+        double v1_2_m
+        double k_m
+        double v1_2_h
+        double k_h
+        double v1_2_t
+        double k_t
         double g_leak
         double e_leak
+        double tau_0
+        double tau_max
         double tau_noise
         double v_max
         double v_thr
@@ -32,20 +42,22 @@ cdef class LIFDanner(Neuron):
 
         #: states
         Param v
+        Param h
 
         #: inputs
         Param alpha
 
         #: ode
         Param vdot
+        Param hdot
 
         #: Ouputs
         Param nout
 
         #: neuron connenctions
-        DannerNeuronInput[:] neuron_inputs
+        DannerNapNeuronInput[:] neuron_inputs
 
     cdef:
         void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
         void c_output(self) nogil
-        inline double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil
+        double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil
