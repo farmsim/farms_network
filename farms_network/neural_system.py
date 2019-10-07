@@ -2,7 +2,7 @@
 
 from farms_network.network_generator import NetworkGenerator
 from scipy.integrate import ode
-from farms_dae.dae_generator import DaeGenerator
+from farms_container import Container
 from .networkx_model import NetworkXModel
 
 
@@ -13,11 +13,13 @@ class NeuralSystem(NetworkXModel):
     def __init__(self, config_path):
         """ Initialize neural system. """
         super(NeuralSystem, self).__init__()
-        self.dae = DaeGenerator()
+        self.container = Container.get_instance()
+        #: Add name-space for neural system data
+        self.container.add_namespace('neural')
         self.config_path = config_path
         self.integrator = None
         self.read_graph(config_path)
-        self.network = NetworkGenerator(self.dae, self.graph)
+        self.network = NetworkGenerator(self.graph)
 
     def setup_integrator(self, x0=None, integrator='dopri5', atol=1e-6,
                          rtol=1e-6, method='adams'):
@@ -28,11 +30,9 @@ class NeuralSystem(NetworkXModel):
             atol=atol,
             rtol=rtol)
 
-        #: Initialize ode
-        self.dae.initialize_dae()
-
         if not x0:
-            self.integrator.set_initial_value(self.dae.x.values, 0.0)
+            self.integrator.set_initial_value(
+                self.container.neural.states.values, 0.0)
         else:
             self.integrator.set_initial_value(x0, 0.0)
 
@@ -41,7 +41,7 @@ class NeuralSystem(NetworkXModel):
         self.integrator.set_initial_value(self.integrator.y,
                                           self.integrator.t)
         self.integrator.integrate(self.integrator.t+dt)
-
         #: Update the logs
         if update:
-            self.dae.update_log()
+            #: TO-DO
+            self.container.neural.update_log()
