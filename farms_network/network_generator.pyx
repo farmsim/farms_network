@@ -47,6 +47,7 @@ cdef class NetworkGenerator(object):
         self.constants = <Table > container.neural.add_table('constants')
         self.inputs = <Table > container.neural.add_table('inputs')
         self.weights = <Table > container.neural.add_table('weights')
+        self.parameters = <Table > container.neural.add_table('parameters')
         self.outputs = <Table > container.neural.add_table('outputs')
 
         self.odes = []

@@ -12,6 +12,7 @@ cdef class NetworkGenerator(object):
         Table constants
         Table inputs
         Table weights
+        Table parameters
         Table outputs
 
         unsigned int num_neurons
