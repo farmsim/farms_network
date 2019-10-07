@@ -13,12 +13,12 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    Extension("farms_network.oscillator",
-              ["farms_network/oscillator.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
+    # Extension("farms_network.oscillator",
+    #           ["farms_network/oscillator.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           ),
     Extension("farms_network.leaky_integrator",
               ["farms_network/leaky_integrator.pyx"],
               include_dirs=[numpy.get_include()],
@@ -31,36 +31,37 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    Extension("farms_network.lif_danner_nap",
-              ["farms_network/lif_danner_nap.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("farms_network.lif_danner",
-              ["farms_network/lif_danner.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("farms_network.lif_daun_interneuron",
-              ["farms_network/lif_daun_interneuron.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("farms_network.hh_daun_motorneuron",
-              ["farms_network/hh_daun_motorneuron.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              ),
-    Extension("farms_network.sensory_neuron",
-              ["farms_network/sensory_neuron.pyx"],
-              include_dirs=[numpy.get_include()],
-              extra_compile_args=['-ffast-math', '-O3'],
-              extra_link_args=['-O3']
-              )]
+    # Extension("farms_network.lif_danner_nap",
+    #           ["farms_network/lif_danner_nap.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           ),
+    # Extension("farms_network.lif_danner",
+    #           ["farms_network/lif_danner.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           ),
+    # Extension("farms_network.lif_daun_interneuron",
+    #           ["farms_network/lif_daun_interneuron.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           ),
+    # Extension("farms_network.hh_daun_motorneuron",
+    #           ["farms_network/hh_daun_motorneuron.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           ),
+    # Extension("farms_network.sensory_neuron",
+    #           ["farms_network/sensory_neuron.pyx"],
+    #           include_dirs=[numpy.get_include()],
+    #           extra_compile_args=['-ffast-math', '-O3'],
+    #           extra_link_args=['-O3']
+    #           )
+]
 
 directive_defaults['linetrace'] = True,
 directive_defaults['binding'] = True
