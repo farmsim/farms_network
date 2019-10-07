@@ -9,6 +9,7 @@
 # cython: overflowcheck=False
 
 """Oscillator model"""
+from farms_container import Container
 from libc.stdio cimport printf
 import farms_pylog as pylog
 from libc.math cimport exp
@@ -16,12 +17,11 @@ from libc.math cimport M_PI
 from libc.math cimport sin as csin
 import numpy as np
 cimport numpy as cnp
-cimport cython
 
 
 cdef class Oscillator(Neuron):
 
-    def __init__(self, n_id, dae, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, **kwargs):
         """Initialize.
 
         Parameters
@@ -33,31 +33,38 @@ cdef class Oscillator(Neuron):
 
         #: Neuron ID
         self.n_id = n_id
+        #: Get container
+        container = Container.get_instance()
 
         #: Initialize parameters
-        (self.f, _) = dae.add_c('freq_' + self.n_id,
-                                kwargs.get('f', 0.1))
+        (_, self.f) = container.neural.constants.add_parameter(
+            'freq_' + self.n_id, kwargs.get('f', 0.1))
 
-        (self.R, _) = dae.add_c('R_' + self.n_id,
-                                kwargs.get('R', 0.1))
+        (_, self.R) = container.neural.constants.add_parameter(
+            'R_' + self.n_id, kwargs.get('R', 0.1))
 
-        (self.a, _) = dae.add_c('a_' + self.n_id,
-                                kwargs.get('a', 0.1))
+        (_, self.a) = container.neural.constants.add_parameter(
+            'a_' + self.n_id, kwargs.get('a', 0.1))
 
         #: Initialize states
-        self.phase = dae.add_x('phase_' + self.n_id,
-                               kwargs.get('phase0', 0.0))
-        self.amp = dae.add_x('amp_' + self.n_id,
-                             kwargs.get('amp0', 0.0))
+        self.phase = container.neural.states.add_parameter(
+            'phase_' + self.n_id, kwargs.get('phase0', 0.0))[0]
+        self.amp = container.neural.states.add_parameter(
+            'amp_' + self.n_id, kwargs.get('amp0', 0.0))[0]
+        
         #: External inputs
-        self.ext_in = dae.add_u('ext_in_' + self.n_id)
+        self.ext_in = container.neural.inputs.add_parameter(
+            'ext_in_' + self.n_id)[0]
 
         #: ODE RHS
-        self.phase_dot = dae.add_xdot('phase_dot_' + self.n_id, 0.0)
-        self.amp_dot = dae.add_xdot('amp_dot_' + self.n_id, 0.0)
+        self.phase_dot = container.neural.dstates.add_parameter(
+            'phase_dot_' + self.n_id, 0.0)[0]
+        self.amp_dot = container.neural.dstates.add_parameter(
+            'amp_dot_' + self.n_id, 0.0)[0]
 
         #: Output
-        self.nout = dae.add_y('nout_' + self.n_id, 0.0)
+        self.nout = container.neural.outputs.add_parameter(
+            'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
@@ -67,22 +74,28 @@ cdef class Oscillator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, idx, neuron, dae, **kwargs):
+    def add_ode_input(self, idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef OscillatorNeuronInput n = OscillatorNeuronInput()
-
+        container = Container.get_instance()
         #: Get the neuron parameter
-        neuron_idx = dae.y.get_idx('nout_'+neuron.n_id)
+        neuron_idx = container.neural.outputs.get_parameter_index(
+            'nout_'+neuron.n_id)
 
         #: Add the weight parameter
-        weight = dae.add_p(
-            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight'))
-        phi = dae.add_p(
-            'phi_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('phi'))
+        weight = container.neural.weights.add_parameter(
+            'w_' + neuron.n_id + '_to_' + self.n_id,
+            kwargs.get('weight', 0.0))[0]
+        phi = container.neural.parameters.add_parameter(
+            'phi_' + neuron.n_id + '_to_' + self.n_id,
+            kwargs.get('phi', 0.0))[0]
 
-        weight_idx = weight.idx
-        phi_idx = phi.idx
+        weight_idx = container.neural.weights.get_parameter_index(
+            'w_' + neuron.n_id + '_to_' + self.n_id)
+        phi_idx = container.neural.parameters.get_parameter_index(
+            'phi_' + neuron.n_id + '_to_' + self.n_id)
+
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx

@@ -1,6 +1,6 @@
 """Oscillator model."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef struct OscillatorNeuronInput:
@@ -21,18 +21,18 @@ cdef class Oscillator(Neuron):
         double a
 
         #: states
-        Param phase
-        Param amp
+        Parameter phase
+        Parameter amp
 
         #: inputs
-        Param ext_in
+        Parameter ext_in
 
         #: ode
-        Param phase_dot
-        Param amp_dot
+        Parameter phase_dot
+        Parameter amp_dot
 
         #: Ouputs
-        Param nout
+        Parameter nout
 
         #: neuron connenctions
         OscillatorNeuronInput[:] neuron_inputs
