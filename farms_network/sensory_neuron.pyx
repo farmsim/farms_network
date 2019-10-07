@@ -2,12 +2,13 @@
 
 from neuron import Neuron
 from libc.stdio cimport printf
+from farms_container import Container
 
 cdef class SensoryNeuron(Neuron):
     """Sensory afferent neurons connecting muscle model with the network.
     """
 
-    def __init__(self, n_id, dae, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, **kwargs):
         """Initialize.
         Parameters
         ----------
@@ -18,18 +19,21 @@ cdef class SensoryNeuron(Neuron):
 
         #: Neuron ID
         self.n_id = n_id
+        #: Get container
+        container = Container.get_instance()
 
-        self.aff_inp = dae.add_u('aff_' + self.n_id,
-                                      kwargs.get('init', 0.0))
+        self.aff_inp = container.neural.inputs.add_parameter(
+            'aff_' + self.n_id, kwargs.get('init', 0.0))[0]
 
         #: Output
-        self.nout = dae.add_y('nout_' + self.n_id, 0.0)
+        self.nout = container.neural.outputs.add_parameter(
+            'nout_' + self.n_id, 0.0)[0]
 
     def reset_sensory_param(self, param):
         """ Add the sensory input. """
         self.aff_inp = param
 
-    def add_ode_input(self, idx, neuron, dae, **kwargs):
+    def add_ode_input(self, idx, neuron, **kwargs):
         """Abstract method"""
         pass
 
