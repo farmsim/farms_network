@@ -1,11 +1,11 @@
 """Leaky Integrator Neuron."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef struct LeakyIntegratorNeuronInput:
-    unsigned int neuron_idx
-    unsigned int weight_idx
+    int neuron_idx
+    int weight_idx
 
 cdef class LeakyIntegrator(Neuron):
     cdef:
@@ -20,16 +20,16 @@ cdef class LeakyIntegrator(Neuron):
         double D
 
         #: states
-        Param m
+        Parameter m
 
         #: inputs
-        Param ext_in
+        Parameter ext_in
 
         #: ode
-        Param mdot
+        Parameter mdot
 
         #: Ouputs
-        Param nout
+        Parameter nout
 
         #: neuron connenctions
         LeakyIntegratorNeuronInput[:] neuron_inputs
