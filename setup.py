@@ -31,18 +31,18 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    # Extension("farms_network.lif_danner_nap",
-    #           ["farms_network/lif_danner_nap.pyx"],
-    #           include_dirs=[numpy.get_include()],
-    #           extra_compile_args=['-ffast-math', '-O3'],
-    #           extra_link_args=['-O3']
-    #           ),
-    # Extension("farms_network.lif_danner",
-    #           ["farms_network/lif_danner.pyx"],
-    #           include_dirs=[numpy.get_include()],
-    #           extra_compile_args=['-ffast-math', '-O3'],
-    #           extra_link_args=['-O3']
-    #           ),
+    Extension("farms_network.lif_danner_nap",
+              ["farms_network/lif_danner_nap.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
+    Extension("farms_network.lif_danner",
+              ["farms_network/lif_danner.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     # Extension("farms_network.lif_daun_interneuron",
     #           ["farms_network/lif_daun_interneuron.pyx"],
     #           include_dirs=[numpy.get_include()],

@@ -1,7 +1,7 @@
 """Factory class for generating the neuron model."""
 
-# from farms_network.lif_danner import LIFDanner
-# from farms_network.lif_danner_nap import LIFDannerNap
+from farms_network.lif_danner import LIFDanner
+from farms_network.lif_danner_nap import LIFDannerNap
 # from farms_network.lif_daun_interneuron import LIFDaunInterneuron
 # from farms_network.hh_daun_motorneuron import HHDaunMotorneuron
 # from farms_network.constant_and_inhibit import ConstantAndInhibit
@@ -21,8 +21,8 @@ class NeuronFactory(object):
             'oscillator': Oscillator,
             'leaky': LeakyIntegrator,
             'sensory': SensoryNeuron,
-            # 'lif_danner_nap': LIFDannerNap,
-            # 'lif_danner': LIFDanner,
+            'lif_danner_nap': LIFDannerNap,
+            'lif_danner': LIFDanner,
             # 'lif_daun_interneuron': LIFDaunInterneuron,
             # 'hh_daun_motorneuron': HHDaunMotorneuron,
             # 'constant_and_inhibit': ConstantAndInhibit,

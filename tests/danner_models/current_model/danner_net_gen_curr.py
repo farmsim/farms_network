@@ -4,7 +4,7 @@
 
 import networkx as nx
 import numpy as np
-import biolog
+import farms_pylog as pylog
 
 
 class CPG(object):
@@ -229,7 +229,7 @@ class Motorneurons(object):
 
     def add_neurons(self, muscles, anchor_x, anchor_y, color):
         """ Add neurons. """
-        biolog.debug("Adding motorneurons")
+        pylog.debug("Adding motorneurons")
         _num_muscles = np.size(muscles)
         _pos = np.arange(-_num_muscles, _num_muscles,
                          2.)
@@ -315,13 +315,13 @@ class Afferents(object):
 
     def add_neurons(self, muscles, anchor_x, anchor_y, color):
         """ Add neurons. """
-        biolog.debug("Adding sensory afferents")
+        pylog.debug("Adding sensory afferents")
         _num_muscles = np.size(muscles)
         _pos = np.arange(-_num_muscles, _num_muscles,
                          2.)
 
         self.afferents.add_node(self.name+'_Plantar_Cutaneous',
-                                    model='sensory_neuron',
+                                    model='sensory',
                                     x=float(_pos[int(np.floor(_num_muscles/2.0))])+anchor_x,
                                     y=5.0+anchor_y,
                                     color=color,
@@ -329,21 +329,21 @@ class Afferents(object):
 
         for j, muscle in enumerate(muscles):
             self.afferents.add_node(self.name+'_' + muscle + '_Ia',
-                                    model='sensory_neuron',
+                                    model='sensory',
                                     x=float(_pos[j])+anchor_x,
                                     y=0.0+anchor_y,
                                     color=color,
                                     init=0.0)
 
             self.afferents.add_node(self.name+'_' + muscle + '_II',
-                                    model='sensory_neuron',
+                                    model='sensory',
                                     x=float(_pos[j])+anchor_x,
                                     y=3.0+anchor_y,
                                     color=color,
                                     init=0.0)
 
             self.afferents.add_node(self.name+'_' + muscle + '_Ib',
-                                    model='sensory_neuron',
+                                    model='sensory',
                                     x=float(_pos[j])+anchor_x,
                                     y=-3.0+anchor_y,
                                     color=color,

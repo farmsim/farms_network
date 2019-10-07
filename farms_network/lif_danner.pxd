@@ -1,6 +1,6 @@
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef struct DannerNeuronInput:
@@ -31,16 +31,16 @@ cdef class LIFDanner(Neuron):
         double b_i
 
         #: states
-        Param v
+        Parameter v
 
         #: inputs
-        Param alpha
+        Parameter alpha
 
         #: ode
-        Param vdot
+        Parameter vdot
 
         #: Ouputs
-        Param nout
+        Parameter nout
 
         #: neuron connenctions
         DannerNeuronInput[:] neuron_inputs
