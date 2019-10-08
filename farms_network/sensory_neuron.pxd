@@ -1,6 +1,6 @@
 """Sensory afferent neurons."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef class SensoryNeuron(Neuron):
@@ -8,10 +8,10 @@ cdef class SensoryNeuron(Neuron):
         readonly str n_id
         
         #: Input from external system
-        Param aff_inp
+        Parameter aff_inp
 
         #: Ouputs
-        Param nout
+        Parameter nout
 
     cdef:
         void c_ode_rhs(self, double[:] _y, double[:] _p) nogil

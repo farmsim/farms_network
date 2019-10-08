@@ -1,6 +1,6 @@
 """Hodgkin Huxley Motor Neuron Based on Daun et.al."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef struct DaunMotorNeuronInput:
@@ -64,25 +64,25 @@ cdef class HHDaunMotorneuron(Neuron):
         double c_m
 
         #: State Variables
-        Param v
-        Param m_na
-        Param h_na
-        Param m_k
-        Param m_q
+        Parameter v
+        Parameter m_na
+        Parameter h_na
+        Parameter m_k
+        Parameter m_q
 
         #: ODE
-        Param vdot
-        Param m_na_dot
-        Param h_na_dot
-        Param m_k_dot
-        Param m_q_dot
+        Parameter vdot
+        Parameter m_na_dot
+        Parameter h_na_dot
+        Parameter m_k_dot
+        Parameter m_q_dot
 
         #: External Input
-        Param g_app
-        Param e_app
+        Parameter g_app
+        Parameter e_app
 
         #: Output
-        Param nout
+        Parameter nout
 
         #: neuron connenctions
         DaunMotorNeuronInput[:] neuron_inputs

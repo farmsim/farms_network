@@ -1,6 +1,6 @@
 """Leaky Integrate and Fire InterNeuron Based on Daun et.al."""
 
-from farms_dae.parameters cimport Param
+from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
 cdef struct DaunInterNeuronInput:
@@ -32,19 +32,19 @@ cdef class LIFDaunInterneuron(Neuron):
         double e_leak
 
         #: states
-        Param v
-        Param h
+        Parameter v
+        Parameter h
 
         #: inputs
-        Param g_app
-        Param e_app
+        Parameter g_app
+        Parameter e_app
 
         #: ode
-        Param vdot
-        Param hdot
+        Parameter vdot
+        Parameter hdot
 
         #: Ouputs
-        Param nout
+        Parameter nout
 
         #: neuron connenctions
         DaunInterNeuronInput[:] neuron_inputs

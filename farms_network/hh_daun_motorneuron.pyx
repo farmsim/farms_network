@@ -9,14 +9,13 @@
 # cython: overflowcheck=False
 
 """Leaky Integrate and Fire Interneuron. Daun et """
-
+from farms_container import Container
 from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
 from libc.math cimport cosh as ccosh
 from libc.math cimport fabs as cfabs
 cimport numpy as cnp
-cimport cython
 
 
 cdef class HHDaunMotorneuron(Neuron):
@@ -24,122 +23,129 @@ cdef class HHDaunMotorneuron(Neuron):
     Based on Silvia Daun and Tbor's model.
     """
 
-    def __init__(self, n_id, dae, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, **kwargs):
         super(HHDaunMotorneuron, self).__init__('hh_daun_motorneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
-
+        #: Get container
+        container = Container.get_instance()
         #: Constants
         #: Neuron constants
         #: Parameters of INaP
-        (self.g_nap, _) = dae.add_c('g_nap' + self.n_id,
-                                    kwargs.get('g_nap', 10.0))
-        (self.e_nap, _) = dae.add_c('e_nap' + self.n_id,
-                                    kwargs.get('e_nap', 55.0))
-        (self.am1_nap, _) = dae.add_c('am1_nap' + self.n_id,
-                                      kwargs.get('am1_nap', 0.32))
-        (self.am2_nap, _) = dae.add_c('am2_nap' + self.n_id,
-                                      kwargs.get('am2_nap', -51.90))
-        (self.am3_nap, _) = dae.add_c('am3_nap' + self.n_id,
-                                      kwargs.get('am3_nap', 0.25))
-        (self.bm1_nap, _) = dae.add_c('bm1_nap' + self.n_id,
-                                      kwargs.get('bm1_nap', -0.280))
-        (self.bm2_nap, _) = dae.add_c('bm2_nap' + self.n_id,
-                                      kwargs.get('bm2_nap', -24.90))
-        (self.bm3_nap, _) = dae.add_c('bm3_nap' + self.n_id,
-                                      kwargs.get('bm3_nap', -0.2))
-        (self.ah1_nap, _) = dae.add_c('ah1_nap' + self.n_id,
-                                      kwargs.get('ah1_nap', 0.1280))
-        (self.ah2_nap, _) = dae.add_c('ah2_nap' + self.n_id,
-                                      kwargs.get('ah2_nap', -48.0))
-        (self.ah3_nap, _) = dae.add_c('ah3_nap' + self.n_id,
-                                      kwargs.get('ah3_nap', 0.0556))
-        (self.bh1_nap, _) = dae.add_c('bh1_nap' + self.n_id,
-                                      kwargs.get('bh1_nap', 4.0))
-        (self.bh2_nap, _) = dae.add_c('bh2_nap' + self.n_id,
-                                      kwargs.get('bh2_nap', -25.0))
-        (self.bh3_nap, _) = dae.add_c('bh3_nap' + self.n_id,
-                                      kwargs.get('bh3_nap', 0.20))
+        (_, self.g_nap) = container.neural.constants.add_parameter(
+            'g_nap' + self.n_id, kwargs.get('g_nap', 10.0))
+        (_, self.e_nap) = container.neural.constants.add_parameter(
+            'e_nap' + self.n_id, kwargs.get('e_nap', 55.0))
+        (_, self.am1_nap) = container.neural.constants.add_parameter(
+            'am1_nap' + self.n_id, kwargs.get('am1_nap', 0.32))
+        (_, self.am2_nap) = container.neural.constants.add_parameter(
+            'am2_nap' + self.n_id, kwargs.get('am2_nap', -51.90))
+        (_, self.am3_nap) = container.neural.constants.add_parameter(
+            'am3_nap' + self.n_id, kwargs.get('am3_nap', 0.25))
+        (_, self.bm1_nap) = container.neural.constants.add_parameter(
+            'bm1_nap' + self.n_id, kwargs.get('bm1_nap', -0.280))
+        (_, self.bm2_nap) = container.neural.constants.add_parameter(
+            'bm2_nap' + self.n_id, kwargs.get('bm2_nap', -24.90))
+        (_, self.bm3_nap) = container.neural.constants.add_parameter(
+            'bm3_nap' + self.n_id, kwargs.get('bm3_nap', -0.2))
+        (_, self.ah1_nap) = container.neural.constants.add_parameter(
+            'ah1_nap' + self.n_id, kwargs.get('ah1_nap', 0.1280))
+        (_, self.ah2_nap) = container.neural.constants.add_parameter(
+            'ah2_nap' + self.n_id, kwargs.get('ah2_nap', -48.0))
+        (_, self.ah3_nap) = container.neural.constants.add_parameter(
+            'ah3_nap' + self.n_id, kwargs.get('ah3_nap', 0.0556))
+        (_, self.bh1_nap) = container.neural.constants.add_parameter(
+            'bh1_nap' + self.n_id, kwargs.get('bh1_nap', 4.0))
+        (_, self.bh2_nap) = container.neural.constants.add_parameter(
+            'bh2_nap' + self.n_id, kwargs.get('bh2_nap', -25.0))
+        (_, self.bh3_nap) = container.neural.constants.add_parameter(
+            'bh3_nap' + self.n_id, kwargs.get('bh3_nap', 0.20))
 
         #: Parameters of IK
-        (self.g_k, _) = dae.add_c('g_k' + self.n_id,
-                                  kwargs.get('g_k', 2.0))
-        (self.e_k, _) = dae.add_c('e_k' + self.n_id,
-                                  kwargs.get('e_k', -80.0))
-        (self.am1_k, _) = dae.add_c('am1_k' + self.n_id,
-                                    kwargs.get('am1_k', 0.0160))
-        (self.am2_k, _) = dae.add_c('am2_k' + self.n_id,
-                                    kwargs.get('am2_k', -29.90))
-        (self.am3_k, _) = dae.add_c('am3_k' + self.n_id,
-                                    kwargs.get('am3_k', 0.20))
-        (self.bm1_k, _) = dae.add_c('bm1_k' + self.n_id,
-                                    kwargs.get('bm1_k', 0.250))
-        (self.bm2_k, _) = dae.add_c('bm2_k' + self.n_id,
-                                    kwargs.get('bm2_k', -45.0))
-        (self.bm3_k, _) = dae.add_c('bm3_k' + self.n_id,
-                                    kwargs.get('bm3_k', 0.025))
+        (_, self.g_k) = container.neural.constants.add_parameter(
+            'g_k' + self.n_id, kwargs.get('g_k', 2.0))
+        (_, self.e_k) = container.neural.constants.add_parameter(
+            'e_k' + self.n_id, kwargs.get('e_k', -80.0))
+        (_, self.am1_k) = container.neural.constants.add_parameter(
+            'am1_k' + self.n_id, kwargs.get('am1_k', 0.0160))
+        (_, self.am2_k) = container.neural.constants.add_parameter(
+            'am2_k' + self.n_id, kwargs.get('am2_k', -29.90))
+        (_, self.am3_k) = container.neural.constants.add_parameter(
+            'am3_k' + self.n_id, kwargs.get('am3_k', 0.20))
+        (_, self.bm1_k) = container.neural.constants.add_parameter(
+            'bm1_k' + self.n_id, kwargs.get('bm1_k', 0.250))
+        (_, self.bm2_k) = container.neural.constants.add_parameter(
+            'bm2_k' + self.n_id, kwargs.get('bm2_k', -45.0))
+        (_, self.bm3_k) = container.neural.constants.add_parameter(
+            'bm3_k' + self.n_id, kwargs.get('bm3_k', 0.025))
 
         #: Parameters of Iq
-        (self.g_q, _) = dae.add_c('g_q' + self.n_id,
-                                  kwargs.get('g_q', 12.0))
-        (self.e_q, _) = dae.add_c('e_q' + self.n_id,
-                                  kwargs.get('e_q', -80.0))
-        (self.gamma_q, _) = dae.add_c('gamma_q' + self.n_id,
-                                      kwargs.get('gamma_q', -0.6))
-        (self.r_q, _) = dae.add_c('r_q' + self.n_id,
-                                  kwargs.get('r_q', 0.0005))
-        (self.v_m_q, _) = dae.add_c('v_m_q' + self.n_id,
-                                    kwargs.get('v_m_q', -30.0))
+        (_, self.g_q) = container.neural.constants.add_parameter(
+            'g_q' + self.n_id, kwargs.get('g_q', 12.0))
+        (_, self.e_q) = container.neural.constants.add_parameter(
+            'e_q' + self.n_id, kwargs.get('e_q', -80.0))
+        (_, self.gamma_q) = container.neural.constants.add_parameter(
+            'gamma_q' + self.n_id, kwargs.get('gamma_q', -0.6))
+        (_, self.r_q) = container.neural.constants.add_parameter(
+            'r_q' + self.n_id, kwargs.get('r_q', 0.0005))
+        (_, self.v_m_q) = container.neural.constants.add_parameter(
+            'v_m_q' + self.n_id, kwargs.get('v_m_q', -30.0))
 
         #: Parameters of Ileak
-        (self.g_leak, _) = dae.add_c('g_leak' + self.n_id,
-                                     kwargs.get('g_leak', 0.8))
-        (self.e_leak, _) = dae.add_c('e_leak' + self.n_id,
-                                     kwargs.get('e_leak', -70.0))
+        (_, self.g_leak) = container.neural.constants.add_parameter(
+            'g_leak' + self.n_id, kwargs.get('g_leak', 0.8))
+        (_, self.e_leak) = container.neural.constants.add_parameter(
+            'e_leak' + self.n_id, kwargs.get('e_leak', -70.0))
 
         #: Parameters of Isyn
-        (self.g_syn, _) = dae.add_c('g_syn' + self.n_id,
-                                    kwargs.get('g_syn', 0.1))
-        (self.e_syn, _) = dae.add_c('e_syn' + self.n_id,
-                                    kwargs.get('e_syn', 0.0))
-        (self.v_hs, _) = dae.add_c('v_hs' + self.n_id,
-                                   kwargs.get('v_hs', -43.0))
-        (self.gamma_s, _) = dae.add_c('gamma_s' + self.n_id,
-                                      kwargs.get('gamma_s', -0.42))
+        (_, self.g_syn) = container.neural.constants.add_parameter(
+            'g_syn' + self.n_id, kwargs.get('g_syn', 0.1))
+        (_, self.e_syn) = container.neural.constants.add_parameter(
+            'e_syn' + self.n_id, kwargs.get('e_syn', 0.0))
+        (_, self.v_hs) = container.neural.constants.add_parameter(
+            'v_hs' + self.n_id, kwargs.get('v_hs', -43.0))
+        (_, self.gamma_s) = container.neural.constants.add_parameter(
+            'gamma_s' + self.n_id, kwargs.get('gamma_s', -0.42))
 
         #: Other constants
-        (self.c_m, _) = dae.add_c('c_m' + self.n_id,
-                                  kwargs.get('c_m', 1.0))
+        (_, self.c_m) = container.neural.constants.add_parameter(
+            'c_m' + self.n_id, kwargs.get('c_m', 1.0))
 
         #: State Variables
         #: pylint: disable=invalid-name
         #: Membrane potential
-        self.v = dae.add_x('V_' + self.n_id,
-                           kwargs.get('v0', 0.0))
-        self.m_na = dae.add_x(
-            'm_na_' + self.n_id, kwargs.get('m_na0', 0.0))
-        self.h_na = dae.add_x(
-            'h_na_' + self.n_id, kwargs.get('h_na0', 0.0))
-        self.m_k = dae.add_x('m_k_' + self.n_id,
-                             kwargs.get('m_k0', 0.0))
-        self.m_q = dae.add_x('m_q_' + self.n_id,
-                             kwargs.get('m_q0', 0.0))
+        self.v = container.neural.states.add_parameter(
+            'V_' + self.n_id, kwargs.get('v0', 0.0))[0]
+        self.m_na = container.neural.states.add_parameter(            
+            'm_na_' + self.n_id, kwargs.get('m_na0', 0.0))[0]
+        self.h_na = container.neural.states.add_parameter(            
+            'h_na_' + self.n_id, kwargs.get('h_na0', 0.0))[0]
+        self.m_k = container.neural.states.add_parameter(
+            'm_k_' + self.n_id, kwargs.get('m_k0', 0.0))[0]
+        self.m_q = container.neural.states.add_parameter(
+            'm_q_' + self.n_id, kwargs.get('m_q0', 0.0))[0]
 
         #: ODE
-        self.vdot = dae.add_xdot('vdot_' + self.n_id, 0.0)
-        self.m_na_dot = dae.add_xdot('m_na_dot_' + self.n_id, 0.0)
-        self.h_na_dot = dae.add_xdot('h_na_dot_' + self.n_id, 0.0)
-        self.m_k_dot = dae.add_xdot('m_k_dot_' + self.n_id, 0.0)
-        self.m_q_dot = dae.add_xdot('m_q_dot_' + self.n_id, 0.0)
+        self.vdot = container.neural.dstates.add_parameter(
+            'vdot_' + self.n_id, 0.0)[0]
+        self.m_na_dot = container.neural.dstates.add_parameter(
+            'm_na_dot_' + self.n_id, 0.0)[0]
+        self.h_na_dot = container.neural.dstates.add_parameter(
+            'h_na_dot_' + self.n_id, 0.0)[0]
+        self.m_k_dot = container.neural.dstates.add_parameter(
+            'm_k_dot_' + self.n_id, 0.0)[0]
+        self.m_q_dot = container.neural.dstates.add_parameter(
+            'm_q_dot_' + self.n_id, 0.0)[0]
 
         #: External Input
-        self.g_app = dae.add_u('g_app_' + self.n_id,
-                               kwargs.get('g_app', 0.19))
-        self.e_app = dae.add_u('e_app_' + self.n_id,
-                               kwargs.get('e_app', 0.0))
+        self.g_app = container.neural.inputs.add_parameter(
+            'g_app_' + self.n_id, kwargs.get('g_app', 0.19))[0]
+        self.e_app = container.neural.inputs.add_parameter(
+            'e_app_' + self.n_id, kwargs.get('e_app', 0.0))[0]
 
         #: Output
-        self.nout = dae.add_y('nout_' + self.n_id, 0.0)
+        self.nout = container.neural.outputs.add_parameter(
+            'nout_' + self.n_id, 0.0)
 
         #: Neuron inputs
         self.num_inputs = num_inputs
@@ -150,7 +156,7 @@ cdef class HHDaunMotorneuron(Neuron):
                                                 ('gamma_s_idx', 'i'),
                                                 ('v_h_s_idx', 'i')])
 
-    def add_ode_input(self, idx, neuron, dae, **kwargs):
+    def add_ode_input(self, idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -161,24 +167,29 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: Create a struct to store the inputs and weights to the neuron
         cdef DaunMotorNeuronInput n = DaunMotorNeuronInput()
-
+        container = Container.get_instance()
         #: Get the neuron parameter
-        neuron_idx = dae.y.get_idx('nout_'+neuron.n_id)
+        neuron_idx = container.neural.outputs.get_parameter_index(
+            'nout_'+neuron.n_id)
 
-        g_syn = dae.add_p('g_syn_' + self.n_id,
-                          kwargs.pop('g_syn', 0.0))
-        e_syn = dae.add_p('e_syn_' + self.n_id,
-                          kwargs.pop('e_syn', 0.0))
-        gamma_s = dae.add_p('gamma_s_' + self.n_id,
-                            kwargs.pop('gamma_s', 0.0))
-        v_h_s = dae.add_p('v_h_s_' + self.n_id,
-                          kwargs.pop('v_h_s', 0.0))
+        g_syn = container.neural.parameters.add_parameter(
+            'g_syn_' + self.n_id, kwargs.pop('g_syn', 0.0))[0]
+        e_syn = container.neural.parameters.add_parameter(
+            'e_syn_' + self.n_id, kwargs.pop('e_syn', 0.0))[0]
+        gamma_s = container.neural.parameters.add_parameter(
+            'gamma_s_' + self.n_id, kwargs.pop('gamma_s', 0.0))[0]
+        v_h_s = container.neural.parameters.add_parameter(
+            'v_h_s_' + self.n_id, kwargs.pop('v_h_s', 0.0))[0]
 
         #: Get neuron parameter indices
-        g_syn_idx = dae.p.get_idx('g_syn_' + self.n_id)
-        e_syn_idx = dae.p.get_idx('e_syn_' + self.n_id)
-        gamma_s_idx = dae.p.get_idx('gamma_s_' + self.n_id)
-        v_h_s_idx = dae.p.get_idx('v_h_s_' + self.n_id)
+        g_syn_idx = container.neural.parameters.get_parameter_index(
+            'g_syn_' + self.n_id)
+        e_syn_idx = container.neural.parameters.get_parameter_index(
+            'e_syn_' + self.n_id)
+        gamma_s_idx = container.neural.parameters.get_parameter_index(
+            'gamma_s_' + self.n_id)
+        v_h_s_idx = container.neural.parameters.get_parameter_index(
+            'v_h_s_' + self.n_id)
 
         #: Add the indices to the struct
         n.neuron_idx = neuron_idx

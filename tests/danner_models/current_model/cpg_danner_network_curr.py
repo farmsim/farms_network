@@ -14,7 +14,7 @@ from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
 from farms_network.neural_system import NeuralSystem
-from farms_dae.dae_generator import DaeGenerator
+from farms_container import Container
 import timeit
 import numpy as np
 import time
@@ -42,6 +42,7 @@ plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 
 def main():
     """Main."""
+    container = Container()
     #: CPG
     net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
     net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
@@ -182,8 +183,8 @@ def main():
 
     # #: Initialize network
     net_ = NeuralSystem(os.path.join(os.path.dirname(
-        __file__), '../../../../../BIOROBANIMALS/MOUSE/webots/controllers/simple_mouse_world_full_cython/conf/auto_gen_danner_current_fb_4limb.graphml'))
-
+        __file__), '../../auto_gen_danner_current_fb_4limb.graphml'))
+    container.initialize()
     net_.setup_integrator()
 
     #: initialize network parameters
@@ -199,16 +200,16 @@ def main():
     alpha = np.linspace(0, 1, len(time_vec))
 
     alpha_ids = []
-    for name, idx in net_.dae.u.name_idx.items():            
+    for name, idx in container.neural.inputs.name_index.items():            
         if 'alpha' in name:
             alpha_ids.append(idx)
-    _alphas = list(net_.dae.u.values)
+    _alphas = list(container.neural.inputs.values)
     u = np.ones(np.shape(alpha_ids))
     
     start = time.time()
     for j in range(0, int(dur/dt)):
         for _alpha in alpha_ids:
-            net_.dae.u.values[_alpha]= alpha[j]
+            container.neural.inputs.values[_alpha]= alpha[j]
         net_.step(dt=dt)
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
@@ -244,12 +245,13 @@ def main():
                       'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_SM']
         plot_traces = list()
 
-        x_log = net_.dae.x.log
-        y_log = net_.dae.y.log
+        x_log = container.neural.states.log
+        y_log = container.neural.outputs.log
 
         for n in plot_names:
             try:
-                _idx = net_.dae.y.get_idx('nout_'+n)
+                _idx = container.neural.outputs.get_parameter_index(
+                    'nout_'+n)
                 plot_traces.append(y_log[:, _idx])
             except KeyError:
                 pylog.warning("Plotting neuron {} not found".format(n))
@@ -292,7 +294,7 @@ def main():
         plt.figure()
         plt.title('Sensory')
         _name_id = {}
-        for name, idx in net_.dae.y.name_idx.items():            
+        for name, idx in container.neural.outputs.name_index.items():            
             if 'II' in name:
                 print("Hey!!", name)
                 _name_id[name] = idx

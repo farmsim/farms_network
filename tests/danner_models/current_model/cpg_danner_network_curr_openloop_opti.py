@@ -14,7 +14,7 @@ from scipy.integrate import ode
 from IPython import embed
 from matplotlib import pyplot as plt
 from farms_network.neural_system import NeuralSystem
-from farms_dae.dae_generator import DaeGenerator
+from farms_container import Container
 import timeit
 import numpy as np
 import time
@@ -44,6 +44,10 @@ PLOT = False
 
 def main():
     """Main."""
+
+    #: container
+    container = Container()
+    
     #: CPG
     net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
     net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
@@ -187,6 +191,9 @@ def main():
     net_ = NeuralSystem(os.path.join(os.path.dirname(
         __file__), '../../auto_gen_danner_current_openloop_opti.graphml'))
 
+    #:
+    container.initialize()
+
     net_.setup_integrator()
 
     #: initialize network parameters
@@ -201,11 +208,11 @@ def main():
     #: Network drive : Alpha
     alpha = np.linspace(0, 1, len(time_vec))
 
-    u = np.ones(np.shape(net_.dae.u.values))
+    u = np.ones(np.shape(container.neural.inputs.values))
 
     start = time.time()
     for j in range(0, int(dur/dt)):
-        net_.dae.u.values = u*alpha[j]
+        container.neural.inputs.values = u*alpha[j]
         net_.step(dt=dt)
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
@@ -241,12 +248,15 @@ def main():
                       'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_SM']
         plot_traces = list()
 
-        x_log = net_.dae.x.log
-        y_log = net_.dae.y.log
+        x_log = container.neural.states.log
+        y_log = container.neural.outputs.log
+        print(np.shape(y_log))
 
         for n in plot_names:
             try:
-                _idx = net_.dae.y.get_idx('nout_'+n)
+                _idx = container.neural.outputs.get_parameter_index(
+                    'nout_'+n)
+                print(n, _idx, np.shape(y_log[:, _idx]))
                 plot_traces.append(y_log[:, _idx])
             except KeyError:
                 pylog.warning("Plotting neuron {} not found".format(n))
@@ -256,8 +266,7 @@ def main():
         fig.canvas.set_window_title('Model Performance')
         fig.suptitle('Model Performance', fontsize=12)
         for i, tr in enumerate(plot_traces):
-            ax[i].plot(time_vec*0.001, tr, 'b',
-                       linewidth=1)
+            ax[i].plot(time_vec*0.001, tr, 'b', linewidth=1)
             ax[i].grid('on', axis='x')
             ax[i].set_ylabel(plot_names[i], fontsize=10)
             ax[i].set_yticks([0, 1])
