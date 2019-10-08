@@ -77,9 +77,9 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['tests*']),
     dependency_links=[
         'https://gitlab.com/FARMSIM/farms_pylog.git',
-        'https://gitlab.com/FARMSIM/farms_dae.git'],
+        'https://gitlab.com/FARMSIM/farms_container.git'],
     install_requires=[
-        'farms_dae',
+        'farms_container',
         'numpy',
         'farms_pylog',
         'matplotlib',
