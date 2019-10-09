@@ -7,7 +7,8 @@
 # cython: nonecheck=False
 # cython: initializedcheck=False
 # cython: overflowcheck=False
-
+# cython: optimize.unpack_method_calls=True
+# cython: np_pythran=False
 
 """ Generate neural network. """
 from libc.stdio cimport printf
@@ -110,14 +111,11 @@ cdef class NetworkGenerator(object):
     cdef double[:] c_ode(self, double t, double[:] state):
         self.states.c_set_values(state)
         cdef unsigned int j
-        cdef Neuron n
 
         for j in range(self.num_neurons):
-            n = self.c_neurons[j]
-            n.c_output()
+            (<Neuron>self.c_neurons[j]).c_output()            
 
         for j in range(self.num_neurons):
-            n = self.c_neurons[j]
-            n.c_ode_rhs(self.outputs.c_get_values(),
+            (<Neuron>self.c_neurons[j]).c_ode_rhs(self.outputs.c_get_values(),
                         self.weights.c_get_values())
         return self.dstates.c_get_values()
