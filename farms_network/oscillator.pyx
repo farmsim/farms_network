@@ -7,6 +7,8 @@
 # cython: nonecheck=False
 # cython: initializedcheck=False
 # cython: overflowcheck=False
+# cython: optimize.unpack_method_calls=True
+# cython: np_pythran=False
 
 """Oscillator model"""
 from farms_container import Container

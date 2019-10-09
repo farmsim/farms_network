@@ -7,6 +7,8 @@
 # cython: nonecheck=False
 # cython: initializedcheck=False
 # cython: overflowcheck=False
+# cython: optimize.unpack_method_calls=True
+# cython: np_pythran=False
 
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
 from farms_container import Container
