@@ -12,7 +12,7 @@
 
 """Sensory afferent neurons."""
 
-from neuron import Neuron
+from farms_network.neuron import Neuron
 from libc.stdio cimport printf
 from farms_container import Container
 
