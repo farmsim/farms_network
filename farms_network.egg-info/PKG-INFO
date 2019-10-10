@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: farms-network
+Version: 0.1
+Summary: Module to generate, develop and visualize neural networks
+Home-page: https://gitlab.com/FARMSIM/farms_network.git
+Author: biorob-farms
+Author-email: biorob-farms@groupes.epfl.ch
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
