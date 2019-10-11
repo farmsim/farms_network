@@ -70,7 +70,7 @@ cdef class LIFDanner(Neuron):
         #: State Variables
         #: pylint: disable=invalid-name
         self.v = container.neural.states.add_parameter(
-            'V_' + self.n_id, kwargs.get('v0', 0.0))[0]  #: Membrane potential
+            'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  #: Membrane potential
 
         # self.i_noise = dae.add_x('In_' + self.n_id)
 
