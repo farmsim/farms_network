@@ -1,10 +1,15 @@
 import setuptools
 from Cython.Build import cythonize
+from Cython.Compiler import Options
 from distutils.extension import Extension
 import numpy
-import Cython
 
-directive_defaults = Cython.Compiler.Options.get_directive_defaults()
+Options.docstrings=True
+Options.fast_fail=True
+Options.annotate=True
+Options.warning_errors=True
+
+# directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
 extensions = [
     Extension("farms_network.network_generator",
@@ -63,9 +68,6 @@ extensions = [
               )
 ]
 
-directive_defaults['linetrace'] = True,
-directive_defaults['binding'] = True
-
 setuptools.setup(
     name='farms_network',
     version='0.1',
@@ -87,7 +89,7 @@ setuptools.setup(
         'pydot'
     ],
     zip_safe=False,
-    ext_modules=cythonize(extensions, annotate=True, fast_fail=True),
+    ext_modules=cythonize(extensions),
     package_data = {
         'farms_network': ['*.pxd'],
     },
