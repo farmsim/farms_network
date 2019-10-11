@@ -93,9 +93,9 @@ cdef class LIFDannerNap(Neuron):
         #: State Variables
         #: pylint: disable=invalid-name
         self.v = container.neural.states.add_parameter(
-            'V_' + self.n_id, kwargs.get('v0'))[0]  #: Membrane potential
+            'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  #: Membrane potential
         self.h = container.neural.states.add_parameter(
-            'h_' + self.n_id, kwargs.get('h0'))[0]
+            'h_' + self.n_id, kwargs.get('h0', np.random.uniform(0, 1)))[0]
         # self.i_noise = container.neural.states.add_parameter('In_' + self.n_id)
 
         #: ODE
