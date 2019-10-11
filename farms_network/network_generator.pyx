@@ -75,16 +75,14 @@ cdef class NetworkGenerator(object):
         out : <bool>
             Return true if successfully created the neurons
         """
-
-        factory = NeuronFactory()
-
+        cdef int j
         for j, (name, neuron) in enumerate(sorted(self.graph.node.items())):
             #: Add neuron to list
             pylog.debug(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['model']))
             #: Generate Neuron Models
-            _neuron = factory.gen_neuron(neuron['model'])
+            _neuron = NeuronFactory.gen_neuron(neuron['model'])
             self.neurons[name] = _neuron(name, self.graph.in_degree(name),
                                          **neuron)
             self.c_neurons[j] = <Neuron > self.neurons[name]

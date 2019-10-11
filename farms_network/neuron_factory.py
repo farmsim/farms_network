@@ -12,11 +12,7 @@ from farms_network.oscillator import Oscillator
 class NeuronFactory(object):
     """Implementation of Factory Neuron class.
     """
-
-    def __init__(self):
-        """Factory initialization."""
-        super(NeuronFactory, self).__init__()
-        self._neurons = {  # 'if': IntegrateAndFire,
+    neurons = {  # 'if': IntegrateAndFire,
             'oscillator': Oscillator,
             'leaky': LeakyIntegrator,
             'sensory': SensoryNeuron,
@@ -25,8 +21,13 @@ class NeuronFactory(object):
             'lif_daun_interneuron': LIFDaunInterneuron,
             'hh_daun_motorneuron': HHDaunMotorneuron,
         }
+    
+    def __init__(self):
+        """Factory initialization."""
+        super(NeuronFactory, self).__init__()        
 
-    def register_neuron(self, neuron_type, neuron_instance):
+    @staticmethod
+    def register_neuron(neuron_type, neuron_instance):
         """
         Register a new type of neuron that is a child class of Neuron.
         Parameters
@@ -38,9 +39,10 @@ class NeuronFactory(object):
         neuron_instance: <cls>
             Class of the neuron to register.
         """
-        self._neurons[neuron_type] = neuron_instance
+        NeuronFactory.neurons[neuron_type] = neuron_instance
 
-    def gen_neuron(self, neuron_type):
+    @staticmethod
+    def gen_neuron(neuron_type):
         """Generate the necessary type of neuron.
         Parameters
         ----------
@@ -58,7 +60,7 @@ class NeuronFactory(object):
         neuron: <cls>
             Appropriate neuron class.
         """
-        neuron = self._neurons.get(neuron_type)
+        neuron = NeuronFactory.neurons.get(neuron_type)
         if not neuron:
             raise ValueError(neuron_type)
         return neuron
