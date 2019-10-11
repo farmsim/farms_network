@@ -7,7 +7,7 @@ from farms_network.hh_daun_motorneuron import HHDaunMotorneuron
 from farms_network.sensory_neuron import SensoryNeuron
 from farms_network.leaky_integrator import LeakyIntegrator
 from farms_network.oscillator import Oscillator
-from farms_network.Fitzhugh_Nagumo import FitzhughNagumo
+from farms_network.fitzhugh_nagumo import FitzhughNagumo
 
 
 class NeuronFactory(object):
@@ -25,7 +25,7 @@ class NeuronFactory(object):
             'lif_danner': LIFDanner,
             'lif_daun_interneuron': LIFDaunInterneuron,
             'hh_daun_motorneuron': HHDaunMotorneuron,
-            'Fitzhugh_Nagumo': FitzhughNagumo,
+            'fitzhugh_nagumo': FitzhughNagumo,
         }
 
     def register_neuron(self, neuron_type, neuron_instance):
