@@ -1,6 +1,0 @@
-farms_container
-numpy
-farms_pylog
-matplotlib
-networkx
-pydot
