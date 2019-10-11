@@ -61,8 +61,8 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
-    Extension("farms_network.Fitzhugh_Nagumo",
-              ["farms_network/Fitzhugh_Nagumo.pyx"],
+    Extension("farms_network.fitzhugh_nagumo",
+              ["farms_network/fitzhugh_nagumo.pyx"],
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
