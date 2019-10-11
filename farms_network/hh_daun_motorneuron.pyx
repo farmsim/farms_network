@@ -117,9 +117,9 @@ cdef class HHDaunMotorneuron(Neuron):
         #: pylint: disable=invalid-name
         #: Membrane potential
         self.v = container.neural.states.add_parameter(
-            'V_' + self.n_id, kwargs.get('v0', 0.0))[0]
+            'V_' + self.n_id, kwargs.get('v0', -65.0))[0]
         self.m_na = container.neural.states.add_parameter(            
-            'm_na_' + self.n_id, kwargs.get('m_na0', 0.0))[0]
+            'm_na_' + self.n_id, kwargs.get('m_na0', 0.9))[0]
         self.h_na = container.neural.states.add_parameter(            
             'h_na_' + self.n_id, kwargs.get('h_na0', 0.0))[0]
         self.m_k = container.neural.states.add_parameter(
