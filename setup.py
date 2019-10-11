@@ -87,7 +87,7 @@ setuptools.setup(
         'pydot'
     ],
     zip_safe=False,
-    ext_modules=cythonize(extensions, annotate=True),
+    ext_modules=cythonize(extensions, annotate=True, fast_fail=True),
     package_data = {
         'farms_network': ['*.pxd'],
     },
