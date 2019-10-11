@@ -1,2 +1,0 @@
-https://gitlab.com/FARMSIM/farms_pylog.git
-https://gitlab.com/FARMSIM/farms_container.git
