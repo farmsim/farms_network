@@ -1,3 +1,15 @@
+# cython: cdivision=True
+# cython: language_level=3
+# cython: infer_types=True
+# cython: profile=False
+# cython: boundscheck=False
+# cython: wraparound=False
+# cython: nonecheck=False
+# cython: initializedcheck=False
+# cython: overflowcheck=False
+# cython: optimize.unpack_method_calls=True
+# cython: np_pythran=False
+
 """Leaky Integrate and Fire Interneuron. Daun et """
 from farms_container import Container
 from libc.stdio cimport printf
@@ -89,7 +101,7 @@ cdef class LIFDaunInterneuron(Neuron):
                                                 ('gamma_s_idx', 'i'),
                                                 ('v_h_s_idx', 'i')])
 
-    def add_ode_input(self, idx, neuron, **kwargs):
+    def add_ode_input(self,int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -99,7 +111,7 @@ cdef class LIFDaunInterneuron(Neuron):
             Strength of the synapse between the two neurons"""
 
         #: Create a struct to store the inputs and weights to the neuron
-        cdef DaunInterNeuronInput n = DaunInterNeuronInput()
+        cdef DaunInterNeuronInput n
         container = Container.get_instance()
         #: Get the neuron parameter
         neuron_idx = container.neural.outputs.get_parameter_index(

@@ -92,14 +92,14 @@ cdef class LIFDanner(Neuron):
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
 
-    def add_ode_input(self, idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
         """
 
         #: Create a struct to store the inputs and weights to the neuron
-        cdef DannerNeuronInput n = DannerNeuronInput()
+        cdef DannerNeuronInput n
         container = Container.get_instance()
         #: Get the neuron parameter
         neuron_idx = container.neural.outputs.get_parameter_index(

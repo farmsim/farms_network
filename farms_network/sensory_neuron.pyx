@@ -45,7 +45,7 @@ cdef class SensoryNeuron(Neuron):
         """ Add the sensory input. """
         self.aff_inp = param
 
-    def add_ode_input(self, idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """Abstract method"""
         pass
 
