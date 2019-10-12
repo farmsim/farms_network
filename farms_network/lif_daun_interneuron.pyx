@@ -146,7 +146,7 @@ cdef class LIFDaunInterneuron(Neuron):
         #: Append the struct to the list
         self.neuron_inputs[idx] = n
 
-    def output(_, self):
+    def output(self):
         """Neuron activation function.
         Parameters
         ----------
@@ -155,7 +155,7 @@ cdef class LIFDaunInterneuron(Neuron):
         """
         return self.c_output()
 
-    def ode_rhs(_, self, y, p):
+    def ode_rhs(self, y, p):
         """ Python interface to the ode_rhs computation."""
         self.c_ode_rhs(y, p)
 
