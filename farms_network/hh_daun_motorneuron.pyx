@@ -158,7 +158,7 @@ cdef class HHDaunMotorneuron(Neuron):
                                                 ('gamma_s_idx', 'i'),
                                                 ('v_h_s_idx', 'i')])
 
-    def add_ode_input(self, idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -168,7 +168,7 @@ cdef class HHDaunMotorneuron(Neuron):
             Strength of the synapse between the two neurons"""
 
         #: Create a struct to store the inputs and weights to the neuron
-        cdef DaunMotorNeuronInput n = DaunMotorNeuronInput()
+        cdef DaunMotorNeuronInput n
         container = Container.get_instance()
         #: Get the neuron parameter
         neuron_idx = container.neural.outputs.get_parameter_index(

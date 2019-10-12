@@ -28,7 +28,7 @@ for seg in FLY_LEG_SEGMENTS:
     for placement in FLY_LEG_PLACEMENTS:
         for side in FLY_LEG_SIDES:
             leg = side.lower()+placement.lower()+seg.lower()+"_link_osc"
-            network.add_node(leg, model="sensory")
+            network.add_node(leg, model="oscillator")
             oscillator_names.append(leg)
             num_oscillators += 1
 
