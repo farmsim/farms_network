@@ -42,7 +42,6 @@ cdef class Neuron:
         """
         pylog.error('output : Method not implemented in Neuron child class')
         raise NotImplementedError()
-        self.c_output()
 
     #################### PROPERTIES ####################
     @property

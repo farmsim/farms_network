@@ -147,7 +147,7 @@ cdef class HHDaunMotorneuron(Neuron):
 
         #: Output
         self.nout = container.neural.outputs.add_parameter(
-            'nout_' + self.n_id, 0.0)
+            'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
         self.num_inputs = num_inputs

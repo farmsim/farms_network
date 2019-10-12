@@ -133,7 +133,7 @@ cdef class LIFDannerNap(Neuron):
 
         #: Add the weight parameter
         weight = container.neural.weights.add_parameter(
-            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight'))[0]
+            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))[0]
         weight_idx = container.neural.weights.get_parameter_index(
             'w_' + neuron.n_id + '_to_' + self.n_id)
         n.neuron_idx = neuron_idx
