@@ -27,7 +27,7 @@ cdef class SensoryNeuron(Neuron):
         n_id: str
             Unique ID for the neuron in the network.
         """
-        super(SensoryNeuron, self).__init__('sensory_neuron')
+        super(SensoryNeuron, self).__init__('sensory')
 
         #: Neuron ID
         self.n_id = n_id
