@@ -127,13 +127,13 @@ cdef class LIFDaunInterneuron(Neuron):
             'v_h_s_' + self.n_id, kwargs.pop('v_h_s', 0.0))[0]
 
         #: Get neuron parameter indices
-        g_syn_idx = container.neural.parameters.get_parameter_idx(
+        g_syn_idx = container.neural.parameters.get_parameter_index(
             'g_syn_' + self.n_id)
-        e_syn_idx = container.neural.parameters.get_parameter_idx(
+        e_syn_idx = container.neural.parameters.get_parameter_index(
             'e_syn_' + self.n_id)
-        gamma_s_idx = container.neural.parameters.get_parameter_idx(
+        gamma_s_idx = container.neural.parameters.get_parameter_index(
             'gamma_s_' + self.n_id)
-        v_h_s_idx = container.neural.parameters.get_parameter_idx(
+        v_h_s_idx = container.neural.parameters.get_parameter_index(
             'v_h_s_' + self.n_id)
 
         #: Add the indices to the struct
