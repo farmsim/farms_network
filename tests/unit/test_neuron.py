@@ -50,35 +50,34 @@ class TestNeuronModel(unittest.TestCase):
         self.assertIsInstance(neuron, Neuron)
 
     @ddt.data(*neuron_types())
-    def test_neuron_output(self, value):
-        """ Test neurons output. """
+    def test_neuron_output_method_exists(self, value):
+        """ Test if neuron output method exists . """
         pylog.debug("Initializing neurons {}".format(value))
         Neuron = NeuronFactory.gen_neuron(value)
         neuron = Neuron("test_neuron", 0)
         container = Container.get_instance()
         container.initialize()
-        self.assertIsNone(neuron.output())
+        self.assertTrue(hasattr(neuron, 'output'))
 
     @ddt.data(*neuron_types())
-    def test_neuron_ode_rhs(self, value):
-        """ Test neurons ode_rhs. """
+    def test_neuron_ode_rhs_method_exists(self, value):
+        """ Test if neuron has ode_rhs method implemented """
         pylog.debug("Initializing neurons {}".format(value))
         Neuron = NeuronFactory.gen_neuron(value)
         neuron = Neuron("test_neuron", 0)
         container = Container.get_instance()
         container.initialize()
-        self.assertIsNone(neuron.ode_rhs(container.neural.outputs.values,
-                                         container.neural.parameters.values))
+        self.assertTrue(hasattr(neuron, 'ode_rhs'))
 
     @ddt.data(*neuron_types())
-    def test_neuron_add_ode_input(self, value):
+    def test_neuron_add_ode_input_exists(self, value):
         """ Test neurons add_ode_input. """
         pylog.debug("Initializing neurons {}".format(value))
         Neuron = NeuronFactory.gen_neuron(value)
         neuron = Neuron("test_neuron", 0)
         container = Container.get_instance()
         container.initialize()
-        self.assertIsNotNone(neuron.add_ode_input)
+        self.assertTrue(hasattr(neuron, 'add_ode_input'))
 
 if __name__ == '__main__':        
     unittest.main()
