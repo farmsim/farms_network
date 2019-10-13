@@ -77,10 +77,10 @@ cdef class FitzhughNagumo(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
-        cdef FNNeuronInput n = FNNeuronInput()
+        cdef FNNeuronInput n
         container = Container.get_instance()
         #: Get the neuron parameter
         neuron_idx = container.neural.outputs.get_parameter_index(
