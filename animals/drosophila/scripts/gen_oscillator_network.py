@@ -7,7 +7,8 @@ from farms_network.neural_system import NeuralSystem
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
-
+from farms_container import Container
+pylog.set_level('error')
 #: Define a network graph
 network = nx.DiGraph()
 
@@ -45,7 +46,8 @@ nx.write_graphml(network, net_dir)
 
 # #: Initialize network
 net = NeuralSystem('../config/auto_gen_fly_oscillator_network.graphml')
-
+container = Container.get_instance()
+container.initialize()
 net.setup_integrator()
 
 #: initialize network parameters
@@ -61,8 +63,8 @@ for t in time_vec:
     net.step(dt=dt)
 
 #: Results
-state = net.dae.x.log
-neuron_out = net.dae.y.log
+state = container.neural.states.log
+neuron_out = container.neural.outputs.log
 
 #: Show graph
 net.visualize_network(edge_labels=False)
