@@ -92,7 +92,8 @@ setuptools.setup(
         'farms_pylog',
         'matplotlib',
         'networkx',
-        'pydot'
+        'pydot',
+        'ddt'
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
