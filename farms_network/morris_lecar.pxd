@@ -28,7 +28,7 @@ cdef class MorrisLecarNeuron(Neuron):
         double beta_m
         double beta_w
         double gamma_m
-        double gamm_w
+        double gamma_w
 
         #: states
         Parameter V 
