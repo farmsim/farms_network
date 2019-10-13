@@ -14,7 +14,8 @@
 from farms_container import Container
 from libc.stdio cimport printf
 import farms_pylog as pylog
-from libc.math cimport sin as csin
+from libc.math cimport tanh as ctanh
+from libc.math cimport cosh as ccosh
 import numpy as np
 cimport numpy as cnp
 
@@ -38,43 +39,33 @@ cdef class MorrisLecarNeuron(Neuron):
 
         #: Initialize parameters
         (_, self.I) = container.neural.constants.add_parameter(
-            'I_' + self.n_id, kwargs.get('I', 10    0))
-
+            'I_' + self.n_id, kwargs.get('I', 100.0))
         (_, self.C) = container.neural.constants.add_parameter(
-            'C_' + self.n_id, kwargs.get('C', 2))
-
+            'C_' + self.n_id, kwargs.get('C', 2.0))
         (_, self.g_fast) = container.neural.constants.add_parameter(
-            'g_fast_' + self.n_id, kwargs.get('g_fast', 20))
-
+            'g_fast_' + self.n_id, kwargs.get('g_fast', 20.0))
         (_, self.g_slow) = container.neural.constants.add_parameter(
-            'g_slow_' + self.n_id, kwargs.get('g_slow', 20))
-
+            'g_slow_' + self.n_id, kwargs.get('g_slow', 20.0))
         (_, self.g_leak) = container.neural.constants.add_parameter(
-            'g_leak_' + self.n_id, kwargs.get('g_leak', 2))
-
+            'g_leak_' + self.n_id, kwargs.get('g_leak', 2.0))
         (_, self.E_fast) = container.neural.constants.add_parameter(
-            'E_fast_' + self.n_id, kwargs.get('E_fast', 50))
-
+            'E_fast_' + self.n_id, kwargs.get('E_fast', 50.0))
         (_, self.E_slow) = container.neural.constants.add_parameter(
-            'E_slow_' + self.n_id, kwargs.get('E_slow', -100))
-
+            'E_slow_' + self.n_id, kwargs.get('E_slow', -100.0))
         (_, self.E_leak) = container.neural.constants.add_parameter(
-            'E_leak_' + self.n_id, kwargs.get('E_leak', -70))
-
+            'E_leak_' + self.n_id, kwargs.get('E_leak', -70.0))
         (_, self.phi_w) = container.neural.constants.add_parameter(
             'phi_w_' + self.n_id, kwargs.get('phi_w', 0.15))
-
         (_, self.beta_m) = container.neural.constants.add_parameter(
-            'beta_m_' + self.n_id, kwargs.get('beta_m', 0))
-
-        (_, self.beta_w) = container.neural.constants.add_parameter(
-            'beta_w_' + self.n_id, kwargs.get('beta_w', -10))
-
+            'beta_m_' + self.n_id, kwargs.get('beta_m', 0.0))
         (_, self.gamma_m) = container.neural.constants.add_parameter(
-            'gamma_m_' + self.n_id, kwargs.get('gamma_m', 18))
-
+            'gamma_m_' + self.n_id, kwargs.get('gamma_m', 18.0))
+        (_, self.beta_w) = container.neural.constants.add_parameter(
+            'beta_w_' + self.n_id, kwargs.get('beta_w', -10.0))
         (_, self.gamma_w) = container.neural.constants.add_parameter(
-            'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13))
+            'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13.0))
+        
+        
 
         #: Initialize states
         self.V = container.neural.states.add_parameter(
@@ -168,17 +159,19 @@ cdef class MorrisLecarNeuron(Neuron):
             _sum += self.c_neuron_inputs_eval(_neuron_out,
                                               _weight, _phi, _V, _w)
 
-        cdef double m_inf_V = 0.5*(1+cnp.tanh((self.V-self.beta_m)/self.gamma_m))
+        cdef double m_inf_V = 0.5*(1.0+ctanh((_V-self.beta_m)/self.gamma_m))
 
-        cdef double w_inf_V = 0.5*(1+cnp.tanh((self.V-self.beta_w)/self.gamma_w))
+        cdef double w_inf_V = 0.5*(1.0+ctanh((_V-self.beta_w)/self.gamma_w))
 
-        cdef double tau_w_V = (1/cnp.cosh((self.V-self.beta_w)/(2*self.self.gamma_w)))
-        #: phidot : V_dot
-        self.V_dot.c_set_value((1/self.C)*(I - self.g_fast*m_inf_V*(self.V-self.E_Na)
-            - self.g_slow*self.w*(self.V - self.E_slow) - self.g_leak*(self.V - self.E_leak)))
+        cdef double tau_w_V = (1./ccosh((_V-self.beta_w)/(2*self.gamma_w)))
+        
+        #V_dot
+        self.V_dot.c_set_value((1.0/self.C)*(self.I - self.g_fast*m_inf_V*(_V-self.E_fast)
+            - self.g_slow*_w*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
         #: wdot
-        self.w_dot.c_set_value(self.phi_w*(w_inf_V - self.w)/tau_w_V)
+        self.w_dot.c_set_value(self.phi_w*(w_inf_V - _w)/tau_w_V)
+
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
@@ -188,4 +181,4 @@ cdef class MorrisLecarNeuron(Neuron):
             self, double _neuron_out, double _weight, double _phi,
             double _V, double _w) nogil:
         """ Evaluate neuron inputs."""
-        return 0
+        return 0.0
