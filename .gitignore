@@ -17,7 +17,7 @@ jit_tmp.c
 .DS_Store
 
 #: install files
-farms_network_generator.egg-info
+farms_network.egg-info
 
 # build
 build/
