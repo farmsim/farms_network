@@ -30,7 +30,7 @@ cdef class MorrisLecarNeuron(Neuron):
         n_id: str
             Unique ID for the neuron in the network.
         """
-        super(MorrisLecarNeuron, self).__init__('Morris')
+        super(MorrisLecarNeuron, self).__init__('Morris_Leccar')
 
         #: Neuron ID
         self.n_id = n_id
@@ -181,4 +181,5 @@ cdef class MorrisLecarNeuron(Neuron):
             self, double _neuron_out, double _weight, double _phi,
             double _V, double _w) nogil:
         """ Evaluate neuron inputs."""
-        return 0.0
+        # Linear coupling term in potential
+        return _weight*(_neuron_out - _V)
