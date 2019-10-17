@@ -71,6 +71,12 @@ extensions = [
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
+              ),
+    Extension("farms_network.matsuoka_neuron",
+              ["farms_network/matsuoka_neuron.pyx"],
+              include_dirs=[numpy.get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
               )
 ]
 
