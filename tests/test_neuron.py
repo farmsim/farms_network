@@ -16,13 +16,11 @@ container = Container()
 num_oscillators = 0
 oscillator_names = []
 
-network.add_node('one', model="matsuoka_neuron")
-oscillator_names.append('one')
-num_oscillators += 1
-
-# network.add_node('two', model="matsuoka_neuron")
-# oscillator_names.append('two')
-# num_oscillators += 1
+num_neurons = 6
+for i in range(num_neurons):
+	network.add_node(str(i), model="matsuoka_neuron")
+	oscillator_names.append(str(i))
+	num_oscillators += 1
 
 
 for a,b in itertools.product(range(num_oscillators), range(num_oscillators)):
@@ -57,10 +55,10 @@ for t in time_vec:
 state = container.neural.states.log
 neuron_out = container.neural.outputs.log
 
-#: Show graph
-# net.visualize_network(edge_labels=False)
+# : Show graph
+net.visualize_network(edge_labels=False)
 
 plt.figure()
-plt.plot(state)
+plt.plot(neuron_out)
 plt.grid(True)
 plt.show()
