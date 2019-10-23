@@ -142,7 +142,7 @@ cdef class FitzhughNagumo(Neuron):
                                               _weight, _phi, _V, _w)
 
         #: phidot : V_dot
-        self.V_dot.c_set_value(_V - _V**3/3 - _w + self.I)
+        self.V_dot.c_set_value(_V - _V**3/3 - _w + self.I + _sum)
 
         #: wdot
         self.w_dot.c_set_value((1/self.tau)*(_V + self.a - self.b*_w))
