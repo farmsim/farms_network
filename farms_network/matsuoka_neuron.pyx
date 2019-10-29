@@ -41,7 +41,7 @@ cdef class MatsuokaNeuron(Neuron):
             'c_' + self.n_id, kwargs.get('c', 1))
 
         (_, self.b) = container.neural.constants.add_parameter(
-            'b_' + self.n_id, kwargs.get('b', 2.5))
+            'b_' + self.n_id, kwargs.get('b', 1))
 
         (_, self.tau) = container.neural.constants.add_parameter(
             'tau_' + self.n_id, kwargs.get('tau', 1))
@@ -51,6 +51,9 @@ cdef class MatsuokaNeuron(Neuron):
 
         (_, self.theta) = container.neural.constants.add_parameter(
             'theta_' + self.n_id, kwargs.get('theta', 0.0))
+
+        (_, self.nu) = container.neural.constants.add_parameter(
+            'nu' + self.n_id, kwargs.get('nu', 0.5))
 
         #: Initialize states
         self.V = container.neural.states.add_parameter(
@@ -147,11 +150,15 @@ cdef class MatsuokaNeuron(Neuron):
         self.V_dot.c_set_value((1/self.tau)*(self.c -_V - _sum -self.b*_w))
 
         #: wdot
-        self.w_dot.c_set_value((1/self.T)*( -_w + max([0, _V - self.theta])))
+        self.w_dot.c_set_value((1/self.T)*( -_w + self.nu*_V))
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
-        self.nout.c_set_value(max([0, self.V.c_get_value() - self.theta ]))
+        _V = self.V.c_get_value()
+        if _V<0:
+            self.nout.c_set_value(max(-1,_V))    
+        else:
+            self.nout.c_set_value(min(1,_V))  
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _phi,
