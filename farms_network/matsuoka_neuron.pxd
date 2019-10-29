@@ -21,6 +21,7 @@ cdef class MatsuokaNeuron(Neuron):
         double tau
         double T
         double theta
+        double nu
 
         #: states
         Parameter V
