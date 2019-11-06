@@ -43,6 +43,6 @@ class NeuralSystem(NetworkXModel):
                                           self.integrator.t)
         self.integrator.integrate(self.integrator.t+dt)
         #: Update the logs
-        if update:
-            #: TO-DO
-            self.container.neural.update_log()
+        # if update:
+        #     #: TO-DO
+        #     self.container.neural.update_log()
