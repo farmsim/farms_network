@@ -93,7 +93,8 @@ setuptools.setup(
         'matplotlib',
         'networkx',
         'pydot',
-        'ddt'
+        'ddt',
+        'scipy'
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
