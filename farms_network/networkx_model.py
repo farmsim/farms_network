@@ -69,7 +69,7 @@ class NetworkXModel(object):
     def read_neuron_position_in_graph(self):
         """ Read the positions of neurons.
         Only if positions are defined. """
-        for _neuron, data in list(self.graph.node.items()):
+        for _neuron, data in list(self.graph.nodes.items()):
             self.pos[_neuron] = (data.get('x', None),
                                  data.get('y', None))
             self.edge_pos[_neuron] = (data.get('x', None),
@@ -85,7 +85,7 @@ class NetworkXModel(object):
     def read_neuron_colors_in_graph(self):
         """ Read the neuron display colors."""
         import matplotlib.colors as mcolors
-        for data in list(self.graph.node.values()):
+        for data in list(self.graph.nodes.values()):
             self.color_map.extend(data.get('color', 'r'))
             self.color_map_arr.append(mcolors.colorConverter.to_rgb(
                 self.color_map[-1]))
@@ -93,10 +93,12 @@ class NetworkXModel(object):
     def read_edge_colors_in_graph(self):
         """ Read the neuron display colors."""
         max_weight = max(list(dict(self.graph.edges).items()),
-                         key=lambda x: abs(x[1]['weight']))[-1]['weight']
+                         key=lambda x: abs(x[1]['weight']),
+                         default=[{'weight':0.0}])[-1]['weight']
+        
         max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
-            _weight = attr.get('weight')
+            _weight = attr.get('weight', 0.0)
             #: pylint: disable=no-member
             try:
                 _weight_ratio = _weight/max_weight

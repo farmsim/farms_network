@@ -76,7 +76,7 @@ cdef class NetworkGenerator(object):
             Return true if successfully created the neurons
         """
         cdef int j
-        for j, (name, neuron) in enumerate(sorted(self.graph.node.items())):
+        for j, (name, neuron) in enumerate(sorted(self.graph.nodes.items())):
             #: Add neuron to list
             pylog.debug(
                 'Generating neuron model : {} of type {}'.format(

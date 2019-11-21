@@ -9,6 +9,7 @@ from farms_network.leaky_integrator import LeakyIntegrator
 from farms_network.oscillator import Oscillator
 from farms_network.fitzhugh_nagumo import FitzhughNagumo
 from farms_network.matsuoka_neuron import MatsuokaNeuron
+from farms_network.morris_lecar import MorrisLecarNeuron
 
 
 class NeuronFactory(object):
@@ -24,6 +25,7 @@ class NeuronFactory(object):
             'hh_daun_motorneuron': HHDaunMotorneuron,
             'fitzhugh_nagumo': FitzhughNagumo,
             'matsuoka_neuron': MatsuokaNeuron,
+            'morris_lecar': MorrisLecarNeuron
         }
     
     def __init__(self):
