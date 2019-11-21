@@ -4,10 +4,10 @@ from Cython.Compiler import Options
 from distutils.extension import Extension
 import numpy
 
-Options.docstrings=True
-Options.fast_fail=True
-Options.annotate=True
-Options.warning_errors=True
+Options.docstrings = True
+Options.fast_fail = True
+Options.annotate = True
+Options.warning_errors = True
 
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
@@ -77,7 +77,7 @@ extensions = [
               include_dirs=[numpy.get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
-              )
+              ),
     Extension("farms_network.morris_lecar",
               ["farms_network/morris_lecar.pyx"],
               include_dirs=[numpy.get_include()],
@@ -110,7 +110,7 @@ setuptools.setup(
     ],
     zip_safe=False,
     ext_modules=cythonize(extensions),
-    package_data = {
+    package_data={
         'farms_network': ['*.pxd'],
     },
 )
