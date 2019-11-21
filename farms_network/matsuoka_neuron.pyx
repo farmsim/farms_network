@@ -28,7 +28,7 @@ cdef class MatsuokaNeuron(Neuron):
         n_id: str
             Unique ID for the neuron in the network.
         """
-        super(MatsuokaNeuron, self).__init__('Matsuoka')
+        super(MatsuokaNeuron, self).__init__('matsuoka_neuron')
 
         #: Neuron ID
         self.n_id = n_id
@@ -60,7 +60,7 @@ cdef class MatsuokaNeuron(Neuron):
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
         self.w = container.neural.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.5))[0]
-        
+
         #: External inputs
         self.ext_in = container.neural.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
@@ -145,20 +145,19 @@ cdef class MatsuokaNeuron(Neuron):
             _sum += self.c_neuron_inputs_eval(_neuron_out,
                                               _weight, _phi, _V, _w)
 
-
         #: phidot : V_dot
-        self.V_dot.c_set_value((1/self.tau)*(self.c -_V - _sum -self.b*_w))
+        self.V_dot.c_set_value((1/self.tau)*(self.c - _V - _sum - self.b*_w))
 
         #: wdot
-        self.w_dot.c_set_value((1/self.T)*( -_w + self.nu*_V))
+        self.w_dot.c_set_value((1/self.T)*(-_w + self.nu*_V))
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
         _V = self.V.c_get_value()
-        if _V<0:
-            self.nout.c_set_value(max(-1,_V))    
+        if _V < 0:
+            self.nout.c_set_value(max(-1, _V))
         else:
-            self.nout.c_set_value(min(1,_V))  
+            self.nout.c_set_value(min(1, _V))
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _phi,

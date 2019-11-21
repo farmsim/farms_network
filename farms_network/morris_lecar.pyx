@@ -30,7 +30,7 @@ cdef class MorrisLecarNeuron(Neuron):
         n_id: str
             Unique ID for the neuron in the network.
         """
-        super(MorrisLecarNeuron, self).__init__('Morris_Leccar')
+        super(MorrisLecarNeuron, self).__init__('morris_lecar')
 
         #: Neuron ID
         self.n_id = n_id
@@ -64,15 +64,13 @@ cdef class MorrisLecarNeuron(Neuron):
             'beta_w_' + self.n_id, kwargs.get('beta_w', -10.0))
         (_, self.gamma_w) = container.neural.constants.add_parameter(
             'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13.0))
-        
-        
 
         #: Initialize states
         self.V = container.neural.states.add_parameter(
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
         self.w = container.neural.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.0))[0]
-        
+
         #: External inputs
         self.ext_in = container.neural.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
@@ -95,7 +93,7 @@ cdef class MorrisLecarNeuron(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self,int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef MLNeuronInput n
@@ -164,14 +162,13 @@ cdef class MorrisLecarNeuron(Neuron):
         cdef double w_inf_V = 0.5*(1.0+ctanh((_V-self.beta_w)/self.gamma_w))
 
         cdef double tau_w_V = (1./ccosh((_V-self.beta_w)/(2*self.gamma_w)))
-        
-        #V_dot
+
+        # V_dot
         self.V_dot.c_set_value((1.0/self.C)*(self.I - self.g_fast*m_inf_V*(_V-self.E_fast)
-            - self.g_slow*_w*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
+                                             - self.g_slow*_w*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
         #: wdot
         self.w_dot.c_set_value(self.phi_w*(w_inf_V - _w)/tau_w_V)
-
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
