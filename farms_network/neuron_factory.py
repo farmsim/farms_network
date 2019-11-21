@@ -8,6 +8,7 @@ from farms_network.sensory_neuron import SensoryNeuron
 from farms_network.leaky_integrator import LeakyIntegrator
 from farms_network.oscillator import Oscillator
 from farms_network.fitzhugh_nagumo import FitzhughNagumo
+from farms_network.matsuoka_neuron import MatsuokaNeuron
 from farms_network.morris_lecar import MorrisLecarNeuron
 
 
@@ -23,6 +24,7 @@ class NeuronFactory(object):
             'lif_daun_interneuron': LIFDaunInterneuron,
             'hh_daun_motorneuron': HHDaunMotorneuron,
             'fitzhugh_nagumo': FitzhughNagumo,
+            'matsuoka_neuron': MatsuokaNeuron,
             'morris_lecar': MorrisLecarNeuron
         }
     
