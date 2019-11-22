@@ -131,17 +131,17 @@ cdef class MorrisLecarNeuron(Neuron):
         """
         return self.c_output()
 
-    def ode_rhs(self, y, p):
+    def ode_rhs(self, y, w, p):
         """ Python interface to the ode_rhs computation."""
-        self.c_ode_rhs(y, p)
+        self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
         #: Current state
         cdef double _V = self.V.c_get_value()
-        cdef double _w = self.w.c_get_value()
+        cdef double _W = self.w.c_get_value()
 
         #: Neuron inputs
         cdef double _sum = 0.0
@@ -152,10 +152,10 @@ cdef class MorrisLecarNeuron(Neuron):
 
         for j in range(self.num_inputs):
             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
-            _weight = _p[self.neuron_inputs[j].weight_idx]
+            _weight = _w[self.neuron_inputs[j].weight_idx]
             _phi = _p[self.neuron_inputs[j].phi_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out,
-                                              _weight, _phi, _V, _w)
+                                              _weight, _phi, _V, _W)
 
         cdef double m_inf_V = 0.5*(1.0+ctanh((_V-self.beta_m)/self.gamma_m))
 
@@ -165,10 +165,10 @@ cdef class MorrisLecarNeuron(Neuron):
 
         # V_dot
         self.V_dot.c_set_value((1.0/self.C)*(self.I - self.g_fast*m_inf_V*(_V-self.E_fast)
-                                             - self.g_slow*_w*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
+                                             - self.g_slow*_W*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
         #: wdot
-        self.w_dot.c_set_value(self.phi_w*(w_inf_V - _w)/tau_w_V)
+        self.w_dot.c_set_value(self.phi_w*(w_inf_V - _W)/tau_w_V)
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
