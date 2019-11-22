@@ -10,15 +10,17 @@
 # cython: optimize.unpack_method_calls=True
 # cython: np_pythran=False
 
-"""Fitzhugh Nagumo model"""
+"""Morris Lecar Neuron model"""
 from farms_container import Container
 from libc.stdio cimport printf
 import farms_pylog as pylog
+from libc.math cimport tanh as ctanh
+from libc.math cimport cosh as ccosh
 import numpy as np
 cimport numpy as cnp
 
 
-cdef class FitzhughNagumo(Neuron):
+cdef class MorrisLecarNeuron(Neuron):
 
     def __init__(self, n_id, num_inputs, **kwargs):
         """Initialize.
@@ -28,7 +30,7 @@ cdef class FitzhughNagumo(Neuron):
         n_id: str
             Unique ID for the neuron in the network.
         """
-        super(FitzhughNagumo, self).__init__('leaky')
+        super(MorrisLecarNeuron, self).__init__('morris_lecar')
 
         #: Neuron ID
         self.n_id = n_id
@@ -36,25 +38,39 @@ cdef class FitzhughNagumo(Neuron):
         container = Container.get_instance()
 
         #: Initialize parameters
-
-        (_, self.a) = container.neural.constants.add_parameter(
-            'a_' + self.n_id, kwargs.get('a', 0.7))
-
-        (_, self.b) = container.neural.constants.add_parameter(
-            'b_' + self.n_id, kwargs.get('b', 0.8))
-
-        (_, self.tau) = container.neural.constants.add_parameter(
-            'tau_' + self.n_id, kwargs.get('tau', 1/0.08))
-
         (_, self.I) = container.neural.constants.add_parameter(
-            'I_' + self.n_id, kwargs.get('I', 1))
+            'I_' + self.n_id, kwargs.get('I', 100.0))
+        (_, self.C) = container.neural.constants.add_parameter(
+            'C_' + self.n_id, kwargs.get('C', 2.0))
+        (_, self.g_fast) = container.neural.constants.add_parameter(
+            'g_fast_' + self.n_id, kwargs.get('g_fast', 20.0))
+        (_, self.g_slow) = container.neural.constants.add_parameter(
+            'g_slow_' + self.n_id, kwargs.get('g_slow', 20.0))
+        (_, self.g_leak) = container.neural.constants.add_parameter(
+            'g_leak_' + self.n_id, kwargs.get('g_leak', 2.0))
+        (_, self.E_fast) = container.neural.constants.add_parameter(
+            'E_fast_' + self.n_id, kwargs.get('E_fast', 50.0))
+        (_, self.E_slow) = container.neural.constants.add_parameter(
+            'E_slow_' + self.n_id, kwargs.get('E_slow', -100.0))
+        (_, self.E_leak) = container.neural.constants.add_parameter(
+            'E_leak_' + self.n_id, kwargs.get('E_leak', -70.0))
+        (_, self.phi_w) = container.neural.constants.add_parameter(
+            'phi_w_' + self.n_id, kwargs.get('phi_w', 0.15))
+        (_, self.beta_m) = container.neural.constants.add_parameter(
+            'beta_m_' + self.n_id, kwargs.get('beta_m', 0.0))
+        (_, self.gamma_m) = container.neural.constants.add_parameter(
+            'gamma_m_' + self.n_id, kwargs.get('gamma_m', 18.0))
+        (_, self.beta_w) = container.neural.constants.add_parameter(
+            'beta_w_' + self.n_id, kwargs.get('beta_w', -10.0))
+        (_, self.gamma_w) = container.neural.constants.add_parameter(
+            'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13.0))
 
         #: Initialize states
         self.V = container.neural.states.add_parameter(
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
         self.w = container.neural.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.0))[0]
-        
+
         #: External inputs
         self.ext_in = container.neural.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
@@ -80,7 +96,7 @@ cdef class FitzhughNagumo(Neuron):
     def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
-        cdef FNNeuronInput n
+        cdef MLNeuronInput n
         container = Container.get_instance()
         #: Get the neuron parameter
         neuron_idx = container.neural.outputs.get_parameter_index(
@@ -102,7 +118,7 @@ cdef class FitzhughNagumo(Neuron):
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx
-        cdef double x = self.a
+
         #: Append the struct to the list
         self.neuron_inputs[idx] = n
 
@@ -115,17 +131,17 @@ cdef class FitzhughNagumo(Neuron):
         """
         return self.c_output()
 
-    def ode_rhs(self, y, w, p):
+    def ode_rhs(self, y, p):
         """ Python interface to the ode_rhs computation."""
-        self.c_ode_rhs(y, w, p)
+        self.c_ode_rhs(y, p)
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
         #: Current state
         cdef double _V = self.V.c_get_value()
-        cdef double _W = self.w.c_get_value()
+        cdef double _w = self.w.c_get_value()
 
         #: Neuron inputs
         cdef double _sum = 0.0
@@ -136,16 +152,23 @@ cdef class FitzhughNagumo(Neuron):
 
         for j in range(self.num_inputs):
             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
-            _weight = _w[self.neuron_inputs[j].weight_idx]
+            _weight = _p[self.neuron_inputs[j].weight_idx]
             _phi = _p[self.neuron_inputs[j].phi_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out,
-                                              _weight, _phi, _V, _W)
+                                              _weight, _phi, _V, _w)
 
-        #: phidot : V_dot
-        self.V_dot.c_set_value(_V - _V**3/3 - _W + self.I + _sum)
+        cdef double m_inf_V = 0.5*(1.0+ctanh((_V-self.beta_m)/self.gamma_m))
+
+        cdef double w_inf_V = 0.5*(1.0+ctanh((_V-self.beta_w)/self.gamma_w))
+
+        cdef double tau_w_V = (1./ccosh((_V-self.beta_w)/(2*self.gamma_w)))
+
+        # V_dot
+        self.V_dot.c_set_value((1.0/self.C)*(self.I - self.g_fast*m_inf_V*(_V-self.E_fast)
+                                             - self.g_slow*_w*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
         #: wdot
-        self.w_dot.c_set_value((1/self.tau)*(_V + self.a - self.b*_W))
+        self.w_dot.c_set_value(self.phi_w*(w_inf_V - _w)/tau_w_V)
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
@@ -155,4 +178,5 @@ cdef class FitzhughNagumo(Neuron):
             self, double _neuron_out, double _weight, double _phi,
             double _V, double _w) nogil:
         """ Evaluate neuron inputs."""
-        return _weight*(_neuron_out - _V - _phi)
+        # Linear coupling term in potential
+        return _weight*(_neuron_out - _V)
