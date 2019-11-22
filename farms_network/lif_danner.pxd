@@ -46,6 +46,6 @@ cdef class LIFDanner(Neuron):
         DannerNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
         void c_output(self) nogil
         inline double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil

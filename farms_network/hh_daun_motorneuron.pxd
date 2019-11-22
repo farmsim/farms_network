@@ -88,7 +88,7 @@ cdef class HHDaunMotorneuron(Neuron):
         DaunMotorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _p) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
         void c_output(self) nogil
         double c_neuron_inputs_eval(self, double _neuron_out, double _g_syn, double _e_syn,
                                     double _gamma_s, double _v_h_s) nogil

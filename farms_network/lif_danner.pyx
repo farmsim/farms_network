@@ -125,13 +125,13 @@ cdef class LIFDanner(Neuron):
         """
         return self.c_output()
 
-    def ode_rhs(self, y, p):
+    def ode_rhs(self, y, w, p):
         """ Python interface to the ode_rhs computation."""
-        self.c_ode_rhs(y, p)
+        self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
 
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
         #: States
@@ -158,7 +158,7 @@ cdef class LIFDanner(Neuron):
 
         for j in range(self.num_inputs):
             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
-            _weight = _p[self.neuron_inputs[j].weight_idx]
+            _weight = _w[self.neuron_inputs[j].weight_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
 
         #: dV

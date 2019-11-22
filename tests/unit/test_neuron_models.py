@@ -7,7 +7,7 @@ from farms_container import Container
 import numpy as np
 import farms_pylog as pylog
 
-# pylog.set_level('debug')
+pylog.set_level('debug')
 
 def neuron_types():
     """ Return all the muscle types implemented. """
@@ -69,6 +69,7 @@ class TestNeuronModels(unittest.TestCase):
         container = Container.get_instance()
         container.initialize()
         self.assertIsNone(neuron.ode_rhs(container.neural.outputs.values,
+                                         container.neural.weights.values,
                                          container.neural.parameters.values))
 
     @ddt.data(*neuron_types())

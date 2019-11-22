@@ -23,7 +23,7 @@ cdef class Neuron:
             'add_ode_input : Method not implemented in Neuron child class')
         raise NotImplementedError()
 
-    def ode_rhs(self, y, p):
+    def ode_rhs(self, y, w, p):
         """ ODE RHS.
         Returns
         ----------
@@ -60,7 +60,7 @@ cdef class Neuron:
         self._model_type = value
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
         pass
 
     cdef void c_output(self) nogil:

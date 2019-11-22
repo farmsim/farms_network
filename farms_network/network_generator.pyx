@@ -114,6 +114,9 @@ cdef class NetworkGenerator(object):
             (<Neuron>self.c_neurons[j]).c_output()            
 
         for j in range(self.num_neurons):
-            (<Neuron>self.c_neurons[j]).c_ode_rhs(self.outputs.c_get_values(),
-                        self.weights.c_get_values())
+            (<Neuron>self.c_neurons[j]).c_ode_rhs(
+                self.outputs.c_get_values(),
+                self.weights.c_get_values(),
+                self.parameters.c_get_values()
+            )
         return self.dstates.c_get_values()

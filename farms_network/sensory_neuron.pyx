@@ -50,9 +50,9 @@ cdef class SensoryNeuron(Neuron):
         pass
 
 
-    def ode_rhs(self, y, p):
+    def ode_rhs(self, y, w, p):
         """Abstract method"""
-        self.c_ode_rhs(y, p)
+        self.c_ode_rhs(y, w, p)
 
     def output(self):
         """ Output of the neuron model.
@@ -65,7 +65,7 @@ cdef class SensoryNeuron(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
         pass
 
