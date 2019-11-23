@@ -29,3 +29,7 @@ build/
 
 #: Generated cython perf html files
 *.html
+
+#: Docs
+docs/build
+make.bat
