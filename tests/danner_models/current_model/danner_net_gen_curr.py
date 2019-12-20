@@ -934,7 +934,7 @@ class ConnectMN2CPG(object):
         self.net = nx.compose_all([cpg,
                                    mn])
         self.name = self.net.name
-        self.mn_names = list(mn.node)
+        self.mn_names = list(mn.nodes)
         self.mn_names_flex = mn_names_flex
 
         #: Methods
