@@ -14,9 +14,9 @@ pylog.set_level('debug')
 network = nx.DiGraph()
 
 #: Create an oscillator for each joint
-N_OSCILLATORS = 4
-OSCILLATOR_NAMES = ('lfemur_link', 'rfemur_link', 'lhumerus_link',
-                           'rhumerus_link')
+N_OSCILLATORS = 12
+OSCILLATOR_NAMES = ("OSC_{}".format(num) for num in range(N_OSCILLATORS))
+
 for osc in OSCILLATOR_NAMES:
     network.add_node(osc, model="oscillator",
                      f=1.,
