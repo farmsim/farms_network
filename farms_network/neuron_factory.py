@@ -7,6 +7,7 @@ from farms_network.hh_daun_motorneuron import HHDaunMotorneuron
 from farms_network.sensory_neuron import SensoryNeuron
 from farms_network.leaky_integrator import LeakyIntegrator
 from farms_network.oscillator import Oscillator
+from farms_network.morphed_oscillator import MorphedOscillator
 from farms_network.fitzhugh_nagumo import FitzhughNagumo
 from farms_network.matsuoka_neuron import MatsuokaNeuron
 from farms_network.morris_lecar import MorrisLecarNeuron
@@ -17,6 +18,7 @@ class NeuronFactory(object):
     """
     neurons = {  # 'if': IntegrateAndFire,
             'oscillator': Oscillator,
+            'morphed_oscillator': MorphedOscillator,
             'leaky': LeakyIntegrator,
             'sensory': SensoryNeuron,
             'lif_danner_nap': LIFDannerNap,

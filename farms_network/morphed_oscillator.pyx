@@ -45,24 +45,33 @@ cdef class MorphedOscillator(Neuron):
         (_, self.gamma) = container.neural.constants.add_parameter(
             'g_' + self.n_id, kwargs.get('gamma', 100))
 
-        (_, self.K) = container.neural.constants.add_parameter(
-            'K_' + self.n_id, kwargs.get('K', 1))
+        (_, self.mu) = container.neural.constants.add_parameter(
+            'mu_' + self.n_id, kwargs.get('mu', 0.0))
+
+        (_, self.zeta) = container.neural.constants.add_parameter(
+            'z_' + self.n_id, kwargs.get('zeta', 1.0))
 
         #: Initialize states
         self.theta = container.neural.states.add_parameter(
             'theta_' + self.n_id, kwargs.get('theta0', 0.0))[0]
-        self.x = container.neural.states.add_parameter(
-            'x_' + self.n_id, kwargs.get('x0', 0.0))[0]
+        self.r = container.neural.states.add_parameter(
+            'r_' + self.n_id, kwargs.get('r0', 0.0))[0]
         
         #: External inputs
         self.ext_in = container.neural.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
+        #: Morphing function
+        self.f_theta = container.neural.parameters.add_parameter(
+            'f_theta' + self.n_id, kwargs.get('f_theta0', 0.0))[0]
+        self.fd_theta = container.neural.parameters.add_parameter(
+            'fd_theta' + self.n_id, kwargs.get('fd_theta0', 0.0))[0]
+
         #: ODE RHS
         self.theta_dot = container.neural.dstates.add_parameter(
             'theta_dot_' + self.n_id, 0.0)[0]
-        self.x_dot = container.neural.dstates.add_parameter(
-            'x_dot_' + self.n_id, 0.0)[0]
+        self.r_dot = container.neural.dstates.add_parameter(
+            'r_dot_' + self.n_id, 0.0)[0]
 
         #: Output
         self.nout = container.neural.outputs.add_parameter(
@@ -124,38 +133,38 @@ cdef class MorphedOscillator(Neuron):
 
         #: Current state
         cdef double _theta = self.theta.c_get_value()
-        cdef double _x = self.x.c_get_value()
+        cdef double _r = self.r.c_get_value()
+        cdef double f_theta = self.f_theta.c_get_value()
+        cdef double fd_theta = self.fd_theta.c_get_value()
 
         #: Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
         cdef double _weight
-        cdef double _theta
+        cdef double _phi
 
         for j in range(self.num_inputs):
             _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
             _weight = _w[self.neuron_inputs[j].weight_idx]
             _phi = _p[self.neuron_inputs[j].phi_idx]
-            _sum += self.c_neuron_inputs_eval(_neuron_out,
-                                              _weight, _theta, _phi)
+            _sum += self.c_neuron_inputs_eval(
+                        _neuron_out, _weight, _theta, _phi)
 
         #: thetadot : theta_dot
         self.theta_dot.c_set_value(2*M_PI*self.f + _sum)
 
-        #: xdot
-        self.x_dot.c_set_value(self.a*(self.R - _amp))
+        #: rdot
+        cdef double r_dot_1 = 2*M_PI*self.f*_r*(fd_theta/f_theta)
+        cdef double r_dot_2 = _r*self.gamma*(self.mu - ((_r*_r)/(f_theta*f_theta)))
+        self.r_dot.c_set_value(r_dot_1 + r_dot_2 + self.zeta)
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
-        self.nout.c_set_value(self.x.c_get_value())
+        self.nout.c_set_value(self.r.c_get_value())
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _theta,
             double _phi) nogil:
         """ Evaluate neuron inputs."""
         return _weight*csin(_neuron_out - _theta - _phi)
-
-    cdef double c_function_approximator(double p0, double p1, double p3):
-        """ Approximates a function as a 3rd order polynomial. """ 
-        return 0.0

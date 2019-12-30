@@ -3,12 +3,12 @@
 from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
-cdef struct OscillatorNeuronInput:
+cdef struct MorphedOscillatorNeuronInput:
     int neuron_idx
     int weight_idx
     int phi_idx
 
-cdef class Oscillator(Neuron):
+cdef class MorphedOscillator(Neuron):
     cdef:
         readonly str n_id
 
@@ -17,29 +17,34 @@ cdef class Oscillator(Neuron):
         #: parameters
         #: constants
         double f
-        double R
-        double a
+        double gamma #: Gamma
+        double mu #: Mu
+        double zeta #: Zeta
+
+        #: Morphing function
+        Parameter f_theta
+        Parameter fd_theta
 
         #: states
-        Parameter phase
-        Parameter amp
+        Parameter theta
+        Parameter r
 
         #: inputs
         Parameter ext_in
 
         #: ode
-        Parameter phase_dot
-        Parameter amp_dot
+        Parameter theta_dot
+        Parameter r_dot
 
         #: Ouputs
         Parameter nout
 
         #: neuron connenctions
-        OscillatorNeuronInput[:] neuron_inputs
+        MorphedOscillatorNeuronInput[:] neuron_inputs
 
     cdef:
         void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
         void c_output(self) nogil
-        cdef double c_neuron_inputs_eval(
-            self, double _neuron_out, double _weight, double _phi,
-            double _phase, double _amp) nogil
+        double c_neuron_inputs_eval(
+            self, double _neuron_out, double _weight, double _theta,
+            double _phi) nogil
