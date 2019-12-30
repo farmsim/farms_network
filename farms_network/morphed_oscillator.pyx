@@ -46,7 +46,7 @@ cdef class MorphedOscillator(Neuron):
             'g_' + self.n_id, kwargs.get('gamma', 100))
 
         (_, self.mu) = container.neural.constants.add_parameter(
-            'mu_' + self.n_id, kwargs.get('mu', 0.0))
+            'mu_' + self.n_id, kwargs.get('mu', 1.0))
 
         (_, self.zeta) = container.neural.constants.add_parameter(
             'z_' + self.n_id, kwargs.get('zeta', 1.0))
@@ -63,9 +63,9 @@ cdef class MorphedOscillator(Neuron):
 
         #: Morphing function
         self.f_theta = container.neural.parameters.add_parameter(
-            'f_theta' + self.n_id, kwargs.get('f_theta0', 0.0))[0]
+            'f_theta_' + self.n_id, kwargs.get('f_theta0', 0.0))[0]
         self.fd_theta = container.neural.parameters.add_parameter(
-            'fd_theta' + self.n_id, kwargs.get('fd_theta0', 0.0))[0]
+            'fd_theta_' + self.n_id, kwargs.get('fd_theta0', 0.0))[0]
 
         #: ODE RHS
         self.theta_dot = container.neural.dstates.add_parameter(
