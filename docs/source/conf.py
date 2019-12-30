@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'FARMS_NETWORK'
 copyright = '2019, BioRob'
 author = 'FARMSIM'
-
+master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
 
