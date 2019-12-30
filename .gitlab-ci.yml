@@ -1,4 +1,3 @@
-
 image: alpine
 
 pages:
@@ -6,7 +5,9 @@ pages:
   - apk --no-cache add py2-pip python-dev
   - pip install sphinx
   - apk --no-cache add make
-  - make docs/html
+  - cd docs
+  - make html
+  - cd ..
   - mv docs/build/html/ public/
   artifacts:
     paths:
