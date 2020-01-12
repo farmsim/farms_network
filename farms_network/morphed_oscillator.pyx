@@ -49,14 +49,14 @@ cdef class MorphedOscillator(Neuron):
             'mu_' + self.n_id, kwargs.get('mu', 1.0))
 
         (_, self.zeta) = container.neural.constants.add_parameter(
-            'z_' + self.n_id, kwargs.get('zeta', 1.0))
-
+            'z_' + self.n_id, kwargs.get('zeta', 0.0))
+        print(self.zeta)
         #: Initialize states
         self.theta = container.neural.states.add_parameter(
             'theta_' + self.n_id, kwargs.get('theta0', 0.0))[0]
         self.r = container.neural.states.add_parameter(
             'r_' + self.n_id, kwargs.get('r0', 0.0))[0]
-        
+
         #: External inputs
         self.ext_in = container.neural.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
@@ -85,7 +85,7 @@ cdef class MorphedOscillator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self,int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef MorphedOscillatorNeuronInput n
@@ -149,19 +149,23 @@ cdef class MorphedOscillator(Neuron):
             _weight = _w[self.neuron_inputs[j].weight_idx]
             _phi = _p[self.neuron_inputs[j].phi_idx]
             _sum += self.c_neuron_inputs_eval(
-                        _neuron_out, _weight, _theta, _phi)
+                _neuron_out, _weight, _theta, _phi)
 
         #: thetadot : theta_dot
         self.theta_dot.c_set_value(2*M_PI*self.f + _sum)
 
         #: rdot
-        cdef double r_dot_1 = 2*M_PI*self.f*_r*(fd_theta/f_theta)
-        cdef double r_dot_2 = _r*self.gamma*(self.mu - ((_r*_r)/(f_theta*f_theta)))
+        # cdef double r_dot_1 = 2*M_PI*self.f*_r*(fd_theta/f_theta)
+        # cdef double r_dot_2 = _r*self.gamma*(self.mu - ((_r*_r)/(f_theta*f_theta)))
+        # self.r_dot.c_set_value(r_dot_1 + r_dot_2 + self.zeta)
+
+        cdef double r_dot_1 = fd_theta*self.theta_dot.c_get_value()
+        cdef double r_dot_2 = self.gamma*(f_theta - _r)
         self.r_dot.c_set_value(r_dot_1 + r_dot_2 + self.zeta)
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
-        self.nout.c_set_value(self.r.c_get_value())
+        self.nout.c_set_value(self.theta.c_get_value())
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _theta,
