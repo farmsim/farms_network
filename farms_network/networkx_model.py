@@ -79,7 +79,8 @@ class NetworkXModel(object):
         if check_pos_is_none:
             pylog.warning('Missing neuron position information.')
             # self.pos = nx.kamada_kawai_layout(self.graph)
-            self.pos = nx.spring_layout(self.graph)
+            # self.pos = nx.spring_layout(self.graph)
+            self.pos = nx.shell_layout(self.graph)
             self.edge_pos = self.pos
 
     def read_neuron_colors_in_graph(self):
@@ -119,7 +120,8 @@ class NetworkXModel(object):
                           node_size=1500,
                           node_labels=True,
                           edge_labels=True,
-                          edge_alpha=True, plt_out=None):
+                          edge_alpha=True,
+                          plt_out=None):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
