@@ -1,4 +1,4 @@
-""" Example of ANYMAL oscillator model. """
+""" Example of double chain oscillator model. """
 
 import farms_pylog as pylog
 import networkx as nx
@@ -10,28 +10,68 @@ import itertools
 from farms_container import Container
 
 pylog.set_level('debug')
-#: Define a network graph
-network = nx.DiGraph()
 
-#: Create an oscillator for each joint
-N_OSCILLATORS = 12
-OSCILLATOR_NAMES = [
-    "OSC_{}".format(num) for num in range(N_OSCILLATORS)]
-
-for osc in OSCILLATOR_NAMES:
-    network.add_node(osc, model="oscillator",
-                     f=1.,
-                     R=1.,
-                     a=10.
-                     )
-
-#: Connect the oscillators
-for a, b in itertools.product(range(4, 8), range(4, 8)):
-    if a != b:
+#: Create an oscillator chain
+def oscillator_chain(n_oscillators, name_prefix, **kwargs):
+    """ Create a chain of n-oscillators. """
+    #: Define a network graph
+    network = nx.DiGraph()
+    oscillator_names = [
+        "{}_{}".format(name_prefix, n) for n in range(n_oscillators)]
+    #: Oscillators
+    f = kwargs.get('f', 1)
+    R = kwargs.get('R', 1)
+    a = kwargs.get('a', 10)
+    origin = kwargs.get('origin', [0,0])
+    for j, osc in enumerate(oscillator_names):
+        network.add_node(
+            osc, model="oscillator", f=f, R=R, a=a,x=origin[0],
+            y=origin[1]+j)
+    #: Connect
+    phase_diff = kwargs.get('axial_phi', 2*np.pi/n_oscillators)
+    weight = kwargs.get('axial_w', 10)
+    connections = np.vstack(
+        (np.arange(n_oscillators),
+         np.roll(np.arange(n_oscillators), -1)))[:, :-1]
+    for j in np.arange(n_oscillators-1):
         network.add_edge(
-            OSCILLATOR_NAMES[a], OSCILLATOR_NAMES[b],
-            weight=np.random.uniform(-1, 1),
-            phi=np.pi)
+            oscillator_names[connections[0, j]],
+            oscillator_names[connections[1, j]],
+            weight=weight,
+            phi=phase_diff)
+        network.add_edge(
+            oscillator_names[connections[1, j]],
+            oscillator_names[connections[0, j]],
+            weight=weight,
+            phi=-1*phase_diff)
+    return network
+
+def oscillator_double_chain(n_oscillators, **kwargs):
+    """ Create a double chain of n-oscillators. """
+    kwargs['origin'] = [-1, 0]
+    left_chain = oscillator_chain(n_oscillators, 'left', **kwargs)
+    kwargs['origin'] = [1, 0]
+    right_chain = oscillator_chain(n_oscillators, 'right', **kwargs)
+    double = nx.compose_all((left_chain, right_chain))
+    #: Connect double chain
+    phase_diff = kwargs.get('anti_phi', np.pi)
+    weight = kwargs.get('anti_w', 10)
+    for n in range(n_oscillators):
+        double.add_edge(
+            'left_{}'.format(n),
+            'right_{}'.format(n),
+            weight=weight,
+            phi=phase_diff)
+        double.add_edge(
+            'right_{}'.format(n),
+            'left_{}'.format(n),
+            weight=weight,
+            phi=phase_diff)
+    return double
+
+#: Create double chain
+n_oscillators = 10
+network = oscillator_double_chain(n_oscillators)
 
 #: Location to save the network
 net_dir = "../config/auto_salamandra_robotica_oscillator.graphml"
@@ -39,7 +79,7 @@ nx.write_graphml(network, net_dir)
 
 # #: Initialize network
 dt = 0.001  #: Time step
-dur = 5
+dur = 10
 time_vec = np.arange(0, dur, dt)  #: Time
 container = Container(dur/dt)
 net = NeuralSystem("../config/auto_salamandra_robotica_oscillator.graphml")
@@ -55,19 +95,18 @@ for t in time_vec:
     container.update_log()
 
 #: Results
-container.dump()
+# container.dump()
 state = np.asarray(container.neural.states.log)
 neuron_out = np.asarray(container.neural.outputs.log)
-
+names = container.neural.outputs.names
 #: Show graph
 net.visualize_network(edge_labels=False)
 
-
 plt.figure()
-for j in range(N_OSCILLATORS):
-    plt.plot(2*j+(state[:, 2*j+1]*np.cos(neuron_out[:, j])))
-plt.grid(True)
-plt.figure()
-plt.plot(state[:, 1::2])
+nosc = n_oscillators
+for j in range(nosc):
+    plt.plot(2*j+(state[:, 2*j+1]*np.sin(neuron_out[:, j])))
+    plt.plot(2*j+(state[:, 2*(j+nosc)+1]*np.sin(neuron_out[:, nosc+j])))
+plt.legend(names)
 plt.grid(True)
 plt.show()
