@@ -11,7 +11,6 @@
 # cython: np_pythran=False
 
 """Leaky Integrate and Fire Interneuron. Daun et """
-from farms_container import Container
 from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
@@ -25,71 +24,68 @@ cdef class LIFDaunInterneuron(Neuron):
     Based on Silvia Daun and Tbor's model.
     """
 
-    def __init__(self, n_id, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, neural_container,  **kwargs):
         super(LIFDaunInterneuron, self).__init__('lif_daun_interneuron')
 
         self.n_id = n_id  #: Unique neuron identifier
-        #: Get container
-        container = Container.get_instance()
-
         #: Constants
-        (_, self.g_nap) = container.neural.constants.add_parameter(
+        (_, self.g_nap) = neural_container.constants.add_parameter(
             'g_nap_' + self.n_id, kwargs.get('g_nap', 10.0))
-        (_, self.e_nap) = container.neural.constants.add_parameter(
+        (_, self.e_nap) = neural_container.constants.add_parameter(
             'e_nap_' + self.n_id, kwargs.get('e_nap', 50.0))
 
         #: Parameters of h
-        (_, self.v_h_h) = container.neural.constants.add_parameter(
+        (_, self.v_h_h) = neural_container.constants.add_parameter(
             'v_h_h_' + self.n_id, kwargs.get('v_h_h', -30.0))
-        (_, self.gamma_h) = container.neural.constants.add_parameter(
+        (_, self.gamma_h) = neural_container.constants.add_parameter(
             'gamma_h_' + self.n_id, kwargs.get('gamma_h', 0.1667))
 
         #: Parameters of tau
-        (_, self.v_t_h) = container.neural.constants.add_parameter(
+        (_, self.v_t_h) = neural_container.constants.add_parameter(
             'v_t_h_' + self.n_id, kwargs.get('v_t_h', -30.0))
-        (_, self.eps) = container.neural.constants.add_parameter(
+        (_, self.eps) = neural_container.constants.add_parameter(
             'eps_' + self.n_id, kwargs.get('eps', 0.0023))
-        (_, self.gamma_t) = container.neural.constants.add_parameter(
+        (_, self.gamma_t) = neural_container.constants.add_parameter(
             'gamma_t_' + self.n_id, kwargs.get('gamma_t', 0.0833))
 
         #: Parameters of m
-        (_, self.v_h_m) = container.neural.constants.add_parameter(
+        (_, self.v_h_m) = neural_container.constants.add_parameter(
             'v_h_m_' + self.n_id, kwargs.get('v_h_m', -37.0))
-        (_, self.gamma_m) = container.neural.constants.add_parameter(
+        (_, self.gamma_m) = neural_container.constants.add_parameter(
             'gamma_m_' + self.n_id, kwargs.get('gamma_m', -0.1667))
 
         #: Parameters of Ileak
-        (_, self.g_leak) = container.neural.constants.add_parameter(
+        (_, self.g_leak) = neural_container.constants.add_parameter(
             'g_leak_' + self.n_id, kwargs.get('g_leak', 2.8))
-        (_, self.e_leak) = container.neural.constants.add_parameter(
+        (_, self.e_leak) = neural_container.constants.add_parameter(
             'e_leak_' + self.n_id, kwargs.get('e_leak', -65.0))
 
         #: Other constants
-        (_, self.c_m) = container.neural.constants.add_parameter(
+        (_, self.c_m) = neural_container.constants.add_parameter(
             'c_m_' + self.n_id, kwargs.get('c_m', 0.9154))
 
         #: State Variables
         #: pylint: disable=invalid-name
         #: Membrane potential
-        self.v = container.neural.states.add_parameter(
+        self.v = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('v0', -60.0))[0]
-        self.h = container.neural.states.add_parameter(
+        self.h = neural_container.states.add_parameter(
             'h_' + self.n_id, kwargs.get('h0', 0.0))[0]
 
         #: ODE
-        self.vdot = container.neural.dstates.add_parameter(
+        self.vdot = neural_container.dstates.add_parameter(
             'vdot_' + self.n_id, 0.0)[0]
-        self.hdot = container.neural.dstates.add_parameter(
+        self.hdot = neural_container.dstates.add_parameter(
             'hdot_' + self.n_id, 0.0)[0]
 
         #: External Input
-        self.g_app = container.neural.inputs.add_parameter(
+        self.g_app = neural_container.inputs.add_parameter(
             'g_app_' + self.n_id, kwargs.get('g_app', 0.2))[0]
-        self.e_app = container.neural.inputs.add_parameter(
+        self.e_app = neural_container.inputs.add_parameter(
             'e_app_' + self.n_id, kwargs.get('e_app', 0.0))[0]
 
         #: Output
-        self.nout = container.neural.outputs.add_parameter(
+        self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
@@ -101,7 +97,7 @@ cdef class LIFDaunInterneuron(Neuron):
                                                 ('gamma_s_idx', 'i'),
                                                 ('v_h_s_idx', 'i')])
 
-    def add_ode_input(self,int idx, neuron, **kwargs):
+    def add_ode_input(self,int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -111,29 +107,28 @@ cdef class LIFDaunInterneuron(Neuron):
             Strength of the synapse between the two neurons"""
 
         #: Create a struct to store the inputs and weights to the neuron
-        cdef DaunInterNeuronInput n
-        container = Container.get_instance()
+        cdef DaunInterNeuronInput n        
         #: Get the neuron parameter
-        neuron_idx = container.neural.outputs.get_parameter_index(
+        neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        g_syn = container.neural.parameters.add_parameter(
+        g_syn = neural_container.parameters.add_parameter(
             'g_syn_' + self.n_id, kwargs.pop('g_syn', 0.0))[0]
-        e_syn = container.neural.parameters.add_parameter(
+        e_syn = neural_container.parameters.add_parameter(
             'e_syn_' + self.n_id, kwargs.pop('e_syn', 0.0))[0]
-        gamma_s = container.neural.parameters.add_parameter(
+        gamma_s = neural_container.parameters.add_parameter(
             'gamma_s_' + self.n_id, kwargs.pop('gamma_s', 0.0))[0]
-        v_h_s = container.neural.parameters.add_parameter(
+        v_h_s = neural_container.parameters.add_parameter(
             'v_h_s_' + self.n_id, kwargs.pop('v_h_s', 0.0))[0]
 
         #: Get neuron parameter indices
-        g_syn_idx = container.neural.parameters.get_parameter_index(
+        g_syn_idx = neural_container.parameters.get_parameter_index(
             'g_syn_' + self.n_id)
-        e_syn_idx = container.neural.parameters.get_parameter_index(
+        e_syn_idx = neural_container.parameters.get_parameter_index(
             'e_syn_' + self.n_id)
-        gamma_s_idx = container.neural.parameters.get_parameter_index(
+        gamma_s_idx = neural_container.parameters.get_parameter_index(
             'gamma_s_' + self.n_id)
-        v_h_s_idx = container.neural.parameters.get_parameter_index(
+        v_h_s_idx = neural_container.parameters.get_parameter_index(
             'v_h_s_' + self.n_id)
 
         #: Add the indices to the struct

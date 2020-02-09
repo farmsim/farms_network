@@ -11,7 +11,6 @@
 # cython: np_pythran=False
 
 """Leaky Integrate and Fire Neuron Based on Danner et.al."""
-from farms_container import Container
 from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
@@ -24,66 +23,63 @@ cdef class LIFDanner(Neuron):
     """Leaky Integrate and Fire Neuron Based on Danner et.al.
     """
 
-    def __init__(self, n_id, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, neural_container, **kwargs):
         super(
             LIFDanner, self).__init__('lif_danner')
 
         self.n_id = n_id  #: Unique neuron identifier
-        #: Get container
-        container = Container.get_instance()
-        
         #: Constants
-        (_, self.c_m) = container.neural.constants.add_parameter(
+        (_, self.c_m) = neural_container.constants.add_parameter(
             'c_m_' + self.n_id, kwargs.get('c_m', 10.0))  #: pF
 
-        (_, self.g_leak) = container.neural.constants.add_parameter(
+        (_, self.g_leak) = neural_container.constants.add_parameter(
             'g_leak_' + self.n_id, kwargs.get('g_leak', 2.8))  # : nS
-        (_, self.e_leak) = container.neural.constants.add_parameter(
+        (_, self.e_leak) = neural_container.constants.add_parameter(
             'e_leak_' + self.n_id, kwargs.get('e_leak', -60.0))  # : mV
 
-        (_, self.tau_noise) = container.neural.constants.add_parameter(
+        (_, self.tau_noise) = neural_container.constants.add_parameter(
             'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  # : ms
 
-        (_, self.v_max) = container.neural.constants.add_parameter(
+        (_, self.v_max) = neural_container.constants.add_parameter(
             'v_max_' + self.n_id, kwargs.get('v_max', 0.0))  # : mV
-        (_, self.v_thr) = container.neural.constants.add_parameter(
+        (_, self.v_thr) = neural_container.constants.add_parameter(
             'v_thr_' + self.n_id, kwargs.get('v_thr', -50.0))  # : mV
 
-        (_, self.g_syn_e) = container.neural.constants.add_parameter(
+        (_, self.g_syn_e) = neural_container.constants.add_parameter(
             'g_syn_e_' + self.n_id, kwargs.get('g_syn_e', 10.0))  # : nS
-        (_, self.g_syn_i) = container.neural.constants.add_parameter(
+        (_, self.g_syn_i) = neural_container.constants.add_parameter(
             'g_syn_i_' + self.n_id, kwargs.get('g_syn_i', 10.0))  # : nS
-        (_, self.e_syn_e) = container.neural.constants.add_parameter(
+        (_, self.e_syn_e) = neural_container.constants.add_parameter(
             'e_syn_e_' + self.n_id, kwargs.get('e_syn_e', -10.0))  # : mV
-        (_, self.e_syn_i) = container.neural.constants.add_parameter(
+        (_, self.e_syn_i) = neural_container.constants.add_parameter(
             'e_syn_i_' + self.n_id, kwargs.get('e_syn_i', -75.0))  # : mV
 
-        (_, self.m_e) = container.neural.constants.add_parameter(
+        (_, self.m_e) = neural_container.constants.add_parameter(
             'm_e_' + self.n_id, kwargs.pop('m_e', 0.0))  #: m_E,i
-        (_, self.m_i) = container.neural.constants.add_parameter(
+        (_, self.m_i) = neural_container.constants.add_parameter(
             'm_i_' + self.n_id, kwargs.pop('m_i', 0.0))  #: m_I,i
-        (_, self.b_e) = container.neural.constants.add_parameter(
+        (_, self.b_e) = neural_container.constants.add_parameter(
             'b_e_' + self.n_id, kwargs.pop('b_e', 0.0))  #: m_E,i
-        (_, self.b_i) = container.neural.constants.add_parameter(
+        (_, self.b_i) = neural_container.constants.add_parameter(
             'b_i_' + self.n_id, kwargs.pop('b_i', 0.0))  #: m_I,i
 
         #: State Variables
         #: pylint: disable=invalid-name
-        self.v = container.neural.states.add_parameter(
+        self.v = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  #: Membrane potential
 
         # self.i_noise = dae.add_x('In_' + self.n_id)
 
         #: ODE
-        self.vdot = container.neural.dstates.add_parameter(
+        self.vdot = neural_container.dstates.add_parameter(
             'vdot_' + self.n_id, 0.0)[0]
 
         #: Output
-        self.nout = container.neural.outputs.add_parameter(
+        self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
         #: External Input (BrainStem Drive)
-        self.alpha = container.neural.inputs.add_parameter(
+        self.alpha = neural_container.inputs.add_parameter(
             'alpha_' + self.n_id, 0.22)[0]
 
         #: Neuron inputs
@@ -92,7 +88,7 @@ cdef class LIFDanner(Neuron):
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
 
-    def add_ode_input(self, int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -100,15 +96,14 @@ cdef class LIFDanner(Neuron):
 
         #: Create a struct to store the inputs and weights to the neuron
         cdef DannerNeuronInput n
-        container = Container.get_instance()
         #: Get the neuron parameter
-        neuron_idx = container.neural.outputs.get_parameter_index(
+        neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
         #: Add the weight parameter
-        weight = container.neural.weights.add_parameter(
+        weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))[0]
-        weight_idx = container.neural.weights.get_parameter_index(
+        weight_idx = neural_container.weights.get_parameter_index(
             'w_' + neuron.n_id + '_to_' + self.n_id)
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx

@@ -1,8 +1,5 @@
-""" Class to Generate network and integrate over time. """
-
 from farms_network.network_generator import NetworkGenerator
 from scipy.integrate import ode
-from farms_container import Container
 from .networkx_model import NetworkXModel
 
 
@@ -10,16 +7,17 @@ class NeuralSystem(NetworkXModel):
     """Neural System.
     """
 
-    def __init__(self, config_path):
+    def __init__(self, config_path, container):
         """ Initialize neural system. """
         super(NeuralSystem, self).__init__()
-        self.container = Container.get_instance()
+        self.container = container
         #: Add name-space for neural system data
-        self.container.add_namespace('neural')
+        neural_table = self.container.add_namespace('neural')
         self.config_path = config_path
         self.integrator = None
         self.read_graph(config_path)
-        self.network = NetworkGenerator(self.graph)
+        #: Create network
+        self.network = NetworkGenerator(self.graph, neural_table)
 
     def setup_integrator(self, x0=None, integrator='dopri5', atol=10,
                          rtol=10, max_step=1, method='adams'):

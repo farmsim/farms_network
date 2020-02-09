@@ -11,7 +11,6 @@
 # cython: np_pythran=False
 
 """Morris Lecar Neuron model"""
-from farms_container import Container
 from libc.stdio cimport printf
 import farms_pylog as pylog
 from libc.math cimport tanh as ctanh
@@ -22,7 +21,7 @@ cimport numpy as cnp
 
 cdef class MorrisLecarNeuron(Neuron):
 
-    def __init__(self, n_id, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, neural_container, **kwargs):
         """Initialize.
 
         Parameters
@@ -34,55 +33,53 @@ cdef class MorrisLecarNeuron(Neuron):
 
         #: Neuron ID
         self.n_id = n_id
-        #: Get container
-        container = Container.get_instance()
-
+        
         #: Initialize parameters
-        (_, self.I) = container.neural.constants.add_parameter(
+        (_, self.I) = neural_container.constants.add_parameter(
             'I_' + self.n_id, kwargs.get('I', 100.0))
-        (_, self.C) = container.neural.constants.add_parameter(
+        (_, self.C) = neural_container.constants.add_parameter(
             'C_' + self.n_id, kwargs.get('C', 2.0))
-        (_, self.g_fast) = container.neural.constants.add_parameter(
+        (_, self.g_fast) = neural_container.constants.add_parameter(
             'g_fast_' + self.n_id, kwargs.get('g_fast', 20.0))
-        (_, self.g_slow) = container.neural.constants.add_parameter(
+        (_, self.g_slow) = neural_container.constants.add_parameter(
             'g_slow_' + self.n_id, kwargs.get('g_slow', 20.0))
-        (_, self.g_leak) = container.neural.constants.add_parameter(
+        (_, self.g_leak) = neural_container.constants.add_parameter(
             'g_leak_' + self.n_id, kwargs.get('g_leak', 2.0))
-        (_, self.E_fast) = container.neural.constants.add_parameter(
+        (_, self.E_fast) = neural_container.constants.add_parameter(
             'E_fast_' + self.n_id, kwargs.get('E_fast', 50.0))
-        (_, self.E_slow) = container.neural.constants.add_parameter(
+        (_, self.E_slow) = neural_container.constants.add_parameter(
             'E_slow_' + self.n_id, kwargs.get('E_slow', -100.0))
-        (_, self.E_leak) = container.neural.constants.add_parameter(
+        (_, self.E_leak) = neural_container.constants.add_parameter(
             'E_leak_' + self.n_id, kwargs.get('E_leak', -70.0))
-        (_, self.phi_w) = container.neural.constants.add_parameter(
+        (_, self.phi_w) = neural_container.constants.add_parameter(
             'phi_w_' + self.n_id, kwargs.get('phi_w', 0.15))
-        (_, self.beta_m) = container.neural.constants.add_parameter(
+        (_, self.beta_m) = neural_container.constants.add_parameter(
             'beta_m_' + self.n_id, kwargs.get('beta_m', 0.0))
-        (_, self.gamma_m) = container.neural.constants.add_parameter(
+        (_, self.gamma_m) = neural_container.constants.add_parameter(
             'gamma_m_' + self.n_id, kwargs.get('gamma_m', 18.0))
-        (_, self.beta_w) = container.neural.constants.add_parameter(
+        (_, self.beta_w) = neural_container.constants.add_parameter(
             'beta_w_' + self.n_id, kwargs.get('beta_w', -10.0))
-        (_, self.gamma_w) = container.neural.constants.add_parameter(
+        (_, self.gamma_w) = neural_container.constants.add_parameter(
             'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13.0))
 
         #: Initialize states
-        self.V = container.neural.states.add_parameter(
+        self.V = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
-        self.w = container.neural.states.add_parameter(
+        self.w = neural_container.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.0))[0]
 
         #: External inputs
-        self.ext_in = container.neural.inputs.add_parameter(
+        self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
         #: ODE RHS
-        self.V_dot = container.neural.dstates.add_parameter(
+        self.V_dot = neural_container.dstates.add_parameter(
             'V_dot_' + self.n_id, 0.0)[0]
-        self.w_dot = container.neural.dstates.add_parameter(
+        self.w_dot = neural_container.dstates.add_parameter(
             'w_dot_' + self.n_id, 0.0)[0]
 
         #: Output
-        self.nout = container.neural.outputs.add_parameter(
+        self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
@@ -93,26 +90,25 @@ cdef class MorrisLecarNeuron(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef MLNeuronInput n
-        container = Container.get_instance()
         #: Get the neuron parameter
-        neuron_idx = container.neural.outputs.get_parameter_index(
+        neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
         #: Add the weight parameter
-        weight = container.neural.weights.add_parameter(
+        weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight', 0.0))[0]
-        phi = container.neural.parameters.add_parameter(
+        phi = neural_container.parameters.add_parameter(
             'phi_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('phi', 0.0))[0]
 
-        weight_idx = container.neural.weights.get_parameter_index(
+        weight_idx = neural_container.weights.get_parameter_index(
             'w_' + neuron.n_id + '_to_' + self.n_id)
-        phi_idx = container.neural.parameters.get_parameter_index(
+        phi_idx = neural_container.parameters.get_parameter_index(
             'phi_' + neuron.n_id + '_to_' + self.n_id)
 
         n.neuron_idx = neuron_idx

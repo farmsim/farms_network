@@ -9,14 +9,13 @@
 # cython: overflowcheck=False
 
 """Leaky Integrator Neuron."""
-from farms_container import Container
 from libc.math cimport exp
 import numpy as np
 cimport numpy as cnp
 
 cdef class LeakyIntegrator(Neuron):
 
-    def __init__(self, n_id, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, neural_container, **kwargs):
         """Initialize.
 
         Parameters
@@ -27,31 +26,28 @@ cdef class LeakyIntegrator(Neuron):
         super(LeakyIntegrator, self).__init__('leaky')
         #: Neuron ID
         self.n_id = n_id
-        #: Get container
-        container = Container.get_instance()
-
         #: Initialize parameters
-        (_, self.tau) = container.neural.constants.add_parameter(
+        (_, self.tau) = neural_container.constants.add_parameter(
             'tau_' + self.n_id, kwargs.get('tau', 0.1))
-        (_, self.bias) = container.neural.constants.add_parameter(
+        (_, self.bias) = neural_container.constants.add_parameter(
             'bias_' + self.n_id, kwargs.get('bias', -2.75))
         #: pylint: disable=invalid-name
-        (_, self.D) = container.neural.constants.add_parameter(
+        (_, self.D) = neural_container.constants.add_parameter(
             'D_' + self.n_id, kwargs.get('D', 1.0))
 
         #: Initialize states
-        self.m = container.neural.states.add_parameter(
+        self.m = neural_container.states.add_parameter(
             'm_' + self.n_id, kwargs.get('x0', 0.0))[0]
         #: External inputs
-        self.ext_in = container.neural.inputs.add_parameter(
+        self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
         #: ODE RHS
-        self.mdot = container.neural.dstates.add_parameter(
+        self.mdot = neural_container.dstates.add_parameter(
             'mdot_' + self.n_id, 0.0)[0]
 
         #: Output
-        self.nout = container.neural.outputs.add_parameter(
+        self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
@@ -61,19 +57,18 @@ cdef class LeakyIntegrator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef LeakyIntegratorNeuronInput n
-        container = Container.get_instance()
         #: Get the neuron parameter
-        neuron_idx = container.neural.outputs.get_parameter_index(
+        neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
         #: Add the weight parameter
-        weight = container.neural.weights.add_parameter(
+        weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))
-        weight_idx = container.neural.weights.get_parameter_index(
+        weight_idx = neural_container.weights.get_parameter_index(
             'w_' + neuron.n_id + '_to_' + self.n_id)
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx

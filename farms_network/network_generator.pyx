@@ -14,7 +14,6 @@
 from libc.stdio cimport printf
 from farms_network.neuron cimport Neuron
 from farms_container.table cimport Table
-from farms_container import Container
 from cython.parallel import prange
 from farms_network.leaky_integrator cimport LeakyIntegrator
 import farms_pylog as pylog
@@ -26,11 +25,11 @@ cimport cython
 pylog.set_level('debug')
 
 
-cdef class NetworkGenerator(object):
+cdef class NetworkGenerator:
     """ Generate Neural Network.
     """
 
-    def __init__(self, graph):
+    def __init__(self, graph, neural_container):
         """Initialize.
 
         Parameters
@@ -42,15 +41,14 @@ cdef class NetworkGenerator(object):
 
         #: Attributes
         self.neurons = OrderedDict()  #: Neurons in the network
-        container = Container.get_instance()
-        self.states = <Table > container.neural.add_table('states')
-        self.dstates = <Table > container.neural.add_table('dstates')
-        self.constants = <Table > container.neural.add_table(
-            'constants', TABLE_TYPE='CONSTANT')
-        self.inputs = <Table > container.neural.add_table('inputs')
-        self.weights = <Table > container.neural.add_table('weights')
-        self.parameters = <Table > container.neural.add_table('parameters')
-        self.outputs = <Table > container.neural.add_table('outputs')
+        self.states = <Table > neural_container.add_table('states')
+        self.dstates = <Table > neural_container.add_table('dstates')
+        self.constants = <Table > neural_container.add_table(
+            'constants', table_type='CONSTANT')
+        self.inputs = <Table > neural_container.add_table('inputs')
+        self.weights = <Table > neural_container.add_table('weights')
+        self.parameters = <Table > neural_container.add_table('parameters')
+        self.outputs = <Table > neural_container.add_table('outputs')
 
         self.odes = []
 
@@ -64,10 +62,10 @@ cdef class NetworkGenerator(object):
         self.num_neurons = len(self.graph)
 
         self.c_neurons = np.ndarray((self.num_neurons,), dtype=Neuron)
-        self.generate_neurons()
-        self.generate_network()
+        self.generate_neurons(neural_container)
+        self.generate_network(neural_container)
 
-    def generate_neurons(self):
+    def generate_neurons(self, neural_container):
         """Generate the complete neural network.
         Instatiate a neuron model for each node in the graph
 
@@ -84,11 +82,14 @@ cdef class NetworkGenerator(object):
                     name, neuron['model']))
             #: Generate Neuron Models
             _neuron = NeuronFactory.gen_neuron(neuron['model'])
-            self.neurons[name] = _neuron(name, self.graph.in_degree(name),
-                                         **neuron)
+            self.neurons[name] = _neuron(
+                name, self.graph.in_degree(name),
+                neural_container,
+                **neuron
+            )
             self.c_neurons[j] = <Neuron > self.neurons[name]
 
-    def generate_network(self):
+    def generate_network(self, neural_container):
         """
         Generate the network.
         """
@@ -100,7 +101,10 @@ cdef class NetworkGenerator(object):
                 pylog.debug(('{} -> {}'.format(pred, name)))
                 #: Set the weight of the parameter
                 neuron.add_ode_input(
-                    j, self.neurons[pred], **self.graph[pred][name])
+                    j,
+                    self.neurons[pred],
+                    neural_container,
+                    **self.graph[pred][name])
 
     def ode(self, t, cnp.ndarray[double, ndim=1] state):
         return self.c_ode(t, state)
@@ -112,7 +116,7 @@ cdef class NetworkGenerator(object):
         cdef unsigned int j
 
         for j in range(self.num_neurons):
-            (<Neuron>self.c_neurons[j]).c_output()            
+            (<Neuron>self.c_neurons[j]).c_output()
 
         for j in range(self.num_neurons):
             (<Neuron>self.c_neurons[j]).c_ode_rhs(
