@@ -82,7 +82,9 @@ dt = 0.001  #: Time step
 dur = 10
 time_vec = np.arange(0, dur, dt)  #: Time
 container = Container(dur/dt)
-net = NeuralSystem("../config/auto_salamandra_robotica_oscillator.graphml")
+net = NeuralSystem(
+    "../config/auto_salamandra_robotica_oscillator.graphml",
+    container)
 #: initialize network parameters
 container.initialize()
 net.setup_integrator()

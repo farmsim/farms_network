@@ -45,16 +45,18 @@ net_dir = '../config/auto_gen_fly_oscillator_network.graphml'
 nx.write_graphml(network, net_dir)
 
 # #: Initialize network
-net = NeuralSystem('../config/auto_gen_fly_oscillator_network.graphml')
-container = Container.get_instance()
-container.initialize()
-net.setup_integrator()
-
 #: initialize network parameters
 #: pylint: disable=invalid-name
 dt = 0.001  #: Time step
 dur = 20
 time_vec = np.arange(0, dur, dt)  #: Time
+
+container = Container(dur/dt)
+net = NeuralSystem(
+    '../config/auto_gen_fly_oscillator_network.graphml',
+    container)
+container.initialize()
+net.setup_integrator()
 
 #: Integrate the network
 pylog.info('Begin Integration!')

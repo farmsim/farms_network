@@ -15,7 +15,7 @@ network = nx.DiGraph()
 
 #: Create an oscillator for each joint
 N_OSCILLATORS = 12
-OSCILLATOR_NAMES = ("OSC_{}".format(num) for num in range(N_OSCILLATORS))
+OSCILLATOR_NAMES = ["OSC_{}".format(num) for num in range(N_OSCILLATORS)]
 
 for osc in OSCILLATOR_NAMES:
     network.add_node(osc, model="oscillator",
@@ -40,7 +40,9 @@ dt = 0.001  #: Time step
 dur = 20
 time_vec = np.arange(0, dur, dt)  #: Time
 container = Container(dur/dt)
-net = NeuralSystem('../config/auto_gen_4_neuron_quadruped.graphml')
+net = NeuralSystem(
+    '../config/auto_gen_4_neuron_quadruped.graphml',
+    container)
 #: initialize network parameters
 container.initialize()
 net.setup_integrator()
