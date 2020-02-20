@@ -15,7 +15,7 @@ class NetworkXModel(object):
     def __init__(self):
         """ Initialize. """
         super(NetworkXModel, self).__init__()
-        self._graph = None  #: NetworkX graph
+        self.graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
         self.edge_pos = {}
         self.color_map = []  #: Neuron color map
@@ -24,21 +24,6 @@ class NetworkXModel(object):
         self.alpha_edge = []  #: Neuron edge alpha
         self.edge_style = []  #: Arrow edge style
         self.net_matrix = None
-
-    @property
-    def graph(self):
-        """Get the graph object  """
-        return self._graph
-
-    @graph.setter
-    def graph(self, value):
-        """
-        Parameters
-        ----------
-        value : <nx.GraphObject>
-            Graph object
-        """
-        self._graph = value
 
     def read_graph(self, path):
         """Read graph from the file path.
@@ -179,6 +164,7 @@ class NetworkXModel(object):
                 left=0, right=1, top=1, bottom=0)
             plt_out.grid()
             ax.invert_yaxis()
+            plt_out.tight_layout()
         else:
             # fig.draw()
             ax.invert_yaxis()
