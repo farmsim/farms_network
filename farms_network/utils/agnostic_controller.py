@@ -73,14 +73,14 @@ class AgnosticController:
                     network,
                     joint.name + '_flexion',
                     conn + '_flexion',
-                    weight=10.0,
+                    weight=50.0,
                     phi=np.pi/4
                 )
                 AgnosticController.add_mutual_connection(
                     network,
                     joint.name + '_extension',
                     conn + '_extension',
-                    weight=10.0,
+                    weight=50.0,
                     phi=np.pi/4
                 )
 
@@ -97,7 +97,7 @@ class AgnosticController:
                 network,
                 j1 + '_flexion',
                 j2 + '_flexion',
-                weight=10.0,
+                weight=50.0,
                     phi=0.0
             )
             AgnosticController.add_mutual_connection(
@@ -123,7 +123,7 @@ class AgnosticController:
                 model='oscillator',
                 f=5,
                 R=1.0,
-                a=10.0,
+                a=25,
                 x=links[link_id[joint.child]].pose[0]+0.001,
                 y=links[link_id[joint.child]].pose[1] + \
                 links[link_id[joint.child]].pose[2],
@@ -134,7 +134,7 @@ class AgnosticController:
                 model='oscillator',
                 f=5,
                 R=1.0,
-                a=10.0,
+                a=25,
                 x=links[link_id[joint.child]].pose[0]-0.001,
                 y=links[link_id[joint.child]].pose[1] + \
                 links[link_id[joint.child]].pose[2],
@@ -145,8 +145,8 @@ class AgnosticController:
                     self.network,
                     joint.name + '_flexion',
                     joint.name + '_extension',
-                    weight=10.0,
-                    phi=3
+                    weight=50.0,
+                    phi=np.pi/2
                 )
 
         #: Connect neurons to closest neighbors

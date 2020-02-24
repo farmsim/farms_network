@@ -52,89 +52,90 @@ def main():
             'Cervical_extension',
         ]
     )
-    #: Connect hind-fore limbs
+    #: Connect hind-fore limbsw
+    weight = 50.0
     AgnosticController.add_mutual_connection(
         network,
         'LHip_flexion',
         'RHip_flexion',
-        weight=10.0,
+        weight=weight,
         phi=np.pi
     )
     AgnosticController.add_mutual_connection(
         network,
         'LShoulder_flexion',
         'RShoulder_flexion',
-        weight=10.0,
+        weight=weight,
         phi=np.pi
     )
     AgnosticController.add_mutual_connection(
         network,
         'LHip_flexion',
         'RShoulder_flexion',
-        weight=10.0,
+        weight=weight,
         phi=0.0
     )
     AgnosticController.add_mutual_connection(
         network,
         'RHip_flexion',
         'LShoulder_flexion',
-        weight=10.0,
+        weight=weight,
         phi=0.0
     )
     AgnosticController.add_mutual_connection(
         network,
         'RHip_flexion',
         'RShoulder_flexion',
-        weight=10.0,
+        weight=weight,
         phi=np.pi/2
     )
     AgnosticController.add_mutual_connection(
         network,
         'LHip_flexion',
         'LShoulder_flexion',
-        weight=10.0,
+        weight=weight,
         phi=np.pi/2
     )
     AgnosticController.add_mutual_connection(
         network,
         'LHip_extension',
         'RHip_extension',
-        weight=10.0,
+        weight=weight,
         phi=np.pi
     )
     AgnosticController.add_mutual_connection(
         network,
         'LShoulder_extension',
         'RShoulder_extension',
-        weight=10.0,
+        weight=weight,
         phi=np.pi
     )
     AgnosticController.add_mutual_connection(
         network,
         'LHip_extension',
         'RShoulder_extension',
-        weight=10.0,
+        weight=weight,
         phi=0.0
     )
     AgnosticController.add_mutual_connection(
         network,
         'RHip_extension',
         'LShoulder_extension',
-        weight=10.0,
+        weight=weight,
         phi=0.0
     )
     AgnosticController.add_mutual_connection(
         network,
         'RHip_extension',
         'RShoulder_extension',
-        weight=10.0,
+        weight=weight,
         phi=np.pi/2
     )
     AgnosticController.add_mutual_connection(
         network,
         'LHip_extension',
         'LShoulder_extension',
-        weight=10.0,
+        weight=weight,
         phi=np.pi/2
     )
 
@@ -142,7 +143,7 @@ def main():
 
     # #: Initialize network
     dt = 0.001  #: Time step
-    dur = 10
+    dur = 2
     time_vec = np.arange(0, dur, dt)  #: Time
     container = Container(dur/dt)
     net = NeuralSystem(
@@ -170,7 +171,10 @@ def main():
     #: Show graph
     print(net.graph.number_of_edges())
     print(net.graph.number_of_nodes())
-    net.visualize_network(edge_labels=False)
+    net.visualize_network(
+        edge_labels=False,
+        node_size=1000        
+    )
     nosc = net.network.graph.number_of_nodes()
 
     plt.figure()
