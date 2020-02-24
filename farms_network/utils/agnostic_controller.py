@@ -14,11 +14,12 @@ from farms_container import Container
 
 pylog.set_level('debug')
 
+
 class AgnosticController:
     """Generate agnostic muscle neural control.
 
     """
-    
+
     def __init__(
             self,
             sdf_path,
@@ -26,7 +27,7 @@ class AgnosticController:
             connect_closest_neighbors=True,
             connect_base_nodes=True
     ):
-        super().__init__()        
+        super().__init__()
         self.model = self.read_sdf(sdf_path)[0]
         self.connect_flexion_extension = connect_mutual
         self.connect_closest_neighbors = connect_closest_neighbors
@@ -98,24 +99,24 @@ class AgnosticController:
                 j1 + '_flexion',
                 j2 + '_flexion',
                 weight=50.0,
-                    phi=0.0
+                phi=0.0
             )
             AgnosticController.add_mutual_connection(
                 network,
                 j1 + '_extension',
                 j2 + '_extension',
-                weight=10.0,
+                weight=50.0,
                 phi=0.0
             )
-        
+
     def generate_network(self):
         """Generate network
         Keyword Arguments:
         self -- 
         """
-        links  = self.model.links
+        links = self.model.links
         link_id = sdf_utils.link_name_to_index(self.model)
-                
+
         #: Add two neurons to each joint and connect each other
         for joint in self.model.joints:
             self.network.add_node(
@@ -125,7 +126,7 @@ class AgnosticController:
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]+0.001,
-                y=links[link_id[joint.child]].pose[1] + \
+                y=links[link_id[joint.child]].pose[1] +
                 links[link_id[joint.child]].pose[2],
                 z=links[link_id[joint.child]].pose[2],
             )
@@ -136,7 +137,7 @@ class AgnosticController:
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]-0.001,
-                y=links[link_id[joint.child]].pose[1] + \
+                y=links[link_id[joint.child]].pose[1] +
                 links[link_id[joint.child]].pose[2],
                 z=links[link_id[joint.child]].pose[2],
             )
@@ -164,14 +165,14 @@ class AgnosticController:
                 self.network,
                 self.model
             )
-        
+
 
 def main():
     """ Main. """
     controller_gen = AgnosticController(
         ("../../../farms_blender/animats/"
          "mouse_v1/design/sdf/mouse_locomotion.sdf"),
-    )    
+    )
     net_dir = "../config/mouse_locomotion.graphml"
     nx.write_graphml(controller_gen.network, net_dir)
 
@@ -204,12 +205,13 @@ def main():
     print(net.graph.number_of_edges())
     net.visualize_network(edge_labels=False)
     nosc = net.network.graph.number_of_nodes()
-    plt.figure()    
+    plt.figure()
     for j in range(nosc):
         plt.plot((state[:, 2*j+1]*np.sin(neuron_out[:, j])))
     plt.legend(names)
     plt.grid(True)
     plt.show()
+
 
 if __name__ == '__main__':
     main()
