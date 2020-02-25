@@ -74,14 +74,14 @@ class AgnosticController:
                     joint.name + '_flexion',
                     conn + '_flexion',
                     weight=50.0,
-                    phi=np.pi/4
+                    phi=np.pi/2
                 )
                 AgnosticController.add_mutual_connection(
                     network,
                     joint.name + '_extension',
                     conn + '_extension',
                     weight=50.0,
-                    phi=np.pi/4
+                    phi=np.pi/2
                 )
 
     @staticmethod
@@ -146,7 +146,7 @@ class AgnosticController:
                     joint.name + '_flexion',
                     joint.name + '_extension',
                     weight=50.0,
-                    phi=np.pi/2
+                    phi=np.pi
                 )
 
         #: Connect neurons to closest neighbors

@@ -45,14 +45,18 @@ def main():
             'Head_extension',
         ]
     )
-    #: Remove Cervical nodes
+    #: Remove Spine nodes
     network.remove_nodes_from(
         [
             'Cervical_flexion',
             'Cervical_extension',
+            # 'Thoracic_flexion',
+            # 'Thoracic_extension',
+            # 'Lumbar_flexion',
+            # 'Lumbar_extension',
         ]
     )
-    #: Connect hind-fore limbsw
+    #: Connect hind-fore limbs
     weight = 50.0
     AgnosticController.add_mutual_connection(
         network,
@@ -139,6 +143,18 @@ def main():
         phi=np.pi/2
     )
 
+    _ed = list(
+        network.edges([
+            'Lumbar_extension',
+            'Lumbar_flexion',
+            'Thoracic_extension',
+            'Thoracic_flexion'
+        ])
+    )
+    network.remove_edges_from(
+        _ed
+    )
+
     nx.write_graphml(network, net_dir)
 
     # #: Initialize network
@@ -152,7 +168,11 @@ def main():
 
     #: initialize network parameters
     container.initialize()
-    net.setup_integrator()
+    print(np.asarray(container.neural.states.values))
+    x0 = np.random.uniform(
+        -1, 1, np.shape(np.asarray(container.neural.states.values))
+    )
+    net.setup_integrator(list(x0))
 
     #: Integrate the network
     pylog.info('Begin Integration!')
@@ -186,6 +206,29 @@ def main():
     plt.figure()
     plt.plot(state[:, 0::2])
     plt.grid(True)
+
+    plt.figure()
+    p_rse = container.neural.states.get_parameter_index(
+        'phase_RShoulder_extension')
+    p_rsf = container.neural.states.get_parameter_index(
+        'phase_RShoulder_flexion')
+    p_lse = container.neural.states.get_parameter_index(
+        'phase_LShoulder_extension')
+    p_lsf = container.neural.states.get_parameter_index(
+        'phase_LShoulder_flexion')
+    a_rse = container.neural.states.get_parameter_index(
+        'amp_RShoulder_extension')
+    a_rsf = container.neural.states.get_parameter_index(
+        'amp_RShoulder_flexion')
+    a_lse = container.neural.states.get_parameter_index(
+        'amp_LShoulder_extension')
+    a_lsf = container.neural.states.get_parameter_index(
+        'amp_LShoulder_flexion')
+    plt.plot((state[:, a_rse]*np.sin(state[:, p_rse])))
+    plt.plot((2+state[:, a_rsf]*np.sin(state[:, p_rsf])))
+    plt.plot((state[:, a_lse]*np.sin(state[:, p_lse])))
+    plt.plot((2+state[:, a_lsf]*np.sin(state[:, p_lsf])))
+    plt.legend(('RSE', 'RSF', 'LSE', 'LSF'))
     plt.show()
 
 if __name__ == '__main__':
