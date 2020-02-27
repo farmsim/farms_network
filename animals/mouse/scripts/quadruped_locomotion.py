@@ -58,7 +58,7 @@ def main():
         ]
     )
     #: Connect hind-fore limbs
-    weight = 50.0
+    weight = 5000.0
     AgnosticController.add_mutual_connection(
         network,
         'LHip_flexion',

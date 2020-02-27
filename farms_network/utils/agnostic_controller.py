@@ -64,7 +64,7 @@ class AgnosticController:
         )
 
     @staticmethod
-    def add_connection_to_closest_neighbors(network, model):
+    def add_connection_to_closest_neighbors(network, model, weight):
         """ Add connections to closest neighbors. """
         for joint in model.joints:
             for conn in sdf_utils.find_neighboring_joints(
@@ -74,19 +74,19 @@ class AgnosticController:
                     network,
                     joint.name + '_flexion',
                     conn + '_flexion',
-                    weight=50.0,
+                    weight=weight,
                     phi=np.pi/2
                 )
                 AgnosticController.add_mutual_connection(
                     network,
                     joint.name + '_extension',
                     conn + '_extension',
-                    weight=50.0,
+                    weight=weight,
                     phi=np.pi/2
                 )
 
     @staticmethod
-    def add_connection_between_base_nodes(network, model):
+    def add_connection_between_base_nodes(network, model, weight):
         """ Add connection between base nodes. """
         root_link = sdf_utils.find_root(model)
         base_joints = []
@@ -98,14 +98,14 @@ class AgnosticController:
                 network,
                 j1 + '_flexion',
                 j2 + '_flexion',
-                weight=50.0,
+                weight=weight,
                 phi=0.0
             )
             AgnosticController.add_mutual_connection(
                 network,
                 j1 + '_extension',
                 j2 + '_extension',
-                weight=50.0,
+                weight=weight,
                 phi=0.0
             )
 
@@ -116,7 +116,7 @@ class AgnosticController:
         """
         links = self.model.links
         link_id = sdf_utils.link_name_to_index(self.model)
-
+        weight = 5000.0
         #: Add two neurons to each joint and connect each other
         for joint in self.model.joints:
             self.network.add_node(
@@ -146,7 +146,7 @@ class AgnosticController:
                     self.network,
                     joint.name + '_flexion',
                     joint.name + '_extension',
-                    weight=50.0,
+                    weight=weight,
                     phi=np.pi
                 )
 
@@ -155,7 +155,8 @@ class AgnosticController:
             pylog.debug("Connecting closest neighbors")
             AgnosticController.add_connection_to_closest_neighbors(
                 self.network,
-                self.model
+                self.model,
+                weight=weight
             )
 
         #: Connect neurons between the base nodes
@@ -163,7 +164,8 @@ class AgnosticController:
             pylog.debug("Connecting base nodes")
             AgnosticController.add_connection_between_base_nodes(
                 self.network,
-                self.model
+                self.model,
+                weight=weight
             )
 
 
