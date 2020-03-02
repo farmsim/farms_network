@@ -1,9 +1,9 @@
+from farms_network.neural_system import NeuralSystem
 """ Quadruped cpg locomotion controller. """
 
 import farms_pylog as pylog
 import networkx as nx
 import os
-from farms_network.neural_system import NeuralSystem
 import numpy as np
 import matplotlib.pyplot as plt
 import itertools
@@ -20,171 +20,30 @@ def main():
     )
     net_dir = "../config/quadruped_locomotion.graphml"
     network = controller_gen.network
+
     #: EDIT THE GENERIC CONTROLLER
-    #: Remove MTP nodes
+    #: Remove nodes
     network.remove_nodes_from(
-        [
-            'LMtp_flexion',
-            'RMtp_flexion',
-            'LMtp_extension',
-            'RMtp_extension'
+        ['{}_{}'.format(node, action)
+            for node in (
+                'LMtp', 'RMtp', 'LPalm', 'RPalm', 'Head',
+                    'Cervical', 'Lumbar', 'Thoracic'
+        )
+            for action in ('flexion', 'extension')
         ]
     )
-    #: Remove Palm nodes
-    network.remove_nodes_from(
-        [
-            'LPalm_flexion',
-            'RPalm_flexion',
-            'LPalm_extension',
-            'RPalm_extension'
-        ]
-    )
-    #: Remove Head nodes
-    network.remove_nodes_from(
-        [
-            'Head_flexion',
-            'Head_extension',
-        ]
-    )
-    #: Remove Spine nodes
-    network.remove_nodes_from(
-        [
-            'Cervical_flexion',
-            'Cervical_extension',
-            # 'Thoracic_flexion',
-            # 'Thoracic_extension',
-            # 'Lumbar_flexion',
-            # 'Lumbar_extension',
-        ]
-    )
+
     #: Connect hind-fore limbs
     weight = 5000.0
-    AgnosticController.add_mutual_connection(
-        network,
-        'LHip_flexion',
-        'RHip_flexion',
-        weight=weight,
-        phi=np.pi
-    )
-    AgnosticController.add_mutual_connection(
-        network,
-        'LShoulder_flexion',
-        'RShoulder_flexion',
-        weight=weight,
-        phi=np.pi
-    )
-    # AgnosticController.add_mutual_connection(
-    #     network,
-    #     'LHip_flexion',
-    #     'RShoulder_flexion',
-    #     weight=weight,
-    #     phi=0.0
-    # )
-    # AgnosticController.add_mutual_connection(
-    #     network,
-    #     'RHip_flexion',
-    #     'LShoulder_flexion',
-    #     weight=weight,
-    #     phi=0.0
-    # )
-    AgnosticController.add_mutual_connection(
-        network,
-        'RHip_flexion',
-        'RShoulder_flexion',
-        weight=weight,
-        phi=np.pi/2
-    )
-    AgnosticController.add_mutual_connection(
-        network,
-        'LHip_flexion',
-        'LShoulder_flexion',
-        weight=weight,
-        phi=np.pi/2
-    )
-    AgnosticController.add_mutual_connection(
-        network,
-        'LHip_extension',
-        'RHip_extension',
-        weight=weight,
-        phi=np.pi
-    )
-    AgnosticController.add_mutual_connection(
-        network,
-        'LShoulder_extension',
-        'RShoulder_extension',
-        weight=weight,
-        phi=np.pi
-    )
-    # AgnosticController.add_mutual_connection(
-    #     network,
-    #     'LHip_extension',
-    #     'RShoulder_extension',
-    #     weight=weight,
-    #     phi=0.0
-    # )
-    # AgnosticController.add_mutual_connection(
-    #     network,
-    #     'RHip_extension',
-    #     'LShoulder_extension',
-    #     weight=weight,
-    #     phi=0.0
-    # )
-    AgnosticController.add_mutual_connection(
-        network,
-        'RHip_extension',
-        'RShoulder_extension',
-        weight=weight,
-        phi=np.pi/2
-    )
-    AgnosticController.add_mutual_connection(
-        network,
-        'LHip_extension',
-        'LShoulder_extension',
-        weight=weight,
-        phi=np.pi/2
-    )
 
-    _ed = list(
-        network.in_edges([
-            'Lumbar_extension',
-            'Lumbar_flexion',
-            'Thoracic_extension',
-            'Thoracic_flexion'
-        ])
-    )
-    _ed.extend(list(
-        network.out_edges([
-            'Lumbar_extension',
-            'Lumbar_flexion',
-            'Thoracic_extension',
-            'Thoracic_flexion'
-        ])
-    ))
-    network.remove_edges_from(
-        _ed
-    )
-
-    #: Add connections to spine
-    AgnosticController.add_mutual_connection(
-            network,
-            '{}_extension'.format('Thoracic'),
-            '{}_flexion'.format('Thoracic'),
-            weight=weight,
-            phi=np.pi
-        )
-    AgnosticController.add_mutual_connection(
-            network,
-            '{}_extension'.format('Lumbar'),
-            '{}_flexion'.format('Lumbar'),
-            weight=weight,
-            phi=np.pi
-        )
+    # #: Add central to spine
     for j1, j2, phi in [
-            ['LHip', 'Lumbar', 0.0],
-            ['RHip', 'Lumbar', 0.0],
-            ['LShoulder', 'Thoracic', np.pi],
-            ['RShoulder', 'Thoracic', np.pi],
-            ['Lumbar', 'Thoracic', 0.0]
+            ['LHip', 'RHip', np.pi],
+            ['LShoulder', 'RShoulder', np.pi],
+            ['LHip', 'LShoulder', np.pi],
+            ['RHip', 'RShoulder', np.pi],
+            ['LHip', 'RShoulder', 0.0],
+            ['RHip', 'LShoulder', 0.0],
     ]:
         AgnosticController.add_mutual_connection(
             network,
@@ -235,7 +94,7 @@ def main():
     x0 = np.random.uniform(
         -1, 1, np.shape(np.asarray(container.neural.states.values))
     )
-    net.setup_integrator()
+    net.setup_integrator()# list(x0))
 
     #: Integrate the network
     pylog.info('Begin Integration!')
@@ -255,10 +114,19 @@ def main():
     print(net.graph.number_of_edges())
     print(net.graph.number_of_nodes())
     net.visualize_network(
-        edge_labels=False,
+        edge_labels=True,
         node_size=3e3
     )
     nosc = net.network.graph.number_of_nodes()
+
+    def get_amp_phase(state, states, name):
+        amp = state[:, states.get_parameter_index(
+                        'amp_{}'.format(name)
+        )]
+        phase = state[:, states.get_parameter_index(
+            'phase_{}'.format(name)
+        )]
+        return (amp, phase)
 
     plt.figure()
     for j in range(nosc):
@@ -274,15 +142,17 @@ def main():
     outputs = container.neural.outputs
     hind = ('Hip', 'Knee', 'Ankle')
     fore = ('Shoulder', 'Elbow', 'Wrist')
-    spine = ('Thoracic', 'Lumbar')
-    seg = (hind, fore, spine)
+    # spine = (
+    #     'Thoracic',
+    # )
+    seg = (hind, fore)
     for elem in seg:
         plt.figure()
         for j, joint in enumerate(elem):
             plt.subplot(len(elem), 1, j + 1)
             plt.title('{}'.format(joint))
             legend_names = []
-            for side in ('L', 'R'):                
+            for side in ('L', 'R'):
                 for a in ('flexion', 'extension'):
                     if a == 'flexion':
                         marker = '--'
@@ -292,16 +162,39 @@ def main():
                         name = '{}{}_{}'.format(side, joint, a)
                     else:
                         name = '{}_{}'.format(joint, a)
-                    amp = state[:, states.get_parameter_index(
-                        'amp_{}'.format(name)
-                    )]
-                    phase = neuron_out[:, outputs.get_parameter_index(
-                        'nout_{}'.format(name)
-                    )]
+                    (amp, phase) = get_amp_phase(state, states, name)
                     plt.plot(amp*np.sin(phase), marker)
                     plt.grid(True)
                     legend_names.append(name)
             plt.legend(legend_names)
+
+    #: GAIT
+    plt.figure()
+    plt.title('GAIT')
+    (amp, phase) = get_amp_phase(state, states, 'LHip_flexion')
+    plt.plot(amp*(np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'LHip_extension')
+    plt.plot(amp*(np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'RHip_flexion')
+    plt.plot(amp*(2+np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'RHip_extension')
+    plt.plot(amp*(2+np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'LShoulder_flexion')
+    plt.plot(amp*(4+np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'LShoulder_extension')
+    plt.plot(amp*(4+np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'RShoulder_flexion')
+    plt.plot(amp*(6+np.sin(phase)))
+    (amp, phase) = get_amp_phase(state, states, 'RShoulder_extension')
+    plt.plot(amp*(6+np.sin(phase)))
+    plt.legend(
+        ('LHip_flexion','LHip_extension',
+         'RHip_flexion','RHip_extension',
+         'LShoulder_flexion','LShoulder_extension',
+         'RShoulder_flexion','RShoulder_extension', 
+        )
+    )
+    plt.grid(True)
     plt.show()
 
 

@@ -25,10 +25,15 @@ class AgnosticController:
             sdf_path,
             connect_mutual=True,
             connect_closest_neighbors=True,
-            connect_base_nodes=True
+            connect_base_nodes=True,
+            remove_joint_types=[]
     ):
         super().__init__()
         self.model = self.read_sdf(sdf_path)[0]
+        #: Remove certain joint types
+        for j in remove_joint_types:
+            self.model.joints = sdf_utils.remove_joint_type(
+                self.model, j)
         self.connect_flexion_extension = connect_mutual
         self.connect_closest_neighbors = connect_closest_neighbors
         self.connect_base_nodes = connect_base_nodes
@@ -41,7 +46,7 @@ class AgnosticController:
     def read_sdf(sdf_path):
         """Read sdf model
         Keyword Arguments:
-        sdf_path -- 
+        sdf_path --
         """
         return ModelSDF.read(sdf_path)
 
@@ -112,7 +117,7 @@ class AgnosticController:
     def generate_network(self):
         """Generate network
         Keyword Arguments:
-        self -- 
+        self --
         """
         links = self.model.links
         link_id = sdf_utils.link_name_to_index(self.model)
