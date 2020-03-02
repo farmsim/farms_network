@@ -9,9 +9,10 @@
 # Auto-generated files
 auto*
 
-graph.dot
-graph.png
-jit_tmp.c
+#: figures
+*.dot
+*.png
+
 
 # System Files
 .DS_Store
@@ -33,3 +34,14 @@ build/
 #: Docs
 docs/build
 make.bat
+
+#: networkx
+*.graphml
+
+#: profiling
+*.prof
+*.lprof
+*.profile
+
+#: Results
+Results
