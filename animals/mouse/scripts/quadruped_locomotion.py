@@ -17,6 +17,7 @@ def main():
     controller_gen = AgnosticController(
         ("../../../../farms_blender/animats/"
          "mouse_v1/design/sdf/mouse_locomotion.sdf"),
+    connect_mutual=False
     )
     net_dir = "../config/quadruped_locomotion.graphml"
     network = controller_gen.network
@@ -33,9 +34,24 @@ def main():
         ]
     )
 
-    #: Connect hind-fore limbs
     weight = 5000.0
 
+    #: Add mutual connection
+    for connect in (
+            ('LHip', weight, np.pi),
+            ('RHip', weight, np.pi),
+            ('LShoulder', weight, np.pi),
+            ('RShoulder', weight, np.pi),
+    ):
+        AgnosticController.add_mutual_connection(
+            network,
+            '{}_flexion'.format(connect[0]),
+            '{}_extension'.format(connect[0]),
+            weight=connect[1],
+            phi=connect[2]
+        )
+
+    #: Connect hind-fore limbs
     # #: Add central to spine
     for j1, j2, phi in [
             ['LHip', 'RHip', np.pi],
@@ -115,7 +131,8 @@ def main():
     print(net.graph.number_of_nodes())
     net.visualize_network(
         edge_labels=True,
-        node_size=3e3
+        node_size=3e3,
+        edge_attribute='phi'
     )
     nosc = net.network.graph.number_of_nodes()
 
