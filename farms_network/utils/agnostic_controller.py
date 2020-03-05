@@ -14,10 +14,119 @@ from farms_container import Container
 
 pylog.set_level('debug')
 
+class AgnosticBaseController:
+    """Base class for generating model specific neural control.
+    """
+
+    def __init__(self, controller_type, sdf_model_path):
+        super(AgnosticBaseController, self).__init__()
+        self.controller_type = controller_type
+        self.model_path = sdf_model_path
+        self.network = nx.DiGraph()
+        self.model = AgnosticBaseController.read_sdf(
+            self.model_path)[0]
+
+    @staticmethod
+    def read_sdf(sdf_path):
+        """Read an sdf model
+        Parameters
+        ----------
+        sdf_path: <str>
+            File path to the sdf model
+        """
+        return ModelSDF.read(sdf_path)
+
+    def export_network(self, pathname='graph.graphml'):
+        """
+        Method to export the generated network
+        Parameters
+        ----------
+        pathname : <str>
+            File path to save the file
+        
+     
+        Returns
+        -------
+        out : <None>
+
+        """
+        nx.write_graphml(self.network, pathname)
+
+    def generate_edges(self,
+                       connect_mutual=False,
+                       connect_closest_neighbors=False,
+                       connect_base_nodes=False):
+        """Connect edges of neurons in the network.
+     
+        Parameters
+        ---------
+        
+        Returns
+        -------
+        out : 
+
+        """
+        if connect_mutual:
+            self.connect_mutual(self.model)
+        if connect_closest_neighbors:
+            self.connect_closest_neighbors(self.model)
+        if connect_base_nodes:
+            self.connect_base_nodes(self.model)
+        
+    def generate_neurons(self, neuron_type, neuron_defaults):
+        """Abstract class to generate neurons for each joint in the model.  
+     
+        Parameters
+        ----------
+        self : 
+        
+        neuron_type : 
+     
+        neuron_defaults : 
+        
+        
+        Returns
+        -------
+        out : 
+
+        """
+        pylog.error('generate_neurons method not implemented in child class')
+        raise NotImplementedError
+
+    
+
+
+class AgnosticPositionController(AgnosticBaseController):
+    """Class to generate a position based  oscillator controller.
+    """
+
+    def __init__(self, sdf_model_path):
+        super(AgnosticPositionController, self).__init__(
+            controller_type='POSITION_CONTROL',
+            sdf_model_path = sdf_model_path
+        )
+
+    def generate_neurons(
+            self, neuron_type='oscillator', neuron_defaults=None
+    ):
+        """ Generate neuron for the mode. """
+        if neuron_defaults is None:
+            neuron_defaults = {}
+        joints = self.model.joints
+        links = self.model.links
+        link_id = sdf_utils.link_name_to_index(self.model)
+        for joint in joints:
+            self.network.add_node(
+                joint.name,
+                model='oscillator',
+                **neuron_defaults,
+                x=links[link_id[joint.child]].pose[0],
+                y=links[link_id[joint.child]].pose[1],
+                z=links[link_id[joint.child]].pose[2],
+            )
 
 class AgnosticController:
-    """Generate agnostic muscle neural control.
-
+    """Base class for generating model specific neural control.
     """
 
     def __init__(
@@ -127,7 +236,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_flexion',
                 model='oscillator',
-                f=5,
+                f=3,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]+0.001,
@@ -138,7 +247,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_extension',
                 model='oscillator',
-                f=5,
+                f=3,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]-0.001,
