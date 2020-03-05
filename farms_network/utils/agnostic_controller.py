@@ -14,6 +14,7 @@ from farms_container import Container
 
 pylog.set_level('debug')
 
+
 class AgnosticBaseController:
     """Base class for generating model specific neural control.
     """
@@ -43,8 +44,8 @@ class AgnosticBaseController:
         ----------
         pathname : <str>
             File path to save the file
-        
-     
+
+
         Returns
         -------
         out : <None>
@@ -52,66 +53,55 @@ class AgnosticBaseController:
         """
         nx.write_graphml(self.network, pathname)
 
-    def generate_edges(self,
-                       connect_mutual=False,
-                       connect_closest_neighbors=False,
-                       connect_base_nodes=False):
+    def generate_edges(self):
         """Connect edges of neurons in the network.
-     
+
         Parameters
         ---------
-        
-        Returns
-        -------
-        out : 
 
-        """
-        if connect_mutual:
-            self.connect_mutual(self.model)
-        if connect_closest_neighbors:
-            self.connect_closest_neighbors(self.model)
-        if connect_base_nodes:
-            self.connect_base_nodes(self.model)
-        
-    def generate_neurons(self, neuron_type, neuron_defaults):
-        """Abstract class to generate neurons for each joint in the model.  
-     
-        Parameters
-        ----------
-        self : 
-        
-        neuron_type : 
-     
-        neuron_defaults : 
-        
-        
         Returns
         -------
-        out : 
+        out :
 
         """
         pylog.error('generate_neurons method not implemented in child class')
         raise NotImplementedError
 
-    
+    def generate_neurons(self, neuron_type, neuron_defaults):
+        """Abstract class to generate neurons for each joint in the model.
+
+        Parameters
+        ----------
+        self :
+
+        neuron_type :
+
+        neuron_defaults :
+
+
+        Returns
+        -------
+        out :
+
+        """
+        pylog.error('generate_neurons method not implemented in child class')
+        raise NotImplementedError
 
 
 class AgnosticPositionController(AgnosticBaseController):
-    """Class to generate a position based  oscillator controller.
+    """Class to generate a position based oscillator controller.
     """
 
     def __init__(self, sdf_model_path):
         super(AgnosticPositionController, self).__init__(
             controller_type='POSITION_CONTROL',
-            sdf_model_path = sdf_model_path
+            sdf_model_path=sdf_model_path
         )
 
     def generate_neurons(
-            self, neuron_type='oscillator', neuron_defaults=None
+            self, neuron_type='oscillator', **kwargs
     ):
         """ Generate neuron for the mode. """
-        if neuron_defaults is None:
-            neuron_defaults = {}
         joints = self.model.joints
         links = self.model.links
         link_id = sdf_utils.link_name_to_index(self.model)
@@ -119,11 +109,104 @@ class AgnosticPositionController(AgnosticBaseController):
             self.network.add_node(
                 joint.name,
                 model='oscillator',
-                **neuron_defaults,
+                **kwargs,
                 x=links[link_id[joint.child]].pose[0],
                 y=links[link_id[joint.child]].pose[1],
                 z=links[link_id[joint.child]].pose[2],
             )
+
+    def generate_edges(
+            self, couple_closest_neighbour=True, couple_base=True,
+            **kwargs
+    ):
+        """
+
+        Parameters
+        ----------
+        self :
+
+        couple_closest_neighbor_oscillators :
+
+        couple_base :
+
+
+        Returns
+        -------
+        out :
+
+        """
+        if couple_closest_neighbour:
+            AgnosticPositionController.couple_closest_neighbor(
+                self.network,
+                self.model,
+                **kwargs
+            )
+        if couple_base:
+            AgnosticPositionController.couple_base(
+                self.network,
+                self.model,
+                **kwargs
+            )
+
+    @staticmethod
+    def couple(network, node_1, node_2, **kwargs):
+        """
+        Add mutual connection between two nodes
+        """
+
+        weight = kwargs.pop('weight', 1.0)
+        phi = kwargs.pop('phi', 0.0)
+
+        network.add_edge(
+            node_1,
+            node_2,
+            weight=weight,
+            phi=phi
+        )
+        network.add_edge(
+            node_2,
+            node_1,
+            weight=weight,
+            phi=-1*phi
+        )
+
+    @staticmethod
+    def couple_closest_neighbor(network, model, **kwargs):
+        """ Add connections to closest neighbors. """
+        weight = kwargs.pop('weight', 1.0)
+        phi = kwargs.pop('phi', 0.0)
+
+        for joint in model.joints:
+            for conn in sdf_utils.find_neighboring_joints(
+                    model, joint.name):
+                AgnosticPositionController.couple(
+                    network,
+                    joint.name,
+                    conn,
+                    weight=weight,
+                    phi=phi
+                )
+
+    @staticmethod
+    def couple_base(network, model, **kwargs):
+        """ Add connection between base nodes. """
+        weight = kwargs.pop('weight', 1.0)
+        phi = kwargs.pop('phi', 0.0)
+
+        root_link = sdf_utils.find_root(model)
+        base_joints = []
+        for joint in model.joints:
+            if joint.parent == root_link:
+                base_joints.append(joint.name)
+        for j1, j2 in itertools.combinations(base_joints, 2):
+            AgnosticPositionController.couple(
+                network,
+                j1,
+                j2,
+                weight=weight,
+                phi=phi
+            )
+
 
 class AgnosticController:
     """Base class for generating model specific neural control.
