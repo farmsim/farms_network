@@ -319,7 +319,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_flexion',
                 model='oscillator',
-                f=3,
+                f=2,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]+0.001,
@@ -330,7 +330,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_extension',
                 model='oscillator',
-                f=3,
+                f=2,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]-0.001,
