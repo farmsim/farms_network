@@ -35,14 +35,14 @@ cdef class Oscillator(Neuron):
         #: Neuron ID
         self.n_id = n_id
         #: Initialize parameters
-        (_, self.f) = neural_container.constants.add_parameter(
-            'freq_' + self.n_id, kwargs.get('f', 0.1))
+        self.f = neural_container.parameters.add_parameter(
+            'freq_' + self.n_id, kwargs.get('f', 0.1))[0]
 
-        (_, self.R) = neural_container.constants.add_parameter(
-            'R_' + self.n_id, kwargs.get('R', 0.1))
+        self.R = neural_container.parameters.add_parameter(
+            'R_' + self.n_id, kwargs.get('R', 0.1))[0]
 
-        (_, self.a) = neural_container.constants.add_parameter(
-            'a_' + self.n_id, kwargs.get('a', 0.1))
+        self.a = neural_container.parameters.add_parameter(
+            'a_' + self.n_id, kwargs.get('a', 0.1))[0]
 
         #: Initialize states
         self.phase = neural_container.states.add_parameter(
@@ -136,10 +136,12 @@ cdef class Oscillator(Neuron):
                                               _weight, _phi, _phase, _amp)
 
         #: phidot : phase_dot
-        self.phase_dot.c_set_value(2*M_PI*self.f + _sum)
+        self.phase_dot.c_set_value(2*M_PI*self.f.c_get_value() + _sum)
 
         #: ampdot
-        self.amp_dot.c_set_value(self.a*(self.R - _amp))
+        self.amp_dot.c_set_value(
+            self.a.c_get_value()*(self.R.c_get_value() - _amp)
+        )
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
