@@ -16,9 +16,9 @@ cdef class Oscillator(Neuron):
 
         #: parameters
         #: constants
-        double f
-        double R
-        double a
+        Parameter f
+        Parameter R
+        Parameter a
 
         #: states
         Parameter phase

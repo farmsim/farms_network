@@ -15,7 +15,7 @@ class NetworkXModel(object):
     def __init__(self):
         """ Initialize. """
         super(NetworkXModel, self).__init__()
-        self._graph = None  #: NetworkX graph
+        self.graph = None  #: NetworkX graph
         self.pos = {}   #: Neuron positions
         self.edge_pos = {}
         self.color_map = []  #: Neuron color map
@@ -24,21 +24,6 @@ class NetworkXModel(object):
         self.alpha_edge = []  #: Neuron edge alpha
         self.edge_style = []  #: Arrow edge style
         self.net_matrix = None
-
-    @property
-    def graph(self):
-        """Get the graph object  """
-        return self._graph
-
-    @graph.setter
-    def graph(self, value):
-        """
-        Parameters
-        ----------
-        value : <nx.GraphObject>
-            Graph object
-        """
-        self._graph = value
 
     def read_graph(self, path):
         """Read graph from the file path.
@@ -66,7 +51,7 @@ class NetworkXModel(object):
         pylog.info('Showing network connectivity matrix')
         pylog.info(self.net_matrix)
 
-    def read_neuron_position_in_graph(self):
+    def read_neuron_position_in_graph(self, from_layout=False):
         """ Read the positions of neurons.
         Only if positions are defined. """
         for _neuron, data in list(self.graph.nodes.items()):
@@ -91,15 +76,15 @@ class NetworkXModel(object):
             self.color_map_arr.append(mcolors.colorConverter.to_rgb(
                 self.color_map[-1]))
 
-    def read_edge_colors_in_graph(self):
+    def read_edge_colors_in_graph(self, edge_attribute='weight'):
         """ Read the neuron display colors."""
         max_weight = max(list(dict(self.graph.edges).items()),
-                         key=lambda x: abs(x[1]['weight']),
-                         default=[{'weight':0.0}])[-1]['weight']
+                         key=lambda x: abs(x[1][edge_attribute]),
+                         default=[{edge_attribute:0.0}])[-1][edge_attribute]
         
         max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
-            _weight = attr.get('weight', 0.0)
+            _weight = attr.get(edge_attribute, 0.0)
             #: pylint: disable=no-member
             try:
                 _weight_ratio = _weight/max_weight
@@ -120,14 +105,14 @@ class NetworkXModel(object):
                           node_size=1500,
                           node_labels=True,
                           edge_labels=True,
+                          edge_attribute='weight',
                           edge_alpha=True,
                           plt_out=None):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
-        self.read_edge_colors_in_graph()
-
-        labels = nx.get_edge_attributes(self.graph, 'weight')
+        self.read_edge_colors_in_graph(edge_attribute=edge_attribute)
+        
         if plt_out is not None:
             fig = plt_out.figure('Network')
             plt_out.autoscale(True)
@@ -144,20 +129,28 @@ class NetworkXModel(object):
                                    node_color=self.color_map,
                                    node_size=node_size,
                                    font_size=6.5,
-                                   font_weight='bold',
+                                   # font_weight='bold',
                                    edge_color='k',
                                    alpha=0.8,
-                                   ax=ax)
+                                   ax=ax,
+                                   font_family='sans-serif'
+        )
         if node_labels:
             nx.draw_networkx_labels(self.graph, pos=self.pos,
                                     with_labels=True,
                                     font_size=6.5,
                                     font_weight='bold',
                                     alpha=0.8,
+                                    connectionstyle="arc3,rad=1",
                                     ax=ax)
         if edge_labels:
+            labels = {
+                ed: round(val, 3)
+                for ed, val in nx.get_edge_attributes(self.graph, 'phi').items()
+            }
             nx.draw_networkx_edge_labels(self.graph,
                                          pos=self.pos,
+                                         rotate=False,
                                          edge_labels=labels,
                                          font_size=10,
                                          clip_on=True,
@@ -166,8 +159,13 @@ class NetworkXModel(object):
                                        pos=self.pos,
                                        node_size=node_size,
                                        edge_color=self.color_map_edge,
-                                       width=2.,
+                                       width=1.,
                                        arrowsize=10,
+                                       style='dashed',
+                                       arrows=True,
+                                       connectionstyle="arc3,rad=0.3",
+                                       min_source_margin=10,
+                                       max_target_margin=10,
                                        ax=ax)
         if edge_alpha:
             for edge in range(self.graph.number_of_edges()):
@@ -179,6 +177,7 @@ class NetworkXModel(object):
                 left=0, right=1, top=1, bottom=0)
             plt_out.grid()
             ax.invert_yaxis()
+            plt_out.tight_layout()
         else:
             # fig.draw()
             ax.invert_yaxis()

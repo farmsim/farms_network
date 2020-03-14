@@ -11,7 +11,6 @@
 # cython: np_pythran=False
 
 """Morphed Oscillator model"""
-from farms_container import Container
 from libc.stdio cimport printf
 import farms_pylog as pylog
 from libc.math cimport exp
@@ -23,7 +22,7 @@ cimport numpy as cnp
 
 cdef class MorphedOscillator(Neuron):
 
-    def __init__(self, n_id, num_inputs, **kwargs):
+    def __init__(self, n_id, num_inputs, neural_container, **kwargs):
         """Initialize.
 
         Parameters
@@ -35,46 +34,44 @@ cdef class MorphedOscillator(Neuron):
 
         #: Neuron ID
         self.n_id = n_id
-        #: Get container
-        container = Container.get_instance()
 
         #: Initialize parameters
-        (_, self.f) = container.neural.constants.add_parameter(
+        (_, self.f) = neural_container.constants.add_parameter(
             'f_' + self.n_id, kwargs.get('f', 0.5))
 
-        (_, self.gamma) = container.neural.constants.add_parameter(
+        (_, self.gamma) = neural_container.constants.add_parameter(
             'g_' + self.n_id, kwargs.get('gamma', 100))
 
-        (_, self.mu) = container.neural.constants.add_parameter(
+        (_, self.mu) = neural_container.constants.add_parameter(
             'mu_' + self.n_id, kwargs.get('mu', 1.0))
 
-        (_, self.zeta) = container.neural.constants.add_parameter(
+        (_, self.zeta) = neural_container.constants.add_parameter(
             'z_' + self.n_id, kwargs.get('zeta', 0.0))
         print(self.zeta)
         #: Initialize states
-        self.theta = container.neural.states.add_parameter(
+        self.theta = neural_container.states.add_parameter(
             'theta_' + self.n_id, kwargs.get('theta0', 0.0))[0]
-        self.r = container.neural.states.add_parameter(
+        self.r = neural_container.states.add_parameter(
             'r_' + self.n_id, kwargs.get('r0', 0.0))[0]
 
         #: External inputs
-        self.ext_in = container.neural.inputs.add_parameter(
+        self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
         #: Morphing function
-        self.f_theta = container.neural.parameters.add_parameter(
+        self.f_theta = neural_container.parameters.add_parameter(
             'f_theta_' + self.n_id, kwargs.get('f_theta0', 0.0))[0]
-        self.fd_theta = container.neural.parameters.add_parameter(
+        self.fd_theta = neural_container.parameters.add_parameter(
             'fd_theta_' + self.n_id, kwargs.get('fd_theta0', 0.0))[0]
 
         #: ODE RHS
-        self.theta_dot = container.neural.dstates.add_parameter(
+        self.theta_dot = neural_container.dstates.add_parameter(
             'theta_dot_' + self.n_id, 0.0)[0]
-        self.r_dot = container.neural.dstates.add_parameter(
+        self.r_dot = neural_container.dstates.add_parameter(
             'r_dot_' + self.n_id, 0.0)[0]
 
         #: Output
-        self.nout = container.neural.outputs.add_parameter(
+        self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
         #: Neuron inputs
@@ -85,26 +82,25 @@ cdef class MorphedOscillator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self, int idx, neuron, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
-        cdef MorphedOscillatorNeuronInput n
-        container = Container.get_instance()
+        cdef MorphedOscillatorNeuronInput n    
         #: Get the neuron parameter
-        neuron_idx = container.neural.outputs.get_parameter_index(
+        neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
         #: Add the weight parameter
-        weight = container.neural.weights.add_parameter(
+        weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight', 0.0))[0]
-        phi = container.neural.parameters.add_parameter(
+        phi = neural_container.parameters.add_parameter(
             'phi_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('phi', 0.0))[0]
 
-        weight_idx = container.neural.weights.get_parameter_index(
+        weight_idx = neural_container.weights.get_parameter_index(
             'w_' + neuron.n_id + '_to_' + self.n_id)
-        phi_idx = container.neural.parameters.get_parameter_index(
+        phi_idx = neural_container.parameters.get_parameter_index(
             'phi_' + neuron.n_id + '_to_' + self.n_id)
 
         n.neuron_idx = neuron_idx

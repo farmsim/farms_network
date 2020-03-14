@@ -10,7 +10,7 @@ cdef class Neuron:
         super(Neuron, self).__init__()
         self._model_type = model_type  # : Type of neuron  @property
 
-    def add_ode_input(self, neuron, **kwargs):
+    def add_ode_input(self, neuron, neural_container, **kwargs):
         """Add relevant external inputs to the ode.
         Parameters
         ----------
