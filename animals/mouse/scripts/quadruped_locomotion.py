@@ -15,9 +15,9 @@ from farms_network.utils.agnostic_controller import AgnosticController
 def main():
     """ Main. """
     controller_gen = AgnosticController(
-        ("../../../../farms_blender/animats/"
-         "mouse_v1/design/sdf/mouse_locomotion.sdf"),
-    connect_mutual=False
+        ("../../../../farms_models_data/mouse_v1/"
+         "design/sdf/mouse_locomotion.sdf"),
+        connect_mutual=False
     )
     net_dir = "../config/quadruped_locomotion.graphml"
     network = controller_gen.network
@@ -28,7 +28,7 @@ def main():
         ['{}_{}'.format(node, action)
             for node in (
                 'LMtp', 'RMtp', 'LPalm', 'RPalm', 'Head',
-                    'Cervical', 'Lumbar', 'Thoracic'
+            'Cervical', 'Lumbar', 'Thoracic'
         )
             for action in ('flexion', 'extension')
         ]
@@ -110,7 +110,7 @@ def main():
     x0 = np.random.uniform(
         -1, 1, np.shape(np.asarray(container.neural.states.values))
     )
-    net.setup_integrator()# list(x0))
+    net.setup_integrator()  # list(x0))
 
     #: Integrate the network
     pylog.info('Begin Integration!')
@@ -138,7 +138,7 @@ def main():
 
     def get_amp_phase(state, states, name):
         amp = state[:, states.get_parameter_index(
-                        'amp_{}'.format(name)
+            'amp_{}'.format(name)
         )]
         phase = state[:, states.get_parameter_index(
             'phase_{}'.format(name)
@@ -205,11 +205,11 @@ def main():
     (amp, phase) = get_amp_phase(state, states, 'RShoulder_extension')
     plt.plot(amp*(6+np.sin(phase)))
     plt.legend(
-        ('LHip_flexion','LHip_extension',
-         'RHip_flexion','RHip_extension',
-         'LShoulder_flexion','LShoulder_extension',
-         'RShoulder_flexion','RShoulder_extension', 
-        )
+        ('LHip_flexion', 'LHip_extension',
+         'RHip_flexion', 'RHip_extension',
+         'LShoulder_flexion', 'LShoulder_extension',
+         'RShoulder_flexion', 'RShoulder_extension',
+         )
     )
     plt.grid(True)
     plt.show()
