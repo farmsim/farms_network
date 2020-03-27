@@ -19,15 +19,18 @@ class NeuralSystem(NetworkXModel):
         #: Create network
         self.network = NetworkGenerator(self.graph, neural_table)
 
-    def setup_integrator(self, x0=None, integrator='dopri5', atol=10,
-                         rtol=10, max_step=1, method='adams'):
+    def setup_integrator(
+            self, x0=None, integrator=u'dopri5', atol=1e-12, rtol=1e-6,
+            max_step=0.0, method=u'adams'
+    ):
         """Setup system."""
         self.integrator = ode(self.network.ode).set_integrator(
             integrator,
             method=method,
             atol=atol,
             rtol=rtol,
-            max_step=max_step)
+            max_step=max_step
+        )
 
         if not x0:
             self.integrator.set_initial_value(
