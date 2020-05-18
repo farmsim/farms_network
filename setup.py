@@ -106,6 +106,7 @@ setuptools.setup(
         'https://gitlab.com/FARMSIM/farms_container.git'],
     install_requires=[
         'farms_container',
+        'tqdm',
         'numpy',
         'farms_pylog',
         'matplotlib',
