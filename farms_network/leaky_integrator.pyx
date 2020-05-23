@@ -104,7 +104,8 @@ cdef class LeakyIntegrator(Neuron):
             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
 
         self.mdot.c_set_value((
-            (self.ext_in.c_get_value() - self.m.c_get_value())/self.tau) + _sum)
+            (-self.m.c_get_value() + _sum + self.ext_in.c_get_value())/self.tau)
+        )
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
@@ -113,4 +114,4 @@ cdef class LeakyIntegrator(Neuron):
 
     cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
         """ Evaluate neuron inputs."""
-        return _neuron_out*_weight/self.tau
+        return _neuron_out*_weight
