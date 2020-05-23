@@ -146,7 +146,9 @@ class NetworkXModel(object):
         if edge_labels:
             labels = {
                 ed: round(val, 3)
-                for ed, val in nx.get_edge_attributes(self.graph, 'phi').items()
+                for ed, val in nx.get_edge_attributes(
+                        self.graph, edge_attribute
+                ).items()
             }
             nx.draw_networkx_edge_labels(self.graph,
                                          pos=self.pos,
