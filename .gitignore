@@ -5,6 +5,7 @@
 # Temp Files
 *.*~
 \#.*
+*.bak
 
 # Auto-generated files
 auto*
