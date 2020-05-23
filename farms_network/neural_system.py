@@ -1,3 +1,4 @@
+import numpy as np
 from farms_network.network_generator import NetworkGenerator
 from scipy.integrate import ode
 from .networkx_model import NetworkXModel
@@ -33,8 +34,10 @@ class NeuralSystem(NetworkXModel):
         )
 
         if not x0:
-            self.integrator.set_initial_value(
-                self.container.neural.states.values, 0.0)
+            initial_values = np.random.rand(
+                len(self.container.neural.states.values)
+            )*atol
+            self.integrator.set_initial_value(initial_values, 0.0)
         else:
             self.integrator.set_initial_value(x0, 0.0)
 
