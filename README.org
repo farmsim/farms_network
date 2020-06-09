@@ -1,0 +1,58 @@
+#+OPTIONS: toc:nil num:nil p:t ^:nil _:nil
+* FARMS NETWORK
+** AUTHOR: Shravan Tata Ramalingasetty
+** EMAIL: shravantr@gmail.com
+** Description :
+   This respository contains the necessary components to generate, integrate,
+analyze and visualize neural network models. Currently the following neuron models are implemented :
+- lif_danner
+- lif_danner_nap
+- lif_daun_interneuron
+- hh_daun_motorneuron
+- sensory_neuron
+- leaky_integrator
+- oscillator
+- morphed_oscillator
+- fitzhugh_nagumo
+- matsuoka_neuron
+- morris_lecar
+* Installation
+** Requirements
+  - Python 2/3
+  - Cython
+  - pip
+  - tqdm
+  - numpy
+  - matplotlib
+  - networkx
+  - pydot
+  - ddt
+  - scipy
+  - farms_pylog
+  - farms_container
+** Steps for local install
+   The master branch is only supports Python 3. For Python 2 installation jump XXXXX
+*** For user installation
+    #+BEGIN_SRC shell
+    pip install git+https://gitlab.com/farmsim/farms_network.git#egg=farms_network
+    #+END_SRC
+*** For developer installation
+    #+BEGIN_SRC shell
+    git clone https://gitlab.com/farmsim/farms_network.git#egg=farms_network PATH_TO_THE_DIRECTORY
+    cd PATH_TO_THE_DIRECTORY
+    pip install -e . --user
+    #+END_SRC
+*** For Python 2 user installation
+    #+BEGIN_SRC shell
+    pip install git+https://gitlab.com/farmsim/farms_network.git@python-2.7#egg=farms_network
+    #+END_SRC
+*** For Python 2 developer installation
+    #+BEGIN_SRC shell
+    git clone https://gitlab.com/farmsim/farms_network.git@python-2.7#egg=farms_network PATH_TO_THE_DIRECTORY
+    cd PATH_TO_THE_DIRECTORY
+    pip install -e . --user
+    #+END_SRC
+** Example
+#+CAPTION: Danner mouse network
+#+NAME:  fig:danner_network
+[[./figures/danner_network.png]]

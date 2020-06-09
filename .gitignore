@@ -13,6 +13,7 @@ auto*
 #: figures
 *.dot
 *.png
+!figures/*.png
 
 
 # System Files
