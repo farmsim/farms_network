@@ -129,20 +129,23 @@ class NetworkXModel(object):
                                    node_color=self.color_map,
                                    node_size=node_size,
                                    font_size=6.5,
-                                   # font_weight='bold',
+                                   font_weight='bold',
                                    edge_color='k',
-                                   alpha=0.8,
+                                   alpha=0.4,
                                    ax=ax,
                                    font_family='sans-serif'
         )
         if node_labels:
-            nx.draw_networkx_labels(self.graph, pos=self.pos,
-                                    with_labels=True,
-                                    font_size=6.5,
-                                    font_weight='bold',
-                                    alpha=0.8,
-                                    connectionstyle="arc3,rad=1",
-                                    ax=ax)
+            nx.draw_networkx_labels(
+                self.graph,
+                pos=self.pos,
+                with_labels=True,
+                font_size=6.5,
+                font_weight='bold',
+                alpha=0.8,
+                connectionstyle="arc3,rad=1",
+                ax=ax
+            )
         if edge_labels:
             labels = {
                 ed: round(val, 3)
