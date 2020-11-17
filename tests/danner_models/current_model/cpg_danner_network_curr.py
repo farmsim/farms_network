@@ -42,7 +42,6 @@ plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 
 def main():
     """Main."""
-    container = Container()
     #: CPG
     net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
     net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
@@ -78,49 +77,38 @@ def main():
     net_rg_pf4 = ConnectPF2RG(net_cpg4.cpg, net_pf4.pf_net)
 
     #: Motorneurons
-    hind_muscles = ['PMA', 'CF', 'SM', 'POP', 'RF', 'TA', 'SOL', 'LG']
-    # hind_antagonists = {'PMA': ['CF', 'SM'],
+    hind_muscles = ['PMA', 'CF', 'BFP_cranial',
+                    'BFP_caudal', 'VL', 'TA', 'SOL', 'TP']
+    # hind_antagonists = {'PMA': ['CF', 'BFP_cranial'],
     #                     'CF':  ['PMA'],
-    #                     'SM':  ['PMA'],
-    #                     'POP': ['SM', 'RF'],
-    #                     'RF':  ['POP', 'SOL', 'LG'],
-    #                     'TA':  ['SOL', 'LG'],
-    #                     'SOL': ['TA', 'POP'],
-    #                     'LG':  ['TA']}
-    # hind_agonists = {'PMA': ['POP', 'TA'],
-    #                  'CF':  ['SM'],
-    #                  'SM':  ['CF'],
-    #                  'POP': ['PMA', 'TA'],
-    #                  'RF':  ['CF', 'SM', 'SOL'],
-    #                  'TA':  ['POP', 'PMA'],
-    #                  'SOL': ['RF', 'LG', 'CF'],
-    #                  'LG':  ['SOL', 'RF']}
-    hind_antagonists = {'PMA': [],
-                        'CF':  [],
-                        'SM':  [],
-                        'POP': [],
-                        'RF':  [],
-                        'TA':  [],
-                        'SOL': [],
-                        'LG':  []}
-    hind_agonists = {'PMA': [],
-                     'CF':  [],
-                     'SM':  [],
-                     'POP': [],
-                     'RF':  [],
-                     'TA':  [],
-                     'SOL': [],
-                     'LG':  []}
-    net_motorneurons_hl = Motorneurons('HL', hind_muscles, hind_antagonists, hind_agonists, anchor_x=0.,
-                                       anchor_y=60.)
-    net_motorneurons_hr = Motorneurons('HR', hind_muscles, hind_antagonists, hind_agonists, anchor_x=40.,
-                                       anchor_y=60.)
+    #                     'BFP_cranial':  ['PMA'],
+    #                     'BFP_caudal': ['BFP_cranial', 'VL'],
+    #                     'VL':  ['BFP_caudal', 'SOL', 'TP'],
+    #                     'TA':  ['SOL', 'TP'],
+    #                     'SOL': ['TA', 'BFP_caudal'],
+    #                     'TP':  ['TA']}
+    # hind_agonists = {'PMA': ['BFP_caudal', 'TA'],
+    #                  'CF':  ['BFP_cranial'],
+    #                  'BFP_cranial':  ['CF'],
+    #                  'BFP_caudal': ['PMA', 'TA'],
+    #                  'VL':  ['CF', 'BFP_cranial', 'SOL'],
+    #                  'TA':  ['BFP_caudal', 'PMA'],
+    #                  'SOL': ['VL', 'TP', 'CF'],
+    #                  'TP':  ['SOL', 'VL']}
+    hind_antagonists = {muscle: [] for muscle in hind_muscles}
+    hind_agonists = {muscle: [] for muscle in hind_muscles}
+    net_motorneurons_hl = Motorneurons(
+        'HL', hind_muscles, hind_antagonists, hind_agonists, anchor_x=0.,
+        anchor_y=70.)
+    net_motorneurons_hr = Motorneurons(
+        'HR', hind_muscles, hind_antagonists, hind_agonists, anchor_x=40.,
+        anchor_y=70.)
 
     fore_muscles = ['HFL', 'HEX', 'KFL', 'KEX', 'AFL', 'AEX']
     net_motorneurons_fl = Motorneurons('FL', fore_muscles, {}, {}, anchor_x=0.,
-                                       anchor_y=-60.)
+                                       anchor_y=-70.)
     net_motorneurons_fr = Motorneurons('FR', fore_muscles, {}, {}, anchor_x=40.,
-                                       anchor_y=-60.)
+                                       anchor_y=-70.)
 
     net_rg_pf_mn1 = ConnectMN2CPG(
         net_rg_pf1.net, net_motorneurons_hl.net, ['TA', 'PMA'])
@@ -130,25 +118,25 @@ def main():
         net_rg_pf3.net, net_motorneurons_fl.net, ['HFL', 'KFL', 'AFL'])
     net_rg_pf_mn4 = ConnectMN2CPG(
         net_rg_pf4.net, net_motorneurons_fr.net, ['HFL', 'KFL', 'AFL'])
-    
+
     #: Sensory Afferents
     net_afferents_hl = Afferents('HL', hind_muscles, anchor_x=0.,
-                                 anchor_y=70.)
+                                 anchor_y=90.)
     net_afferents_hr = Afferents('HR', hind_muscles, anchor_x=40.,
-                                 anchor_y=70.)
+                                 anchor_y=90.)
     net_afferents_fl = Afferents('FL', fore_muscles, anchor_x=0.,
-                                 anchor_y=-70.)
+                                 anchor_y=-90.)
     net_afferents_fr = Afferents('FR', fore_muscles, anchor_x=40.,
-                                 anchor_y=-70.)
+                                 anchor_y=-90.)
 
     net_rg_pf_mn1_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn1.net, net_afferents_hl.afferents, hind_muscles,['TA','PMA'],['LG','SOL'])
+        net_rg_pf_mn1.net, net_afferents_hl.afferents, hind_muscles, ['TA', 'PMA'], ['TP', 'SOL'])
     net_rg_pf_mn2_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn2.net, net_afferents_hr.afferents, hind_muscles,['TA','PMA'],['LG','SOL'])
+        net_rg_pf_mn2.net, net_afferents_hr.afferents, hind_muscles, ['TA', 'PMA'], ['TP', 'SOL'])
     net_rg_pf_mn3_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn3.net, net_afferents_fl.afferents, fore_muscles,['HFL','AFL'],['AEX'])
+        net_rg_pf_mn3.net, net_afferents_fl.afferents, fore_muscles, ['HFL', 'AFL'], ['AEX'])
     net_rg_pf_mn4_aff = ConnectAfferents2CPG(
-        net_rg_pf_mn4.net, net_afferents_fr.afferents, fore_muscles,['HFL','AFL'],['AEX'])
+        net_rg_pf_mn4.net, net_afferents_fr.afferents, fore_muscles, ['HFL', 'AFL'], ['AEX'])
 
     net_RG_CIN1 = ConnectRG2Commissural(rg_l=net_rg_pf_mn1_aff.net,
                                         rg_r=net_rg_pf_mn2_aff.net,
@@ -181,17 +169,25 @@ def main():
             biolog.error('Error in creating directory!')
             raise IOError()
 
-    # #: Initialize network
-    net_ = NeuralSystem(os.path.join(os.path.dirname(
-        __file__), '../../auto_gen_danner_current_fb_4limb.graphml'))
-    container.initialize()
-    net_.setup_integrator()
-
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    dur = 2000
+    dur = 200
     time_vec = np.arange(0, dur, dt)  #: Time
+
+    # CONTAINER
+    container = Container(max_iterations=dur/dt)
+
+    # #: Initialize network
+    net_ = NeuralSystem(
+        os.path.join(
+            os.path.dirname(__file__),
+            '../../auto_gen_danner_current_fb_4limb.graphml'
+        ),
+        container
+    )
+    container.initialize()
+    net_.setup_integrator()
 
     #: Integrate the network
     pylog.info('Begin Integration!')
@@ -200,16 +196,16 @@ def main():
     alpha = np.linspace(0, 1, len(time_vec))
 
     alpha_ids = []
-    for name, idx in container.neural.inputs.name_index.items():            
+    for name, idx in container.neural.inputs.name_index.items():
         if 'alpha' in name:
             alpha_ids.append(idx)
     _alphas = list(container.neural.inputs.values)
     u = np.ones(np.shape(alpha_ids))
-    
+
     start = time.time()
     for j in range(0, int(dur/dt)):
         for _alpha in alpha_ids:
-            container.neural.inputs.values[_alpha]= alpha[j]
+            container.neural.inputs.values[_alpha] = alpha[j]
         net_.step(dt=dt)
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
@@ -229,20 +225,22 @@ def main():
             #: HARD CODED TIME SCALING HERE!!
             gait_cycle.append((val*0.001, end[id]*0.001 - val*0.001))
         return gait_cycle
-
+    #: Visualize network using Matplotlib
+    net_.visualize_network(
+        node_size=50,
+        node_labels=False,
+        edge_labels=False,
+        edge_alpha=True,
+        plt_out=plt
+    )
     if PLOT:
         # net_.save_network_to_dot()
-        # net_.visualize_network(node_size=100,
-        #                        node_labels=False,
-        #                        edge_labels=False,
-        #                        edge_alpha=True,
-        #                        plt_out=plt)  #: Visualize network using Matplotlib
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F',
                       'HL_RG_E', 'HL_PF_F', 'HL_PF_E', 'HL_PF_Sw', 'HL_PF_St',
-                      'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_SM']
+                      'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_BFP_cranial']
         plot_traces = list()
 
         x_log = container.neural.states.log
@@ -294,12 +292,12 @@ def main():
         plt.figure()
         plt.title('Sensory')
         _name_id = {}
-        for name, idx in container.neural.outputs.name_index.items():            
+        for name, idx in container.neural.outputs.name_index.items():
             if 'II' in name:
                 print("Hey!!", name)
                 _name_id[name] = idx
         plt.plot(y_log[:, list(_name_id.values())])
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':

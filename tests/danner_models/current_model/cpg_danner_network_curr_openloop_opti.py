@@ -47,7 +47,7 @@ def main():
 
     #: container
     container = Container()
-    
+
     #: CPG
     net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
     net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
@@ -83,39 +83,26 @@ def main():
     net_rg_pf4 = ConnectPF2RG(net_cpg4.cpg, net_pf4.pf_net)
 
     #: Motorneurons
-    hind_muscles = ['PMA', 'CF', 'SM', 'POP', 'RF', 'TA', 'SOL', 'LG']
-    # hind_antagonists = {'PMA': ['CF', 'SM'],
+    hind_muscles = ['PMA', 'CF', 'BFP_cranial',
+                    'BFP_caudal', 'VL', 'TA', 'SOL', 'TP']
+    # hind_antagonists = {'PMA': ['CF', 'BFP_cranial'],
     #                     'CF':  ['PMA'],
-    #                     'SM':  ['PMA'],
-    #                     'POP': ['SM', 'RF'],
-    #                     'RF':  ['POP', 'SOL', 'LG'],
-    #                     'TA':  ['SOL', 'LG'],
-    #                     'SOL': ['TA', 'POP'],
-    #                     'LG':  ['TA']}
-    # hind_agonists = {'PMA': ['POP', 'TA'],
-    #                  'CF':  ['SM'],
-    #                  'SM':  ['CF'],
-    #                  'POP': ['PMA', 'TA'],
-    #                  'RF':  ['CF', 'SM', 'SOL'],
-    #                  'TA':  ['POP', 'PMA'],
-    #                  'SOL': ['RF', 'LG', 'CF'],
-    #                  'LG':  ['SOL', 'RF']}
-    hind_antagonists = {'PMA': [],
-                        'CF':  [],
-                        'SM':  [],
-                        'POP': [],
-                        'RF':  [],
-                        'TA':  [],
-                        'SOL': [],
-                        'LG':  []}
-    hind_agonists = {'PMA': [],
-                     'CF':  [],
-                     'SM':  [],
-                     'POP': [],
-                     'RF':  [],
-                     'TA':  [],
-                     'SOL': [],
-                     'LG':  []}
+    #                     'BFP_cranial':  ['PMA'],
+    #                     'BFP_caudal': ['BFP_cranial', 'VL'],
+    #                     'VL':  ['BFP_caudal', 'SOL', 'TP'],
+    #                     'TA':  ['SOL', 'TP'],
+    #                     'SOL': ['TA', 'BFP_caudal'],
+    #                     'TP':  ['TA']}
+    # hind_agonists = {'PMA': ['BFP_caudal', 'TA'],
+    #                  'CF':  ['BFP_cranial'],
+    #                  'BFP_cranial':  ['CF'],
+    #                  'BFP_caudal': ['PMA', 'TA'],
+    #                  'VL':  ['CF', 'BFP_cranial', 'SOL'],
+    #                  'TA':  ['BFP_caudal', 'PMA'],
+    #                  'SOL': ['VL', 'TP', 'CF'],
+    #                  'TP':  ['SOL', 'VL']}
+    hind_antagonists = {muscle: [] for muscle in hind_muscles}
+    hind_agonists = {muscle: [] for muscle in hind_muscles}
     net_motorneurons_hl = Motorneurons('HL', hind_muscles, hind_antagonists, hind_agonists, anchor_x=0.,
                                        anchor_y=60.)
     net_motorneurons_hr = Motorneurons('HR', hind_muscles, hind_antagonists, hind_agonists, anchor_x=40.,
@@ -187,20 +174,26 @@ def main():
             biolog.error('Error in creating directory!')
             raise IOError()
 
-    # #: Initialize network
-    net_ = NeuralSystem(os.path.join(os.path.dirname(
-        __file__), '../../auto_gen_danner_current_openloop_opti.graphml'))
-
-    #:
-    container.initialize()
-
-    net_.setup_integrator()
-
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
     dur = 2000
     time_vec = np.arange(0, dur, dt)  #: Time
+
+    # CONTAINER
+    container = Container(max_iterations=dur/dt)
+
+    # #: Initialize network
+    net_ = NeuralSystem(
+        os.path.join(
+            os.path.dirname(__file__),
+            '../../auto_gen_danner_current_openloop_opti.graphml'),
+        container
+    )
+
+    #:
+    container.initialize()
+    net_.setup_integrator()
 
     #: Integrate the network
     pylog.info('Begin Integration!')
@@ -214,10 +207,12 @@ def main():
     for j in range(0, int(dur/dt)):
         container.neural.inputs.values = u*alpha[j]
         net_.step(dt=dt)
+        container.update_log()
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
 
     #: Results
+    container.dump(overwrite=True)
 
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
@@ -233,30 +228,32 @@ def main():
             gait_cycle.append((val*0.001, end[id]*0.001 - val*0.001))
         return gait_cycle
 
+    #: Visualize network using Matplotlib
+    net_.visualize_network(
+        node_size=50,
+        node_labels=False,
+        edge_labels=False,
+        edge_alpha=True,
+        plt_out=plt
+    )
     if PLOT:
         # net_.save_network_to_dot()
-        net_.visualize_network(node_size=100,
-                               node_labels=False,
-                               edge_labels=False,
-                               edge_alpha=True,
-                               plt_out=plt)  #: Visualize network using Matplotlib
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
-        plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F',
+        plot_names = ['HR_RG_F', 'HL_RG_F',
                       'HL_RG_E', 'HL_PF_F', 'HL_PF_E', 'HL_PF_Sw', 'HL_PF_St',
-                      'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_SM']
+                      'HL_Mn_PMA', 'HL_Mn_CF', 'HL_Mn_BFP_cranial']
         plot_traces = list()
 
         x_log = container.neural.states.log
         y_log = container.neural.outputs.log
-        print(np.shape(y_log))
 
         for n in plot_names:
             try:
                 _idx = container.neural.outputs.get_parameter_index(
                     'nout_'+n)
-                print(n, _idx, np.shape(y_log[:, _idx]))
+                print(n, np.shape(y_log[:, _idx]))
                 plot_traces.append(y_log[:, _idx])
             except KeyError:
                 pylog.warning("Plotting neuron {} not found".format(n))
@@ -266,7 +263,9 @@ def main():
         fig.canvas.set_window_title('Model Performance')
         fig.suptitle('Model Performance', fontsize=12)
         for i, tr in enumerate(plot_traces):
-            ax[i].plot(time_vec*0.001, tr, 'b', linewidth=1)
+            print(np.shape(tr))
+            ax[i].plot(time_vec*0.001, tr, 'b',
+                       linewidth=1)
             ax[i].grid('on', axis='x')
             ax[i].set_ylabel(plot_names[i], fontsize=10)
             ax[i].set_yticks([0, 1])
@@ -295,7 +294,7 @@ def main():
         ax[len(plot_names)+1].set_ylabel('ALPHA')
         ax[len(plot_names)+1].set_xlabel('Time [s]')
 
-        plt.show()
+    plt.show()
 
 
 if __name__ == '__main__':
