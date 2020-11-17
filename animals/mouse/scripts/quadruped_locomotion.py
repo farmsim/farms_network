@@ -93,11 +93,15 @@ def main():
             data['x'] = network.nodes[side+'Ankle_'+action]['x']
             data['y'] = 0.05 + -1*network.nodes[side+'Ankle_'+action]['y']
 
+    # Edit node colors
+    for node, data in network.nodes.items():
+        data['color'] = 'b'
+
     nx.write_graphml(network, net_dir)
 
     # #: Initialize network
     dt = 0.001  #: Time step
-    dur = 4
+    dur = 1
     time_vec = np.arange(0, dur, dt)  #: Time
     container = Container(dur/dt)
     net = NeuralSystem(
@@ -130,6 +134,7 @@ def main():
     print(net.graph.number_of_edges())
     print(net.graph.number_of_nodes())
     net.visualize_network(
+        node_labels=False,
         edge_labels=True,
         node_size=3e3,
         edge_attribute='phi'
