@@ -80,8 +80,8 @@ class NetworkXModel(object):
         """ Read the neuron display colors."""
         max_weight = max(list(dict(self.graph.edges).items()),
                          key=lambda x: abs(x[1][edge_attribute]),
-                         default=[{edge_attribute:0.0}])[-1][edge_attribute]
-        
+                         default=[{edge_attribute: 0.0}])[-1][edge_attribute]
+
         max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
             _weight = attr.get(edge_attribute, 0.0)
@@ -107,12 +107,14 @@ class NetworkXModel(object):
                           edge_labels=True,
                           edge_attribute='weight',
                           edge_alpha=True,
-                          plt_out=None):
+                          plt_out=None,
+                          **kwargs
+                          ):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
         self.read_edge_colors_in_graph(edge_attribute=edge_attribute)
-        
+
         if plt_out is not None:
             fig = plt_out.figure('Network')
             plt_out.autoscale(True)
@@ -125,52 +127,52 @@ class NetworkXModel(object):
 
         #: Draw Nodes
         _ = nx.draw_networkx_nodes(self.graph, pos=self.pos,
-                                   with_labels=True,
                                    node_color=self.color_map,
                                    node_size=node_size,
-                                   font_size=6.5,
-                                   font_weight='bold',
-                                   edge_color='k',
-                                   alpha=0.4,
-                                   ax=ax,
-                                   font_family='sans-serif'
-        )
+                                   alpha=kwargs.pop('alpha', 0.75),
+                                   ax=ax
+                                   )
         if node_labels:
             nx.draw_networkx_labels(
                 self.graph,
                 pos=self.pos,
                 with_labels=True,
-                font_size=6.5,
-                font_weight='bold',
-                alpha=0.8,
-                connectionstyle="arc3,rad=1",
+                font_size=kwargs.pop('font_size', 6.5),
+                font_weight=kwargs.pop('font_weight', 'bold'),
+                font_family=kwargs.pop('font_family', 'sans-serif'),
+                alpha=kwargs.pop('alpha', 0.75),
                 ax=ax
             )
         if edge_labels:
             labels = {
                 ed: round(val, 3)
                 for ed, val in nx.get_edge_attributes(
-                        self.graph, edge_attribute
+                    self.graph, edge_attribute
                 ).items()
             }
             nx.draw_networkx_edge_labels(self.graph,
                                          pos=self.pos,
                                          rotate=False,
                                          edge_labels=labels,
-                                         font_size=10,
+                                         font_size=kwargs.pop(
+                                             'font_size', 6.5),
                                          clip_on=True,
                                          ax=ax)
         edges = nx.draw_networkx_edges(self.graph,
                                        pos=self.pos,
                                        node_size=node_size,
                                        edge_color=self.color_map_edge,
-                                       width=1.,
-                                       arrowsize=10,
-                                       style='dashed',
-                                       arrows=True,
-                                       connectionstyle="arc3,rad=0.3",
-                                       min_source_margin=10,
-                                       max_target_margin=10,
+                                       width=kwargs.pop('edge_width', 1.),
+                                       arrowsize=kwargs.pop('arrow_size', 10),
+                                       style=kwargs.pop(
+                                           'edge_style', 'dashed'),
+                                       arrows=kwargs.pop('arrows', True),
+                                       connectionstyle=kwargs.pop(
+                                           'connection_style', "arc3,rad=0.3"),
+                                       min_source_margin=kwargs.pop(
+                                           'min_source_margin', 5),
+                                       min_target_margin=kwargs.pop(
+                                           'min_target_margin', 5),
                                        ax=ax)
         if edge_alpha:
             for edge in range(self.graph.number_of_edges()):
