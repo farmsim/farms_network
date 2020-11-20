@@ -8,10 +8,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import itertools
 from farms_container import Container
+import time
+from tqdm import tqdm
 
 pylog.set_level('debug')
 
 #: Create an oscillator chain
+
+
 def oscillator_chain(n_oscillators, name_prefix, **kwargs):
     """ Create a chain of n-oscillators. """
     #: Define a network graph
@@ -22,10 +26,10 @@ def oscillator_chain(n_oscillators, name_prefix, **kwargs):
     f = kwargs.get('f', 1)
     R = kwargs.get('R', 1)
     a = kwargs.get('a', 10)
-    origin = kwargs.get('origin', [0,0])
+    origin = kwargs.get('origin', [0, 0])
     for j, osc in enumerate(oscillator_names):
         network.add_node(
-            osc, model="oscillator", f=f, R=R, a=a,x=origin[0],
+            osc, model="oscillator", f=f, R=R, a=a, x=origin[0],
             y=origin[1]+j)
     #: Connect
     phase_diff = kwargs.get('axial_phi', 2*np.pi/n_oscillators)
@@ -46,11 +50,12 @@ def oscillator_chain(n_oscillators, name_prefix, **kwargs):
             phi=-1*phase_diff)
     return network
 
+
 def oscillator_double_chain(n_oscillators, **kwargs):
     """ Create a double chain of n-oscillators. """
-    kwargs['origin'] = [-1, 0]
+    kwargs['origin'] = [-0.05, 0]
     left_chain = oscillator_chain(n_oscillators, 'left', **kwargs)
-    kwargs['origin'] = [1, 0]
+    kwargs['origin'] = [0.05, 0]
     right_chain = oscillator_chain(n_oscillators, 'right', **kwargs)
     double = nx.compose_all((left_chain, right_chain))
     #: Connect double chain
@@ -68,6 +73,7 @@ def oscillator_double_chain(n_oscillators, **kwargs):
             weight=weight,
             phi=phase_diff)
     return double
+
 
 #: Create double chain
 n_oscillators = 10
@@ -92,9 +98,11 @@ net.setup_integrator()
 #: Integrate the network
 pylog.info('Begin Integration!')
 
-for t in time_vec:
+start_time = time.time()
+for t in tqdm(time_vec):
     net.step(dt=dt)
     container.update_log()
+pylog.info("--- %s seconds ---" % (time.time() - start_time))
 
 #: Results
 # container.dump()
@@ -102,7 +110,10 @@ state = np.asarray(container.neural.states.log)
 neuron_out = np.asarray(container.neural.outputs.log)
 names = container.neural.outputs.names
 #: Show graph
-net.visualize_network(edge_labels=False)
+net.visualize_network(
+    node_size=500,
+    edge_labels=False
+)
 
 plt.figure()
 nosc = n_oscillators
