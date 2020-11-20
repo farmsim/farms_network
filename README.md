@@ -1,7 +1,7 @@
 # FARMS NETWORK
 
 
-## AUTHOR: Shravan Tata Ramalingasetty
+## AUTHORS: Jonathan Arreguit & Shravan Tata Ramalingasetty
 
 
 ## EMAIL: shravantr@gmail.com
