@@ -103,8 +103,8 @@ class NetworkXModel(object):
 
     def visualize_network(self,
                           node_size=1500,
-                          node_labels=True,
-                          edge_labels=True,
+                          node_labels=False,
+                          edge_labels=False,
                           edge_attribute='weight',
                           edge_alpha=True,
                           plt_out=None,
@@ -136,7 +136,8 @@ class NetworkXModel(object):
             nx.draw_networkx_labels(
                 self.graph,
                 pos=self.pos,
-                with_labels=True,
+                labels={n: name for n, val in nx.get_node_attributes(
+                    self.graph, 'name')},
                 font_size=kwargs.pop('font_size', 6.5),
                 font_weight=kwargs.pop('font_weight', 'bold'),
                 font_family=kwargs.pop('font_family', 'sans-serif'),
