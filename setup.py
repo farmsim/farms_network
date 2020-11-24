@@ -8,6 +8,7 @@ Options.docstrings = True
 Options.fast_fail = True
 Options.annotate = True
 Options.warning_errors = True
+Options.profile = False
 
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
@@ -97,9 +98,9 @@ setuptools.setup(
     version='0.1',
     description='Module to generate, develop and visualize neural networks',
     url='https://gitlab.com/FARMSIM/farms_network.git',
-    author='biorob-farms',
+    author="Jonathan Arreguit  & Shravan Tata Ramalingasetty",
     author_email='biorob-farms@groupes.epfl.ch',
-    license='MIT',
+    license='Apache-2.0',
     packages=setuptools.find_packages(exclude=['tests*']),
     dependency_links=[
         'https://gitlab.com/FARMSIM/farms_pylog.git',

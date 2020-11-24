@@ -10,7 +10,26 @@
 # cython: optimize.unpack_method_calls=True
 # cython: np_pythran=False
 
-"""Leaky Integrate and Fire Neuron Based on Danner et.al."""
+"""
+-----------------------------------------------------------------------
+Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
+Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------
+
+Leaky Integrate and Fire Neuron Based on Danner et.al.
+"""
 import numpy as np
 from libc.math cimport exp as cexp
 from libc.math cimport cosh as ccosh
@@ -31,7 +50,7 @@ cdef class LIFDannerNap(Neuron):
         #: Constants
         (_, self.c_m) = neural_container.constants.add_parameter(
             'c_m_' + self.n_id, kwargs.get('c_m', 10.0))  #: pF
-        
+
         (_, self.g_nap) = neural_container.constants.add_parameter(
             'g_nap_'+self.n_id, kwargs.get('g_nap', 4.5))  #: nS
         (_, self.e_na) = neural_container.constants.add_parameter(
@@ -115,7 +134,7 @@ cdef class LIFDannerNap(Neuron):
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
 
-    def add_ode_input(self,int idx, neuron, neural_container, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------

@@ -1,7 +1,7 @@
 # cython: cdivision=True
 # cython: language_level=3
 # cython: infer_types=True
-# cython: profile=False
+# cython: profile=True
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: nonecheck=False
@@ -10,7 +10,26 @@
 # cython: optimize.unpack_method_calls=True
 # cython: np_pythran=False
 
-"""Oscillator model"""
+"""
+-----------------------------------------------------------------------
+Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
+Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------
+
+Oscillator model
+"""
 from libc.stdio cimport printf
 import farms_pylog as pylog
 from libc.math cimport exp
@@ -49,7 +68,7 @@ cdef class Oscillator(Neuron):
             'phase_' + self.n_id, kwargs.get('phase0', 0.0))[0]
         self.amp = neural_container.states.add_parameter(
             'amp_' + self.n_id, kwargs.get('amp0', 0.0))[0]
-        
+
         #: External inputs
         self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
@@ -72,7 +91,7 @@ cdef class Oscillator(Neuron):
 
         self.num_inputs = num_inputs
 
-    def add_ode_input(self,int idx, neuron, neural_container, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
         #: Create a struct to store the inputs and weights to the neuron
         cdef OscillatorNeuronInput n

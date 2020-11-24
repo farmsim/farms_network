@@ -10,7 +10,26 @@
 # cython: optimize.unpack_method_calls=True
 # cython: np_pythran=False
 
-"""Leaky Integrate and Fire Interneuron. Daun et """
+"""
+-----------------------------------------------------------------------
+Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
+Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------
+
+Leaky Integrate and Fire Interneuron. Daun et 
+"""
 from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
@@ -97,7 +116,7 @@ cdef class LIFDaunInterneuron(Neuron):
                                                 ('gamma_s_idx', 'i'),
                                                 ('v_h_s_idx', 'i')])
 
-    def add_ode_input(self,int idx, neuron, neural_container, **kwargs):
+    def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode.
         Parameters
         ----------
@@ -107,7 +126,7 @@ cdef class LIFDaunInterneuron(Neuron):
             Strength of the synapse between the two neurons"""
 
         #: Create a struct to store the inputs and weights to the neuron
-        cdef DaunInterNeuronInput n        
+        cdef DaunInterNeuronInput n
         #: Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)

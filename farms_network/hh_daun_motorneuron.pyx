@@ -10,7 +10,26 @@
 # cython: optimize.unpack_method_calls=True
 # cython: np_pythran=False
 
-"""HH-Daun Motor neuron """
+"""
+----------------------------------------------------------------------
+Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
+Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------
+
+HH-Daun Motor neuron 
+"""
 from libc.stdio cimport printf
 import numpy as np
 from libc.math cimport exp as cexp
@@ -115,9 +134,9 @@ cdef class HHDaunMotorneuron(Neuron):
         #: Membrane potential
         self.v = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('v0', -65.0))[0]
-        self.m_na = neural_container.states.add_parameter(            
+        self.m_na = neural_container.states.add_parameter(
             'm_na_' + self.n_id, kwargs.get('m_na0', 0.9))[0]
-        self.h_na = neural_container.states.add_parameter(            
+        self.h_na = neural_container.states.add_parameter(
             'h_na_' + self.n_id, kwargs.get('h_na0', 0.0))[0]
         self.m_k = neural_container.states.add_parameter(
             'm_k_' + self.n_id, kwargs.get('m_k0', 0.0))[0]
