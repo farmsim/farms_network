@@ -26,7 +26,7 @@ else:
 	g_c = math.sqrt(1-gamma*(gamma+2*beta_mean)+2*math.sqrt(beta_mean*(gamma**2)*math.sqrt(2*gamma+2*beta_mean+2)))
 g = 2*g_c
 
-neuron_names = []		
+neuron_names = []
 
 num_neurons = 20
 for i in range(num_neurons):
@@ -45,24 +45,26 @@ for a,b in itertools.product(range(num_nodes), range(num_nodes)):
 #: Location to save the network
 nx.write_graphml(network, 'neuron_test.graphml')
 
-# #: Initialize network
-net = NeuralSystem('neuron_test.graphml')
-
-container.initialize()
-
-net.setup_integrator()
-
 #: initialize network parameters
 #: pylint: disable=invalid-name
 dt = 0.01  #: Time step
 dur = 100
 time_vec = np.arange(0, dur, dt)  #: Time
 
+# #: Initialize network
+container = Container(dur/dt)
+net = NeuralSystem('neuron_test.graphml', container)
+container.initialize()
+
+net.setup_integrator()
+
+
 #: Integrate the network
 pylog.info('Begin Integration!')
 
 for t in time_vec:
     net.step(dt=dt)
+    container.update_log()
 
 #: Results
 state = container.neural.states.log
