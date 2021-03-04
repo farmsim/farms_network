@@ -1,4 +1,4 @@
-""" 
+"""
 -----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
 Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Generate a template network. 
+Generate a template network.
 """
 
 import farms_pylog as pylog
@@ -277,6 +277,29 @@ class AgnosticController:
             node_1,
             weight=weight,
             phi=-1*phi
+        )
+
+    @staticmethod
+    def add_connection_antagonist(network, node_1, node_2, **kwargs):
+        """
+        Add mutual connection between two nodes
+        """
+        weight = kwargs.pop('weight', 1.0)
+        phi = kwargs.pop('phi', 0.0)
+
+        AgnosticController.add_mutual_connection(
+            network,
+            node_1 + '_flexion',
+            node_2 + '_flexion',
+            weight=weight,
+            phi=phi
+        )
+        AgnosticController.add_mutual_connection(
+            network,
+            node_1 + '_extension',
+            node_2 + '_extension',
+            weight=weight,
+            phi=phi
         )
 
     @staticmethod
