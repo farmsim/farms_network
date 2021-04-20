@@ -1,4 +1,4 @@
-import setuptools
+ import setuptools
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 from distutils.extension import Extension
@@ -102,11 +102,9 @@ setuptools.setup(
     author_email='biorob-farms@groupes.epfl.ch',
     license='Apache-2.0',
     packages=setuptools.find_packages(exclude=['tests*']),
-    dependency_links=[
-        'https://gitlab.com/FARMSIM/farms_pylog.git',
-        'https://gitlab.com/FARMSIM/farms_container.git'],
     install_requires=[
-        'farms_container',
+        'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
+        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
         'tqdm',
         'numpy',
         'farms_pylog',
