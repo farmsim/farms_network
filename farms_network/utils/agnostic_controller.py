@@ -19,17 +19,17 @@ limitations under the License.
 Generate a template network.
 """
 
-import farms_pylog as pylog
-import networkx as nx
-from farms_network.neural_system import NeuralSystem
-from farms_sdf.sdf import ModelSDF
-from farms_sdf import utils as sdf_utils
-import matplotlib.pyplot as plt
-import os
-import numpy as np
-import matplotlib.pyplot as plt
 import itertools
+import os
+
+import farms_pylog as pylog
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 from farms_container import Container
+from farms_network.neural_system import NeuralSystem
+from farms_sdf import utils as sdf_utils
+from farms_sdf.sdf import ModelSDF
 
 pylog.set_level('debug')
 
