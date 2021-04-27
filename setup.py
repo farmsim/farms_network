@@ -1,4 +1,4 @@
- import setuptools
+import setuptools
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 from distutils.extension import Extension
