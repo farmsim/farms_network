@@ -55,7 +55,7 @@ class NeuralSystem(NetworkXModel):
         if not x0:
             initial_values = np.random.rand(
                 len(self.container.neural.states.values)
-            )*atol
+            )*rtol
             self.integrator.set_initial_value(initial_values, 0.0)
         else:
             self.integrator.set_initial_value(x0, 0.0)
