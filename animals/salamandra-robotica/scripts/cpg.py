@@ -1,5 +1,6 @@
 """ Example of double chain oscillator model. """
 
+from itertools import product
 import farms_pylog as pylog
 import networkx as nx
 import os
@@ -10,8 +11,11 @@ import itertools
 from farms_container import Container
 import time
 from tqdm import tqdm
+import pstats
+import cProfile
+from network2tikz import plot
 
-pylog.set_level('debug')
+pylog.set_level('error')
 
 #: Create an oscillator chain
 
@@ -76,50 +80,61 @@ def oscillator_double_chain(n_oscillators, **kwargs):
 
 
 #: Create double chain
-n_oscillators = 10
+n_oscillators = 7
 network = oscillator_double_chain(n_oscillators)
-
+network.add_edges_from((a, b)
+                       for a, b in product(network.nodes(), network.nodes()) if a != b)
+for edge in network.edges().values():
+    edge['weight'] = 10
+    edge['phi'] = np.pi
+pylog.error(len(network.edges()))
 #: Location to save the network
 net_dir = "../config/auto_salamandra_robotica_oscillator.graphml"
 nx.write_graphml(network, net_dir)
 
-# #: Initialize network
-dt = 0.001  #: Time step
-dur = 10
-time_vec = np.arange(0, dur, dt)  #: Time
-container = Container(dur/dt)
-net = NeuralSystem(
-    "../config/auto_salamandra_robotica_oscillator.graphml",
-    container)
-#: initialize network parameters
-container.initialize()
-net.setup_integrator()
 
-#: Integrate the network
-pylog.info('Begin Integration!')
+def main():
+    # #: Initialize network
+    dt = 0.001  #: Time step
+    dur = 10
+    time_vec = np.arange(0, dur, dt)  #: Time
+    container = Container(dur/dt)
+    net = NeuralSystem(
+        "../config/auto_salamandra_robotica_oscillator.graphml",
+        container)
+    #: initialize network parameters
+    container.initialize()
+    net.setup_integrator()
 
-start_time = time.time()
-for t in tqdm(time_vec):
-    net.step(dt=dt)
-    container.update_log()
-pylog.info("--- %s seconds ---" % (time.time() - start_time))
+    #: Integrate the network
+    pylog.info('Begin Integration!')
 
-#: Results
-# container.dump()
-state = np.asarray(container.neural.states.log)
-neuron_out = np.asarray(container.neural.outputs.log)
-names = container.neural.outputs.names
-#: Show graph
-net.visualize_network(
-    node_size=500,
-    edge_labels=False
-)
+    start_time = time.time()
+    for t in tqdm(time_vec):
+        net.step(dt=dt)
+        container.update_log()
+    pylog.info("--- %s seconds ---" % (time.time() - start_time))
 
-plt.figure()
-nosc = n_oscillators
-for j in range(nosc):
-    plt.plot(2*j+(state[:, 2*j+1]*np.sin(neuron_out[:, j])))
-    plt.plot(2*j+(state[:, 2*(j+nosc)+1]*np.sin(neuron_out[:, nosc+j])))
-plt.legend(names)
-plt.grid(True)
-plt.show()
+    #: Results
+    # container.dump()
+    state = np.asarray(container.neural.states.log)
+    neuron_out = np.asarray(container.neural.outputs.log)
+    names = container.neural.outputs.names
+    #: Show graph
+    net.visualize_network(
+        node_size=500,
+        edge_labels=False
+    )
+
+    plt.figure()
+    nosc = n_oscillators
+    for j in range(nosc):
+        plt.plot(2*j+(state[:, 2*j+1]*np.sin(neuron_out[:, j])))
+        plt.plot(2*j+(state[:, 2*(j+nosc)+1]*np.sin(neuron_out[:, nosc+j])))
+    plt.legend(names)
+    plt.grid(True)
+    plt.show()
+
+
+if __name__ == '__main__':
+    main()
