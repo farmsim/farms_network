@@ -237,14 +237,17 @@ class AgnosticController:
             connect_mutual=True,
             connect_closest_neighbors=True,
             connect_base_nodes=True,
-            remove_joint_types=[]
+            remove_joints=None
     ):
         super().__init__()
         self.model = self.read_sdf(sdf_path)[0]
         #: Remove certain joint types
-        for j in remove_joint_types:
-            self.model.joints = sdf_utils.remove_joint_type(
-                self.model, j)
+        if remove_joints:
+            self.model.joints = [
+                joint
+                for joint in self.model.joints
+                if joint.name not in remove_joints
+            ]
         self.connect_flexion_extension = connect_mutual
         self.connect_closest_neighbors = connect_closest_neighbors
         self.connect_base_nodes = connect_base_nodes
@@ -308,7 +311,7 @@ class AgnosticController:
         for joint in model.joints:
             for conn in sdf_utils.find_neighboring_joints(
                     model, joint.name):
-                print("{} -> {}".format(joint.name, conn))
+                pylog.debug(f"{joint.name} -> {conn}")
                 AgnosticController.add_mutual_connection(
                     network,
                     joint.name + '_flexion',
@@ -361,7 +364,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_flexion',
                 model='oscillator',
-                f=2,
+                f=3,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]+0.001,
@@ -372,7 +375,7 @@ class AgnosticController:
             self.network.add_node(
                 joint.name + '_extension',
                 model='oscillator',
-                f=2,
+                f=3,
                 R=1.0,
                 a=25,
                 x=links[link_id[joint.child]].pose[0]-0.001,
