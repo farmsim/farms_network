@@ -3,7 +3,7 @@ from distutils.extension import Extension
 import numpy
 import setuptools
 from Cython.Build import cythonize
-from Cython.Compiler import Option
+from Cython.Compiler import Options
 from setuptools import dists
 
 dist.Distribution().fetch_build_eggs(['farms_container'])
