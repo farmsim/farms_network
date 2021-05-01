@@ -1,4 +1,4 @@
-from setuptools import setup, dist
+from setuptools import setup, dist, find_packages
 from setuptools.extension import Extension
 
 from farms_container import get_include
@@ -100,7 +100,7 @@ extensions = [
               )
 ]
 
-setuptools.setup(
+setup(
     name='farms_network',
     version='0.1',
     description='Module to generate, develop and visualize neural networks',
@@ -108,7 +108,7 @@ setuptools.setup(
     author="Jonathan Arreguit  & Shravan Tata Ramalingasetty",
     author_email='biorob-farms@groupes.epfl.ch',
     license='Apache-2.0',
-    packages=setuptools.find_packages(exclude=['tests*']),
+    packages=find_packages(exclude=['tests*']),
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
         'tqdm',
