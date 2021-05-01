@@ -4,11 +4,8 @@ import numpy
 import setuptools
 from Cython.Build import cythonize
 from Cython.Compiler import Options
-from setuptools import dists
 
-dist.Distribution().fetch_build_eggs(['farms_container'])
 from farms_container import get_include
-
 
 Options.docstrings = True
 Options.fast_fail = True
@@ -108,12 +105,8 @@ setuptools.setup(
     author_email='biorob-farms@groupes.epfl.ch',
     license='Apache-2.0',
     packages=setuptools.find_packages(exclude=['tests*']),
-    setup_requires=[
-        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git'
-    ],
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
-        'farms_container @ git+https://gitlab.com/FARMSIM/farms_container.git',
         'tqdm',
         'numpy',
         'farms_pylog',
@@ -124,7 +117,9 @@ setuptools.setup(
         'scipy'
     ],
     zip_safe=False,
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(
+        extensions, include_path=[numpy.get_include()] + [get_include()]
+    ),
     package_data={
         'farms_network': ['*.pxd'],
         'farms_container': ['*.pxd'],
