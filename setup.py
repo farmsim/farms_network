@@ -1,8 +1,10 @@
+from distutils.extension import Extension
+
+import numpy
 import setuptools
 from Cython.Build import cythonize
 from Cython.Compiler import Options
-from distutils.extension import Extension
-import numpy
+from farms_container import get_include
 
 Options.docstrings = True
 Options.fast_fail = True
@@ -15,79 +17,79 @@ Options.profile = False
 extensions = [
     Extension("farms_network.network_generator",
               ["farms_network/network_generator.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.oscillator",
               ["farms_network/oscillator.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.morphed_oscillator",
               ["farms_network/morphed_oscillator.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.leaky_integrator",
               ["farms_network/leaky_integrator.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.neuron",
               ["farms_network/neuron.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.lif_danner_nap",
               ["farms_network/lif_danner_nap.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.lif_danner",
               ["farms_network/lif_danner.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.lif_daun_interneuron",
               ["farms_network/lif_daun_interneuron.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.hh_daun_motorneuron",
               ["farms_network/hh_daun_motorneuron.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.sensory_neuron",
               ["farms_network/sensory_neuron.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.fitzhugh_nagumo",
               ["farms_network/fitzhugh_nagumo.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.matsuoka_neuron",
               ["farms_network/matsuoka_neuron.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
     Extension("farms_network.morris_lecar",
               ["farms_network/morris_lecar.pyx"],
-              include_dirs=[numpy.get_include()],
+              include_dirs=[numpy.get_include(), get_include()],
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               )
@@ -121,5 +123,6 @@ setuptools.setup(
     ext_modules=cythonize(extensions),
     package_data={
         'farms_network': ['*.pxd'],
+        'farms_container': ['*.pxd'],
     },
 )
