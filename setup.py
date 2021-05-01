@@ -1,11 +1,15 @@
-from distutils.extension import Extension
+from setuptools import setup, dist
+from setuptools.extension import Extension
 
+from farms_container import get_include
+
+dist.Distribution().fetch_build_eggs(['numpy'])
 import numpy
-import setuptools
+
+dist.Distribution().fetch_build_eggs(['Cython>=0.15.1'])
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 
-from farms_container import get_include
 
 Options.docstrings = True
 Options.fast_fail = True
