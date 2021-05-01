@@ -112,12 +112,9 @@ setup(
     install_requires=[
         'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
         'tqdm',
-        'numpy',
-        'farms_pylog',
         'matplotlib',
         'networkx',
         'pydot',
-        'ddt',
         'scipy'
     ],
     zip_safe=False,
