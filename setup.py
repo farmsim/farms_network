@@ -3,8 +3,12 @@ from distutils.extension import Extension
 import numpy
 import setuptools
 from Cython.Build import cythonize
-from Cython.Compiler import Options
+from Cython.Compiler import Option
+from setuptools import dists
+
+dist.Distribution().fetch_build_eggs(['farms_container'])
 from farms_container import get_include
+
 
 Options.docstrings = True
 Options.fast_fail = True
