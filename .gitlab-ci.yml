@@ -1,10 +1,11 @@
-image: alpine
+image: python:3.7-alpine
 
 pages:
   script:
-  - apk --no-cache add py2-pip python-dev
   - pip install sphinx
   - pip install sphinx_rtd_theme
+  - pip install cython
+  - pip install numpy
   - apk --no-cache add make
   - cd docs
   - make html
