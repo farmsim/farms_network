@@ -52,11 +52,13 @@ class NeuralSystem(NetworkXModel):
             max_step=max_step
         )
 
-        if not x0:
-            initial_values = np.random.rand(
-                len(self.container.neural.states.values)
-            )*rtol
-            self.integrator.set_initial_value(initial_values, 0.0)
+        if x0 is None:
+            # initial_values = np.random.rand(
+            #     self.container.neural.states.values
+            # )
+            self.integrator.set_initial_value(
+                self.container.neural.states.values, 0.0
+            )
         else:
             self.integrator.set_initial_value(x0, 0.0)
 
