@@ -19,17 +19,18 @@ limitations under the License.
 Factory class for generating the neuron model.
 """
 
+from farms_network.fitzhugh_nagumo import FitzhughNagumo
+from farms_network.hh_daun_motorneuron import HHDaunMotorneuron
+from farms_network.hopf_oscillator import HopfOscillator
+from farms_network.leaky_integrator import LeakyIntegrator
 from farms_network.lif_danner import LIFDanner
 from farms_network.lif_danner_nap import LIFDannerNap
 from farms_network.lif_daun_interneuron import LIFDaunInterneuron
-from farms_network.hh_daun_motorneuron import HHDaunMotorneuron
-from farms_network.sensory_neuron import SensoryNeuron
-from farms_network.leaky_integrator import LeakyIntegrator
-from farms_network.oscillator import Oscillator
-from farms_network.morphed_oscillator import MorphedOscillator
-from farms_network.fitzhugh_nagumo import FitzhughNagumo
 from farms_network.matsuoka_neuron import MatsuokaNeuron
+from farms_network.morphed_oscillator import MorphedOscillator
 from farms_network.morris_lecar import MorrisLecarNeuron
+from farms_network.oscillator import Oscillator
+from farms_network.sensory_neuron import SensoryNeuron
 
 
 class NeuronFactory(object):
@@ -37,6 +38,7 @@ class NeuronFactory(object):
     """
     neurons = {  # 'if': IntegrateAndFire,
         'oscillator': Oscillator,
+        'hopf_oscillator': HopfOscillator,
         'morphed_oscillator': MorphedOscillator,
         'leaky': LeakyIntegrator,
         'sensory': SensoryNeuron,
