@@ -32,6 +32,12 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
+    Extension("farms_network.hopf_oscillator",
+              ["farms_network/hopf_oscillator.pyx"],
+              include_dirs=[numpy.get_include(), get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network.morphed_oscillator",
               ["farms_network/morphed_oscillator.pyx"],
               include_dirs=[numpy.get_include(), get_include()],

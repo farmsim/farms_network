@@ -21,26 +21,27 @@ gamma = 1/12
 beta_h = -1-gamma+math.sqrt(2*gamma**2+2*gamma+1)
 print(beta_h)
 if beta_mean < beta_h:
-	g_c = 1 + beta_mean
+        g_c = 1 + beta_mean
 else:
-	g_c = math.sqrt(1-gamma*(gamma+2*beta_mean)+2*math.sqrt(beta_mean*(gamma**2)*math.sqrt(2*gamma+2*beta_mean+2)))
+        g_c = math.sqrt(1-gamma*(gamma+2*beta_mean)+2*math.sqrt(beta_mean*(gamma**2)*math.sqrt(2*gamma+2*beta_mean+2)))
 g = 2*g_c
 
 neuron_names = []
 
 num_neurons = 20
 for i in range(num_neurons):
-	network.add_node(str(i), model="matsuoka_neuron",c=0,T=1/gamma,nu=np.random.normal(beta_mean,0))
-	neuron_names.append(str(i))
-	num_nodes += 1
+        network.add_node(str(i), model="matsuoka_neuron",c=0,T=1/gamma,nu=np.random.normal(beta_mean,0))
+        neuron_names.append(str(i))
+        num_nodes += 1
 
 
 for a,b in itertools.product(range(num_nodes), range(num_nodes)):
-	randi = np.random.rand()
-	if a!=b:
-		network.add_edge(
-		neuron_names[a], neuron_names[b],
-		weight= np.random.normal(0,g**2/num_nodes))
+        randi = np.random.rand()
+        if a!=b:
+                network.add_edge(
+                        neuron_names[a], neuron_names[b],
+                        weight= np.random.normal(0,g**2/num_nodes)
+                )
 
 #: Location to save the network
 nx.write_graphml(network, 'neuron_test.graphml')
