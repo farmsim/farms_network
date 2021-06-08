@@ -32,8 +32,8 @@ class TestNeuronModels(unittest.TestCase):
         container.neural.add_table('parameters')
         #: Input to neural system
         container.neural.add_table('inputs')
-        #: Secondary outputs 
-        container.neural.add_table('outputs')        
+        #: Secondary outputs
+        container.neural.add_table('outputs')
 
     def tearDown(self):
         """ Tear up neuron model. """
@@ -92,5 +92,5 @@ class TestNeuronModels(unittest.TestCase):
         container.initialize()
         self.assertIn(neuron.model_type, neuron_types())
 
-if __name__ == '__main__':        
+if __name__ == '__main__':
     unittest.main()
