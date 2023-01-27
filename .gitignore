@@ -1,6 +1,10 @@
-#PYTHON
+# Python
 *.pyc
 *.pyc~
+
+# Latex
+*.fls
+*.fdb_latexmk
 
 # Temp Files
 *.*~
@@ -10,7 +14,7 @@
 # Auto-generated files
 auto*
 
-#: figures
+# figures
 *.dot
 *.png
 !figures/*.png
@@ -19,7 +23,7 @@ auto*
 # System Files
 .DS_Store
 
-#: install files
+# install files
 farms_network.egg-info
 
 # build
@@ -27,23 +31,23 @@ build/
 *.so
 *.dylib
 
-#: Generated cython c-files
+# Generated cython c-files
 *.c
 
-#: Generated cython perf html files
+# Generated cython perf html files
 *.html
 
-#: Docs
+# Docs
 docs/build
 make.bat
 
-#: networkx
+# networkx
 *.graphml
 
-#: profiling
+# profiling
 *.prof
 *.lprof
 *.profile
 
-#: Results
+# Results
 Results
