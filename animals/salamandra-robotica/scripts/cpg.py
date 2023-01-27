@@ -15,7 +15,7 @@ import pstats
 import cProfile
 from network2tikz import plot
 
-pylog.set_level('error')
+pylog.set_level('info')
 
 #: Create an oscillator chain
 
@@ -80,10 +80,10 @@ def oscillator_double_chain(n_oscillators, **kwargs):
 
 
 #: Create double chain
-n_oscillators = 7
+n_oscillators = 125
 network = oscillator_double_chain(n_oscillators)
-network.add_edges_from((a, b)
-                       for a, b in product(network.nodes(), network.nodes()) if a != b)
+# network.add_edges_from((a, b)
+#                        for a, b in product(network.nodes(), network.nodes()) if a != b)
 for edge in network.edges().values():
     edge['weight'] = 10
     edge['phi'] = np.pi
@@ -129,8 +129,8 @@ def main():
     plt.figure()
     nosc = n_oscillators
     for j in range(nosc):
-        plt.plot(2*j+(state[:, 2*j+1]*np.sin(neuron_out[:, j])))
-        plt.plot(2*j+(state[:, 2*(j+nosc)+1]*np.sin(neuron_out[:, nosc+j])))
+        plt.plot(time_vec, 2*j+(state[:, 2*j+1]*np.sin(neuron_out[:, j])))
+        plt.plot(time_vec, 2*j+(state[:, 2*(j+nosc)+1]*np.sin(neuron_out[:, nosc+j])))
     plt.legend(names)
     plt.grid(True)
     plt.show()

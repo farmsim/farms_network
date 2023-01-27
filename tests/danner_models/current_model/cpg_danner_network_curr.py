@@ -227,7 +227,7 @@ def main():
         return gait_cycle
     #: Visualize network using Matplotlib
     net_.visualize_network(
-        node_size=50,
+        node_size=500,
         node_labels=False,
         edge_labels=False,
         edge_alpha=True,

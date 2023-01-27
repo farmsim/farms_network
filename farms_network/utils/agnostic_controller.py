@@ -111,11 +111,20 @@ class AgnosticPositionController(AgnosticBaseController):
     """Class to generate a position based oscillator controller.
     """
 
-    def __init__(self, sdf_model_path):
+    def __init__(self, sdf_model_path, remove_joints=None):
         super(AgnosticPositionController, self).__init__(
             controller_type='POSITION_CONTROL',
             sdf_model_path=sdf_model_path
         )
+        #: Remove certain joint types
+        if remove_joints:
+            self.model.joints = [
+                joint
+                for joint in self.model.joints
+                if joint.name not in remove_joints
+            ]
+        self.generate_neurons()
+        self.generate_edges()
 
     def generate_neurons(
             self, neuron_type='oscillator', **kwargs
@@ -422,7 +431,7 @@ def main():
 
     # #: Initialize network
     dt = 0.001  #: Time step
-    dur = 1
+    dur = 10
     time_vec = np.arange(0, dur, dt)  #: Time
     container = Container(dur/dt)
     net = NeuralSystem(

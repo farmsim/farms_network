@@ -71,7 +71,7 @@ for t in time_vec:
 state = container.neural.states.log
 neuron_out = container.neural.outputs.log
 # : Show graph
-#net.visualize_network(edge_labels=True)
+net.visualize_network()
 
 plt.figure()
 plt.plot(neuron_out)

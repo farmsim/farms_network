@@ -155,7 +155,7 @@ class NetworkXModel(object):
             nx.draw_networkx_labels(
                 self.graph,
                 pos=self.pos,
-                # labels={n: name for n, val in nx.get_node_attributes(
+                # labels={n: val for n, val in nx.get_node_attributes(
                 #     self.graph, 'name')},
                 font_size=kwargs.pop('font_size', 6.5),
                 font_weight=kwargs.pop('font_weight', 'bold'),

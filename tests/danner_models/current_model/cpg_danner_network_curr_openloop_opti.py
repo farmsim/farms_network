@@ -42,6 +42,37 @@ plt.rc('ytick', labelsize=14.0)    # fontsize of the tick labels
 PLOT = False
 
 
+def save_figure(figure_handle, file_path, file_name, **kwargs):
+    """Save figure
+
+    Parameters
+    ----------
+    figure_handle :
+
+    name :
+
+    **kwargs :
+
+
+    Returns
+    -------
+    out :
+
+    """
+    if kwargs.pop('pdf', True):
+        figure_handle.savefig(
+            os.path.join(file_path, file_name+'.pdf'),
+            dpi=kwargs.get('dpi', 300),
+            bbox_inches=kwargs.get('bbox_inches', 'tight')
+        )
+    if kwargs.pop('png', True):
+        figure_handle.savefig(
+            os.path.join(file_path, file_name+'.png'),
+            dpi=kwargs.get('dpi', 300),
+            bbox_inches=kwargs.get('bbox_inches', 'tight')
+    )
+
+
 def main():
     """Main."""
 
@@ -177,7 +208,7 @@ def main():
     #: initialize network parameters
     #: pylint: disable=invalid-name
     dt = 1  #: Time step
-    dur = 2000
+    dur = 5e3
     time_vec = np.arange(0, dur, dt)  #: Time
 
     # CONTAINER
@@ -212,7 +243,7 @@ def main():
     pylog.info('RUN TIME : {}'.format(end-start))
 
     #: Results
-    container.dump(overwrite=True)
+    # container.dump(overwrite=True)
 
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
@@ -228,16 +259,21 @@ def main():
             gait_cycle.append((val*0.001, end[id]*0.001 - val*0.001))
         return gait_cycle
 
-    #: Visualize network using Matplotlib
-    net_.visualize_network(
-        node_size=50,
-        node_labels=False,
-        edge_labels=False,
-        edge_alpha=True,
-        plt_out=plt
-    )
-    if PLOT:
+    if True:
+        #: Visualize network using Matplotlib
+        net_.visualize_network(
+            node_size=50,
+            node_labels=False,
+            edge_labels=False,
+            edge_alpha=True,
+            plt_out=plt
+        )
+        # for v in ('r', 'b', 'm'):
+        #     plt.scatter([],[], c=v, label='Group{}'.format(v))
+        # plt.legend()
         # net_.save_network_to_dot()
+
+        save_figure(plt.gcf(), "./", "cpg")
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
@@ -299,4 +335,6 @@ def main():
 
 if __name__ == '__main__':
     PLOT = True
-    main()
+    from profiler import profile
+    profile(main)
+    # main()

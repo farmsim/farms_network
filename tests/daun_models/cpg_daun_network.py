@@ -60,8 +60,8 @@ def main():
             raise IOError()
 
     #: Initialize network
-    dt = 5  #: Time step
-    dur = 1000
+    dt = 10  #: Time step
+    dur = 5000
     time_vec = np.arange(0, dur, dt)  #: Time
 
     container = Container(dur/dt)
@@ -72,6 +72,7 @@ def main():
 
     #: initialize network parameters
     container.initialize()
+    x0 = [-70 if 'V_' in name else 0.0 for name in container.neural.states.names]
     net_.setup_integrator()
 
     #: Integrate the network
@@ -91,13 +92,12 @@ def main():
     net_.visualize_network(plt_out=plt)
     plt.figure()
     plt.title('DAUNS NETWORK')
-    outputs = container.neural.outputs.log
-    plt.plot(time_vec*0.001,
-             outputs[:, container.neural.outputs.get_parameter_index('nout_'+'PR_L1_C1')])
-    plt.plot(time_vec*0.001,
-             outputs[:, container.neural.outputs.get_parameter_index('nout_'+'PR_L1_C2')])
+    outputs = container.neural.outputs
+    plt.plot(time_vec*TIME_UNITS, outputs.log)
+    # plt.plot(time_vec*TIME_UNITS,
+    #          outputs[:, container.neural.outputs.get_parameter_index('nout_'+'PR_L1_C2')])
     plt.xlabel('Time [s]')
-    plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2'))
+    # plt.legend(('V_PR_L1_C1', 'V_PR_L1_C2'))
     plt.grid()
     plt.show()
 
