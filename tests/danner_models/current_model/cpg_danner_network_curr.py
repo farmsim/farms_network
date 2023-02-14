@@ -172,7 +172,7 @@ def main():
     # initialize network parameters
     # pylint: disable=invalid-name
     dt = 1  # Time step
-    dur = 200
+    dur = 20000
     time_vec = np.arange(0, dur, dt)  # Time
 
     # CONTAINER
@@ -195,18 +195,14 @@ def main():
     # Network drive : Alpha
     alpha = np.linspace(0, 1, len(time_vec))
 
-    alpha_ids = []
-    for name, idx in container.neural.inputs.name_index.items():
-        if 'alpha' in name:
-            alpha_ids.append(idx)
-    _alphas = list(container.neural.inputs.values)
-    u = np.ones(np.shape(alpha_ids))
-
+    u = np.zeros(np.shape(container.neural.inputs.values))
+    u[['alpha' in in_.name for in_ in container.neural.inputs]]=1.0
+    
     start = time.time()
     for j in range(0, int(dur/dt)):
-        for _alpha in alpha_ids:
-            container.neural.inputs.values[_alpha] = alpha[j]
+        container.neural.inputs.values = u*alpha[j]
         net_.step(dt=dt)
+        container.update_log()
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
 
@@ -235,7 +231,7 @@ def main():
     )
     fig.axes[0].collections[0].set_edgecolor("#FF0000")
     # fig.axes[0].legend(('RG_E', 'RG_F', 'In_F', 'In_E'))
-    PLOT=False
+    PLOT=True
     if PLOT:
         # net_.save_network_to_dot()
 
@@ -259,7 +255,7 @@ def main():
                 pass
 
         fig, ax = plt.subplots(len(plot_names)+2, 1, sharex='all')
-        fig.canvas.set_window_title('Model Performance')
+        #fig.canvas.set_window_title('Model Performance')
         fig.suptitle('Model Performance', fontsize=12)
         for i, tr in enumerate(plot_traces):
             ax[i].plot(time_vec*0.001, tr, 'b',
