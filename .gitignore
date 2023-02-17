@@ -48,6 +48,14 @@ make.bat
 *.prof
 *.lprof
 *.profile
+cProfile
+os
+np
+pstats
 
 # Results
 Results
+
+# temp
+\#auto*
+\#*
