@@ -21,21 +21,25 @@ import numpy as np
 from farms_network.network_generator import NetworkGenerator
 from scipy.integrate import ode
 from .networkx_model import NetworkXModel
+from networkx import DiGraph
 
 
 class NeuralSystem(NetworkXModel):
     """Neural System.
     """
 
-    def __init__(self, config_path, container):
+    def __init__(self, network_graph, container):
         """ Initialize neural system. """
         super(NeuralSystem, self).__init__()
         self.container = container
         #: Add name-space for neural system data
         neural_table = self.container.add_namespace('neural')
-        self.config_path = config_path
+        # self.config_path = config_path
         self.integrator = None
-        self.read_graph(config_path)
+        if type(network_graph) is str:
+            self.read_graph(network_graph)
+        elif type(network_graph) is DiGraph:
+            self.graph = network_graph
         #: Create network
         self.network = NetworkGenerator(self.graph, neural_table)
 
