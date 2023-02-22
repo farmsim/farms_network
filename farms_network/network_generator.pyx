@@ -41,7 +41,6 @@ from collections import OrderedDict
 import numpy as np
 cimport numpy as cnp
 cimport cython
-pylog.set_level('debug')
 
 
 cdef class NetworkGenerator:
