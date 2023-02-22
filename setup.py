@@ -125,7 +125,8 @@ setup(
     ],
     zip_safe=False,
     ext_modules=cythonize(
-        extensions, include_path=[numpy.get_include()] + [get_include()]
+        extensions,
+        include_path=[numpy.get_include(), get_include(), 'farms_container'],
     ),
     package_data={
         'farms_network': ['*.pxd'],
