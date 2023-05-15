@@ -20,7 +20,41 @@ Main data structure for the network
 
 """
 
+from .data_cy import NetworkDataCy, NeuronDataCy, NeuronsDataCy
+
 
 class NetworkData(NetworkDataCy):
     """ Network data """
-    ...
+
+    def __init__(self):
+        """Network data structure"""
+
+        super().__init__()
+
+        self.neurons = None
+        self.connectivity = None
+        self.states = None
+        self.inputs = None
+        self.outputs = None
+
+
+class NeuronsData(NeuronsDataCy):
+    """ Neuronal data """
+
+    def __init__(self):
+        """ Neurons data """
+
+        super().__init__()
+
+
+
+class NeuronData(NeuronDataCy):
+    """ Base class for representing an arbitrary neuron data """
+
+    def __init__(self):
+        """Neuron data initialization """
+
+        super().__init__()
+
+        self.consts = None
+        self.variables = None
