@@ -45,7 +45,7 @@ class NeuralSystem(NetworkXModel):
 
     def setup_integrator(
             self, x0=None, integrator=u'dopri5', atol=1e-12, rtol=1e-6,
-            max_step=0.0, method=u'adams'
+            max_step=0.0, method=u'adams', nsteps=1
     ):
         """Setup system."""
         self.integrator = ode(self.network.ode).set_integrator(
@@ -53,7 +53,8 @@ class NeuralSystem(NetworkXModel):
             method=method,
             atol=atol,
             rtol=rtol,
-            max_step=max_step
+            max_step=max_step,
+            nsteps=1
         )
 
         if x0 is None:
