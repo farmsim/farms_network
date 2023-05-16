@@ -17,11 +17,20 @@ limitations under the License.
 -----------------------------------------------------------------------
 
 """
+
+import sys
+
 import numpy as np
-from farms_network.network_generator import NetworkGenerator
-from scipy.integrate import ode
-from .networkx_model import NetworkXModel
 from networkx import DiGraph
+from scipy.integrate import ode
+
+from farms_network.network_generator import NetworkGenerator
+
+from .networkx_model import NetworkXModel
+
+if not sys.warnoptions:
+    import warnings
+    warnings.simplefilter("ignore", UserWarning)
 
 
 class NeuralSystem(NetworkXModel):
