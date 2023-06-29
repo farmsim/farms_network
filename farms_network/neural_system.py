@@ -63,7 +63,7 @@ class NeuralSystem(NetworkXModel):
             atol=atol,
             rtol=rtol,
             max_step=max_step,
-            nsteps=1
+            # nsteps=1
         )
 
         if x0 is None:
