@@ -132,7 +132,10 @@ class NetworkXModel(object):
         """ Visualize the neural network."""
         self.read_neuron_position_in_graph()
         self.read_neuron_colors_in_graph()
-        self.read_edge_colors_in_graph(edge_attribute=edge_attribute)
+        if color_map_edge := kwargs.get('color_map_edge'):
+            self.color_map_edge = color_map_edge
+        else:
+            self.read_edge_colors_in_graph(edge_attribute=edge_attribute)
 
         if plt_out is not None:
             fig = plt_out.figure('Network')
@@ -148,19 +151,18 @@ class NetworkXModel(object):
         _ = nx.draw_networkx_nodes(self.graph, pos=self.pos,
                                    node_color=self.color_map,
                                    node_size=node_size,
-                                   alpha=kwargs.pop('alpha', 0.75),
+                                   alpha=kwargs.pop('alpha', 0.25),
                                    ax=ax
                                    )
         if node_labels:
             nx.draw_networkx_labels(
                 self.graph,
                 pos=self.pos,
-                # labels={n: val for n, val in nx.get_node_attributes(
-                #     self.graph, 'name')},
-                font_size=kwargs.pop('font_size', 6.5),
+                labels={n: val["label"] for n, val in self.graph.nodes.items()},
+                font_size=kwargs.pop('font_size', 9.0),
                 font_weight=kwargs.pop('font_weight', 'bold'),
                 font_family=kwargs.pop('font_family', 'sans-serif'),
-                alpha=kwargs.pop('alpha', 0.75),
+                alpha=kwargs.pop('alpha', 1.0),
                 ax=ax
             )
         if edge_labels:
@@ -188,7 +190,7 @@ class NetworkXModel(object):
                                            'edge_style', 'dashed'),
                                        arrows=kwargs.pop('arrows', True),
                                        connectionstyle=kwargs.pop(
-                                           'connection_style', "arc3,rad=0.3"),
+                                           'connection_style', "arc3,rad=-0.0"),
                                        min_source_margin=kwargs.pop(
                                            'min_source_margin', 5),
                                        min_target_margin=kwargs.pop(
