@@ -684,7 +684,7 @@ def generate_network():
     ]
 
     fig = net_.visualize_network(
-        node_size=500,
+        node_size=1500,
         node_labels=True,
         alpha=0.5,
         edge_labels=False,
