@@ -152,6 +152,8 @@ class NetworkXModel(object):
                                    node_color=self.color_map,
                                    node_size=node_size,
                                    alpha=kwargs.pop('alpha', 0.25),
+                                   edgecolors='k',
+                                   linewidths=2.0,
                                    ax=ax
                                    )
         if node_labels:
@@ -159,7 +161,7 @@ class NetworkXModel(object):
                 self.graph,
                 pos=self.pos,
                 labels={n: val["label"] for n, val in self.graph.nodes.items()},
-                font_size=kwargs.pop('font_size', 9.0),
+                font_size=kwargs.pop('font_size', 11.0),
                 font_weight=kwargs.pop('font_weight', 'bold'),
                 font_family=kwargs.pop('font_family', 'sans-serif'),
                 alpha=kwargs.pop('alpha', 1.0),
