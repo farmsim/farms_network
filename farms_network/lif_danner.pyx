@@ -186,7 +186,7 @@ cdef class LIFDanner(Neuron):
 
         if _v >= self.v_max:
             _n_out = 1.
-        elif self.v_thr <= _v < self.v_max:
+        elif (self.v_thr <= _v) and (_v < self.v_max):
             _n_out = (_v - self.v_thr) / (self.v_max - self.v_thr)
         elif _v < self.v_thr:
             _n_out = 0.0
