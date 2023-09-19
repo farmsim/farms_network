@@ -45,9 +45,9 @@ class NeuralSystem(NetworkXModel):
         neural_table = self.container.add_namespace('neural')
         # self.config_path = config_path
         self.integrator = None
-        if type(network_graph) is str:
+        if isinstance(network_graph, str):
             self.read_graph(network_graph)
-        elif type(network_graph) is DiGraph:
+        elif isinstance(network_graph, DiGraph):
             self.graph = network_graph
         #: Create network
         self.network = NetworkGenerator(self.graph, neural_table)
