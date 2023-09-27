@@ -7,6 +7,7 @@ DOI: https://doi.org/10.7554/eLife.31050.004 paper network """
 import os
 
 import farms_pylog as pylog
+from jinja2 import Environment, FileSystemLoader
 import networkx as nx
 import numpy as np
 from farms_container import Container
@@ -18,6 +19,16 @@ def multiply_transform(vec, transform_mat) -> list:
     """Multiply 2D veector with 2D transformation matrix (3x3)"""
     pos = (transform_mat @ np.array(vec)).tolist()
     return pos
+
+
+class Network(nx.DiGraph):
+    """ Default class for creating a network """
+    ...
+
+
+class Neuron():
+    """ Default class for creating a neuron """
+    ...
 
 
 class RhythmGenerator(nx.DiGraph):
@@ -40,6 +51,9 @@ class RhythmGenerator(nx.DiGraph):
         self.add_node(
             self.name + "-RG-F",
             label="F",
+            neuron_class="flexor",
+            neuron_subclass="flexor",
+            neuron_group=self.__class__.__name__,
             model="lif_danner_nap",
             x=pos[0],
             y=pos[1],
@@ -54,6 +68,9 @@ class RhythmGenerator(nx.DiGraph):
             self.name + "-RG-E",
             label="E",
             model="lif_danner_nap",
+            neuron_class="extensor",
+            neuron_subclass="extensor",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             color="b",
@@ -66,6 +83,9 @@ class RhythmGenerator(nx.DiGraph):
         self.add_node(
             self.name + "-In-F",
             label="In",
+            neuron_class="interneuron",
+            neuron_subclass="interneuron",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -76,6 +96,9 @@ class RhythmGenerator(nx.DiGraph):
         self.add_node(
             self.name + "-In-E",
             label="In",
+            neuron_class="interneuron",
+            neuron_subclass="interneuron",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -111,7 +134,10 @@ class Commissural(nx.DiGraph):
         )
         self.add_node(
             self.name + "-V2a-diag",
-            label="$V2_a$",
+            label="V2\\textsubscript{a}",
+            neuron_class="excitatory",
+            neuron_subclass="V2a",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -121,7 +147,10 @@ class Commissural(nx.DiGraph):
         pos = multiply_transform((1.0, -1.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-CINi1",
-            label="$IN_{i1}$",
+            label="CIN\\textsubscript{i}",
+            neuron_class="inhibitory",
+            neuron_subclass="CINi",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -131,7 +160,10 @@ class Commissural(nx.DiGraph):
         pos = multiply_transform((1.0, 1.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V0V",
-            label="$V0_V$",
+            label="V0\\textsubscript{V}",
+            neuron_class="excitatory",
+            neuron_subclass="V0V",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -143,7 +175,10 @@ class Commissural(nx.DiGraph):
         pos = multiply_transform((1.0, 3.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V0D",
-            label="$V0_D$",
+            label="V0\\textsubscript{D}",
+            neuron_class="inhibitory",
+            neuron_subclass="V0D",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -155,7 +190,10 @@ class Commissural(nx.DiGraph):
         pos = multiply_transform((1.0, 5.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V3",
-            label="$V3$",
+            label="V3",
+            neuron_class="excitatory",
+            neuron_subclass="V3",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -167,7 +205,10 @@ class Commissural(nx.DiGraph):
         )
         self.add_node(
             self.name + "-V2a",
-            label="$V2_a$",
+            label="V2\\textsubscript{a}",
+            neuron_class="excitatory",
+            neuron_subclass="V2a",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -179,7 +220,10 @@ class Commissural(nx.DiGraph):
         )
         self.add_node(
             self.name + "-IniV0V",
-            label="$V0_V$",
+            label="Ini",
+            neuron_class="interneuron",
+            neuron_subclass="IniV0V",
+            neuron_group=self.__class__.__name__,
             x=pos[0],
             y=pos[1],
             model="lif_danner",
@@ -210,7 +254,10 @@ class LPSN(nx.DiGraph):
         pos = multiply_transform((-5.0, 0.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V0D-diag",
-            label="$V0_D$",
+            label="V0\\textsubscript{D}",
+            neuron_class="inhibitory",
+            neuron_subclass="V0D-diag",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -222,7 +269,10 @@ class LPSN(nx.DiGraph):
         pos = multiply_transform((-5.0, 2.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V0V-diag-fh",
-            label="$V0_V$",
+            label="V0\\textsubscript{V}",
+            neuron_class="excitatory",
+            neuron_subclass="V0V",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -232,7 +282,10 @@ class LPSN(nx.DiGraph):
         pos = multiply_transform((-5.0, 4.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-V0V-diag-hf",
-            label="$V0_V$",
+            label="V0\\textsubscript{V}",
+            neuron_class="excitatory",
+            neuron_subclass="V0V",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -242,7 +295,10 @@ class LPSN(nx.DiGraph):
         pos = multiply_transform((-1.0, 4.0, 1.0), transform_mat)
         self.add_node(
             self.name + "-Ini-hom-fh",
-            label="Ini",
+            label="LPNi",
+            neuron_class="inhibitory",
+            neuron_subclass="inhibitory",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -250,11 +306,14 @@ class LPSN(nx.DiGraph):
             v0=-60.0,
         )
         pos = multiply_transform(
-            ((-4.0 if self.name[-1] == "L" else 6.0), 4.0, 1.0), transform_mat
+            ((-3.0 if self.name[-1] == "L" else 3.0), 4.0, 1.0), transform_mat
         )
         self.add_node(
             self.name + "-Sh2-hom-fh",
-            label="$Sh_2$",
+            label="Sh\\textsubscript{2}",
+            neuron_class="excitatory",
+            neuron_subclass="Sh2",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -262,11 +321,14 @@ class LPSN(nx.DiGraph):
             v0=-60.0,
         )
         pos = multiply_transform(
-            ((-4.0 if self.name[-1] == "L" else 6.0), 0.0, 1.0), transform_mat
+            ((-3.5 if self.name[-1] == "R" else 3.0), 0.0, 1.0), transform_mat
         )
         self.add_node(
             self.name + "-Sh2-hom-hf",
-            label="$Sh_2$",
+            label="Sh\\textsubscript{2}",
+            neuron_class="excitatory",
+            neuron_subclass="Sh2",
+            neuron_group=self.__class__.__name__,
             model="lif_danner",
             x=pos[0],
             y=pos[1],
@@ -669,40 +731,98 @@ def generate_network():
         figure_wrapper=_FIG_WRAPPER,
     )
 
-    latex_code = nx.to_latex(network)  # a string rather than a file
+    # latex_code = nx.to_latex(network)  # a string rather than a file
 
-    os.system("pdflatex danner2017_figure.tex")
+    # os.system("pdflatex danner2017_figure.tex")
 
-    container = Container()
+    # container = Container()
 
     # # Initialize network
-    net_ = NeuralSystem("./config/auto_danner_2017.graphml", container)
+    # net_ = NeuralSystem("./config/auto_danner_2017.graphml", container)
 
-    edge_colors = [
-        network.nodes[name[0]]['color']
-        for name, edge in network.edges.items() 
-    ]
+    # edge_colors = [
+    #     network.nodes[name[0]]['color']
+    #     for name, edge in network.edges.items()
+    # ]
 
-    fig = net_.visualize_network(
-        node_size=1500,
-        node_labels=True,
-        alpha=0.5,
-        edge_labels=False,
-        edge_alpha=False,
-        color_map_edge=edge_colors,
-        plt_out=plt
-    )
-    plt.show()
+    # fig = net_.visualize_network(
+    #     node_size=1500,
+    #     node_labels=True,
+    #     alpha=0.5,
+    #     edge_labels=False,
+    #     edge_alpha=False,
+    #     color_map_edge=edge_colors,
+    #     plt_out=plt
+    # )
+    # plt.show()
+
+    return network
 
 
 def main():
     """Main."""
 
     # Generate the network
-    generate_network()
+    network = generate_network()
+
+    options = {
+        "RG-F": "flexor",
+        "RG-E": "extensor",
+        "In-E": "interneuron",
+        "In-F": "interneuron",
+        "V2a-diag": "fill=red!40",
+        "commissural-CINi1": "interneuron",
+        "commissural-V0V": "fill=red!40",
+        "commissural-V0D": "fill=green!40",
+        "commissural-V3": "fill=red!40",
+        "commissural-V2a": "fill=green!40",
+        "commissural-IniV0V": "interneuron",
+    }
+
+    node_options = {
+        name: node.get('neuron_class', "interneuron")
+        # options.get(
+        #     "-".join(name.split("-")[-2:]), "fill=excitatory!40"
+        # )
+        for name, node in network.nodes.items()
+    }
+
+    options = {
+        "RG-F": "flexor-edge",
+        "RG-E": "extensor-edge",
+        "In-E": "inhibitory-edge",
+        "In-F": "inhibitory-edge",
+    }
+
+    edge_options = {
+        edge: options.get("-".join(edge[0].split("-")[-2:]), "excitatory-edge")
+        for edge, data in network.edges.items()
+    }
+
+    raw_latex = nx.to_latex_raw(
+        network,
+        pos={name: (node["x"], node["y"]) for name, node in network.nodes.items()},
+        node_options=node_options,
+        # default_node_options="my-node",
+        node_label={name: node["label"] for name, node in network.nodes.items()},
+        default_edge_options="[color=black, ultra thick, -{Latex[scale=1.0]}, on background layer]",
+        edge_options=edge_options,
+    )
 
     # Run the network
     # run_network()
+
+    # Render the network
+    environment = Environment(loader=FileSystemLoader("templates/"))
+    template = environment.get_template("tikz-fig.tex")
+    content = template.render(
+        network='\n'.join(raw_latex.split('\n')[2:-2]),
+        add_axis=True
+    )
+    with open("./test-fig.tex", mode="w", encoding="utf-8") as message:
+        message.write(content)
+
+    os.system("pdflatex test-fig.tex")
 
 
 if __name__ == "__main__":
