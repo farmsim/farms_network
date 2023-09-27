@@ -1,0 +1,139 @@
+% A sub−file (e.g. picture) using the ’standalone’ class:
+% Use ’standalone’ as document class:
+
+\documentclass{standalone}
+% Load packages needed for this TeX file:
+\usepackage{tikz}
+% Surround TeX code with ’document’ environment as usually:
+\usetikzlibrary{arrows, arrows.meta, calc, backgrounds, fit, positioning, shapes}
+% Surround TeX code with ’document’ environment as usually:
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Definitions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\neuron_radius{0.75 cm}
+\def\interneuron_radius{0.5 cm}
+
+\definecolor{flexor}{RGB}{240,0,0}
+\definecolor{extensor}{RGB}{0, 0,186}
+\definecolor{inhibitory}{RGB}{152,62,106}
+\definecolor{excitatory}{RGB}{0,150,93}
+
+\tikzset{
+% Color shades
+my-node/.style = {
+  circle, minimum size=\neuron_radius, inner sep=0.01cm, outer sep=0.01cm, draw=black, thick,
+  double, font={\footnotesize}, text=white
+},
+no shape/.style = {rectangle, inner sep=0pt, draw=none, fill=none}
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% General Styles
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tikzset{
+  % Color shades
+  flexor-shade/.style={
+    fill=flexor!75,
+  },
+  extensor-shade/.style={
+    fill=extensor!75,
+  },
+  excitatory-shade/.style={
+    fill=excitatory!75,
+  },
+  inhibitory-shade/.style={
+    fill=inhibitory!75,
+  },
+  interneuron-shade/.style={
+    fill=inhibitory!75,
+  },
+  % Node styles
+  neuron/.style n args={1}{
+    #1,
+    my-node,
+  },
+  neuron/.default={flexor},
+  flexor/.style={
+    my-node,
+    flexor-shade,
+  },
+  extensor/.style={
+    my-node,
+    extensor-shade,
+  },
+  interneuron/.style={
+    my-node,
+    minimum size=\interneuron_radius,
+    interneuron-shade,
+  },
+  excitatory/.style={
+    my-node,
+    excitatory-shade,
+  },
+  inhibitory/.style={
+    my-node,
+    inhibitory-shade,
+  },
+  % Edge styles
+  neuron-edge/.style n args={2}{
+    color=#1,
+    thick,
+    #2,
+    on background layer,
+  },
+  neuron-edge/.default={green}{-{Latex[scale=1.0]}},
+  flexor-edge/.style={
+    neuron-edge={flexor}{-{Latex[scale=1.0]}},
+  },
+  extensor-edge/.style={
+    neuron-edge={extensor}{-{Latex[scale=1.0]}},
+  },
+  inhibitory-edge/.style={
+    neuron-edge={inhibitory}{-*},
+  },
+  excitatory-edge/.style={
+    neuron-edge={excitatory}{-{Latex[scale=1.0]}},
+  },
+}
+
+\begin{document}
+% Add your TeX code, e.g. a picture:
+\begin{tikzpicture}
+  {{network}}
+  % Add grid lines
+  {% if add_axis %}
+  \begin{scope}[on background layer]
+    \draw[color=black, thick, dashed, on background layer] (current bounding box.north) -- (current bounding box.south);
+    \draw[color=black, thick, dashed, on background layer] (current bounding box.east) -- (current bounding box.west);
+  \end{scope}
+ {% endif %}
+ % add legend
+   \begin{scope}
+     \node[matrix, below, draw, row sep=0.1 cm, column sep=0.5cm, text=black, minimum size=\interneuron_radius]
+     (centers-legend)  at (current bounding box.south) {
+         \node [flexor, label={[label distance=0.2cm]0:flexor center}, text=white] {F};
+         & \node [excitatory, label={[label distance=0.2cm]0:excitatory population},
+         text=white] {};
+         & \node [no shape, label={[label distance=0.3cm]0:excitatory connections}] (glu) {};
+         \draw[extensor-edge] (glu.south west) -- +(0.6, 0.0) {};
+         \draw[flexor-edge] (glu.west) -- ++(0.6, 0.0);
+         \draw[excitatory-edge] (glu.north west) -- ++(0.6, 0.0);
+         \\
+         \node [extensor, label={[label distance=0.2cm]0:extensor center}, text=white] {E};
+         & \node [inhibitory, label={[label distance=0.2cm]0:inhibitory population},
+         text=white] {};
+         & \node [no shape, label={[label distance=0.3cm]0:inhibitory connections}] (gaba){};
+         \draw[inhibitory-edge] (gaba.west) -- ++(0.6, 0.0);\\
+       };
+ \end{scope}
+\end{tikzpicture}
+\end{document}
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
