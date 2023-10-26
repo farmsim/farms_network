@@ -62,7 +62,7 @@ cdef class FitzhughNagumo(Neuron):
         (_, self.tau) = neural_container.constants.add_parameter(
             'tau_' + self.n_id, kwargs.get('tau', 1/0.08))
 
-        (_, self.I) = neural_container.constants.add_parameter(
+        (_, self.internal_curr) = neural_container.constants.add_parameter(
             'I_' + self.n_id, kwargs.get('I', 1))
 
         #: Initialize states
@@ -157,7 +157,7 @@ cdef class FitzhughNagumo(Neuron):
                                               _weight, _phi, _V, _W)
 
         #: phidot : V_dot
-        self.V_dot.c_set_value(_V - _V**3/3 - _W + self.I + _sum)
+        self.V_dot.c_set_value(_V - _V**3/3 - _W + self.internal_curr + _sum)
 
         #: wdot
         self.w_dot.c_set_value((1/self.tau)*(_V + self.a - self.b*_W))

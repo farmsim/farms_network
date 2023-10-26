@@ -35,7 +35,7 @@ cdef class MorrisLecarNeuron(Neuron):
 
         #: parameters
         #: constants
-        double I
+        double internal_curr
         double C
         double g_fast
         double g_slow

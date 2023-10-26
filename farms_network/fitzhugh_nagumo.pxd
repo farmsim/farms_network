@@ -39,7 +39,7 @@ cdef class FitzhughNagumo(Neuron):
         double a
         double b
         double tau
-        double I
+        double internal_curr
 
         #: states
         Parameter V

@@ -54,7 +54,7 @@ cdef class MorrisLecarNeuron(Neuron):
         self.n_id = n_id
 
         #: Initialize parameters
-        (_, self.I) = neural_container.constants.add_parameter(
+        (_, self.internal_curr) = neural_container.constants.add_parameter(
             'I_' + self.n_id, kwargs.get('I', 100.0))
         (_, self.C) = neural_container.constants.add_parameter(
             'C_' + self.n_id, kwargs.get('C', 2.0))
@@ -179,7 +179,7 @@ cdef class MorrisLecarNeuron(Neuron):
         cdef double tau_w_V = (1./ccosh((_V-self.beta_w)/(2*self.gamma_w)))
 
         # V_dot
-        self.V_dot.c_set_value((1.0/self.C)*(self.I - self.g_fast*m_inf_V*(_V-self.E_fast)
+        self.V_dot.c_set_value((1.0/self.C)*(self.internal_curr - self.g_fast*m_inf_V*(_V-self.E_fast)
                                              - self.g_slow*_W*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
         #: wdot
