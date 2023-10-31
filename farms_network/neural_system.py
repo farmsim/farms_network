@@ -51,6 +51,8 @@ class NeuralSystem(NetworkXModel):
             self.graph = network_graph
         #: Create network
         self.network = NetworkGenerator(self.graph, neural_table)
+        self.time = None
+        self.state = None
 
     def setup_integrator(
             self, x0=None, integrator=u'dopri5', atol=1e-12, rtol=1e-6,
@@ -75,9 +77,39 @@ class NeuralSystem(NetworkXModel):
             )
         else:
             self.integrator.set_initial_value(x0, 0.0)
+        self.state = self.integrator.y
+        self.time = 0.0
+
+    def euler(self, time, state, func, step_size=1e-3):
+        """ Euler integrator """
+        new_state = state + step_size*np.array(func(time, state))
+        return new_state
+
+    def rk4(self, time, state, func, step_size=1e-3):
+        """ Runge-kutta order 4 integrator """
+        K1 = np.array(func(time, state))
+        K2 = np.array(func(time + step_size/2, state + (step_size/2 * K1)))
+        K3 = np.array(func(time + step_size/2, state + (step_size/2 * K2)))
+        K4 = np.array(func(time + step_size, state + (step_size * K3)))
+        new_state = state + (K1 + 2*K2 + 2*K3 + K4)*(step_size/6)
+        return new_state
+
+    def rk5(self, time, state, func, step_size=1e-3):
+        """ Runge-kutta order 5 integrator """
+        K1 = np.array(func(time, state))
+        K2 = np.array(func(time + step_size/2, state + (step_size/2 * K1)))
+        K3 = np.array(func(time + step_size/2, state + (1/4)*(step_size/2 * K2)))
+        K4 = np.array(func(time + step_size, state + (step_size * K3)))
+        new_state = state + (K1 + 2*K2 + 2*K3 + K4)*(step_size/6)
+        return new_state
 
     def step(self, dt=1, update=True):
         """Step ode system. """
+        # self.time += dt
+        # self.state = self.rk4(
+        #     self.time, self.state, self.network.ode,
+        #     step_size=dt
+        # )
         self.integrator.set_initial_value(self.integrator.y,
                                           self.integrator.t)
         self.integrator.integrate(self.integrator.t+dt)
