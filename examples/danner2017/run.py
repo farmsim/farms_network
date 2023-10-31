@@ -735,26 +735,26 @@ def generate_network():
 
     # os.system("pdflatex danner2017_figure.tex")
 
-    # container = Container()
+    container = Container()
 
-    # # Initialize network
-    # net_ = NeuralSystem("./config/auto_danner_2017.graphml", container)
+    # Initialize network
+    net_ = NeuralSystem("./config/auto_danner_2017.graphml", container)
 
-    # edge_colors = [
-    #     network.nodes[name[0]]['color']
-    #     for name, edge in network.edges.items()
-    # ]
+    edge_colors = [
+        network.nodes[name[0]]['color']
+        for name, edge in network.edges.items()
+    ]
 
-    # fig = net_.visualize_network(
-    #     node_size=1500,
-    #     node_labels=True,
-    #     alpha=0.5,
-    #     edge_labels=False,
-    #     edge_alpha=False,
-    #     color_map_edge=edge_colors,
-    #     plt_out=plt
-    # )
-    # plt.show()
+    fig = net_.visualize_network(
+        node_size=1500,
+        node_labels=True,
+        alpha=0.5,
+        edge_labels=False,
+        edge_alpha=False,
+        color_map_edge=edge_colors,
+        plt_out=plt
+    )
+    plt.show()
 
     return network
 
