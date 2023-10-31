@@ -15,6 +15,7 @@ from IPython import embed
 from matplotlib import pyplot as plt
 from farms_network.neural_system import NeuralSystem
 from farms_container import Container
+from tqdm import tqdm
 import timeit
 import numpy as np
 import time
@@ -210,6 +211,7 @@ def main():
     dt = 1  #: Time step
     dur = 5e3
     time_vec = np.arange(0, dur, dt)  #: Time
+    print(time_vec)
 
     # CONTAINER
     container = Container(max_iterations=dur/dt)
@@ -235,7 +237,7 @@ def main():
     u = np.ones(np.shape(container.neural.inputs.values))
 
     start = time.time()
-    for j in range(0, int(dur/dt)):
+    for j in tqdm(range(0, int(dur/dt))):
         container.neural.inputs.values = u*alpha[j]
         net_.step(dt=dt)
         container.update_log()
@@ -248,8 +250,8 @@ def main():
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
         act = np.reshape(act, (np.shape(act)[0], 1))
-        act_binary = (np.array(act) > 0.1).astype(np.int)
-        act_binary = np.logical_not(act_binary).astype(np.int)
+        act_binary = (np.array(act) > 0.1).astype(np.int16)
+        act_binary = np.logical_not(act_binary).astype(np.int16)
         act_binary[0] = 0
         gait_cycle = []
         start = (np.where(np.diff(act_binary[:, 0]) == 1.))[0]
@@ -261,19 +263,19 @@ def main():
 
     if True:
         #: Visualize network using Matplotlib
-        net_.visualize_network(
-            node_size=50,
-            node_labels=False,
-            edge_labels=False,
-            edge_alpha=True,
-            plt_out=plt
-        )
+        # net_.visualize_network(
+        #     node_size=50,
+        #     node_labels=False,
+        #     edge_labels=False,
+        #     edge_alpha=True,
+        #     plt_out=plt
+        # )
         # for v in ('r', 'b', 'm'):
         #     plt.scatter([],[], c=v, label='Group{}'.format(v))
         # plt.legend()
         # net_.save_network_to_dot()
 
-        save_figure(plt.gcf(), "./", "cpg")
+        # save_figure(plt.gcf(), "./", "cpg")
 
         plot_names = ['FR_RG_F', 'FL_RG_F', 'HR_RG_F', 'HL_RG_F']
 
@@ -296,11 +298,11 @@ def main():
                 pass
 
         fig, ax = plt.subplots(len(plot_names)+2, 1, sharex='all')
-        fig.canvas.set_window_title('Model Performance')
+        # fig.canvas.set_window_title('Model Performance')
         fig.suptitle('Model Performance', fontsize=12)
         for i, tr in enumerate(plot_traces):
             print(np.shape(tr))
-            ax[i].plot(time_vec*0.001, tr, 'b',
+            ax[i].plot(time_vec*1e-3, tr, 'b',
                        linewidth=1)
             ax[i].grid('on', axis='x')
             ax[i].set_ylabel(plot_names[i], fontsize=10)
@@ -318,13 +320,13 @@ def main():
         ax[len(plot_names)].broken_barh(get_gait_plot_from_neuron_act(plot_traces[3]),
                                         (1.0, _width*4), facecolors=(0.2, 0.2, 0.2), alpha=0.5)
         ax[len(plot_names)].set_ylim(1.0, 1.8)
-        ax[len(plot_names)].set_xlim(0)
+        ax[len(plot_names)].set_xlim(time_vec[0]*1e-3, time_vec[-1]*1e-3)
         ax[len(plot_names)].set_xlabel('Time')
         ax[len(plot_names)].set_yticks([1.1, 1.3, 1.5, 1.7])
         ax[len(plot_names)].set_yticklabels(['HL', 'HR', 'FL', 'FR'])
         ax[len(plot_names)].grid(True)
 
-        ax[len(plot_names)+1].fill_between(time_vec*0.001, 0, alpha,
+        ax[len(plot_names)+1].fill_between(time_vec*1e-3, alpha,
                                            color=(0.2, 0.2, 0.2), alpha=0.5)
         ax[len(plot_names)+1].grid('on', axis='x')
         ax[len(plot_names)+1].set_ylabel('ALPHA')
