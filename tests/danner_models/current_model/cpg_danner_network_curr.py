@@ -1,34 +1,30 @@
 """ Danner CPG Model. Current Model """
 
+import cProfile
+import os
+import pprint
+import pstats
 import time
+import timeit
 
+import farms_pylog as pylog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import numpy.matlib as npml
-from matplotlib import rc
-import os
-from scipy.stats import circstd, circmean
-import pprint
-from scipy.integrate import ode
-from IPython import embed
-from matplotlib import pyplot as plt
-from farms_network.neural_system import NeuralSystem
 from farms_container import Container
-import timeit
-import numpy as np
-import time
-import pstats
-import farms_pylog as pylog
-import cProfile
+from farms_network.neural_system import NeuralSystem
+from matplotlib import pyplot as plt
+from matplotlib import rc
+from scipy.integrate import ode
+from scipy.stats import circmean, circstd
+from tqdm import tqdm
 
-import farms_pylog as biolog
-from danner_net_gen_curr import (CPG, LPSN, Commissural, ConnectFore2Hind,
-                                 ConnectRG2Commissural, PatternFormation,
-                                 ConnectPF2RG, Motorneurons, ConnectAfferents2CPG,
-                                 Afferents,
-                                 ConnectMN2CPG)
-
+from danner_net_gen_curr import (CPG, LPSN, Afferents, Commissural,
+                                 ConnectAfferents2CPG, ConnectFore2Hind,
+                                 ConnectMN2CPG, ConnectPF2RG,
+                                 ConnectRG2Commissural, Motorneurons,
+                                 PatternFormation)
 
 # Global settings for plotting
 # You may change as per your requirement
@@ -172,7 +168,7 @@ def main():
     # initialize network parameters
     # pylint: disable=invalid-name
     dt = 1  # Time step
-    dur = 20000
+    dur = 10000
     time_vec = np.arange(0, dur, dt)  # Time
 
     # CONTAINER
@@ -197,9 +193,9 @@ def main():
 
     u = np.zeros(np.shape(container.neural.inputs.values))
     u[['alpha' in in_.name for in_ in container.neural.inputs]]=1.0
-    
+
     start = time.time()
-    for j in range(0, int(dur/dt)):
+    for j in tqdm(range(0, int(dur/dt))):
         container.neural.inputs.values = u*alpha[j]
         net_.step(dt=dt)
         container.update_log()
@@ -211,8 +207,8 @@ def main():
     def get_gait_plot_from_neuron_act(act):
         """ Get start and end times of neurons for gait plot. """
         act = np.reshape(act, (np.shape(act)[0], 1))
-        act_binary = (np.array(act) > 0.1).astype(np.int)
-        act_binary = np.logical_not(act_binary).astype(np.int)
+        act_binary = (np.array(act) > 0.1).astype(np.int32)
+        act_binary = np.logical_not(act_binary).astype(np.int32)
         act_binary[0] = 0
         gait_cycle = []
         start = (np.where(np.diff(act_binary[:, 0]) == 1.))[0]
@@ -221,6 +217,7 @@ def main():
             # HARD CODED TIME SCALING HERE!!
             gait_cycle.append((val*0.001, end[id]*0.001 - val*0.001))
         return gait_cycle
+
     # Visualize network using Matplotlib
     fig = net_.visualize_network(
         node_size=50,
