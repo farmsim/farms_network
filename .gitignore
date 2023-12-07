@@ -5,6 +5,11 @@
 # Latex
 *.fls
 *.fdb_latexmk
+auto/
+*.log
+*.aux
+*.out
+*.synctex.gz
 
 # Temp Files
 *.*~
