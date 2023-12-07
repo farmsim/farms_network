@@ -105,11 +105,11 @@ class NeuralSystem(NetworkXModel):
 
     def step(self, dt=1, update=True):
         """Step ode system. """
-        # self.time += dt
-        # self.state = self.rk4(
-        #     self.time, self.state, self.network.ode,
-        #     step_size=dt
-        # )
-        self.integrator.set_initial_value(self.integrator.y,
-                                          self.integrator.t)
-        self.integrator.integrate(self.integrator.t+dt)
+        self.time += dt
+        self.state = self.rk4(
+            self.time, self.state, self.network.ode,
+            step_size=dt
+        )
+        # self.integrator.set_initial_value(self.integrator.y,
+        #                                   self.integrator.t)
+        # self.integrator.integrate(self.integrator.t+dt)
