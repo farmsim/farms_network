@@ -45,90 +45,90 @@ cdef class LIFDannerNap(Neuron):
         super(
             LIFDannerNap, self).__init__('lif_danner_nap')
 
-        self.n_id = n_id  #: Unique neuron identifier
+        self.n_id = n_id  # Unique neuron identifier
 
-        #: Constants
+        # Constants
         (_, self.c_m) = neural_container.constants.add_parameter(
-            'c_m_' + self.n_id, kwargs.get('c_m', 10.0))  #: pF
+            'c_m_' + self.n_id, kwargs.get('c_m', 10.0))  # pF
 
         (_, self.g_nap) = neural_container.constants.add_parameter(
-            'g_nap_'+self.n_id, kwargs.get('g_nap', 4.5))  #: nS
+            'g_nap_'+self.n_id, kwargs.get('g_nap', 4.5))  # nS
         (_, self.e_na) = neural_container.constants.add_parameter(
-            'e_na_'+self.n_id, kwargs.get('e_na', 50.0))  #: mV
+            'e_na_'+self.n_id, kwargs.get('e_na', 50.0))  # mV
 
         (_, self.v1_2_m) = neural_container.constants.add_parameter(
-            'v1_2_m_' + self.n_id, kwargs.get('v1_2_m', -40.0))  #: mV
+            'v1_2_m_' + self.n_id, kwargs.get('v1_2_m', -40.0))  # mV
         (_, self.k_m) = neural_container.constants.add_parameter(
-            'k_m_' + self.n_id, kwargs.get('k_m', -6.0))  #: mV
+            'k_m_' + self.n_id, kwargs.get('k_m', -6.0))  # mV
 
         (_, self.v1_2_h) = neural_container.constants.add_parameter(
-            'v1_2_h_' + self.n_id, kwargs.get('v1_2_h', -45.0))  #: mV
+            'v1_2_h_' + self.n_id, kwargs.get('v1_2_h', -45.0))  # mV
         (_, self.k_h) = neural_container.constants.add_parameter(
-            'k_h_' + self.n_id, kwargs.get('k_h', 4.0))  #: mV
+            'k_h_' + self.n_id, kwargs.get('k_h', 4.0))  # mV
 
         (_, self.v1_2_t) = neural_container.constants.add_parameter(
-            'v1_2_t_' + self.n_id, kwargs.get('v1_2_t', -35.0))  #: mV
+            'v1_2_t_' + self.n_id, kwargs.get('v1_2_t', -35.0))  # mV
         (_, self.k_t) = neural_container.constants.add_parameter(
-            'k_t_' + self.n_id, kwargs.get('k_t', 15.0))  #: mV
+            'k_t_' + self.n_id, kwargs.get('k_t', 15.0))  # mV
 
         (_, self.g_leak) = neural_container.constants.add_parameter(
-            'g_leak_' + self.n_id, kwargs.get('g_leak', 4.5))  #: nS
+            'g_leak_' + self.n_id, kwargs.get('g_leak', 4.5))  # nS
         (_, self.e_leak) = neural_container.constants.add_parameter(
-            'e_leak_' + self.n_id, kwargs.get('e_leak', -62.5))  #: mV
+            'e_leak_' + self.n_id, kwargs.get('e_leak', -62.5))  # mV
 
         (_, self.tau_0) = neural_container.constants.add_parameter(
-            'tau_0_' + self.n_id, kwargs.get('tau_0', 80.0))  #: ms
+            'tau_0_' + self.n_id, kwargs.get('tau_0', 80.0))  # ms
         (_, self.tau_max) = neural_container.constants.add_parameter(
-            'tau_max_' + self.n_id, kwargs.get('tau_max', 160.0))  #: ms
+            'tau_max_' + self.n_id, kwargs.get('tau_max', 160.0))  # ms
         (_, self.tau_noise) = neural_container.constants.add_parameter(
-            'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  #: ms
+            'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  # ms
 
         (_, self.v_max) = neural_container.constants.add_parameter(
-            'v_max_' + self.n_id, kwargs.get('v_max', 0.0))  #: mV
+            'v_max_' + self.n_id, kwargs.get('v_max', 0.0))  # mV
         (_, self.v_thr) = neural_container.constants.add_parameter(
-            'v_thr_' + self.n_id, kwargs.get('v_thr', -50.0))  #: mV
+            'v_thr_' + self.n_id, kwargs.get('v_thr', -50.0))  # mV
 
         (_, self.g_syn_e) = neural_container.constants.add_parameter(
-            'g_syn_e_' + self.n_id, kwargs.get('g_syn_e', 10.0))  #: nS
+            'g_syn_e_' + self.n_id, kwargs.get('g_syn_e', 10.0))  # nS
         (_, self.g_syn_i) = neural_container.constants.add_parameter(
-            'g_syn_i_' + self.n_id, kwargs.get('g_syn_i', 10.0))  #: nS
+            'g_syn_i_' + self.n_id, kwargs.get('g_syn_i', 10.0))  # nS
         (_, self.e_syn_e) = neural_container.constants.add_parameter(
-            'e_syn_e_' + self.n_id, kwargs.get('e_syn_e', -10.0))  #: mV
+            'e_syn_e_' + self.n_id, kwargs.get('e_syn_e', -10.0))  # mV
         (_, self.e_syn_i) = neural_container.constants.add_parameter(
-            'e_syn_i_' + self.n_id, kwargs.get('e_syn_i', -75.0))  #: mV
+            'e_syn_i_' + self.n_id, kwargs.get('e_syn_i', -75.0))  # mV
 
         (_, self.m_e) = neural_container.constants.add_parameter(
-            'm_e_' + self.n_id, kwargs.pop('m_e', 0.0))  #: m_E,i
+            'm_e_' + self.n_id, kwargs.pop('m_e', 0.0))  # m_E,i
         (_, self.m_i) = neural_container.constants.add_parameter(
-            'm_i_' + self.n_id, kwargs.pop('m_i', 0.0))  #: m_I,i
+            'm_i_' + self.n_id, kwargs.pop('m_i', 0.0))  # m_I,i
         (_, self.b_e) = neural_container.constants.add_parameter(
-            'b_e_' + self.n_id, kwargs.pop('b_e', 0.0))  #: m_E,i
+            'b_e_' + self.n_id, kwargs.pop('b_e', 0.0))  # m_E,i
         (_, self.b_i) = neural_container.constants.add_parameter(
-            'b_i_' + self.n_id, kwargs.pop('b_i', 0.0))  #: m_I,i
+            'b_i_' + self.n_id, kwargs.pop('b_i', 0.0))  # m_I,i
 
-        #: State Variables
-        #: pylint: disable=invalid-name
+        # State Variables
+        # pylint: disable=invalid-name
         self.v = neural_container.states.add_parameter(
-            'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  #: Membrane potential
+            'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  # Membrane potential
         self.h = neural_container.states.add_parameter(
             'h_' + self.n_id, kwargs.get('h0', np.random.uniform(0, 1)))[0]
         # self.i_noise = neural_container.states.add_parameter('In_' + self.n_id)
 
-        #: ODE
+        # ODE
         self.vdot = neural_container.dstates.add_parameter(
             'vdot_' + self.n_id, 0.0)[0]
         self.hdot = neural_container.dstates.add_parameter(
             'hdot_' + self.n_id, 0.0)[0]
 
-        #: Ouput
+        # Ouput
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: External Input (BrainStem Drive)
+        # External Input (BrainStem Drive)
         self.alpha = neural_container.inputs.add_parameter(
             'alpha_' + self.n_id, 0.22)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.num_inputs = num_inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
@@ -140,13 +140,13 @@ cdef class LIFDannerNap(Neuron):
         ----------
         """
 
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef DannerNapNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        #: Add the weight parameter
+        # Add the weight parameter
         weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))[0]
         weight_idx = neural_container.weights.get_parameter_index(
@@ -154,7 +154,7 @@ cdef class LIFDannerNap(Neuron):
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
 
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -175,38 +175,38 @@ cdef class LIFDannerNap(Neuron):
     cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
         """ Compute the ODE. Internal Setup Function."""
 
-        #: States
+        # States
         cdef double _v = self.v.c_get_value()
         cdef double _h = self.h.c_get_value()
 
-        #: Drive inputs
+        # Drive inputs
         cdef double d_e = self.m_e * self.alpha.c_get_value() + self.b_e
         cdef double d_i = self.m_i * self.alpha.c_get_value() + self.b_i
 
-        #: tau_h(V)
+        # tau_h(V)
         cdef double tau_h = self.tau_0 + (self.tau_max - self.tau_0) / \
             ccosh((_v - self.v1_2_t) / self.k_t)
 
-        #: h_inf(V)
+        # h_inf(V)
         cdef double h_inf = 1./(1.0 + cexp((_v - self.v1_2_h) / self.k_h))
 
-        #: m(V)
+        # m(V)
         cdef double m = 1./(1.0 + cexp((_v - self.v1_2_m) / self.k_m))
 
-        #: Inap
-        #: pylint: disable=no-member
+        # Inap
+        # pylint: disable=no-member
         cdef double i_nap = self.g_nap * m * _h * (_v - self.e_na)
 
-        #: Ileak
+        # Ileak
         cdef double i_leak = self.g_leak * (_v - self.e_leak)
 
-        #: ISyn_Excitatory
+        # ISyn_Excitatory
         cdef double i_syn_e = self.g_syn_e * d_e * (_v - self.e_syn_e)
 
-        #: ISyn_Inhibitory
+        # ISyn_Inhibitory
         cdef double i_syn_i = self.g_syn_i * d_i * (_v - self.e_syn_i)
 
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -217,10 +217,10 @@ cdef class LIFDannerNap(Neuron):
             _weight = _w[self.neuron_inputs[j].weight_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
 
-        #: Slow inactivation
+        # Slow inactivation
         self.hdot.c_set_value((h_inf - _h) / tau_h)
 
-        #: dV
+        # dV
         self.vdot.c_set_value(
             -(i_nap + i_leak + i_syn_e + i_syn_i + _sum)/self.c_m)
 
@@ -235,7 +235,7 @@ cdef class LIFDannerNap(Neuron):
             _n_out = (_v - self.v_thr) / (self.v_max - self.v_thr)
         else:
             _n_out = 0.0
-        #: Set the neuron output
+        # Set the neuron output
         self.nout.c_set_value(_n_out)
 
     cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
@@ -243,10 +243,10 @@ cdef class LIFDannerNap(Neuron):
         cdef double _v = self.v.c_get_value()
 
         if _weight >= 0.0:
-            #: Excitatory Synapse
+            # Excitatory Synapse
             return (
                 self.g_syn_e*cfabs(_weight)*_neuron_out*(_v - self.e_syn_e))
         elif _weight < 0.0:
-            #: Inhibitory Synapse
+            # Inhibitory Synapse
             return (
                 self.g_syn_i*cfabs(_weight)*_neuron_out*(_v - self.e_syn_i))
