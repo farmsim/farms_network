@@ -30,12 +30,17 @@ limitations under the License.
 
 Leaky Integrate and Fire Neuron Based on Danner et.al.
 """
-from libc.stdio cimport printf
+
+import time
 import numpy as np
-from libc.math cimport exp as cexp
-from libc.math cimport cosh as ccosh
-from libc.math cimport fabs as cfabs
+
 cimport numpy as cnp
+from libc.math cimport cosh as ccosh
+from libc.math cimport exp as cexp
+from libc.math cimport fabs as cfabs
+from libc.stdio cimport printf
+
+from farms_network.utils.ornstein_uhlenbeck cimport c_noise_current_update
 
 
 cdef class LIFDanner(Neuron):
@@ -57,7 +62,18 @@ cdef class LIFDanner(Neuron):
             'e_leak_' + self.n_id, kwargs.get('e_leak', -60.0))  # : mV
 
         (_, self.tau_noise) = neural_container.constants.add_parameter(
-            'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  # : ms
+            'tau_noise_' + self.n_id, kwargs.get('tau_noise', 10.0))  # ms
+        (_, self.mu_noise) = neural_container.constants.add_parameter(
+            'mu_noise_' + self.n_id, kwargs.get('mu_noise', 0.0))  #
+        (_, self.sigma_noise) = neural_container.constants.add_parameter(
+            'sigma_noise_' + self.n_id, kwargs.get('sigma_noise', 0.005))  #
+        (_, self.seed_noise) = neural_container.constants.add_parameter(
+            'seed_noise_' + self.n_id, kwargs.get('seed_noise', time.thread_time_ns()))  #
+        (_, self.time_step_noise) = neural_container.constants.add_parameter(
+            'time_step_noise_' + self.n_id, kwargs.get('time_step_noise', 1e-3))  #
+
+        self.state_noise = neural_container.parameters.add_parameter(
+            'state_noise_' + self.n_id, kwargs.get('state_noise', 0.0))[0]  #
 
         (_, self.v_max) = neural_container.constants.add_parameter(
             'v_max_' + self.n_id, kwargs.get('v_max', 0.0))  # : mV
@@ -87,8 +103,6 @@ cdef class LIFDanner(Neuron):
         self.v = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('v0', -60.0))[0]  # Membrane potential
 
-        # self.i_noise = dae.add_x('In_' + self.n_id)
-
         # ODE
         self.vdot = neural_container.dstates.add_parameter(
             'vdot_' + self.n_id, 0.0)[0]
@@ -106,6 +120,19 @@ cdef class LIFDanner(Neuron):
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
+
+        # Initialize noisy current
+        self.random_mt19937 = mt19937(self.seed_noise)
+        self.distribution = normal_distribution[double](0.0, 1.0)
+
+        self.noise_params = OrnsteinUhlenbeckParameters(
+            mu=self.mu_noise,
+            sigma=self.sigma_noise,
+            tau=self.tau_noise,
+            dt=self.time_step_noise,
+            random_generator=self.random_mt19937,
+            distribution=self.distribution
+        )
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode.
@@ -175,9 +202,15 @@ cdef class LIFDanner(Neuron):
             _weight = _w[self.neuron_inputs[j].weight_idx]
             _sum += self.c_neuron_inputs_eval(_neuron_out, _weight)
 
+        # noise current
+        cdef double i_noise = c_noise_current_update(
+            self.state_noise.c_get_value(), &(self.noise_params)
+        )
+        self.state_noise.c_set_value(i_noise)
+
         # dV
         self.vdot.c_set_value(
-            (-i_leak - i_syn_e - i_syn_i - _sum)/self.c_m)
+            -(i_leak + i_syn_e + i_syn_i + +i_noise + _sum)/self.c_m)
 
     cdef void c_output(self) nogil:
         """ Neuron output. """
