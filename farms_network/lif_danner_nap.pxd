@@ -20,7 +20,11 @@ Leaky Integrate and Fire Neuron Based on Danner et.al.
 """
 
 from farms_container.parameter cimport Parameter
+from libcpp.random cimport mt19937, normal_distribution
+
 from farms_network.neuron cimport Neuron
+from farms_network.utils.ornstein_uhlenbeck cimport OrnsteinUhlenbeckParameters
+
 
 cdef struct DannerNapNeuronInput:
     int neuron_idx
@@ -32,8 +36,8 @@ cdef class LIFDannerNap(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double c_m
         double g_nap
         double e_na
@@ -47,7 +51,6 @@ cdef class LIFDannerNap(Neuron):
         double e_leak
         double tau_0
         double tau_max
-        double tau_noise
         double v_max
         double v_thr
         double g_syn_e
@@ -59,22 +62,35 @@ cdef class LIFDannerNap(Neuron):
         double b_e
         double b_i
 
-        #: states
+        double tau_noise
+        double mu_noise
+        double sigma_noise
+        double time_step_noise
+        unsigned long int seed_noise
+
+        # states
         Parameter v
         Parameter h
 
-        #: inputs
+        Parameter state_noise
+
+        # inputs
         Parameter alpha
 
-        #: ode
+        # ode
         Parameter vdot
         Parameter hdot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         DannerNapNeuronInput[:] neuron_inputs
+
+        # current noise
+        OrnsteinUhlenbeckParameters noise_params
+        mt19937 random_mt19937
+        normal_distribution[double] distribution
 
     cdef:
         void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
