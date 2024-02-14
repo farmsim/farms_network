@@ -1,15 +1,3 @@
-# cython: cdivision=True
-# cython: language_level=3
-# cython: infer_types=True
-# cython: profile=False
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: nonecheck=False
-# cython: initializedcheck=False
-# cython: overflowcheck=False
-# cython: optimize.unpack_method_calls=True
-# cython: np_pythran=False
-
 """
 ----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
@@ -28,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-HH-Daun Motor neuron 
+HH-Daun Motor neuron
 """
 from libc.stdio cimport printf
 import numpy as np
