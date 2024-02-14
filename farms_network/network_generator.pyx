@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Generate neural network. 
+Generate neural network.
 """
 from libc.stdio cimport printf
 from farms_network.neuron cimport Neuron
@@ -49,11 +49,10 @@ cdef class NetworkGenerator:
         self.neurons = OrderedDict()  #: Neurons in the network
         self.states = <Table > neural_container.add_table('states')
         self.dstates = <Table > neural_container.add_table('dstates')
-        self.constants = <Table > neural_container.add_table(
-            'constants', table_type='CONSTANT')
+        self.constants = <Table > neural_container.add_table('constants', table_type='CONSTANT')
         self.inputs = <Table > neural_container.add_table('inputs')
-        self.weights = <Table > neural_container.add_table('weights')
-        self.parameters = <Table > neural_container.add_table('parameters')
+        self.weights = <Table > neural_container.add_table('weights', table_type='CONSTANT')
+        self.parameters = <Table > neural_container.add_table('parameters', table_type='CONSTANT')
         self.outputs = <Table > neural_container.add_table('outputs')
 
         self.odes = []
@@ -112,20 +111,19 @@ cdef class NetworkGenerator:
                     neural_container,
                     **self.graph[pred][name])
 
-    def ode(self, t, cnp.ndarray[double, ndim=1] state):
-        return self.c_ode(t, state)
-
     #################### C-FUNCTIONS ####################
-
-    cdef double[:] c_ode(self, double t, double[:] state):
+    cpdef double[:] ode(self, double t, double[:] state):
         self.states.c_set_values(state)
         cdef unsigned int j
+        cdef Neuron neuron
 
         for j in range(self.num_neurons):
-            (<Neuron>self.c_neurons[j]).c_output()
+            neuron = self.c_neurons[j]
+            neuron.c_output()
 
         for j in range(self.num_neurons):
-            (<Neuron>self.c_neurons[j]).c_ode_rhs(
+            neuron = self.c_neurons[j]
+            neuron.c_ode_rhs(
                 self.outputs.c_get_values(),
                 self.weights.c_get_values(),
                 self.parameters.c_get_values()
