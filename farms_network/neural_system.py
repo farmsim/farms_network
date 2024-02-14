@@ -25,6 +25,7 @@ from networkx import DiGraph
 from scipy.integrate import ode
 
 from farms_network.network_generator import NetworkGenerator
+from farms_network.integrators import c_rk4
 
 from .networkx_model import NetworkXModel
 
@@ -110,6 +111,9 @@ class NeuralSystem(NetworkXModel):
             self.time, self.state, self.network.ode,
             step_size=dt
         )
+        # self.state = c_rk4(
+        #     self.time, self.state, self.network.ode, step_size=dt
+        # )
         # self.integrator.set_initial_value(self.integrator.y,
         #                                   self.integrator.t)
         # self.integrator.integrate(self.integrator.t+dt)
