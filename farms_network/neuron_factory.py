@@ -31,6 +31,7 @@ from farms_network.morphed_oscillator import MorphedOscillator
 from farms_network.morris_lecar import MorrisLecarNeuron
 from farms_network.oscillator import Oscillator
 from farms_network.sensory_neuron import SensoryNeuron
+from farms_network.relu import ReLUNeuron
 
 
 class NeuronFactory(object):
@@ -48,7 +49,8 @@ class NeuronFactory(object):
         'hh_daun_motorneuron': HHDaunMotorneuron,
         'fitzhugh_nagumo': FitzhughNagumo,
         'matsuoka_neuron': MatsuokaNeuron,
-        'morris_lecar': MorrisLecarNeuron
+        'morris_lecar': MorrisLecarNeuron,
+        'relu': ReLUNeuron,
     }
 
     def __init__(self):

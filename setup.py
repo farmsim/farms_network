@@ -117,6 +117,12 @@ extensions = [
               extra_compile_args=['-ffast-math', '-O3'],
               extra_link_args=['-O3']
               ),
+    Extension("farms_network.relu",
+              ["farms_network/relu.pyx"],
+              include_dirs=[numpy.get_include(), get_include()],
+              extra_compile_args=['-ffast-math', '-O3'],
+              extra_link_args=['-O3']
+              ),
     Extension("farms_network.integrators",
               ["farms_network/integrators.pyx"],
               include_dirs=[numpy.get_include(), get_include()],

@@ -18,17 +18,21 @@ limitations under the License.
 
 Generate neural network.
 """
-from libc.stdio cimport printf
-from farms_network.neuron cimport Neuron
 from farms_container.table cimport Table
-from cython.parallel import prange
-from farms_network.leaky_integrator cimport LeakyIntegrator
-import farms_pylog as pylog
-from farms_network.neuron_factory import NeuronFactory
+from libc.stdio cimport printf
+
+from farms_network.neuron cimport Neuron
+
 from collections import OrderedDict
+
+import farms_pylog as pylog
 import numpy as np
-cimport numpy as cnp
+from cython.parallel import prange
+
+from farms_network.neuron_factory import NeuronFactory
+
 cimport cython
+cimport numpy as cnp
 
 
 cdef class NetworkGenerator:
