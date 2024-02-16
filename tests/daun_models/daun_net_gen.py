@@ -15,7 +15,7 @@ class CPG(object):
         self.name = name
         self.cpg.name = name
 
-        #: Methods
+        # Methods
         self.add_neurons(anchor_x, anchor_y)
         self.add_connections()
         return
@@ -74,7 +74,7 @@ class Interneurons(object):
         self.name = name
         self.interneurons.name = name
 
-        #: Methods
+        # Methods
         self.add_neurons(anchor_x, anchor_y, color)
         self.add_connections()
         return
@@ -178,7 +178,7 @@ class Motorneurons(object):
         self.name = name
         self.motorneurons.name = name
 
-        #: Methods
+        # Methods
         self.add_neurons(anchor_x, anchor_y, color)
         self.add_connections()
         return
@@ -254,7 +254,7 @@ class ConnectCPG2Interneurons(object):
                                    interneurons])
         self.name = self.net.name
 
-        #: Methods
+        # Methods
         self.connect_circuits()
         return
 
@@ -321,7 +321,7 @@ class ConnectInterneurons2Motorneurons(object):
                                    motorneurons])
         self.name = self.net.name
 
-        #: Methods
+        # Methods
         self.connect_circuits()
         return
 
@@ -371,12 +371,12 @@ class SideNetwork(object):
         self.side = side
         self.net = None
 
-        #: Method
+        # Method
         self._generate_network(anchor_x, anchor_y)
 
     def _generate_network(self, x_pos, y_pos):
         """ Generate the network. """
-        #: CPG
+        # CPG
         net1 = CPG('PR_{}1'.format(
             self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
         net2 = CPG('PR_{}2'.format(
@@ -398,7 +398,7 @@ class SideNetwork(object):
         net9 = CPG('EF_{}3'.format(
             self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
 
-        #: Interneurons
+        # Interneurons
         net10 = Interneurons('PR_{}1'.format(
             self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
         net11 = Interneurons('PR_{}2'.format(
@@ -420,7 +420,7 @@ class SideNetwork(object):
         net18 = Interneurons('EF_{}3'.format(
             self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
 
-        #: Motorneurons
+        # Motorneurons
         net19 = Motorneurons('PR_{}1'.format(
             self.side), anchor_x=0.+x_pos, anchor_y=12.+y_pos)
         net20 = Motorneurons('PR_{}2'.format(
@@ -443,7 +443,7 @@ class SideNetwork(object):
             self.side), anchor_x=24+x_pos, anchor_y=-12.+y_pos)
 
         # Connect CPG to Interneurons
-        #: pylint: disable=invalid-name
+        # pylint: disable=invalid-name
         net_C_IN_1 = ConnectCPG2Interneurons(net1.cpg, net10.interneurons)
         net_C_IN_2 = ConnectCPG2Interneurons(net2.cpg, net11.interneurons)
         net_C_IN_3 = ConnectCPG2Interneurons(net3.cpg, net12.interneurons)
@@ -454,7 +454,7 @@ class SideNetwork(object):
         net_C_IN_8 = ConnectCPG2Interneurons(net8.cpg, net17.interneurons)
         net_C_IN_9 = ConnectCPG2Interneurons(net9.cpg, net18.interneurons)
 
-        #: Connect Interneurons to Motorneurons
+        # Connect Interneurons to Motorneurons
         net_IN_MN_1 = ConnectInterneurons2Motorneurons(
             net_C_IN_1.net, net19.motorneurons)
         net_IN_MN_2 = ConnectInterneurons2Motorneurons(
@@ -474,7 +474,7 @@ class SideNetwork(object):
         net_IN_MN_9 = ConnectInterneurons2Motorneurons(
             net_C_IN_9.net, net27.motorneurons)
 
-        #: Connecting sub graphs
+        # Connecting sub graphs
         self.net = nx.compose_all([net_IN_MN_1.net,
                                    net_IN_MN_2.net,
                                    net_IN_MN_3.net,

@@ -10,10 +10,10 @@ import itertools
 from farms_container import Container
 
 pylog.set_level('debug')
-#: Define a network graph
+# Define a network graph
 network = nx.DiGraph()
 
-#: Create an oscillator for each joint
+# Create an oscillator for each joint
 N_OSCILLATORS = 12
 # OSCILLATOR_NAMES = ["OSC_{}".format(num) for num in range(N_OSCILLATORS)]
 OSCILLATOR_NAMES = (
@@ -55,7 +55,7 @@ for osc in OSCILLATOR_NAMES:
                      y=OSCILLATOR_POSITIONS[osc][1],
                      )
 
-#: Connect the oscillators
+# Connect the oscillators
 for a, b in itertools.product(range(4, 8), range(4, 8)):
     if a != b:
         network.add_edge(
@@ -98,35 +98,35 @@ network.add_edge(
     weight=np.random.uniform(-1, 1),
     phi=np.pi)
 
-#: Location to save the network
+# Location to save the network
 net_dir = "../config/auto_anymal_oscillator.graphml"
 nx.write_graphml(network, net_dir)
 
-# #: Initialize network
-dt = 0.001  #: Time step
+# # Initialize network
+dt = 0.001  # Time step
 dur = 25
-time_vec = np.arange(0, dur, dt)  #: Time
+time_vec = np.arange(0, dur, dt)  # Time
 container = Container(dur/dt)
 net = NeuralSystem(
     "../config/auto_anymal_oscillator.graphml",
     container)
-#: initialize network parameters
+# initialize network parameters
 container.initialize()
 net.setup_integrator()
 
-#: Integrate the network
+# Integrate the network
 pylog.info('Begin Integration!')
 
 for t in time_vec:
     net.step(dt=dt)
     container.update_log()
 
-#: Results
+# Results
 container.dump()
 state = np.asarray(container.neural.states.log)
 neuron_out = np.asarray(container.neural.outputs.log)
 
-#: Show graph
+# Show graph
 net.visualize_network(edge_labels=False)
 
 

@@ -34,14 +34,14 @@ class NetworkXModel(object):
     def __init__(self):
         """ Initialize. """
         super(NetworkXModel, self).__init__()
-        self.graph = None  #: NetworkX graph
-        self.pos = {}   #: Neuron positions
+        self.graph = None  # NetworkX graph
+        self.pos = {}   # Neuron positions
         self.edge_pos = {}
-        self.color_map = []  #: Neuron color map
-        self.color_map_arr = []  #: Neuron color map
-        self.color_map_edge = []  #: Neuron edge color map
-        self.alpha_edge = []  #: Neuron edge alpha
-        self.edge_style = []  #: Arrow edge style
+        self.color_map = []  # Neuron color map
+        self.color_map_arr = []  # Neuron color map
+        self.color_map_edge = []  # Neuron edge color map
+        self.alpha_edge = []  # Neuron edge alpha
+        self.edge_style = []  # Arrow edge style
         self.net_matrix = None
 
     def read_graph(self, path):
@@ -104,7 +104,7 @@ class NetworkXModel(object):
         max_weight = abs(max_weight)
         for _, _, attr in self.graph.edges(data=True):
             _weight = attr.get(edge_attribute, 0.0)
-            #: pylint: disable=no-member
+            # pylint: disable=no-member
             try:
                 _weight_ratio = _weight/max_weight
             except ZeroDivisionError:
@@ -112,7 +112,7 @@ class NetworkXModel(object):
 
             if np.sign(_weight_ratio) == 1:
                 self.color_map_edge.extend('g')
-            #: pylint: disable=no-member
+            # pylint: disable=no-member
             elif np.sign(_weight_ratio) == -1:
                 self.color_map_edge.extend('r')
             else:
@@ -147,7 +147,7 @@ class NetworkXModel(object):
             plt.autoscale(True)
             ax = plt.gca()
 
-        #: Draw Nodes
+        # Draw Nodes
         _ = nx.draw_networkx_nodes(self.graph, pos=self.pos,
                                    node_color=self.color_map,
                                    node_size=node_size,

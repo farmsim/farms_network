@@ -24,7 +24,7 @@ class TestNetworkGenerator(unittest.TestCase):
         self.container = Container()
         self.container.add_namespace('neural')
 
-        #: Create a network graph
+        # Create a network graph
         self.network = nx.DiGraph()
 
     def tearDown(self):
@@ -36,13 +36,13 @@ class TestNetworkGenerator(unittest.TestCase):
     def test_generate_neurons(self, value):
         """ Test neuron generation. """
 
-        #: Add two neurons to graph        
+        # Add two neurons to graph
         self.network.add_node('neuron_1', model=value)
         self.network.add_node('neuron_2', model=value)
-        #: Connect two neurons with default weights
+        # Connect two neurons with default weights
         self.network.add_edge('neuron_1', 'neuron_2')
         self.network.add_edge('neuron_2', 'neuron_1')
-        #: Generate network
+        # Generate network
         generator  = NetworkGenerator(self.network)
         # self.container.initialize()
         self.assertIsNone(generator.generate_neurons())
@@ -50,13 +50,13 @@ class TestNetworkGenerator(unittest.TestCase):
     @ddt.data(*neuron_types())
     def test_generate_network(self, value):
         """ Test network creation. """
-        #: Add two neurons to graph        
+        # Add two neurons to graph
         self.network.add_node('neuron_1', model=value)
         self.network.add_node('neuron_2', model=value)
-        #: Connect two neurons with default weights
+        # Connect two neurons with default weights
         self.network.add_edge('neuron_1', 'neuron_2')
         self.network.add_edge('neuron_2', 'neuron_1')
-        #: Generate network
+        # Generate network
         generator  = NetworkGenerator(self.network)
         # self.container.initialize()
         self.assertIsNone(generator.generate_network())
@@ -64,18 +64,18 @@ class TestNetworkGenerator(unittest.TestCase):
     @ddt.data(*neuron_types())
     def test_ode(self, value):
         """ Test network ode. """
-        #: Add two neurons to graph        
+        # Add two neurons to graph
         self.network.add_node('neuron_1', model=value)
         self.network.add_node('neuron_2', model=value)
-        #: Connect two neurons with default weights
+        # Connect two neurons with default weights
         self.network.add_edge('neuron_1', 'neuron_2')
         self.network.add_edge('neuron_2', 'neuron_1')
-        #: Generate network
+        # Generate network
         generator  = NetworkGenerator(self.network)
         self.container.initialize()
         self.assertIsNotNone(
             generator.ode(0.0,
                           np.array(self.container.neural.states.values)))
 
-if __name__ == '__main__':        
+if __name__ == '__main__':
     unittest.main()

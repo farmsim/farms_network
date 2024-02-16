@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import itertools
 from farms_container import Container
 
-#: Define a network graph
+# Define a network graph
 network = nx.DiGraph()
 
-#: Define container
+# Define container
 container = Container()
 
 num_nodes = 0
@@ -43,16 +43,16 @@ for a,b in itertools.product(range(num_nodes), range(num_nodes)):
                         weight= np.random.normal(0,g**2/num_nodes)
                 )
 
-#: Location to save the network
+# Location to save the network
 nx.write_graphml(network, 'neuron_test.graphml')
 
-#: initialize network parameters
-#: pylint: disable=invalid-name
-dt = 0.01  #: Time step
+# initialize network parameters
+# pylint: disable=invalid-name
+dt = 0.01  # Time step
 dur = 100
-time_vec = np.arange(0, dur, dt)  #: Time
+time_vec = np.arange(0, dur, dt)  # Time
 
-# #: Initialize network
+# # Initialize network
 container = Container(dur/dt)
 net = NeuralSystem('neuron_test.graphml', container)
 container.initialize()
@@ -60,14 +60,14 @@ container.initialize()
 net.setup_integrator()
 
 
-#: Integrate the network
+# Integrate the network
 pylog.info('Begin Integration!')
 
 for t in time_vec:
     net.step(dt=dt)
     container.update_log()
 
-#: Results
+# Results
 state = container.neural.states.log
 neuron_out = container.neural.outputs.log
 # : Show graph

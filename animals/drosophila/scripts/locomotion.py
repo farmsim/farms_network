@@ -23,8 +23,8 @@ def main():
     )
     net_dir = "../config/locomotion.graphml"
     network = controller_gen.network
-    #: EDIT THE GENERIC CONTROLLER
-    #: Remove Head nodes
+    # EDIT THE GENERIC CONTROLLER
+    # Remove Head nodes
     network.remove_nodes_from(['joint_Head_flexion',
                                'joint_Head_extension',
                                'joint_HeadFake1_flexion',
@@ -38,7 +38,7 @@ def main():
                                'joint_RAntenna_flexion',
                                'joint_RAntenna_extension'])
 
-    #: Remove Abdomen nodes
+    # Remove Abdomen nodes
     network.remove_nodes_from(['joint_A1A2_flexion',
                                'joint_A1A2_extension',
                                'joint_A3_flexion',
@@ -46,17 +46,17 @@ def main():
                                'joint_A4_flexion',
                                'joint_A4_extension',
                                'joint_A5_flexion',
-                               'joint_A5_extension',                               
+                               'joint_A5_extension',
                                'joint_A6_flexion',
                                'joint_A6_extension'])
 
-    #: Remove wings and haltere nodes
+    # Remove wings and haltere nodes
     for node in ['','Fake1','Fake2']:
         LwingNode = 'joint_LWing'+node
         RwingNode = 'joint_RWing'+node
         LhaltereNode = 'joint_LHaltere'+node
         RhaltereNode = 'joint_RHaltere'+node
-        
+
         network.remove_nodes_from([LwingNode+'_flexion',
                                    RwingNode+'_flexion',
                                    LwingNode+'_extension',
@@ -66,14 +66,14 @@ def main():
                                    LhaltereNode+'_extension',
                                    RhaltereNode+'_extension'])
 
-    #: Remove tarsi nodes
+    # Remove tarsi nodes
     for i in range(1,6):
         for tarsus in ['LF','LM','LH','RF','RM','RH']:
             tarsusNode = 'joint_'+tarsus+'Tarsus'+str(i)
             network.remove_nodes_from([tarsusNode+'_flexion',
                                        tarsusNode+'_extension'])
 
-    #: Remove Coxa extra DOF nodes
+    # Remove Coxa extra DOF nodes
     for coxa in ['LF','LM','LH','RF','RM','RH']:
         coxaNode = 'joint_'+coxa+'Coxa'
         coxaFake1Node = 'joint_'+coxa+'CoxaFake1'
@@ -84,13 +84,13 @@ def main():
         else:
             network.remove_nodes_from([coxaNode+'_flexion',
                                        coxaNode+'_extension'])
-        
+
         network.remove_nodes_from([coxaFake1Node+'_flexion',
                                        coxaFake1Node+'_extension'])
-            
 
-    
-    #: Connect limbs
+
+
+    # Connect limbs
     # AgnosticController.add_mutual_connection(
     #     network,
     #     'LHip_flexion',
@@ -106,15 +106,15 @@ def main():
         network.nodes[node]['y'] = data[1]
         network.nodes[node]['z'] = data[2]
 
-    #: EDIT CONNECTIONS FOR TRIPOD GAIT
-    #: Connecting base nodes
+    # EDIT CONNECTIONS FOR TRIPOD GAIT
+    # Connecting base nodes
     weight = 10.0
     base_connections = [
         ['LFCoxa', 'RFCoxa', {'weight':weight, 'phi': np.pi}],
         ['LFCoxa', 'RMCoxaFake2', {'weight':weight, 'phi': 0.0}],
         ['RMCoxaFake2', 'LHCoxaFake2', {'weight':weight, 'phi': 0.0}],
         ['RFCoxa', 'LMCoxaFake2', {'weight':weight, 'phi': 0.0}],
-        ['LMCoxaFake2', 'RHCoxaFake2', {'weight':weight, 'phi': 0.0}],        
+        ['LMCoxaFake2', 'RHCoxaFake2', {'weight':weight, 'phi': 0.0}],
     ]
 
     for n1, n2, data in base_connections:
@@ -129,12 +129,12 @@ def main():
         ['Coxa', 'Femur', {'weight':weight, 'phi': 0.0}],
         ['Femur', 'Tibia', {'weight':weight, 'phi': 0.0}],
     ]
-    
+
     for n1, n2, data in leg_connections:
         for pos in ['F', 'M', 'H']:
             for side in ['L', 'R']:
                 if (pos == 'M' or pos == 'H') and (n1 == 'Coxa'):
-                    n1 = 'CoxaFake2'                    
+                    n1 = 'CoxaFake2'
                 AgnosticController.add_connection_antagonist(
                     network,
                     'joint_{}{}{}'.format(side, pos, n1),
@@ -145,7 +145,7 @@ def main():
     coxa_connections = [
         ['Coxa', 'Coxa', {'weight':weight, 'phi': np.pi/2}],
     ]
-    
+
     for n1, n2, data in coxa_connections:
         for pos in ['F', 'M', 'H']:
             for side in ['L', 'R']:
@@ -158,46 +158,46 @@ def main():
                     'joint_{}{}{}_{}'.format(side, pos, n2, 'extension'),
                     **data
                 )
-    
+
     # for joint in controller_gen.model.joints:
     #     n1 = '{}_flexion'.format(joint.name)
-    #     n2 = '{}_extension'.format(joint.name)        
+    #     n2 = '{}_extension'.format(joint.name)
     #     network.remove_edges_from([(n1, n2), (n2, n1)])
-        
+
     nx.write_graphml(network, net_dir)
 
-    #: Export position file to yaml
+    # Export position file to yaml
     # with open('../config/network_node_positions.yaml', 'w') as file:
     #     yaml.dump(node_positions, file, default_flow_style=True)
 
-    # #: Initialize network
-    dt = 0.001  #: Time step
+    # # Initialize network
+    dt = 0.001  # Time step
     dur = 10
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
     container = Container(dur/dt)
     net = NeuralSystem(
         "../config/locomotion.graphml",
         container)
 
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     net.setup_integrator()
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
 
     for t in time_vec:
         net.step(dt=dt)
         container.update_log()
 
-    #: Results
+    # Results
     container.dump()
     state = np.asarray(container.neural.states.log)
     neuron_out = np.asarray(container.neural.outputs.log)
     names = container.neural.outputs.names
     parameters = container.neural.parameters
 
-    #: Show graph
+    # Show graph
     print(net.graph.number_of_edges())
     print(net.graph.number_of_nodes())
     net.visualize_network(edge_labels=False)

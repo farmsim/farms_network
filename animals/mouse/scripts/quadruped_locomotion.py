@@ -22,8 +22,8 @@ def main():
     net_dir = "../config/quadruped_locomotion.graphml"
     network = controller_gen.network
 
-    #: EDIT THE GENERIC CONTROLLER
-    #: Remove nodes
+    # EDIT THE GENERIC CONTROLLER
+    # Remove nodes
     network.remove_nodes_from(
         ['{}_{}'.format(node, action)
             for node in (
@@ -36,7 +36,7 @@ def main():
 
     weight = 5000.0
 
-    #: Add mutual connection
+    # Add mutual connection
     for connect in (
             ('LHip', weight, np.pi),
             ('RHip', weight, np.pi),
@@ -51,8 +51,8 @@ def main():
             phi=connect[2]
         )
 
-    #: Connect hind-fore limbs
-    # #: Add central to spine
+    # Connect hind-fore limbs
+    # # Add central to spine
     for j1, j2, phi in [
             ['LHip', 'RHip', np.pi],
             ['LShoulder', 'RShoulder', np.pi],
@@ -99,16 +99,16 @@ def main():
 
     nx.write_graphml(network, net_dir)
 
-    # #: Initialize network
-    dt = 0.001  #: Time step
+    # # Initialize network
+    dt = 0.001  # Time step
     dur = 1
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
     container = Container(dur/dt)
     net = NeuralSystem(
         "../config/quadruped_locomotion.graphml",
         container)
 
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     print(np.asarray(container.neural.states.values))
     x0 = np.random.uniform(
@@ -116,21 +116,21 @@ def main():
     )
     net.setup_integrator()  # list(x0))
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
 
     for t in time_vec:
         net.step(dt=dt)
         container.update_log()
 
-    #: Results
+    # Results
     # container.dump()
     state = np.asarray(container.neural.states.log)
     neuron_out = np.asarray(container.neural.outputs.log)
     names = container.neural.outputs.names
     parameters = container.neural.parameters
 
-    #: Show graph
+    # Show graph
     print(net.graph.number_of_edges())
     print(net.graph.number_of_nodes())
     net.visualize_network(
@@ -190,7 +190,7 @@ def main():
                     legend_names.append(name)
             plt.legend(legend_names)
 
-    #: GAIT
+    # GAIT
     plt.figure()
     plt.title('GAIT')
     (amp, phase) = get_amp_phase(state, states, 'LHip_flexion')

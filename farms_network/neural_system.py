@@ -42,7 +42,7 @@ class NeuralSystem(NetworkXModel):
         """ Initialize neural system. """
         super(NeuralSystem, self).__init__()
         self.container = container
-        #: Add name-space for neural system data
+        # Add name-space for neural system data
         neural_table = self.container.add_namespace('neural')
         # self.config_path = config_path
         self.integrator = None
@@ -50,14 +50,14 @@ class NeuralSystem(NetworkXModel):
             self.read_graph(network_graph)
         elif isinstance(network_graph, DiGraph):
             self.graph = network_graph
-        #: Create network
+        # Create network
         self.network = NetworkGenerator(self.graph, neural_table)
         self.time = None
         self.state = None
 
     def setup_integrator(
             self, x0=None, integrator=u'dopri5', atol=1e-12, rtol=1e-6,
-            max_step=0.0, method=u'adams', nsteps=10
+            max_step=0.0, method=u'adams'
     ):
         """Setup system."""
         self.integrator = ode(self.network.ode).set_integrator(
@@ -66,7 +66,7 @@ class NeuralSystem(NetworkXModel):
             atol=atol,
             rtol=rtol,
             max_step=max_step,
-            nsteps=nsteps
+            # nsteps=nsteps
         )
 
         if x0 is None:
@@ -107,7 +107,7 @@ class NeuralSystem(NetworkXModel):
     def step(self, dt=1, update=True):
         """Step ode system. """
         self.time += dt
-        self.state = self.rk4(
+        self.state = self.rk5(
             self.time, self.state, self.network.ode,
             step_size=dt
         )

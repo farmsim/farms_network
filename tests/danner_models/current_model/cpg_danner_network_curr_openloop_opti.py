@@ -77,44 +77,44 @@ def save_figure(figure_handle, file_path, file_name, **kwargs):
 def main():
     """Main."""
 
-    #: container
+    # container
     container = Container()
 
-    #: CPG
-    net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  #: Directed graph
-    net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  #: Directed graph
-    net_cpg3 = CPG('FL', anchor_x=0., anchor_y=-20.)  #: Directed graph
-    net_cpg4 = CPG('FR', anchor_x=40., anchor_y=-20.)  #: Directed graph
+    # CPG
+    net_cpg1 = CPG('HL', anchor_x=0., anchor_y=40.)  # Directed graph
+    net_cpg2 = CPG('HR', anchor_x=40., anchor_y=40.)  # Directed graph
+    net_cpg3 = CPG('FL', anchor_x=0., anchor_y=-20.)  # Directed graph
+    net_cpg4 = CPG('FR', anchor_x=40., anchor_y=-20.)  # Directed graph
 
-    #: PATTERN FORMATION LAYER
+    # PATTERN FORMATION LAYER
     net_pf1 = PatternFormation('HL', anchor_x=0.,
-                               anchor_y=45.)  #: Directed graph
+                               anchor_y=45.)  # Directed graph
     net_pf2 = PatternFormation(
-        'HR', anchor_x=40., anchor_y=45.)  #: Directed graph
+        'HR', anchor_x=40., anchor_y=45.)  # Directed graph
     net_pf3 = PatternFormation('FL', anchor_x=0.,
-                               anchor_y=-15.)  #: Directed graph
+                               anchor_y=-15.)  # Directed graph
     net_pf4 = PatternFormation(
-        'FR', anchor_x=40., anchor_y=-15.)  #: Directed graph
+        'FR', anchor_x=40., anchor_y=-15.)  # Directed graph
 
-    #: Commussiral
+    # Commussiral
     net_comm1 = Commissural('HL', anchor_x=10., anchor_y=20.)
     net_comm2 = Commissural('HR', anchor_x=30., anchor_y=20.)
     net_comm3 = Commissural('FL', anchor_x=10., anchor_y=10.)
     net_comm4 = Commissural('FR', anchor_x=30., anchor_y=10.)
 
-    #: Ipsilateral
+    # Ipsilateral
     net9 = LPSN('L', anchor_x=15., anchor_y=20.,
-                color='c')  #: Directed graph
+                color='c')  # Directed graph
     net10 = LPSN('R', anchor_x=25., anchor_y=20.,
-                 color='c')  #: Directed graph
+                 color='c')  # Directed graph
 
-    #: Connecting sub graphs
+    # Connecting sub graphs
     net_rg_pf1 = ConnectPF2RG(net_cpg1.cpg, net_pf1.pf_net)
     net_rg_pf2 = ConnectPF2RG(net_cpg2.cpg, net_pf2.pf_net)
     net_rg_pf3 = ConnectPF2RG(net_cpg3.cpg, net_pf3.pf_net)
     net_rg_pf4 = ConnectPF2RG(net_cpg4.cpg, net_pf4.pf_net)
 
-    #: Motorneurons
+    # Motorneurons
     hind_muscles = ['PMA', 'CF', 'BFP_cranial',
                     'BFP_caudal', 'VL', 'TA', 'SOL', 'TP']
     # hind_antagonists = {'PMA': ['CF', 'BFP_cranial'],
@@ -155,7 +155,7 @@ def main():
     net_rg_pf_mn4 = ConnectMN2CPG(
         net_rg_pf4.net, net_motorneurons_fr.net, ['HFL', 'KFL', 'AFL'])
 
-    #: Sensory Afferents
+    # Sensory Afferents
     net_afferents_hl = Afferents('HL', hind_muscles, anchor_x=0.,
                                  anchor_y=70.)
     net_afferents_hr = Afferents('HR', hind_muscles, anchor_x=40.,
@@ -191,7 +191,7 @@ def main():
     # net = nx.compose_all([net.net])
     net = nx.compose_all([net_RG_CIN1.net])
 
-    #: Location to save the network
+    # Location to save the network
     net_dir = os.path.join(
         os.path.dirname(__file__),
         '../../auto_gen_danner_current_openloop_opti.graphml')
@@ -206,17 +206,17 @@ def main():
             biolog.error('Error in creating directory!')
             raise IOError()
 
-    #: initialize network parameters
-    #: pylint: disable=invalid-name
-    dt = 1  #: Time step
+    # initialize network parameters
+    # pylint: disable=invalid-name
+    dt = 1  # Time step
     dur = 5e3
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
     print(time_vec)
 
     # CONTAINER
     container = Container(max_iterations=dur/dt)
 
-    # #: Initialize network
+    # # Initialize network
     net_ = NeuralSystem(
         os.path.join(
             os.path.dirname(__file__),
@@ -224,14 +224,14 @@ def main():
         container
     )
 
-    #:
+    #
     container.initialize()
     net_.setup_integrator()
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
 
-    #: Network drive : Alpha
+    # Network drive : Alpha
     alpha = np.linspace(0, 1, len(time_vec))
 
     u = np.ones(np.shape(container.neural.inputs.values))
@@ -244,7 +244,7 @@ def main():
     end = time.time()
     pylog.info('RUN TIME : {}'.format(end-start))
 
-    #: Results
+    # Results
     # container.dump(overwrite=True)
 
     def get_gait_plot_from_neuron_act(act):
@@ -257,12 +257,12 @@ def main():
         start = (np.where(np.diff(act_binary[:, 0]) == 1.))[0]
         end = (np.where(np.diff(act_binary[:, 0]) == -1.))[0]
         for id, val in enumerate(start[:len(end)]):
-            #: HARD CODED TIME SCALING HERE!!
+            # HARD CODED TIME SCALING HERE!!
             gait_cycle.append((val*0.001, end[id]*0.001 - val*0.001))
         return gait_cycle
 
     if True:
-        #: Visualize network using Matplotlib
+        # Visualize network using Matplotlib
         # net_.visualize_network(
         #     node_size=50,
         #     node_labels=False,

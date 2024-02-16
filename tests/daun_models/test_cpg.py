@@ -35,7 +35,7 @@ def main():
 
     net = nx.compose_all([cpg.cpg])
 
-    #: Location to save the network
+    # Location to save the network
     net_dir = os.path.join(
         os.path.dirname(__file__),
         './conf/auto_gen_daun_cpg_test.graphml')
@@ -50,23 +50,23 @@ def main():
             pylog.error('Error in creating directory!')
             raise IOError()
 
-    #: Initialize network
-    dt = 1  #: Time step
+    # Initialize network
+    dt = 1  # Time step
     dur = 5000
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
 
     container = Container(dur/dt)
     net_ = NeuralSystem('./conf/auto_gen_daun_cpg_test.graphml', container)
 
-    #: initialize network parameters
-    #: pylint: disable=invalid-name
+    # initialize network parameters
+    # pylint: disable=invalid-name
 
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     x0 = [-10.0, 0.1, -70.0, 0.8]
     net_.setup_integrator()
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
     start_time = time.time()
     for idx, _ in enumerate(time_vec):
@@ -77,9 +77,9 @@ def main():
     pylog.info('Execution Time : {}'.format(
         end_time - start_time))
 
-    # #: Results
+    # # Results
     net_.save_network_to_dot()
-    #: Visualize network using Matplotlib
+    # Visualize network using Matplotlib
     net_.visualize_network(plt_out=plt)
     plt.figure()
     plt.title('DAUNS NETWORK')

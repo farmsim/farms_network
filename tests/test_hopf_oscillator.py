@@ -12,18 +12,18 @@ import numpy as np
 from farms_container import Container
 from farms_network.neural_system import NeuralSystem
 
-#: Define a network graph
+# Define a network graph
 network = nx.DiGraph()
 
-dt = 1e-3  #: Time step
+dt = 1e-3  # Time step
 dur = 10
-time_vec = np.arange(0, dur, dt)  #: Time
+time_vec = np.arange(0, dur, dt)  # Time
 
-#: Define container
+# Define container
 container = Container(max_iterations=int(dur/dt))
 
-#: Neuron
-#: Create an oscillator for each joint
+# Neuron
+# Create an oscillator for each joint
 num_oscillators = 4
 oscillator_names = [f'n{num}' for num in range(num_oscillators)]
 for neuron_name in oscillator_names:
@@ -38,7 +38,7 @@ for neuron_name in oscillator_names:
         y0=0.0
     )
 
-#: Connect edges
+# Connect edges
 connection_matrix = np.asarray(
     [
         [0, -1, 1, -1],
@@ -54,11 +54,11 @@ for i, j in zip(*np.nonzero(connection_matrix)):
         weight=connection_matrix[i, j]*5
     )
 
-#: Location to save the network
+# Location to save the network
 net_dir = './test_config/auto_gen_test_hopf_oscillator.graphml'
 nx.write_graphml(network, net_dir)
 
-# #: Initialize network
+# # Initialize network
 net = NeuralSystem(
     './test_config/auto_gen_test_hopf_oscillator.graphml',
     container)
@@ -67,11 +67,11 @@ container.initialize()
 
 net.setup_integrator()
 
-#: initialize network parameters
-#: pylint: disable=invalid-name
+# initialize network parameters
+# pylint: disable=invalid-name
 
 
-#: Integrate the network
+# Integrate the network
 pylog.info('Begin Integration!')
 
 start_time = time.time()
@@ -80,11 +80,11 @@ for t in time_vec:
     container.neural.update_log()
 pylog.info(f"--- {(time.time() - start_time)} seconds ---")
 
-#: Results
+# Results
 state = container.neural.states.log
 neuron_out = container.neural.outputs.log
 
-#: Show graph
+# Show graph
 net.visualize_network(node_labels=True)
 
 plt.figure()

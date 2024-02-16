@@ -21,18 +21,18 @@ class TestNeuronModels(unittest.TestCase):
         """ Set up the neruon model. """
         container = Container()
         container.add_namespace('neural')
-        #: ODE States
+        # ODE States
         container.neural.add_table('states')
         container.neural.add_table('dstates')
-        #: Weights
+        # Weights
         container.neural.add_table('weights')
-        #: Neurons parameters
+        # Neurons parameters
         container.neural.add_table(
             'constants', TABLE_TYPE='CONSTANT')
         container.neural.add_table('parameters')
-        #: Input to neural system
+        # Input to neural system
         container.neural.add_table('inputs')
-        #: Secondary outputs
+        # Secondary outputs
         container.neural.add_table('outputs')
 
     def tearDown(self):

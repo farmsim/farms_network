@@ -9,16 +9,16 @@ import matplotlib.pyplot as plt
 import itertools
 from farms_container import Container
 pylog.set_level('error')
-#: Define a network graph
+# Define a network graph
 network = nx.DiGraph()
 
-#: Define the joints in the fly
-#: Generate one oscillator per joint
+# Define the joints in the fly
+# Generate one oscillator per joint
 FLY_LEG_SEGMENTS = ['COXA', 'FEMUR', 'TIBIA', 'TARSUS']
-FLY_LEG_SIDES = ['L', 'R'] #: Left, Right
-FLY_LEG_PLACEMENTS = ['F', 'M', 'H'] #: 'FRONT', 'MID', 'HIND'
+FLY_LEG_SIDES = ['L', 'R'] # Left, Right
+FLY_LEG_PLACEMENTS = ['F', 'M', 'H'] # 'FRONT', 'MID', 'HIND'
 
-#: Create an oscillator for each joint
+# Create an oscillator for each joint
 num_oscillators = 0
 oscillator_names = []
 for seg in FLY_LEG_SEGMENTS:
@@ -32,24 +32,24 @@ for seg in FLY_LEG_SEGMENTS:
             oscillator_names.append(leg)
             num_oscillators += 1
 
-#: Connect all nodes to all edges
+# Connect all nodes to all edges
 for a,b in itertools.product(range(num_oscillators), range(num_oscillators)):
     if a != b:
         network.add_edge(
             oscillator_names[a], oscillator_names[b],
             weight=np.random.uniform(0, 1),
-            phi=np.random.uniform(0, 1))  
-    
-#: Location to save the network
+            phi=np.random.uniform(0, 1))
+
+# Location to save the network
 net_dir = '../config/auto_gen_fly_oscillator_network.graphml'
 nx.write_graphml(network, net_dir)
 
-# #: Initialize network
-#: initialize network parameters
-#: pylint: disable=invalid-name
-dt = 0.001  #: Time step
+# # Initialize network
+# initialize network parameters
+# pylint: disable=invalid-name
+dt = 0.001  # Time step
 dur = 20
-time_vec = np.arange(0, dur, dt)  #: Time
+time_vec = np.arange(0, dur, dt)  # Time
 
 container = Container(dur/dt)
 net = NeuralSystem(
@@ -58,17 +58,17 @@ net = NeuralSystem(
 container.initialize()
 net.setup_integrator()
 
-#: Integrate the network
+# Integrate the network
 pylog.info('Begin Integration!')
 
 for t in time_vec:
     net.step(dt=dt)
 
-#: Results
+# Results
 state = container.neural.states.log
 neuron_out = container.neural.outputs.log
 
-#: Show graph
+# Show graph
 net.visualize_network(edge_labels=False)
 
 plt.figure()

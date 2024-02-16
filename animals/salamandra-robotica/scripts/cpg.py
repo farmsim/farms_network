@@ -17,16 +17,16 @@ from network2tikz import plot
 
 pylog.set_level('info')
 
-#: Create an oscillator chain
+# Create an oscillator chain
 
 
 def oscillator_chain(n_oscillators, name_prefix, **kwargs):
     """ Create a chain of n-oscillators. """
-    #: Define a network graph
+    # Define a network graph
     network = nx.DiGraph()
     oscillator_names = [
         "{}_{}".format(name_prefix, n) for n in range(n_oscillators)]
-    #: Oscillators
+    # Oscillators
     f = kwargs.get('f', 1)
     R = kwargs.get('R', 1)
     a = kwargs.get('a', 10)
@@ -35,7 +35,7 @@ def oscillator_chain(n_oscillators, name_prefix, **kwargs):
         network.add_node(
             osc, model="oscillator", f=f, R=R, a=a, x=origin[0],
             y=origin[1]+j)
-    #: Connect
+    # Connect
     phase_diff = kwargs.get('axial_phi', 2*np.pi/n_oscillators)
     weight = kwargs.get('axial_w', 10)
     connections = np.vstack(
@@ -62,7 +62,7 @@ def oscillator_double_chain(n_oscillators, **kwargs):
     kwargs['origin'] = [0.05, 0]
     right_chain = oscillator_chain(n_oscillators, 'right', **kwargs)
     double = nx.compose_all((left_chain, right_chain))
-    #: Connect double chain
+    # Connect double chain
     phase_diff = kwargs.get('anti_phi', np.pi)
     weight = kwargs.get('anti_w', 10)
     for n in range(n_oscillators):
@@ -79,7 +79,7 @@ def oscillator_double_chain(n_oscillators, **kwargs):
     return double
 
 
-#: Create double chain
+# Create double chain
 n_oscillators = 125
 network = oscillator_double_chain(n_oscillators)
 # network.add_edges_from((a, b)
@@ -88,25 +88,25 @@ for edge in network.edges().values():
     edge['weight'] = 10
     edge['phi'] = np.pi
 pylog.error(len(network.edges()))
-#: Location to save the network
+# Location to save the network
 net_dir = "../config/auto_salamandra_robotica_oscillator.graphml"
 nx.write_graphml(network, net_dir)
 
 
 def main():
-    # #: Initialize network
-    dt = 0.001  #: Time step
+    # # Initialize network
+    dt = 0.001  # Time step
     dur = 10
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
     container = Container(dur/dt)
     net = NeuralSystem(
         "../config/auto_salamandra_robotica_oscillator.graphml",
         container)
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     net.setup_integrator()
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
 
     start_time = time.time()
@@ -115,12 +115,12 @@ def main():
         container.update_log()
     pylog.info("--- %s seconds ---" % (time.time() - start_time))
 
-    #: Results
+    # Results
     # container.dump()
     state = np.asarray(container.neural.states.log)
     neuron_out = np.asarray(container.neural.outputs.log)
     names = container.neural.outputs.names
-    #: Show graph
+    # Show graph
     net.visualize_network(
         node_size=500,
         edge_labels=False

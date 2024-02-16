@@ -116,7 +116,7 @@ class AgnosticPositionController(AgnosticBaseController):
             controller_type='POSITION_CONTROL',
             sdf_model_path=sdf_model_path
         )
-        #: Remove certain joint types
+        # Remove certain joint types
         if remove_joints:
             self.model.joints = [
                 joint
@@ -250,7 +250,7 @@ class AgnosticController:
     ):
         super().__init__()
         self.model = self.read_sdf(sdf_path)[0]
-        #: Remove certain joint types
+        # Remove certain joint types
         if remove_joints:
             self.model.joints = [
                 joint
@@ -260,9 +260,9 @@ class AgnosticController:
         self.connect_flexion_extension = connect_mutual
         self.connect_closest_neighbors = connect_closest_neighbors
         self.connect_base_nodes = connect_base_nodes
-        #: Define a network graph
+        # Define a network graph
         self.network = nx.DiGraph()
-        #: Generate the basic network
+        # Generate the basic network
         self.generate_network()
 
     @staticmethod
@@ -368,7 +368,7 @@ class AgnosticController:
         links = self.model.links
         link_id = sdf_utils.link_name_to_index(self.model)
         weight = 5000.0
-        #: Add two neurons to each joint and connect each other
+        # Add two neurons to each joint and connect each other
         for joint in self.model.joints:
             self.network.add_node(
                 joint.name + '_flexion',
@@ -401,7 +401,7 @@ class AgnosticController:
                     phi=np.pi
                 )
 
-        #: Connect neurons to closest neighbors
+        # Connect neurons to closest neighbors
         if self.connect_closest_neighbors:
             pylog.debug("Connecting closest neighbors")
             AgnosticController.add_connection_to_closest_neighbors(
@@ -410,7 +410,7 @@ class AgnosticController:
                 weight=weight
             )
 
-        #: Connect neurons between the base nodes
+        # Connect neurons between the base nodes
         if self.connect_base_nodes:
             pylog.debug("Connecting base nodes")
             AgnosticController.add_connection_between_base_nodes(
@@ -429,32 +429,32 @@ def main():
     net_dir = "../config/mouse_locomotion.graphml"
     nx.write_graphml(controller_gen.network, net_dir)
 
-    # #: Initialize network
-    dt = 0.001  #: Time step
+    # # Initialize network
+    dt = 0.001  # Time step
     dur = 10
-    time_vec = np.arange(0, dur, dt)  #: Time
+    time_vec = np.arange(0, dur, dt)  # Time
     container = Container(dur/dt)
     net = NeuralSystem(
         "../config/mouse_locomotion.graphml",
         container)
-    #: initialize network parameters
+    # initialize network parameters
     container.initialize()
     net.setup_integrator()
 
-    #: Integrate the network
+    # Integrate the network
     pylog.info('Begin Integration!')
 
     for t in time_vec:
         net.step(dt=dt)
         container.update_log()
 
-    #: Results
+    # Results
     # container.dump()
     state = np.asarray(container.neural.states.log)
     neuron_out = np.asarray(container.neural.outputs.log)
     names = container.neural.outputs.names
     parameters = container.neural.parameters
-    #: Show graph
+    # Show graph
     print(net.graph.number_of_edges())
     net.visualize_network(edge_labels=False)
     nosc = net.network.graph.number_of_nodes()
