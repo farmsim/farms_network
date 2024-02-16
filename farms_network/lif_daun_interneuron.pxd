@@ -35,8 +35,8 @@ cdef class LIFDaunInterneuron(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double c_m
         double g_nap
         double e_nap
@@ -50,26 +50,26 @@ cdef class LIFDaunInterneuron(Neuron):
         double g_leak
         double e_leak
 
-        #: states
+        # states
         Parameter v
         Parameter h
 
-        #: inputs
+        # inputs
         Parameter g_app
         Parameter e_app
 
-        #: ode
+        # ode
         Parameter vdot
         Parameter hdot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         DaunInterNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
         double c_neuron_inputs_eval(self, double _neuron_out, double _g_syn, double _e_syn,
-                                    double _gamma_s, double _v_h_s) nogil
+                                    double _gamma_s, double _v_h_s)

@@ -35,8 +35,8 @@ cdef class HHDaunMotorneuron(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double g_nap
         double e_nap
         double am1_nap
@@ -52,7 +52,7 @@ cdef class HHDaunMotorneuron(Neuron):
         double bh2_nap
         double bh3_nap
 
-        #: Parameters of IK
+        # Parameters of IK
         double g_k
         double e_k
         double am1_k
@@ -62,52 +62,52 @@ cdef class HHDaunMotorneuron(Neuron):
         double bm2_k
         double bm3_k
 
-        #: Parameters of Iq
+        # Parameters of Iq
         double g_q
         double e_q
         double gamma_q
         double r_q
         double v_m_q
 
-        #: Parameters of Ileak
+        # Parameters of Ileak
         double g_leak
         double e_leak
 
-        #: Parameters of Isyn
+        # Parameters of Isyn
         double g_syn
         double e_syn
         double v_hs
         double gamma_s
 
-        #: Other constants
+        # Other constants
         double c_m
 
-        #: State Variables
+        # State Variables
         Parameter v
         Parameter m_na
         Parameter h_na
         Parameter m_k
         Parameter m_q
 
-        #: ODE
+        # ODE
         Parameter vdot
         Parameter m_na_dot
         Parameter h_na_dot
         Parameter m_k_dot
         Parameter m_q_dot
 
-        #: External Input
+        # External Input
         Parameter g_app
         Parameter e_app
 
-        #: Output
+        # Output
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         DaunMotorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
         double c_neuron_inputs_eval(self, double _neuron_out, double _g_syn, double _e_syn,
-                                    double _gamma_s, double _v_h_s) nogil
+                                    double _gamma_s, double _v_h_s)

@@ -33,37 +33,37 @@ cdef class MorphedOscillator(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double f
         double gamma  # : Gamma
         double mu  # : Mu
         double zeta  # : Zeta
 
-        #: Morphing function
+        # Morphing function
         Parameter f_theta
         Parameter fd_theta
 
-        #: states
+        # states
         Parameter theta
         Parameter r
 
-        #: inputs
+        # inputs
         Parameter ext_in
 
-        #: ode
+        # ode
         Parameter theta_dot
         Parameter r_dot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         MorphedOscillatorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
         double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _theta,
-            double _phi) nogil
+            double _phi)

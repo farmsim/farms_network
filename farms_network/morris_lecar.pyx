@@ -1,15 +1,3 @@
-# cython: cdivision=True
-# cython: language_level=3
-# cython: infer_types=True
-# cython: profile=False
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: nonecheck=False
-# cython: initializedcheck=False
-# cython: overflowcheck=False
-# cython: optimize.unpack_method_calls=True
-# cython: np_pythran=False
-
 """
 -----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
@@ -50,10 +38,10 @@ cdef class MorrisLecarNeuron(Neuron):
         """
         super(MorrisLecarNeuron, self).__init__('morris_lecar')
 
-        #: Neuron ID
+        # Neuron ID
         self.n_id = n_id
 
-        #: Initialize parameters
+        # Initialize parameters
         (_, self.internal_curr) = neural_container.constants.add_parameter(
             'I_' + self.n_id, kwargs.get('I', 100.0))
         (_, self.C) = neural_container.constants.add_parameter(
@@ -81,27 +69,27 @@ cdef class MorrisLecarNeuron(Neuron):
         (_, self.gamma_w) = neural_container.constants.add_parameter(
             'gamma_w_' + self.n_id, kwargs.get('gamma_w', 13.0))
 
-        #: Initialize states
+        # Initialize states
         self.V = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
         self.w = neural_container.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.0))[0]
 
-        #: External inputs
+        # External inputs
         self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
-        #: ODE RHS
+        # ODE RHS
         self.V_dot = neural_container.dstates.add_parameter(
             'V_dot_' + self.n_id, 0.0)[0]
         self.w_dot = neural_container.dstates.add_parameter(
             'w_dot_' + self.n_id, 0.0)[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i'),
@@ -111,13 +99,13 @@ cdef class MorrisLecarNeuron(Neuron):
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef MLNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        #: Add the weight parameter
+        # Add the weight parameter
         weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight', 0.0))[0]
@@ -134,7 +122,7 @@ cdef class MorrisLecarNeuron(Neuron):
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx
 
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -151,14 +139,14 @@ cdef class MorrisLecarNeuron(Neuron):
         self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
-        #: Current state
+        # Current state
         cdef double _V = self.V.c_get_value()
         cdef double _W = self.w.c_get_value()
 
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -182,16 +170,16 @@ cdef class MorrisLecarNeuron(Neuron):
         self.V_dot.c_set_value((1.0/self.C)*(self.internal_curr - self.g_fast*m_inf_V*(_V-self.E_fast)
                                              - self.g_slow*_W*(_V - self.E_slow) - self.g_leak*(_V - self.E_leak)))
 
-        #: wdot
+        # wdot
         self.w_dot.c_set_value(self.phi_w*(w_inf_V - _W)/tau_w_V)
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         self.nout.c_set_value(self.V.c_get_value())
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _phi,
-            double _V, double _w) nogil:
+            double _V, double _w):
         """ Evaluate neuron inputs."""
         # Linear coupling term in potential
         return _weight*(_neuron_out - _V)

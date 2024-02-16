@@ -33,5 +33,5 @@ cdef class ReLUNeuron(Neuron):
         Parameter nout
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)

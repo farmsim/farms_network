@@ -34,10 +34,10 @@ cdef class HHDaunMotorneuron(Neuron):
     def __init__(self, n_id, num_inputs, neural_container, **kwargs):
         super(HHDaunMotorneuron, self).__init__('hh_daun_motorneuron')
 
-        self.n_id = n_id  #: Unique neuron identifier
-        #: Constants
-        #: Neuron constants
-        #: Parameters of INaP
+        self.n_id = n_id  # Unique neuron identifier
+        # Constants
+        # Neuron constants
+        # Parameters of INaP
         (_, self.g_nap) = neural_container.constants.add_parameter(
             'g_nap' + self.n_id, kwargs.get('g_nap', 10.0))
         (_, self.e_nap) = neural_container.constants.add_parameter(
@@ -67,7 +67,7 @@ cdef class HHDaunMotorneuron(Neuron):
         (_, self.bh3_nap) = neural_container.constants.add_parameter(
             'bh3_nap' + self.n_id, kwargs.get('bh3_nap', 0.20))
 
-        #: Parameters of IK
+        # Parameters of IK
         (_, self.g_k) = neural_container.constants.add_parameter(
             'g_k' + self.n_id, kwargs.get('g_k', 2.0))
         (_, self.e_k) = neural_container.constants.add_parameter(
@@ -85,7 +85,7 @@ cdef class HHDaunMotorneuron(Neuron):
         (_, self.bm3_k) = neural_container.constants.add_parameter(
             'bm3_k' + self.n_id, kwargs.get('bm3_k', 0.025))
 
-        #: Parameters of Iq
+        # Parameters of Iq
         (_, self.g_q) = neural_container.constants.add_parameter(
             'g_q' + self.n_id, kwargs.get('g_q', 12.0))
         (_, self.e_q) = neural_container.constants.add_parameter(
@@ -97,13 +97,13 @@ cdef class HHDaunMotorneuron(Neuron):
         (_, self.v_m_q) = neural_container.constants.add_parameter(
             'v_m_q' + self.n_id, kwargs.get('v_m_q', -30.0))
 
-        #: Parameters of Ileak
+        # Parameters of Ileak
         (_, self.g_leak) = neural_container.constants.add_parameter(
             'g_leak' + self.n_id, kwargs.get('g_leak', 0.8))
         (_, self.e_leak) = neural_container.constants.add_parameter(
             'e_leak' + self.n_id, kwargs.get('e_leak', -70.0))
 
-        #: Parameters of Isyn
+        # Parameters of Isyn
         (_, self.g_syn) = neural_container.constants.add_parameter(
             'g_syn' + self.n_id, kwargs.get('g_syn', 0.1))
         (_, self.e_syn) = neural_container.constants.add_parameter(
@@ -113,13 +113,13 @@ cdef class HHDaunMotorneuron(Neuron):
         (_, self.gamma_s) = neural_container.constants.add_parameter(
             'gamma_s' + self.n_id, kwargs.get('gamma_s', -0.42))
 
-        #: Other constants
+        # Other constants
         (_, self.c_m) = neural_container.constants.add_parameter(
             'c_m' + self.n_id, kwargs.get('c_m', 1.0))
 
-        #: State Variables
-        #: pylint: disable=invalid-name
-        #: Membrane potential
+        # State Variables
+        # pylint: disable=invalid-name
+        # Membrane potential
         self.v = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('v0', -65.0))[0]
         self.m_na = neural_container.states.add_parameter(
@@ -131,7 +131,7 @@ cdef class HHDaunMotorneuron(Neuron):
         self.m_q = neural_container.states.add_parameter(
             'm_q_' + self.n_id, kwargs.get('m_q0', 0.0))[0]
 
-        #: ODE
+        # ODE
         self.vdot = neural_container.dstates.add_parameter(
             'vdot_' + self.n_id, 0.0)[0]
         self.m_na_dot = neural_container.dstates.add_parameter(
@@ -143,17 +143,17 @@ cdef class HHDaunMotorneuron(Neuron):
         self.m_q_dot = neural_container.dstates.add_parameter(
             'm_q_dot_' + self.n_id, 0.0)[0]
 
-        #: External Input
+        # External Input
         self.g_app = neural_container.inputs.add_parameter(
             'g_app_' + self.n_id, kwargs.get('g_app', 0.19))[0]
         self.e_app = neural_container.inputs.add_parameter(
             'e_app_' + self.n_id, kwargs.get('e_app', 0.0))[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.num_inputs = num_inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
@@ -171,9 +171,9 @@ cdef class HHDaunMotorneuron(Neuron):
         weight : <float>
             Strength of the synapse between the two neurons"""
 
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef DaunMotorNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
@@ -186,7 +186,7 @@ cdef class HHDaunMotorneuron(Neuron):
         v_h_s = neural_container.parameters.add_parameter(
             'v_h_s_' + self.n_id, kwargs.pop('v_h_s', 0.0))[0]
 
-        #: Get neuron parameter indices
+        # Get neuron parameter indices
         g_syn_idx = neural_container.parameters.get_parameter_index(
             'g_syn_' + self.n_id)
         e_syn_idx = neural_container.parameters.get_parameter_index(
@@ -196,14 +196,14 @@ cdef class HHDaunMotorneuron(Neuron):
         v_h_s_idx = neural_container.parameters.get_parameter_index(
             'v_h_s_' + self.n_id)
 
-        #: Add the indices to the struct
+        # Add the indices to the struct
         n.neuron_idx = neuron_idx
         n.g_syn_idx = g_syn_idx
         n.e_syn_idx = e_syn_idx
         n.gamma_s_idx = gamma_s_idx
         n.v_h_s_idx = v_h_s_idx
 
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -220,82 +220,81 @@ cdef class HHDaunMotorneuron(Neuron):
         self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
-
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
-        #: States
+        # States
         cdef double _v = self.v.c_get_value()
         cdef double _m_na = self.m_na.c_get_value()
         cdef double _h_na = self.h_na.c_get_value()
         cdef double _m_k = self.m_k.c_get_value()
         cdef double _m_q = self.m_q.c_get_value()
 
-        #: alpha_m_Na(V)
+        # alpha_m_Na(V)
         cdef double a_m_nap = (self.am1_nap * (self.am2_nap - _v)) / (
             cexp(self.am3_nap * (self.am2_nap - _v)) - 1)
 
-        #: beta_m_Na(V)
+        # beta_m_Na(V)
         cdef double b_m_nap = (self.bm1_nap * (self.bm2_nap - _v)) / (
             cexp(self.bm3_nap * (self.bm2_nap - _v)) - 1)
 
-        #: alpha_m_Na(V)
+        # alpha_m_Na(V)
         cdef double a_h_nap = self.ah1_nap * cexp(
             self.ah3_nap * (self.ah2_nap - _v))
 
-        #: beta_m_Na(V)
+        # beta_m_Na(V)
         cdef double b_h_nap = (self.bh1_nap) / (
             cexp(self.bh3_nap * (self.bh2_nap - _v)) + 1)
 
-        #: Inap
-        #: pylint: disable=no-member
+        # Inap
+        # pylint: disable=no-member
         cdef double i_nap = self.g_nap * _m_na * _h_na * (
             _v - self.e_nap)
 
-        #: alpha_m_K
+        # alpha_m_K
         cdef double a_m_k = (self.am1_k * (self.am2_k - _v)) / (
             cexp(self.am3_k * (self.am2_k - _v)) - 1)
 
-        #: beta_m_K
+        # beta_m_K
         cdef double b_m_k = self.bm1_k * cexp(self.bm3_k * (self.bm2_k - _v))
 
-        #: Ik
-        #: pylint: disable=no-member
+        # Ik
+        # pylint: disable=no-member
         cdef double i_k = self.g_k * _m_k * (_v - self.e_k)
 
-        #: m_q_inf
+        # m_q_inf
         cdef double m_q_inf = 1./(1 + cexp(self.gamma_q * (_v - self.v_m_q)))
 
-        #: alpha_m_q
+        # alpha_m_q
         cdef double a_m_q = m_q_inf * self.r_q
 
-        #: beta_m_q
+        # beta_m_q
         cdef double b_m_q = (1 - m_q_inf) * self.r_q
 
-        #: Ileak
+        # Ileak
         cdef double i_leak = self.g_leak * (_v - self.e_leak)
 
-        #: Iapp
+        # Iapp
         cdef double i_app = self.g_app.c_get_value() * (
             _v - self.e_app.c_get_value())
 
-        #: m_na_dot
+        # m_na_dot
         self.m_na_dot.c_set_value(a_m_nap*(1 - _m_na) - b_m_nap*_m_na)
 
-        #: h_na_dot
+        # h_na_dot
         self.h_na_dot.c_set_value(a_h_nap*(1 - _h_na) - b_h_nap*_h_na)
 
-        #: m_k_dot
+        # m_k_dot
         self.m_k_dot.c_set_value(a_m_k*(1 - _m_k) - b_m_k*_m_k)
 
-        #: m_q_dot
+        # m_q_dot
         self.m_q_dot.c_set_value(a_m_q * (1 - _m_q) - b_m_q * _m_q)
 
-        #: Iq
-        #: pylint: disable=no-member
+        # Iq
+        # pylint: disable=no-member
         cdef double i_q = self.g_q * self.m_q_dot.c_get_value() * (_v - self.e_q)
 
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -315,18 +314,18 @@ cdef class HHDaunMotorneuron(Neuron):
             _sum += self.c_neuron_inputs_eval(
                 _neuron_out, _g_syn, _e_syn, _gamma_s, _v_h_s)
 
-        #: dV
+        # dV
         self.vdot.c_set_value((
             -i_nap - i_k - i_q - i_leak - i_app - _sum)/self.c_m)
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
-        #: Set the neuron output
+        # Set the neuron output
         self.nout.c_set_value(self.v.c_get_value())
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _g_syn, double _e_syn,
-            double _gamma_s, double _v_h_s) nogil:
+            double _gamma_s, double _v_h_s):
         """ Evaluate neuron inputs."""
         cdef double _v = self.v.c_get_value()
 

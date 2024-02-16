@@ -33,33 +33,33 @@ cdef class LeakyIntegrator(Neuron):
             Unique ID for the neuron in the network.
         """
         super(LeakyIntegrator, self).__init__('leaky')
-        #: Neuron ID
+        # Neuron ID
         self.n_id = n_id
-        #: Initialize parameters
+        # Initialize parameters
         (_, self.tau) = neural_container.constants.add_parameter(
             'tau_' + self.n_id, kwargs.get('tau', 0.1))
         (_, self.bias) = neural_container.constants.add_parameter(
             'bias_' + self.n_id, kwargs.get('bias', -2.75))
-        #: pylint: disable=invalid-name
+        # pylint: disable=invalid-name
         (_, self.D) = neural_container.constants.add_parameter(
             'D_' + self.n_id, kwargs.get('D', 1.0))
 
-        #: Initialize states
+        # Initialize states
         self.m = neural_container.states.add_parameter(
             'm_' + self.n_id, kwargs.get('x0', 0.0))[0]
-        #: External inputs
+        # External inputs
         self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
-        #: ODE RHS
+        # ODE RHS
         self.mdot = neural_container.dstates.add_parameter(
             'mdot_' + self.n_id, 0.0)[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i')])
@@ -68,13 +68,13 @@ cdef class LeakyIntegrator(Neuron):
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef LeakyIntegratorNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        #: Add the weight parameter
+        # Add the weight parameter
         weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))
         weight_idx = neural_container.weights.get_parameter_index(
@@ -82,7 +82,7 @@ cdef class LeakyIntegrator(Neuron):
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
 
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -99,9 +99,9 @@ cdef class LeakyIntegrator(Neuron):
         self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -116,11 +116,11 @@ cdef class LeakyIntegrator(Neuron):
             (-self.m.c_get_value() + _sum + self.ext_in.c_get_value())/self.tau)
         )
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         self.nout.c_set_value(1. / (1. + exp(-self.D * (
             self.m.c_get_value() + self.bias))))
 
-    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
+    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight):
         """ Evaluate neuron inputs."""
         return _neuron_out*_weight

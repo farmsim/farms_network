@@ -78,8 +78,8 @@ cdef class Neuron:
         self._model_type = value
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         pass
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         pass

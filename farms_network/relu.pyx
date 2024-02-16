@@ -68,11 +68,11 @@ cdef class ReLUNeuron(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
         pass
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         # Set the neuron output
         self.nout.c_set_value(max(0.0, self.ext_inp.c_get_value()))

@@ -49,8 +49,8 @@ cdef class NetworkGenerator:
         """
         super(NetworkGenerator, self).__init__()
 
-        #: Attributes
-        self.neurons = OrderedDict()  #: Neurons in the network
+        # Attributes
+        self.neurons = OrderedDict()  # Neurons in the network
         self.states = <Table > neural_container.add_table('states')
         self.dstates = <Table > neural_container.add_table('dstates')
         self.constants = <Table > neural_container.add_table('constants', table_type='CONSTANT')
@@ -64,10 +64,10 @@ cdef class NetworkGenerator:
         self.fin = {}
         self.integrator = {}
 
-        #:  Read the graph
+        #  Read the graph
         self.graph = graph
 
-        #: Get the number of neurons in the model
+        # Get the number of neurons in the model
         self.num_neurons = len(self.graph)
 
         self.c_neurons = np.ndarray((self.num_neurons,), dtype=Neuron)
@@ -85,11 +85,11 @@ cdef class NetworkGenerator:
         """
         cdef int j
         for j, (name, neuron) in enumerate(sorted(self.graph.nodes.items())):
-            #: Add neuron to list
+            # Add neuron to list
             pylog.debug(
                 'Generating neuron model : {} of type {}'.format(
                     name, neuron['model']))
-            #: Generate Neuron Models
+            # Generate Neuron Models
             _neuron = NeuronFactory.gen_neuron(neuron['model'])
             self.neurons[name] = _neuron(
                 name, self.graph.in_degree(name),
@@ -108,7 +108,7 @@ cdef class NetworkGenerator:
                     name))
             for j, pred in enumerate(self.graph.predecessors(name)):
                 pylog.debug(('{} -> {}'.format(pred, name)))
-                #: Set the weight of the parameter
+                # Set the weight of the parameter
                 neuron.add_ode_input(
                     j,
                     self.neurons[pred],
@@ -121,9 +121,8 @@ cdef class NetworkGenerator:
         cdef unsigned int j
         cdef Neuron neuron
 
-        for j in range(self.num_neurons):
-            neuron = self.c_neurons[j]
-            neuron.c_output()
+        # for j in range(self.num_neurons):
+        #     neuron = self.c_neurons[j]
 
         for j in range(self.num_neurons):
             neuron = self.c_neurons[j]
@@ -132,4 +131,5 @@ cdef class NetworkGenerator:
                 self.weights.c_get_values(),
                 self.parameters.c_get_values()
             )
+            neuron.c_output()
         return self.dstates.c_get_values()

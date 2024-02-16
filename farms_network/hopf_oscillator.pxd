@@ -37,31 +37,31 @@ cdef class HopfOscillator(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double mu
         double omega
         double alpha
         double beta
 
-        #: states
+        # states
         Parameter x
         Parameter y
 
-        #: inputs
+        # inputs
         Parameter ext_in
 
-        #: ode
+        # ode
         Parameter xdot
         Parameter ydot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         HopfOscillatorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
-        double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
+        double c_neuron_inputs_eval(self, double _neuron_out, double _weight)

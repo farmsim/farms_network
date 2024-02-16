@@ -32,28 +32,28 @@ cdef class LeakyIntegrator(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double tau
         double bias
         double D
 
-        #: states
+        # states
         Parameter m
 
-        #: inputs
+        # inputs
         Parameter ext_in
 
-        #: ode
+        # ode
         Parameter mdot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         LeakyIntegratorNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
-        double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
+        double c_neuron_inputs_eval(self, double _neuron_out, double _weight)

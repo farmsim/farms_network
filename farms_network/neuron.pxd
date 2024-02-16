@@ -1,4 +1,4 @@
-""" 
+"""
 -----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
 Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
@@ -27,5 +27,5 @@ cdef class Neuron:
         str _model_type
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)

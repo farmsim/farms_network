@@ -191,7 +191,7 @@ cdef class LIFDannerNap(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
         # States
@@ -249,7 +249,7 @@ cdef class LIFDannerNap(Neuron):
         self.vdot.c_set_value(
             -(i_nap + i_leak + i_syn_e + i_syn_i + i_noise + _sum)/self.c_m)
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         cdef double _v = self.v.c_get_value()
         cdef double _n_out
@@ -263,7 +263,7 @@ cdef class LIFDannerNap(Neuron):
         # Set the neuron output
         self.nout.c_set_value(_n_out)
 
-    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight) nogil:
+    cdef double c_neuron_inputs_eval(self, double _neuron_out, double _weight):
         """ Evaluate neuron inputs."""
         cdef double _v = self.v.c_get_value()
 

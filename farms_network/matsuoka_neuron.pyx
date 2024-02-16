@@ -35,10 +35,10 @@ cdef class MatsuokaNeuron(Neuron):
         """
         super(MatsuokaNeuron, self).__init__('matsuoka_neuron')
 
-        #: Neuron ID
+        # Neuron ID
         self.n_id = n_id
 
-        #: Initialize parameters
+        # Initialize parameters
 
         (_, self.c) = neural_container.constants.add_parameter(
             'c_' + self.n_id, kwargs.get('c', 1))
@@ -58,27 +58,27 @@ cdef class MatsuokaNeuron(Neuron):
         (_, self.nu) = neural_container.constants.add_parameter(
             'nu' + self.n_id, kwargs.get('nu', 0.5))
 
-        #: Initialize states
+        # Initialize states
         self.V = neural_container.states.add_parameter(
             'V_' + self.n_id, kwargs.get('V0', 0.0))[0]
         self.w = neural_container.states.add_parameter(
             'w_' + self.n_id, kwargs.get('w0', 0.5))[0]
 
-        #: External inputs
+        # External inputs
         self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
-        #: ODE RHS
+        # ODE RHS
         self.V_dot = neural_container.dstates.add_parameter(
             'V_dot_' + self.n_id, 0.0)[0]
         self.w_dot = neural_container.dstates.add_parameter(
             'w_dot_' + self.n_id, 0.0)[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i'),
@@ -88,13 +88,13 @@ cdef class MatsuokaNeuron(Neuron):
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef MatsuokaNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        #: Add the weight parameter
+        # Add the weight parameter
         weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight', 2.5))[0]
@@ -110,7 +110,7 @@ cdef class MatsuokaNeuron(Neuron):
         n.neuron_idx = neuron_idx
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -126,14 +126,14 @@ cdef class MatsuokaNeuron(Neuron):
         """ Python interface to the ode_rhs computation."""
         self.c_ode_rhs(y, w, p)
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
-        #: Current state
+        # Current state
         cdef double _V = self.V.c_get_value()
         cdef double _W = self.w.c_get_value()
 
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -147,13 +147,13 @@ cdef class MatsuokaNeuron(Neuron):
             _sum += self.c_neuron_inputs_eval(_neuron_out,
                                               _weight, _phi, _V, _W)
 
-        #: phidot : V_dot
+        # phidot : V_dot
         self.V_dot.c_set_value((1/self.tau)*(self.c - _V - _sum - self.b*_W))
 
-        #: wdot
+        # wdot
         self.w_dot.c_set_value((1/self.T)*(-_W + self.nu*_V))
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         _V = self.V.c_get_value()
         if _V < 0:
@@ -163,6 +163,6 @@ cdef class MatsuokaNeuron(Neuron):
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _phi,
-            double _V, double _w) nogil:
+            double _V, double _w):
         """ Evaluate neuron inputs."""
         return _weight*_neuron_out

@@ -1,15 +1,3 @@
-# cython: cdivision=True
-# cython: language_level=3
-# cython: infer_types=True
-# cython: profile=False
-# cython: boundscheck=False
-# cython: wraparound=False
-# cython: nonecheck=False
-# cython: initializedcheck=False
-# cython: overflowcheck=False
-# cython: optimize.unpack_method_calls=True
-# cython: np_pythran=False
-
 """
 -----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
@@ -51,10 +39,10 @@ cdef class MorphedOscillator(Neuron):
         """
         super(MorphedOscillator, self).__init__('leaky')
 
-        #: Neuron ID
+        # Neuron ID
         self.n_id = n_id
 
-        #: Initialize parameters
+        # Initialize parameters
         (_, self.f) = neural_container.constants.add_parameter(
             'f_' + self.n_id, kwargs.get('f', 0.5))
 
@@ -67,33 +55,33 @@ cdef class MorphedOscillator(Neuron):
         (_, self.zeta) = neural_container.constants.add_parameter(
             'z_' + self.n_id, kwargs.get('zeta', 0.0))
         print(self.zeta)
-        #: Initialize states
+        # Initialize states
         self.theta = neural_container.states.add_parameter(
             'theta_' + self.n_id, kwargs.get('theta0', 0.0))[0]
         self.r = neural_container.states.add_parameter(
             'r_' + self.n_id, kwargs.get('r0', 0.0))[0]
 
-        #: External inputs
+        # External inputs
         self.ext_in = neural_container.inputs.add_parameter(
             'ext_in_' + self.n_id)[0]
 
-        #: Morphing function
+        # Morphing function
         self.f_theta = neural_container.parameters.add_parameter(
             'f_theta_' + self.n_id, kwargs.get('f_theta0', 0.0))[0]
         self.fd_theta = neural_container.parameters.add_parameter(
             'fd_theta_' + self.n_id, kwargs.get('fd_theta0', 0.0))[0]
 
-        #: ODE RHS
+        # ODE RHS
         self.theta_dot = neural_container.dstates.add_parameter(
             'theta_dot_' + self.n_id, 0.0)[0]
         self.r_dot = neural_container.dstates.add_parameter(
             'r_dot_' + self.n_id, 0.0)[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
-        #: Neuron inputs
+        # Neuron inputs
         self.neuron_inputs = cnp.ndarray((num_inputs,),
                                          dtype=[('neuron_idx', 'i'),
                                                 ('weight_idx', 'i'),
@@ -103,13 +91,13 @@ cdef class MorphedOscillator(Neuron):
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
         """ Add relevant external inputs to the ode."""
-        #: Create a struct to store the inputs and weights to the neuron
+        # Create a struct to store the inputs and weights to the neuron
         cdef MorphedOscillatorNeuronInput n
-        #: Get the neuron parameter
+        # Get the neuron parameter
         neuron_idx = neural_container.outputs.get_parameter_index(
             'nout_'+neuron.n_id)
 
-        #: Add the weight parameter
+        # Add the weight parameter
         weight = neural_container.weights.add_parameter(
             'w_' + neuron.n_id + '_to_' + self.n_id,
             kwargs.get('weight', 0.0))[0]
@@ -126,7 +114,7 @@ cdef class MorphedOscillator(Neuron):
         n.weight_idx = weight_idx
         n.phi_idx = phi_idx
 
-        #: Append the struct to the list
+        # Append the struct to the list
         self.neuron_inputs[idx] = n
 
     def output(self):
@@ -143,16 +131,16 @@ cdef class MorphedOscillator(Neuron):
         self.c_ode_rhs(y, w, p)
 
     #################### C-FUNCTIONS ####################
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
 
-        #: Current state
+        # Current state
         cdef double _theta = self.theta.c_get_value()
         cdef double _r = self.r.c_get_value()
         cdef double f_theta = self.f_theta.c_get_value()
         cdef double fd_theta = self.fd_theta.c_get_value()
 
-        #: Neuron inputs
+        # Neuron inputs
         cdef double _sum = 0.0
         cdef unsigned int j
         cdef double _neuron_out
@@ -166,10 +154,10 @@ cdef class MorphedOscillator(Neuron):
             _sum += self.c_neuron_inputs_eval(
                 _neuron_out, _weight, _theta, _phi)
 
-        #: thetadot : theta_dot
+        # thetadot : theta_dot
         self.theta_dot.c_set_value(2*M_PI*self.f + _sum)
 
-        #: rdot
+        # rdot
         # cdef double r_dot_1 = 2*M_PI*self.f*_r*(fd_theta/f_theta)
         # cdef double r_dot_2 = _r*self.gamma*(self.mu - ((_r*_r)/(f_theta*f_theta)))
         # self.r_dot.c_set_value(r_dot_1 + r_dot_2 + self.zeta)
@@ -178,12 +166,12 @@ cdef class MorphedOscillator(Neuron):
         cdef double r_dot_2 = self.gamma*(f_theta - _r)
         self.r_dot.c_set_value(r_dot_1 + r_dot_2 + self.zeta)
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
         self.nout.c_set_value(self.theta.c_get_value())
 
     cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _theta,
-            double _phi) nogil:
+            double _phi):
         """ Evaluate neuron inputs."""
         return _weight*csin(_neuron_out - _theta - _phi)

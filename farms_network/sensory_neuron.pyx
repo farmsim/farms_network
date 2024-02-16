@@ -35,13 +35,13 @@ cdef class SensoryNeuron(Neuron):
         """
         super(SensoryNeuron, self).__init__('sensory')
 
-        #: Neuron ID
+        # Neuron ID
         self.n_id = n_id
 
         self.aff_inp = neural_container.inputs.add_parameter(
             'aff_' + self.n_id, kwargs.get('init', 0.0))[0]
 
-        #: Output
+        # Output
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
@@ -68,11 +68,11 @@ cdef class SensoryNeuron(Neuron):
 
     #################### C-FUNCTIONS ####################
 
-    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil:
+    cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
         pass
 
-    cdef void c_output(self) nogil:
+    cdef void c_output(self):
         """ Neuron output. """
-        #: Set the neuron output
+        # Set the neuron output
         self.nout.c_set_value(self.aff_inp.c_get_value())

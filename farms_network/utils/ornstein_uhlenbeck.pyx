@@ -10,7 +10,7 @@ from libc.stdio cimport printf
 
 cdef inline double c_noise_current_update(
     double state, OrnsteinUhlenbeckParameters* params
-) nogil:
+):
     """ Update OrnsteinUhlenbeck process with Euler–Maruyama method (also called the
     Euler method) is a method for the approximate numerical solution of a stochastic
     differential equation (SDE) """

@@ -33,8 +33,8 @@ cdef class MatsuokaNeuron(Neuron):
 
         unsigned int num_inputs
 
-        #: parameters
-        #: constants
+        # parameters
+        # constants
         double c
         double b
         double tau
@@ -42,26 +42,26 @@ cdef class MatsuokaNeuron(Neuron):
         double theta
         double nu
 
-        #: states
+        # states
         Parameter V
         Parameter w
 
-        #: inputs
+        # inputs
         Parameter ext_in
 
-        #: ode
+        # ode
         Parameter V_dot
         Parameter w_dot
 
-        #: Ouputs
+        # Ouputs
         Parameter nout
 
-        #: neuron connenctions
+        # neuron connenctions
         MatsuokaNeuronInput[:] neuron_inputs
 
     cdef:
-        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p) nogil
-        void c_output(self) nogil
+        void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p)
+        void c_output(self)
         cdef double c_neuron_inputs_eval(
             self, double _neuron_out, double _weight, double _phi,
-            double _V, double _w) nogil
+            double _V, double _w)

@@ -17,4 +17,4 @@ cdef struct OrnsteinUhlenbeckParameters:
 
 cdef double c_noise_current_update(
     double state, OrnsteinUhlenbeckParameters* params
-) nogil
+)
