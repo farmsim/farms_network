@@ -98,19 +98,18 @@ class NeuralSystem(NetworkXModel):
     def rk5(self, time, state, func, step_size=1e-3):
         """ Runge-kutta order 5 integrator """
         K1 = np.array(func(time, state))
-        K2 = np.array(func(time + step_size/2, state + (step_size/2 * K1)))
-        K3 = np.array(func(time + step_size/2, state + (1/4)*(step_size/2 * K2)))
-        K4 = np.array(func(time + step_size, state + (step_size * K3)))
-        new_state = state + (K1 + 2*K2 + 2*K3 + K4)*(step_size/6)
+        K2 = np.array(func(time + step_size/4, state + (step_size/4 * K1)))
+        K3 = np.array(func(time + step_size/4, state + (step_size/8)*(K1 + K2)))
+        K4 = np.array(func(time + step_size/2, state - (step_size/2 * K2) + (step_size * K3)))
+        K5 = np.array(func(time + 3*step_size/4, state + (step_size/16)*(3*K1 + 9*K4)))
+        K6 = np.array(func(time + step_size, state + (step_size/7)*(-3*K1 + 2*K2 + 12*K3 + -12*K4 + 8*K5)))
+        new_state = state + (7*K1 + 32*K3 + 12*K4 + 32*K5 + 7*K6)*(step_size/90)
         return new_state
 
     def step(self, dt=1, update=True):
         """Step ode system. """
         self.time += dt
-        self.state = self.rk5(
-            self.time, self.state, self.network.ode,
-            step_size=dt
-        )
+        self.state = self.rk5(self.time, self.state, self.network.ode, step_size=dt)
         # self.state = c_rk4(
         #     self.time, self.state, self.network.ode, step_size=dt
         # )
