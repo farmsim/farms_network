@@ -121,8 +121,9 @@ cdef class NetworkGenerator:
         cdef unsigned int j
         cdef Neuron neuron
 
-        # for j in range(self.num_neurons):
-        #     neuron = self.c_neurons[j]
+        for j in range(self.num_neurons):
+            neuron = self.c_neurons[j]
+            neuron.c_output()
 
         for j in range(self.num_neurons):
             neuron = self.c_neurons[j]
@@ -131,5 +132,5 @@ cdef class NetworkGenerator:
                 self.weights.c_get_values(),
                 self.parameters.c_get_values()
             )
-            neuron.c_output()
+
         return self.dstates.c_get_values()
