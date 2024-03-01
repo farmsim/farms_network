@@ -1,8 +1,7 @@
 #+OPTIONS: toc:nil num:nil p:t ^:nil _:nil
 
 * FARMS NETWORK
-** AUTHOR: Shravan Tata Ramalingasetty
-** EMAIL: shravantr@gmail.com
+
 ** Description :
    This respository contains the necessary components to generate, integrate,
 analyze and visualize neural network models. Currently the following neuron models are implemented :
