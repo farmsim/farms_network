@@ -38,6 +38,17 @@ cdef class ReLUNeuron(Neuron):
         self.n_id = n_id
 
         # Initialize parameters
+        self.gain = neural_container.inputs.add_parameter(
+            'gain_' + self.n_id, kwargs.get('gain', 1.0))[0]
+
+        self.sign = neural_container.inputs.add_parameter(
+            'sign_' + self.n_id, kwargs.get('sign', 1.0))[0]
+
+        # assert abs(self.sign.value) != 1.0, "ReLU sign parameter should be 1.0"
+
+        self.offset = neural_container.inputs.add_parameter(
+            'offset_' + self.n_id, kwargs.get('offset', 0.0))[0]
+
         self.ext_inp = neural_container.inputs.add_parameter(
             'ext_' + self.n_id, kwargs.get('init', 0.0))[0]
 
@@ -75,4 +86,10 @@ cdef class ReLUNeuron(Neuron):
     cdef void c_output(self):
         """ Neuron output. """
         # Set the neuron output
-        self.nout.c_set_value(max(0.0, self.ext_inp.c_get_value()))
+        cdef double gain = self.gain.c_get_value()
+        cdef double sign = self.sign.c_get_value()
+        cdef double offset = self.offset.c_get_value()
+        cdef double ext_in = self.ext_inp.c_get_value()
+        cdef double res = gain*(sign*ext_in + offset)
+
+        self.nout.c_set_value(max(0.0, res))

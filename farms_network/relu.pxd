@@ -26,6 +26,11 @@ cdef class ReLUNeuron(Neuron):
     cdef:
         readonly str n_id
 
+        # Parameters
+        Parameter gain
+        Parameter sign
+        Parameter offset
+
         # Input from external system
         Parameter ext_inp
 
