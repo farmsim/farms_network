@@ -19,6 +19,8 @@ limitations under the License.
 Sensory afferent neurons.
 """
 
+cimport numpy as cnp
+
 from farms_network.neuron import Neuron
 from libc.stdio cimport printf
 
@@ -38,15 +40,15 @@ cdef class ReLUNeuron(Neuron):
         self.n_id = n_id
 
         # Initialize parameters
-        self.gain = neural_container.inputs.add_parameter(
+        self.gain = neural_container.parameters.add_parameter(
             'gain_' + self.n_id, kwargs.get('gain', 1.0))[0]
 
-        self.sign = neural_container.inputs.add_parameter(
+        self.sign = neural_container.parameters.add_parameter(
             'sign_' + self.n_id, kwargs.get('sign', 1.0))[0]
 
         # assert abs(self.sign.value) != 1.0, "ReLU sign parameter should be 1.0"
 
-        self.offset = neural_container.inputs.add_parameter(
+        self.offset = neural_container.parameters.add_parameter(
             'offset_' + self.n_id, kwargs.get('offset', 0.0))[0]
 
         self.ext_inp = neural_container.inputs.add_parameter(
@@ -56,13 +58,38 @@ cdef class ReLUNeuron(Neuron):
         self.nout = neural_container.outputs.add_parameter(
             'nout_' + self.n_id, 0.0)[0]
 
+        # Neuron inputs
+        self.num_inputs = num_inputs
+        self.neuron_inputs = cnp.ndarray((num_inputs,),
+                                         dtype=[('neuron_idx', 'i'),
+                                                ('weight_idx', 'i')])
+
     def reset_sensory_param(self, param):
         """ Add the sensory input. """
         self.aff_inp = param
 
     def add_ode_input(self, int idx, neuron, neural_container, **kwargs):
-        """Abstract method"""
-        pass
+        """ Add relevant external inputs to the output.
+        Parameters
+        ----------
+        """
+
+        # Create a struct to store the inputs and weights to the neuron
+        cdef ReLUNeuronInput n
+        # Get the neuron parameter
+        neuron_idx = neural_container.outputs.get_parameter_index(
+            'nout_'+neuron.n_id)
+
+        # Add the weight parameter
+        weight = neural_container.weights.add_parameter(
+            'w_' + neuron.n_id + '_to_' + self.n_id, kwargs.get('weight', 0.0))[0]
+        weight_idx = neural_container.weights.get_parameter_index(
+            'w_' + neuron.n_id + '_to_' + self.n_id)
+        n.neuron_idx = neuron_idx
+        n.weight_idx = weight_idx
+
+        # Append the struct to the list
+        self.neuron_inputs[idx] = n
 
     def ode_rhs(self, y, w, p):
         """Abstract method"""
@@ -81,7 +108,18 @@ cdef class ReLUNeuron(Neuron):
 
     cdef void c_ode_rhs(self, double[:] _y, double[:] _w, double[:] _p):
         """ Compute the ODE. Internal Setup Function."""
-        pass
+
+        # Neuron inputs
+        cdef double _sum = 0.0
+        cdef unsigned int j
+        cdef double _neuron_out
+        cdef double _weight
+
+        for j in range(self.num_inputs):
+            _neuron_out = _y[self.neuron_inputs[j].neuron_idx]
+            _weight = _w[self.neuron_inputs[j].weight_idx]
+            _sum += (_neuron_out*_weight)
+        self.ext_inp.c_set_value(_sum)
 
     cdef void c_output(self):
         """ Neuron output. """
@@ -91,5 +129,4 @@ cdef class ReLUNeuron(Neuron):
         cdef double offset = self.offset.c_get_value()
         cdef double ext_in = self.ext_inp.c_get_value()
         cdef double res = gain*(sign*ext_in + offset)
-
         self.nout.c_set_value(max(0.0, res))

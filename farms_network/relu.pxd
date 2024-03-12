@@ -22,9 +22,17 @@ Rectified Linear Unit (ReLU) neurons.
 from farms_container.parameter cimport Parameter
 from farms_network.neuron cimport Neuron
 
+
+cdef struct ReLUNeuronInput:
+    int neuron_idx
+    int weight_idx
+
+
 cdef class ReLUNeuron(Neuron):
     cdef:
         readonly str n_id
+
+        unsigned int num_inputs
 
         # Parameters
         Parameter gain
@@ -33,6 +41,9 @@ cdef class ReLUNeuron(Neuron):
 
         # Input from external system
         Parameter ext_inp
+
+        # neuron connenctions
+        ReLUNeuronInput[:] neuron_inputs
 
         # Ouputs
         Parameter nout
