@@ -121,16 +121,16 @@ cdef class NetworkGenerator:
         cdef unsigned int j
         cdef Neuron neuron
 
+        cdef double[:] outputs = self.outputs.c_get_values()
+        cdef double[:] weights = self.weights.c_get_values()
+        cdef double[:] parameters = self.parameters.c_get_values()
+
         for j in range(self.num_neurons):
             neuron = self.c_neurons[j]
             neuron.c_output()
 
         for j in range(self.num_neurons):
             neuron = self.c_neurons[j]
-            neuron.c_ode_rhs(
-                self.outputs.c_get_values(),
-                self.weights.c_get_values(),
-                self.parameters.c_get_values()
-            )
+            neuron.c_ode_rhs(outputs, weights, parameters)
 
         return self.dstates.c_get_values()
