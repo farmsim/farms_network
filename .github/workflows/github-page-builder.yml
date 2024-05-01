@@ -1,0 +1,41 @@
+name: GitHub Page Builder
+run-name: ${{ github.actor }} is building GitHub Pages with Actions
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make automake gcc g++ subversion python3-dev
+          pip install sphinx sphinx-rtd-theme cython numpy
+
+      - name: Build HTML
+        run: |
+          cd docs
+          make html
+          cd ..
+
+      - name: Move documentation
+        run: mv docs/build/html/ public/
+
+      - name: Cache documentation artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: documentation
+          path: public
