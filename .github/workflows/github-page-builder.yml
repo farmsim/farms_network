@@ -30,6 +30,7 @@ jobs:
           cd docs
           make html
           cd ..
+          mv docs/build/html/ public/
 
       - name: Cache documentation artifacts
         uses: actions/upload-artifact@v4
