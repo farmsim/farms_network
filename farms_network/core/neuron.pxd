@@ -69,3 +69,5 @@ cdef class PyNeuron:
         Neuron* _neuron
         char* _name
         char* _model_type
+
+        void* _parameters

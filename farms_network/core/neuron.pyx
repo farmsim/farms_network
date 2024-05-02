@@ -43,6 +43,7 @@ cdef double output_c(double time, double[:] states, Neuron neuron):
 
 
 cdef class PyNeuron:
+    """ Python interface to Neuron C-Structure"""
 
     def __cinit__(self):
         self._neuron = <Neuron*>malloc(sizeof(Neuron))
