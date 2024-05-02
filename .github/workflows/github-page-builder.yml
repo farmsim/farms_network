@@ -31,11 +31,15 @@ jobs:
           make html
           cd ..
 
-      - name: Move documentation
-        run: mv docs/build/html/ public/
-
       - name: Cache documentation artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: documentation
-          path: public
+          path: docs/build/html/
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/build/html
