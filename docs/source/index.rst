@@ -24,7 +24,7 @@ Installation steps
 Requirements
 ^^^^^^^^^^^^
 
-"Code is only currently verified with Python3"
+"Code is only currently tested with Python3"
 
 The installation requires Cython. To install Cython,
 
