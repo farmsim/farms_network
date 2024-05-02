@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: documentation
-          path: docs/build/html/
+          path: public/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
