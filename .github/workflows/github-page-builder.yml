@@ -1,4 +1,4 @@
-name: GitHub Page Builder
+name: GitHub Page Builder for farms_network
 run-name: ${{ github.actor }} is building GitHub Pages with Actions
 
 on:
