@@ -19,7 +19,9 @@ limitations under the License.
 
 from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
-from libc.string cimport strcpy, strdup
+from libc.string cimport strdup
+
+from .options import NeuronOptions
 
 
 cdef void ode_rhs_c(
@@ -50,7 +52,7 @@ cdef class PyNeuron:
         if self._neuron is NULL:
             raise MemoryError("Failed to allocate memory for Neuron")
         self._neuron.name = NULL
-        self._neuron.model_type = NULL
+        self._neuron.model_type = strdup("base".encode('UTF-8'))
         self._neuron.ode_rhs_c = ode_rhs_c
         self._neuron.output_c = output_c
 
@@ -62,12 +64,16 @@ cdef class PyNeuron:
         if self._neuron is not NULL:
             free(self._neuron)
 
-    def __init__(self, name, model_type, nstates, nparameters, ninputs):
+    def __init__(self, name, ninputs):
         self.name = name
-        self.model_type = model_type
-        self.nstates = nstates
-        self.nparameters = nparameters
         self.ninputs = ninputs
+
+    @classmethod
+    def from_options(cls, neuron_options: NeuronOptions):
+        """ From neuron options """
+        name: str = neuron_options.name
+        ninputs: int = neuron_options.ninputs
+        return cls(name, ninputs)
 
     # Property methods for name
     @property
@@ -89,29 +95,15 @@ cdef class PyNeuron:
             return None
         return self._neuron.model_type.decode('UTF-8')
 
-    @model_type.setter
-    def model_type(self, value):
-        if self._neuron.model_type is not NULL:
-            free(self._neuron.model_type)
-        self._neuron.model_type = strdup(value.encode('UTF-8'))
-
     # Property methods for nstates
     @property
     def nstates(self):
         return self._neuron.nstates
 
-    @nstates.setter
-    def nstates(self, value):
-        self._neuron.nstates = value
-
     # Property methods for nparameters
     @property
     def nparameters(self):
         return self._neuron.nparameters
-
-    @nparameters.setter
-    def nparameters(self, value):
-        self._neuron.nparameters = value
 
     # Property methods for ninputs
     @property
