@@ -12,7 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          ref: farms-core-integration
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,7 +25,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make automake gcc g++ subversion python3-dev
-          pip install sphinx sphinx-rtd-theme cython numpy
+          pip install ducks/source/requirements.txt
 
       - name: Build HTML
         run: |
