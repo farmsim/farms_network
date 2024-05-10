@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FARMS_NETWORK's documentation!
+Welcome to FARMS Network's documentation!
 ===========================================
 
 .. warning:: Farmers are currently busy! Documentation is work in progress!!
@@ -12,11 +12,8 @@ Welcome to FARMS_NETWORK's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   tutorials
-   modules
-   tests
-   contributing
-
+.. sidebar-links::
+   :github:
 
 Installation steps
 -------------------
