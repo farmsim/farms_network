@@ -26,7 +26,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make automake gcc g++ subversion python3-dev
-          pip install ducks/source/requirements.txt
+          pip install -r ducks/source/requirements.txt
 
       - name: Build HTML
         run: |
