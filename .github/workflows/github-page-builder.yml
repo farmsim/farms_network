@@ -29,10 +29,10 @@ jobs:
 
       - name: Build HTML
         run: |
-          cd docs
+          cd ducks
           make html
           cd ..
-          mv docs/build/html/ public/
+          mv ducks/build/html/ public/
 
       - name: Cache documentation artifacts
         uses: actions/upload-artifact@v4
