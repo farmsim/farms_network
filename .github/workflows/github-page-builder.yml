@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - farms-core-integration
 
 jobs:
   build:
