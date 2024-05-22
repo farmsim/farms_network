@@ -17,3 +17,64 @@ limitations under the License.
 -----------------------------------------------------------------------
 """
 
+cimport numpy as cnp
+
+import numpy as np
+
+
+##################################
+########## Network data ##########
+##################################
+cdef class NetworkDataCy:
+    """ Network data """
+
+    def __init__(
+            self,
+            nstates: int,
+            states
+            # neurons = None,
+            # connectivity = None,
+            # inputs = None,
+            # drives = None,
+            # outputs = None,
+    ):
+        """ neurons data initialization """
+
+        super().__init__()
+        self.states = states
+        # self.neurons = neurons
+        # self.connectivity = connectivity
+        # self.inputs = inputs
+        # self.drives = drives
+        # self.outputs = outputs
+
+
+cdef class StatesArrayCy(DoubleArray2D):
+    """ State array """
+
+    def __init__(self, array):
+        super().__init__(array)
+
+
+cdef class DStatesArrayCy(DoubleArray2D):
+    """ DStates array """
+
+
+cdef class ParametersArrayCy(DoubleArray2D):
+    """ Parameters array """
+
+
+cdef class OutputsArrayCy(DoubleArray2D):
+    """ Outputs array """
+
+
+cdef class InputsArrayCy(DoubleArray2D):
+    """ Inputs array """
+
+
+cdef class DriveArrayCy(DoubleArray2D):
+    """ Drive Array """
+
+
+# # class User2DArrayCy(DoubleArray2D):
+# #     ...

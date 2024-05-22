@@ -18,39 +18,46 @@ limitations under the License.
 """
 
 
-##################################
-########## Network data ##########
-##################################
+from farms_core.array.array_cy cimport DoubleArray1D, DoubleArray2D
+
 
 cdef class NetworkDataCy:
-    """ Network data """
 
-    def __init__(self):
-        """ network data initialization """
+    cdef:
+        public StatesArrayCy states
 
-        super().__init__()
-        ...
+    cdef:
+        public neurons
+        public connectivity
 
-
-##################################
-########## Neurons Data ##########
-##################################
-        
-cdef class NeuronsDataCy:
-    """ Neurons data """
-
-    def __init__(self):
-        """ neurons data initialization """
-
-        super().__init__()
-        ...
-        
 
 cdef class NeuronDataCy:
     """ Neuron data """
 
-    def __init__(self):
-        """ neurons data initialization """
 
-        super().__init__()
-        ...
+cdef class StatesArrayCy(DoubleArray2D):
+    """ State array """
+
+
+cdef class DStatesArrayCy(DoubleArray2D):
+    """ DStates array """
+
+
+cdef class ParametersArrayCy(DoubleArray2D):
+    """ Parameters array """
+
+
+cdef class OutputsArrayCy(DoubleArray2D):
+    """ Outputs array """
+
+
+cdef class InputsArrayCy(DoubleArray2D):
+    """ Inputs array """
+
+
+cdef class DriveArrayCy(DoubleArray2D):
+    """ Drive Array """
+
+
+# # class User2DArrayCy(DoubleArray2D):
+# #     ...
