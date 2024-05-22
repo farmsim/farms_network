@@ -10,6 +10,9 @@ dist.Distribution().fetch_build_eggs(['Cython>=0.15.1'])
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 
+dist.Distribution().fetch_build_eggs(['farms_core'])
+from farms_core import get_include_paths  # pylint: disable=wrong-import-position
+
 
 DEBUG = False
 Options.docstrings = True
@@ -36,7 +39,7 @@ extensions = [
     Extension(
         f"farms_network.{subpackage}.*",
         [f"farms_network/{subpackage}/*.pyx"],
-        include_dirs=[numpy.get_include(), get_include()],
+        include_dirs=[numpy.get_include(),],
         # libraries=["c", "stdc++"],
         extra_compile_args=['-ffast-math', '-O3'],
         extra_link_args=['-O3'],
@@ -64,7 +67,7 @@ setup(
     zip_safe=False,
     ext_modules=cythonize(
         extensions,
-        include_path=[numpy.get_include(), get_include(), 'farms_container'],
+        include_path=[numpy.get_include()] + get_include_paths(),
         compiler_directives={
             # Directives
             'binding': False,
