@@ -6,6 +6,25 @@ from typing import List
 from farms_core.options import Options
 
 
+##############################
+# Network Base Class Options #
+##############################
+class NetworkOptions(Options):
+    """ Base class for neural network options """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.directed: bool = kwargs.pop("directed")
+        self.multigraph: bool = kwargs.pop("multigraph")
+        self.name: str = kwargs.pop("name")
+
+        self.neurons: List[NeuronOptions] = kwargs.pop("neurons")
+        self.connections: List = kwargs.pop("connections")
+
+
+#############################
+# Neuron Base Class Options #
+#############################
 class NeuronOptions(Options):
     """ Base class for defining neuron options """
 
@@ -16,21 +35,11 @@ class NeuronOptions(Options):
 
         self.parameters: NeuronParameterOptions = kwargs.pop("parameters")
         self.visual: NeuronVisualOptions = kwargs.pop("visual")
-        self.state: NeuronStateOptions = kwargs.pop("state", None)
+        self.state: NeuronStateOptions = kwargs.pop("state")
 
         self.nstates: int = 0
         self.nparameters: int = 0
         self.ninputs: int = 0
-
-
-class NetworkOptions(Options):
-    """ Base class for neural network options """
-
-    def __init__(self, **kwargs):
-        super().__init__()
-        self.directed: bool = kwargs.pop("directed")
-        self.multigraph: bool = kwargs.pop("multigraph")
-        self.name: str = kwargs.pop("name")
 
 
 class NeuronParameterOptions(Options):
@@ -42,6 +51,7 @@ class NeuronParameterOptions(Options):
 
 class NeuronStateOptions(Options):
     """ Base class for neuron specific state options """
+
     def __init__(self, **kwargs):
         super().__init__()
         self.initial: List[float] = kwargs.pop("initial")
@@ -52,9 +62,34 @@ class NeuronVisualOptions(Options):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.position: List[float] = kwargs.pop("position")
-        self.color: List[float] = kwargs.pop("color")
-        self.layer: str = kwargs.pop("layer")
+        self.position: List[float] = kwargs.pop("position", [0.0, 0.0, 0.0])
+        self.radius: float = kwargs.pop("radius", 1.0)
+        self.color: List[float] = kwargs.pop("color", [1.0, 0.0, 0.0])
+        self.label: str = kwargs.pop("label", "n")
+        self.layer: str = kwargs.pop("layer", "background")
+
+
+#########################################
+# Leaky Integrator Danner Model Options #
+#########################################
+class LIDannerNeuronOptions(NeuronOptions):
+    """ Class to define the properties of Leaky integrator danner neuron model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        super().__init__(
+            name=kwargs.pop("name"),
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state"),
+        )
+        self.nstates = 2
+        self.nparameters = 13
+
+        self.ninputs = kwargs.pop("ninputs")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
 
 class LIDannerParameterOptions(NeuronParameterOptions):
@@ -99,21 +134,19 @@ class LIDannerParameterOptions(NeuronParameterOptions):
         return cls(**options)
 
 
-class LIDannerNeuronOptions(NeuronOptions):
-    """ Class to define the properties of Leaky integrator danner neuron model """
+class LIDannerStateOptions(NeuronStateOptions):
+    """ LI Danner neuron state options """
 
     def __init__(self, **kwargs):
-        """ Initialize """
         super().__init__(
-            name=kwargs.pop("name"),
-            parameters=kwargs.pop("parameters"),
-            visual=kwargs.pop("visual"),
-            state=kwargs.pop("state"),
+            initial=kwargs.pop("initial")
         )
-        self.nstates = 2
-        self.nparameters = 13
+        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
 
-        self.ninputs = kwargs.pop("ninputs")
-
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        """ From neuron specific name-value kwargs """
+        v0 = kwargs.pop("v0")
+        h0 = kwargs.pop("h0")
+        initial = [v0, h0]
+        return cls(initial=initial)
