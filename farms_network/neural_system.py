@@ -109,11 +109,11 @@ class NeuralSystem(NetworkXModel):
         new_state = np.array(state) + (7/90*K1 + 32/90*K3 + 12/90*K4 + 32/90*K5 + 7/90*K6)*(step_size)
         return new_state
 
-    def step(self, dt=1, update=True):
+    def step(self, dt=1, n_substeps=2, update=True):
         """Step ode system. """
         self.time += dt
         self.state = self.rk4(
-            self.time, self.state, self.network.ode, step_size=dt, n_substeps=2
+            self.time, self.state, self.network.ode, step_size=dt, n_substeps=n_substeps
         )
         # self.state = c_rk4(
         #     self.time, self.state, self.network.ode, step_size=dt
