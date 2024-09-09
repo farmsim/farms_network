@@ -40,6 +40,7 @@ cdef void ode_rhs_c(
     cdef LIDannerNeuronParameters params = (
         <LIDannerNeuronParameters*> neuron.parameters
     )[0]
+
     # States
     cdef double state_v = states[0]
 
@@ -63,10 +64,16 @@ cdef void ode_rhs_c(
     cdef double _sum = 0.0
     cdef unsigned int j
     cdef double _neuron_out
+    cdef double res
+
+    cdef double _input
     cdef double _weight
 
-    # for j in range(neuron.ninputs):
-    #     _sum += neuron_inputs_eval_c(inputs[j], weights[j])
+
+    for j in range(10):
+        _input = inputs[j]
+        _weight = weights[j]
+        _sum += neuron_inputs_eval_c(_input, _weight)
 
     # # noise current
     # cdef double i_noise = c_noise_current_update(
@@ -75,9 +82,9 @@ cdef void ode_rhs_c(
     # self.state_noise.c_set_value(i_noise)
 
     # dV
-    cdef i_noise = 0.0
+    cdef double i_noise = 0.0
     dstates[0] = (
-        -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)/params.c_m
+        -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)# /params.c_m
     )
 
 
@@ -98,7 +105,7 @@ cdef double output_c(double time, double[:] states, Neuron neuron):
     return _n_out
 
 
-cdef double neuron_inputs_eval_c(double _neuron_out, double _weight):
+cdef inline double neuron_inputs_eval_c(double _neuron_out, double _weight) noexcept:
     return 0.0
 
 

@@ -51,7 +51,7 @@ cdef:
         Neuron neuron
     )
     double output_c(double time, double[:] states, Neuron neuron)
-    double neuron_inputs_eval_c(double _neuron_out, double _weight)
+    inline double neuron_inputs_eval_c(double _neuron_out, double _weight)
 
 
 cdef class PyLIDannerNeuron(PyNeuron):
