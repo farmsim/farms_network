@@ -1,6 +1,6 @@
 """ Options to configure the neural and network models """
 
-from typing import List
+from typing import List, Self
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -42,6 +42,15 @@ class NetworkOptions(Options):
             self.edges.append(options)
         else:
             print(f"Edge {options} does not contain the nodes.")
+
+    def __add__(self, other: Self):
+        """ Combine two network options """
+        assert isinstance(other, NetworkOptions)
+        for node in other.nodes:
+            self.add_node(node)
+        for edge in other.edges:
+            self.add_edge(edge)
+        return self
 
 
 ###########################
@@ -365,7 +374,11 @@ def main():
         source="from_node",
         target="to_node"
     )
-    nx.draw(graph)
+    nx.draw(
+        graph, pos=nx.nx_agraph.graphviz_layout(graph),
+        node_shape="s",
+        connectionstyle="arc3,rad=-0.2"
+    )
     plt.show()
 
 
