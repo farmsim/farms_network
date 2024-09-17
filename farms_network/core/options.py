@@ -178,20 +178,20 @@ class LIDannerParameterOptions(NodeParameterOptions):
         self.e_syn_i = kwargs.pop("e_syn_i")                # mV
 
     @classmethod
-    def defaults(cls):
+    def defaults(cls, **kwargs):
         """ Get the default parameters for LI Danner Node model """
 
         options = {}
 
-        options["c_m"] = 10.0
-        options["g_leak"] = 2.8
-        options["e_leak"] = -60.0
-        options["v_max"] = 0.0
-        options["v_thr"] = -50.0
-        options["g_syn_e"] = 10.0
-        options["g_syn_i"] = 10.0
-        options["e_syn_e"] = -10.0
-        options["e_syn_i"] = -75.0
+        options["c_m"] = kwargs.pop("c_m",  10.0)
+        options["g_leak"] = kwargs.pop("g_leak",  2.8)
+        options["e_leak"] = kwargs.pop("e_leak",  -60.0)
+        options["v_max"] = kwargs.pop("v_max",  0.0)
+        options["v_thr"] = kwargs.pop("v_thr",  -50.0)
+        options["g_syn_e"] = kwargs.pop("g_syn_e",  10.0)
+        options["g_syn_i"] = kwargs.pop("g_syn_i",  10.0)
+        options["e_syn_e"] = kwargs.pop("e_syn_e",  -10.0)
+        options["e_syn_i"] = kwargs.pop("e_syn_i",  -75.0)
 
         return cls(**options)
 
