@@ -203,14 +203,13 @@ class LIDannerStateOptions(NodeStateOptions):
         super().__init__(
             initial=kwargs.pop("initial")
         )
-        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+        assert len(self.initial) == 1, f"Number of initial states {len(self.initial)} should be 1"
 
     @classmethod
     def from_kwargs(cls, **kwargs):
         """ From node specific name-value kwargs """
         v0 = kwargs.pop("v0")
-        h0 = kwargs.pop("h0")
-        initial = [v0, h0]
+        initial = [v0,]
         return cls(initial=initial)
 
 
