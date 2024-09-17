@@ -55,6 +55,7 @@ class NodeOptions(Options):
         super().__init__()
         self.name: str = kwargs.pop("name")
 
+        self.model: str = kwargs.pop("model")
         self.parameters: NodeParameterOptions = kwargs.pop("parameters")
         self.visual: NodeVisualOptions = kwargs.pop("visual")
         self.state: NodeStateOptions = kwargs.pop("state")
@@ -118,16 +119,22 @@ class EdgeOptions(Options):
 
         self.visual: NodeVisualOptions = kwargs.pop("visual")
 
+    def __eq__(self, other):
+        if isinstance(other, EdgeOptions):
+            return (
+                (self.source == other.source) and
+                (self.target == other.target)
+            )
+        return False
+
 
 class EdgeVisualOptions(Options):
     """ Base class for edge visualization parameters """
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.position: List[float] = kwargs.pop("position", [0.0, 0.0, 0.0])
-        self.radius: float = kwargs.pop("radius", 1.0)
         self.color: List[float] = kwargs.pop("color", [1.0, 0.0, 0.0])
-        self.label: str = kwargs.pop("label", "n")
+        self.label: str = kwargs.pop("label", "")
         self.layer: str = kwargs.pop("layer", "background")
         self.latex: dict = kwargs.pop("latex", "{}")
 
@@ -140,8 +147,10 @@ class LIDannerNodeOptions(NodeOptions):
 
     def __init__(self, **kwargs):
         """ Initialize """
+        model = "li_danner"
         super().__init__(
             name=kwargs.pop("name"),
+            model=model,
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
@@ -208,32 +217,45 @@ class LIDannerStateOptions(NodeStateOptions):
 ##################################################
 # Leaky Integrator With NaP Danner Model Options #
 ##################################################
-class LIDannerNodeOptions(NodeOptions):
+class LIDannerNaPNodeOptions(NodeOptions):
     """ Class to define the properties of Leaky integrator danner node model """
 
     def __init__(self, **kwargs):
         """ Initialize """
+        model = "li_danner_nap"
         super().__init__(
             name=kwargs.pop("name"),
+            model=model,
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
         )
         self._nstates = 2
-        self._nparameters = 9
+        self._nparameters = 19
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
 
-class LIDannerParameterOptions(NodeParameterOptions):
+class LIDannerNaPParameterOptions(NodeParameterOptions):
     """ Class to define the parameters of Leaky integrator danner node model """
 
     def __init__(self, **kwargs):
         super().__init__()
+
         self.c_m = kwargs.pop("c_m")                        # pF
+        self.g_nap = kwargs.pop("g_nap")                    # nS
+        self.e_na = kwargs.pop("e_na")                      # mV
+        self.v1_2_m = kwargs.pop("v1_2_m")                  # mV
+        self.k_m = kwargs.pop("k_m")                        #
+        self.v1_2_h = kwargs.pop("v1_2_h")                  # mV
+        self.k_h = kwargs.pop("k_h")                        #
+        self.v1_2_t = kwargs.pop("v1_2_t")                  # mV
+        self.k_t = kwargs.pop("k_t")                        #
         self.g_leak = kwargs.pop("g_leak")                  # nS
         self.e_leak = kwargs.pop("e_leak")                  # mV
+        self.tau_0 = kwargs.pop("tau_0")                    # mS
+        self.tau_max = kwargs.pop("tau_max")                # mS
         self.v_max = kwargs.pop("v_max")                    # mV
         self.v_thr = kwargs.pop("v_thr")                    # mV
         self.g_syn_e = kwargs.pop("g_syn_e")                # nS
@@ -242,25 +264,35 @@ class LIDannerParameterOptions(NodeParameterOptions):
         self.e_syn_i = kwargs.pop("e_syn_i")                # mV
 
     @classmethod
-    def defaults(cls):
-        """ Get the default parameters for LI Danner Node model """
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for LI NaP Danner Node model """
 
         options = {}
 
-        options["c_m"] = 10.0
-        options["g_leak"] = 2.8
-        options["e_leak"] = -60.0
-        options["v_max"] = 0.0
-        options["v_thr"] = -50.0
-        options["g_syn_e"] = 10.0
-        options["g_syn_i"] = 10.0
-        options["e_syn_e"] = -10.0
-        options["e_syn_i"] = -75.0
+        options["c_m"] = kwargs.pop("c_m", 10.0)                  # pF
+        options["g_nap"] = kwargs.pop("g_nap", 4.5)               # nS
+        options["e_na"] = kwargs.pop("e_na", 50.0)                # mV
+        options["v1_2_m"] = kwargs.pop("v1_2_m", -40.0)           # mV
+        options["k_m"] = kwargs.pop("k_m", -6.0)                  #
+        options["v1_2_h"] = kwargs.pop("v1_2_h", -45.0)           # mV
+        options["k_h"] = kwargs.pop("k_h", 4.0)                   #
+        options["v1_2_t"] = kwargs.pop("v1_2_t", -35.0)           # mV
+        options["k_t"] = kwargs.pop("k_t", 15.0)                  #
+        options["g_leak"] = kwargs.pop("g_leak", 4.5)             # nS
+        options["e_leak"] = kwargs.pop("e_leak", -62.5)           # mV
+        options["tau_0"] = kwargs.pop("tau_0", 80.0)              # mS
+        options["tau_max"] = kwargs.pop("tau_max", 160.0)         # mS
+        options["v_max"] = kwargs.pop("v_max", 0.0)               # mV
+        options["v_thr"] = kwargs.pop("v_thr", -50.0)             # mV
+        options["g_syn_e"] = kwargs.pop("g_syn_e", 10.0)          # nS
+        options["g_syn_i"] = kwargs.pop("g_syn_i", 10.0)          # nS
+        options["e_syn_e"] = kwargs.pop("e_syn_e", -10.0)         # mV
+        options["e_syn_i"] = kwargs.pop("e_syn_i", -75.0)         # mV
 
         return cls(**options)
 
 
-class LIDannerStateOptions(NodeStateOptions):
+class LIDannerNaPStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
     def __init__(self, **kwargs):
@@ -291,9 +323,9 @@ def main():
 
     li_opts = LIDannerNodeOptions(
         name="li",
-        parameters=LIDannerParameterOptions.defaults(),
+        parameters=LIDannerNaPParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LIDannerStateOptions.from_kwargs(
+        state=LIDannerNaPStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
@@ -301,11 +333,11 @@ def main():
     print(f"Is hashable {isinstance(li_opts, typing.Hashable)}")
 
     network_opts.add_node(li_opts)
-    li_opts = LIDannerNodeOptions(
+    li_opts = LIDannerNaPNodeOptions(
         name="li-2",
-        parameters=LIDannerParameterOptions.defaults(),
+        parameters=LIDannerNaPParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LIDannerStateOptions.from_kwargs(
+        state=LIDannerNaPStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
@@ -336,6 +368,7 @@ def main():
     )
     nx.draw(graph)
     plt.show()
+
 
 if __name__ == '__main__':
     main()
