@@ -19,102 +19,102 @@ limitations under the License.
 Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
 """
 
-from libc.stdio cimport printf
-from libc.stdlib cimport free, malloc
-from libc.string cimport strdup
+# from libc.stdio cimport printf
+# from libc.stdlib cimport free, malloc
+# from libc.string cimport strdup
 
 
-cdef void ode_rhs_c(
-    double time,
-    double[:] states,
-    double[:] dstates,
-    double[:] inputs,
-    double[:] weights,
-    double[:] noise,
-    double drive,
-    Neuron neuron
-):
-    """ ODE """
+# cdef void ode_rhs_c(
+#     double time,
+#     double[:] states,
+#     double[:] dstates,
+#     double[:] inputs,
+#     double[:] weights,
+#     double[:] noise,
+#     double drive,
+#     Neuron neuron
+# ):
+#     """ ODE """
 
-    # # Parameters
-    cdef LINapDannerNeuronParameters params = (
-        <LINapDannerNeuronParameters*> neuron.parameters
-    )[0]
-    # States
-    cdef double state_v = states[0]
+#     # # Parameters
+#     cdef LINapDannerNeuronParameters params = (
+#         <LINapDannerNeuronParameters*> neuron.parameters
+#     )[0]
+#     # States
+#     cdef double state_v = states[0]
 
-    # Drive inputs
-    cdef double d_e = params.m_e * drive + params.b_e # Excitatory drive
-    cdef double d_i = params.m_i * drive + params.b_i # Inhibitory drive
+#     # Drive inputs
+#     cdef double d_e = params.m_e * drive + params.b_e # Excitatory drive
+#     cdef double d_i = params.m_i * drive + params.b_i # Inhibitory drive
 
-    # Ileak
-    cdef double i_leak = params.g_leak * (state_v - params.e_leak)
+#     # Ileak
+#     cdef double i_leak = params.g_leak * (state_v - params.e_leak)
 
-    # ISyn_Excitatory
-    cdef double i_syn_e = params.g_syn_e * d_e * (state_v - params.e_syn_e)
+#     # ISyn_Excitatory
+#     cdef double i_syn_e = params.g_syn_e * d_e * (state_v - params.e_syn_e)
 
-    # ISyn_Inhibitory
-    cdef double i_syn_i = params.g_syn_i * d_i * (state_v - params.e_syn_i)
+#     # ISyn_Inhibitory
+#     cdef double i_syn_i = params.g_syn_i * d_i * (state_v - params.e_syn_i)
 
-    # Neuron inputs
-    cdef double _sum = 0.0
-    cdef unsigned int j
-    cdef double _neuron_out
-    cdef double _weight
+#     # Neuron inputs
+#     cdef double _sum = 0.0
+#     cdef unsigned int j
+#     cdef double _neuron_out
+#     cdef double _weight
 
-    # for j in range(neuron.ninputs):
-    #     _sum += neuron_inputs_eval_c(inputs[j], weights[j])
+#     # for j in range(neuron.ninputs):
+#     #     _sum += neuron_inputs_eval_c(inputs[j], weights[j])
 
-    # # noise current
-    # cdef double i_noise = c_noise_current_update(
-    #     self.state_noise.c_get_value(), &(self.noise_params)
-    # )
-    # self.state_noise.c_set_value(i_noise)
+#     # # noise current
+#     # cdef double i_noise = c_noise_current_update(
+#     #     self.state_noise.c_get_value(), &(self.noise_params)
+#     # )
+#     # self.state_noise.c_set_value(i_noise)
 
-    # dV
-    cdef i_noise = 0.0
-    dstates[0] = (
-        -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)/params.c_m
-    )
-
-
-cdef double output_c(double time, double[:] states, Neuron neuron):
-    """ Neuron output. """
-
-    cdef double state_v = states[0]
-    cdef double _n_out = 1000.0
-
-    # cdef LIDannerNeuronParameters params = <LIDannerNeuronParameters> neuron.parameters
-
-    # if state_v >= params.v_max:
-    #     _n_out = 1.0
-    # elif (params.v_thr <= state_v) and (state_v < params.v_max):
-    #     _n_out = (state_v - params.v_thr) / (params.v_max - params.v_thr)
-    # elif state_v < params.v_thr:
-    #     _n_out = 0.0
-    return _n_out
+#     # dV
+#     cdef i_noise = 0.0
+#     dstates[0] = (
+#         -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)/params.c_m
+#     )
 
 
-cdef double neuron_inputs_eval_c(double _neuron_out, double _weight):
-    return 0.0
+# cdef double output_c(double time, double[:] states, Neuron neuron):
+#     """ Neuron output. """
+
+#     cdef double state_v = states[0]
+#     cdef double _n_out = 1000.0
+
+#     # cdef LIDannerNeuronParameters params = <LIDannerNeuronParameters> neuron.parameters
+
+#     # if state_v >= params.v_max:
+#     #     _n_out = 1.0
+#     # elif (params.v_thr <= state_v) and (state_v < params.v_max):
+#     #     _n_out = (state_v - params.v_thr) / (params.v_max - params.v_thr)
+#     # elif state_v < params.v_thr:
+#     #     _n_out = 0.0
+#     return _n_out
 
 
-cdef class PyLINapDannerNeuron(PyNeuron):
-    """ Python interface to Leaky Integrator Neuron with persistence sodium C-Structure """
+# cdef double neuron_inputs_eval_c(double _neuron_out, double _weight):
+#     return 0.0
 
-    def __cinit__(self):
-        # override defaults
-        self._neuron.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
-        self._neuron.nstates = 2
-        self._neuron.nparameters = 13
-        # methods
-        self._neuron.ode_rhs_c = ode_rhs_c
-        self._neuron.output_c = output_c
-        # parameters
-        self._neuron.parameters = <LIDannerNeuronParameters*>malloc(
-            sizeof(LIDannerNeuronParameters)
-        )
 
-    def __dealloc__(self):
-        if self._neuron.name is not NULL:
-            free(self._neuron.parameters)
+# cdef class PyLINapDannerNeuron(PyNeuron):
+#     """ Python interface to Leaky Integrator Neuron with persistence sodium C-Structure """
+
+#     def __cinit__(self):
+#         # override defaults
+#         self._neuron.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
+#         self._neuron.nstates = 2
+#         self._neuron.nparameters = 13
+#         # methods
+#         self._neuron.ode_rhs_c = ode_rhs_c
+#         self._neuron.output_c = output_c
+#         # parameters
+#         self._neuron.parameters = <LIDannerNeuronParameters*>malloc(
+#             sizeof(LIDannerNeuronParameters)
+#         )
+
+#     def __dealloc__(self):
+#         if self._neuron.name is not NULL:
+#             free(self._neuron.parameters)
