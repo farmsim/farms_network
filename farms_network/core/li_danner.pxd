@@ -49,7 +49,7 @@ cdef:
         double[:] noise,
         double drive,
         Neuron neuron
-    )
+    ) noexcept
     double output_c(double time, double[:] states, Neuron neuron)
     inline double neuron_inputs_eval_c(double _neuron_out, double _weight)
 

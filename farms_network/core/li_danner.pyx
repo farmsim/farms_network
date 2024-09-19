@@ -33,7 +33,7 @@ cdef void ode_rhs_c(
     double[:] noise,
     double drive,
     Neuron neuron
-):
+) noexcept:
     """ ODE """
 
     # # Parameters
@@ -44,21 +44,8 @@ cdef void ode_rhs_c(
     # States
     cdef double state_v = states[0]
 
-    # External Modulation
-    cdef double alpha = drive
-
-    # Drive inputs
-    cdef double d_e = params.m_e * alpha + params.b_e # Excitatory drive
-    cdef double d_i = params.m_i * alpha + params.b_i # Inhibitory drive
-
     # Ileak
     cdef double i_leak = params.g_leak * (state_v - params.e_leak)
-
-    # ISyn_Excitatory
-    cdef double i_syn_e = params.g_syn_e * d_e * (state_v - params.e_syn_e)
-
-    # ISyn_Inhibitory
-    cdef double i_syn_i = params.g_syn_i * d_i * (state_v - params.e_syn_i)
 
     # Neuron inputs
     cdef double _sum = 0.0
@@ -84,7 +71,7 @@ cdef void ode_rhs_c(
     # dV
     cdef double i_noise = 0.0
     dstates[0] = (
-        -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)# /params.c_m
+        -(i_leak + i_noise + _sum)/params.c_m
     )
 
 
