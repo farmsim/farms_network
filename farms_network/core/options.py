@@ -172,7 +172,20 @@ class LIDannerNodeOptions(NodeOptions):
 
 
 class LIDannerParameterOptions(NodeParameterOptions):
-    """ Class to define the parameters of Leaky integrator danner node model """
+    """
+    Class to define the parameters of Leaky Integrator Danner node model.
+
+    Attributes:
+        c_m (float): Membrane capacitance (in pF).
+        g_leak (float): Leak conductance (in nS).
+        e_leak (float): Leak reversal potential (in mV).
+        v_max (float): Maximum voltage (in mV).
+        v_thr (float): Threshold voltage (in mV).
+        g_syn_e (float): Excitatory synaptic conductance (in nS).
+        g_syn_i (float): Inhibitory synaptic conductance (in nS).
+        e_syn_e (float): Excitatory synaptic reversal potential (in mV).
+        e_syn_i (float): Inhibitory synaptic reversal potential (in mV).
+    """
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -363,7 +376,7 @@ def main():
 
     network_opts.save("/tmp/network_opts.yaml")
 
-    network = NetworkOptions.load("/tmp/network_opts.yaml")
+    network = NetworkOptions.load("/tmp/rhythm_opts.yaml")
 
     graph = nx.node_link_graph(
         network,
