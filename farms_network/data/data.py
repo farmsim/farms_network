@@ -34,25 +34,32 @@ class NetworkData(NetworkDataCy):
             states
         )
 
+        _connectivity = None
+        _states = None
+        _dstates = None
+        _outputs = None
+        _neurons = None
+
+
+class NeuronData(NeuronDataCy):
+    """ Base class for representing an arbitrary neuron data """
+
+    def __init__(self):
+        """Neuron data initialization """
+
+        super().__init__()
+
+        self.states = None
+        self.output = None
+        self.variables = None
+        self.user = None
+
 
 class StatesArray(StatesArrayCy):
     """ State array data """
 
     def __init__(self, array):
         super().__init__(array)
-
-
-# class NeuronData(NeuronDataCy):
-#     """ Base class for representing an arbitrary neuron data """
-
-#     def __init__(self):
-#         """Neuron data initialization """
-
-#         super().__init__()
-
-#         self.states = None
-#         self.constants = None
-#         self.variables = None
 
 
 def main():

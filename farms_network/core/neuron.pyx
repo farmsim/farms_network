@@ -33,7 +33,7 @@ cdef void ode_rhs_c(
     double[:] noise,
     double drive,
     Neuron neuron
-):
+) noexcept:
     """ Neuron ODE """
     printf("Base implementation of ODE C function \n")
 

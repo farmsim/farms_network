@@ -70,7 +70,13 @@ cdef class PyNetwork:
             for j in range(self.nneurons):
                 neurons[j][0].nstates
                 neurons[j][0].ode_rhs_c(
-                    0.0, states, dstates, inputs, weights, noise, drive,
+                    0.0,
+                    states,
+                    dstates,
+                    inputs,
+                    weights,
+                    noise,
+                    drive,
                     neurons[j][0]
                 )
 

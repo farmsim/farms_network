@@ -48,4 +48,4 @@ cdef class PyNetwork:
         list neurons
         Neuron **c_neurons
 
-    cpdef void test(self)
+    cpdef void test(self, data)
