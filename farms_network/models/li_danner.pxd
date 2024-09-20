@@ -19,7 +19,7 @@ limitations under the License.
 Leaky Integrator Neuron Based on Danner et.al.
 """
 
-from .neuron cimport Neuron, PyNeuron
+from ..core.neuron cimport Neuron, PyNeuron
 
 
 cdef packed struct LIDannerNeuronParameters:

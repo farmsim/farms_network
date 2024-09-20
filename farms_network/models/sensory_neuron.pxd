@@ -20,7 +20,7 @@ Sensory afferent neurons.
 """
 
 
-from .neuron cimport Neuron
+from ..core.neuron cimport Neuron
 
 
 cdef:
