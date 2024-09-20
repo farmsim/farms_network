@@ -22,9 +22,10 @@ import numpy as np
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-
+from ..models.li_danner cimport PyLIDannerNeuron
 from .neuron cimport Neuron, PyNeuron
-from .li_danner cimport PyLIDannerNeuron
+
+from tqdm import tqdm
 
 
 cdef class PyNetwork:
@@ -58,7 +59,7 @@ cdef class PyNetwork:
             free(self._network)
 
     cpdef void test(self, data):
-        cdef double[:] states = np.empty((2,))
+        cdef double[:] states = data.states.array[0, :]
         cdef double[:] dstates = np.empty((2,))
         cdef double[:] inputs = np.empty((10,))
         cdef double[:] weights = np.empty((10,))
@@ -66,7 +67,7 @@ cdef class PyNetwork:
         cdef double drive = 0.0
         cdef Neuron **neurons = self.c_neurons
         cdef unsigned int t, j
-        for t in range(int(1000*1e3)):
+        for t in tqdm(range(int(1000*1e3))):
             for j in range(self.nneurons):
                 neurons[j][0].nstates
                 neurons[j][0].ode_rhs_c(

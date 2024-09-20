@@ -21,7 +21,7 @@ from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from .options import NeuronOptions
+from .options import NodeOptions
 
 
 cdef void ode_rhs_c(
