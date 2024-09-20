@@ -109,10 +109,6 @@ cdef class PyLIDannerNeuron(PyNeuron):
             sizeof(LIDannerNeuronParameters)
         )
 
-    def __dealloc__(self):
-        if self._neuron.name is not NULL:
-            free(self._neuron.parameters)
-
     @classmethod
     def from_options(cls, neuron_options: NeuronOptions):
         """ From neuron options """

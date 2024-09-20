@@ -60,20 +60,12 @@ cdef class DStatesArrayCy(DoubleArray2D):
     """ DStates array """
 
 
-cdef class ParametersArrayCy(DoubleArray2D):
-    """ Parameters array """
-
-
 cdef class OutputsArrayCy(DoubleArray2D):
     """ Outputs array """
 
 
 cdef class InputsArrayCy(DoubleArray2D):
     """ Inputs array """
-
-
-cdef class DriveArrayCy(DoubleArray2D):
-    """ Drive Array """
 
 
 # # class User2DArrayCy(DoubleArray2D):
