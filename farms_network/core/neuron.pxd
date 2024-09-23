@@ -42,7 +42,6 @@ cdef packed struct Neuron:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        double drive,
         Neuron neuron
     )
     double output_c(double time, double[:] states, Neuron neuron)
@@ -56,7 +55,6 @@ cdef:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        double drive,
         Neuron neuron
     )
     double output_c(double time, double[:] states, Neuron neuron)

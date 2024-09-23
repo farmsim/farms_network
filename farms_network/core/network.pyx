@@ -64,7 +64,7 @@ cdef class PyNetwork:
         cdef double[:] inputs = np.empty((10,))
         cdef double[:] weights = np.empty((10,))
         cdef double[:] noise = np.empty((10,))
-        cdef double drive = 0.0
+
         cdef Neuron **neurons = self.c_neurons
         cdef unsigned int t, j
         for t in tqdm(range(int(1000*1e3))):
@@ -77,7 +77,6 @@ cdef class PyNetwork:
                     inputs,
                     weights,
                     noise,
-                    drive,
                     neurons[j][0]
                 )
 

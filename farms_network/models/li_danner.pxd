@@ -47,7 +47,6 @@ cdef:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        double drive,
         Neuron neuron
     ) noexcept
     double output_c(double time, double[:] states, Neuron neuron)

@@ -31,7 +31,6 @@ cdef void ode_rhs_c(
     double[:] inputs,
     double[:] weights,
     double[:] noise,
-    double drive,
     Neuron neuron
 ) noexcept:
     """ ODE """

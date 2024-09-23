@@ -31,7 +31,6 @@ cdef void ode_rhs_c(
     double[:] inputs,
     double[:] weights,
     double[:] noise,
-    double drive,
     Neuron neuron
 ) noexcept:
     """ Neuron ODE """
@@ -117,7 +116,7 @@ cdef class PyNeuron:
         self._neuron.ninputs = value
 
     # Methods to wrap the ODE and output functions
-    def ode_rhs(self, double time, states, dstates, inputs, weights, noise, drive):
+    def ode_rhs(self, double time, states, dstates, inputs, weights, noise):
         cdef double[:] c_states = states
         cdef double[:] c_dstates = dstates
         cdef double[:] c_inputs = inputs
@@ -125,7 +124,7 @@ cdef class PyNeuron:
         cdef double[:] c_noise = noise
         # Call the C function directly
         self._neuron.ode_rhs_c(
-            time, c_states, c_dstates, c_inputs, c_weights, c_noise, drive, self._neuron[0]
+            time, c_states, c_dstates, c_inputs, c_weights, c_noise, self._neuron[0]
         )
 
     def output(self, double time, states):
