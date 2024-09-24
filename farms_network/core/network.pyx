@@ -22,8 +22,8 @@ import numpy as np
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from ..models.li_danner cimport PyLIDannerNeuron
-from .neuron cimport Neuron, PyNeuron
+from ..models.li_danner cimport PyLIDannerNode
+from .node cimport Node, PyNode
 
 from tqdm import tqdm
 
@@ -31,30 +31,30 @@ from tqdm import tqdm
 cdef class PyNetwork:
     """ Python interface to Network ODE """
 
-    def __cinit__(self, nneurons: int):
+    def __cinit__(self, nnodes: int):
         """ C initialization for manual memory allocation """
-        self.nneurons = nneurons
+        self.nnodes = nnodes
         self._network = <Network*>malloc(sizeof(Network))
         if self._network is NULL:
             raise MemoryError("Failed to allocate memory for Network")
-        self.c_neurons = <Neuron **>malloc(nneurons * sizeof(Neuron *))
-        # if self._network.neurons is NULL:
-        #     raise MemoryError("Failed to allocate memory for neurons in Network")
+        self.c_nodes = <Node **>malloc(nnodes * sizeof(Node *))
+        # if self._network.nodes is NULL:
+        #     raise MemoryError("Failed to allocate memory for nodes in Network")
 
-        self.neurons = []
-        cdef Neuron *c_neuron
-        cdef PyLIDannerNeuron pyn
+        self.nodes = []
+        cdef Node *c_node
+        cdef PyLIDannerNode pyn
 
-        for n in range(self.nneurons):
-            self.neurons.append(PyLIDannerNeuron(f"{n}", 0))
-            pyn = <PyLIDannerNeuron> self.neurons[n]
-            c_neuron = (<Neuron*>pyn._neuron)
-            self.c_neurons[n] = c_neuron
+        for n in range(self.nnodes):
+            self.nodes.append(PyLIDannerNode(f"{n}", 0))
+            pyn = <PyLIDannerNode> self.nodes[n]
+            c_node = (<Node*>pyn._node)
+            self.c_nodes[n] = c_node
 
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
-        if self._network.neurons is not NULL:
-            free(self._network.neurons)
+        if self._network.nodes is not NULL:
+            free(self._network.nodes)
         if self._network is not NULL:
             free(self._network)
 
@@ -65,19 +65,19 @@ cdef class PyNetwork:
         cdef double[:] weights = np.empty((10,))
         cdef double[:] noise = np.empty((10,))
 
-        cdef Neuron **neurons = self.c_neurons
+        cdef Node **nodes = self.c_nodes
         cdef unsigned int t, j
         for t in tqdm(range(int(1000*1e3))):
-            for j in range(self.nneurons):
-                neurons[j][0].nstates
-                neurons[j][0].ode_rhs_c(
+            for j in range(self.nnodes):
+                nodes[j][0].nstates
+                nodes[j][0].ode_rhs_c(
                     0.0,
                     states,
                     dstates,
                     inputs,
                     weights,
                     noise,
-                    neurons[j][0]
+                    nodes[j][0]
                 )
 
     def step(self):

@@ -1,24 +1,24 @@
-from .neuron cimport Neuron
+from .node cimport Node
 
 
 cdef struct Network:
     unsigned int nstates
-    Neuron* neurons
+    Node* nodes
     void step()
     void ode_c()
 
 
 # cdef void ode_c(
-#     Neuron *neurons,
+#     Node *nodes,
 #     unsigned int iteration,
-#     unsigned int nneurons,
+#     unsigned int nnodes,
 #     double[:] dstates
 # ):
 #     """ Network step function """
-#     cdef Neuron neuron
-#     cdef NeuronData neuron_data
+#     cdef Node node
+#     cdef NodeData node_data
 #     cdef unsigned int j
-#     cdef nneurons = sizeof(neurons)/sizeof(neuron)
+#     cdef nnodes = sizeof(nodes)/sizeof(node)
 
 #     # double[:, :] states
 #     # double[:, :] dstates
@@ -26,16 +26,16 @@ cdef struct Network:
 #     # double[:, :] weights
 #     # double[:, :] noise
 
-#     for j in range(nneurons):
-#         neuron_data = network_data[j]
-#         neurons[j].ode_rhs_c(
-#             neuron_data.curr_state,
+#     for j in range(nnodes):
+#         node_data = network_data[j]
+#         nodes[j].ode_rhs_c(
+#             node_data.curr_state,
 #             dstates,
 #             inputs,
 #             weights,
 #             noise,
 #             drive,
-#             neurons[j]
+#             nodes[j]
 #         )
 
 
@@ -44,8 +44,8 @@ cdef class PyNetwork:
 
     cdef:
         Network *_network
-        unsigned int nneurons
-        list neurons
-        Neuron **c_neurons
+        unsigned int nnodes
+        list nodes
+        Node **c_nodes
 
     cpdef void test(self, data)

@@ -31,22 +31,26 @@ cdef class NetworkDataCy:
     def __init__(
             self,
             nstates: int,
-            states
-            # neurons = None,
+            # states
+            # nodes = None,
             # connectivity = None,
             # inputs = None,
             # drives = None,
             # outputs = None,
     ):
-        """ neurons data initialization """
+        """ nodes data initialization """
 
         super().__init__()
-        self.states = states
-        # self.neurons = neurons
+        # self.states = states
+        # self.nodes = nodes
         # self.connectivity = connectivity
         # self.inputs = inputs
         # self.drives = drives
         # self.outputs = outputs
+
+
+cdef class NodeData:
+    """ Base Class for node data """
 
 
 cdef class StatesArrayCy(DoubleArray2D):
@@ -64,9 +68,5 @@ cdef class OutputsArrayCy(DoubleArray2D):
     """ Outputs array """
 
 
-cdef class InputsArrayCy(DoubleArray2D):
-    """ Inputs array """
-
-
-# # class User2DArrayCy(DoubleArray2D):
-# #     ...
+# class User2DArrayCy(DoubleArray2D):
+#     ...

@@ -27,12 +27,12 @@ cdef class NetworkDataCy:
         public StatesArrayCy states
 
     cdef:
-        public neurons
+        public nodes
         public connectivity
 
 
-cdef class NeuronDataCy:
-    """ Neuron data """
+cdef class NodeDataCy:
+    """ Node data """
 
 
 cdef class StatesArrayCy(DoubleArray2D):

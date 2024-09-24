@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Leaky Integrator Neuron based on Danner et.al.
+Leaky Integrator Node based on Danner et.al.
 """
 
 from libc.stdio cimport printf
@@ -31,13 +31,13 @@ cdef void ode_rhs_c(
     double[:] inputs,
     double[:] weights,
     double[:] noise,
-    Neuron neuron
+    Node node
 ) noexcept:
     """ ODE """
 
     # # Parameters
-    cdef LIDannerNeuronParameters params = (
-        <LIDannerNeuronParameters*> neuron.parameters
+    cdef LIDannerNodeParameters params = (
+        <LIDannerNodeParameters*> node.parameters
     )[0]
 
     # States
@@ -46,10 +46,10 @@ cdef void ode_rhs_c(
     # Ileak
     cdef double i_leak = params.g_leak * (state_v - params.e_leak)
 
-    # Neuron inputs
+    # Node inputs
     cdef double _sum = 0.0
     cdef unsigned int j
-    cdef double _neuron_out
+    cdef double _node_out
     cdef double res
 
     cdef double _input
@@ -59,7 +59,7 @@ cdef void ode_rhs_c(
     for j in range(10):
         _input = inputs[j]
         _weight = weights[j]
-        _sum += neuron_inputs_eval_c(_input, _weight)
+        _sum += node_inputs_eval_c(_input, _weight)
 
     # # noise current
     # cdef double i_noise = c_noise_current_update(
@@ -74,13 +74,13 @@ cdef void ode_rhs_c(
     )
 
 
-cdef double output_c(double time, double[:] states, Neuron neuron):
-    """ Neuron output. """
+cdef double output_c(double time, double[:] states, Node node):
+    """ Node output. """
 
     cdef double state_v = states[0]
     cdef double _n_out = 1000.0
 
-    # cdef LIDannerNeuronParameters params = <LIDannerNeuronParameters> neuron.parameters
+    # cdef LIDannerNodeParameters params = <LIDannerNodeParameters> node.parameters
 
     # if state_v >= params.v_max:
     #     _n_out = 1.0
@@ -91,26 +91,26 @@ cdef double output_c(double time, double[:] states, Neuron neuron):
     return _n_out
 
 
-cdef inline double neuron_inputs_eval_c(double _neuron_out, double _weight) noexcept:
+cdef inline double node_inputs_eval_c(double _node_out, double _weight) noexcept:
     return 0.0
 
 
-cdef class PyLIDannerNeuron(PyNeuron):
-    """ Python interface to Leaky Integrator Neuron C-Structure """
+cdef class PyLIDannerNode(PyNode):
+    """ Python interface to Leaky Integrator Node C-Structure """
 
     def __cinit__(self):
-        self._neuron.model_type = strdup("LI_DANNER".encode('UTF-8'))
+        self._node.model_type = strdup("LI_DANNER".encode('UTF-8'))
         # override default ode and out methods
-        self._neuron.ode_rhs_c = ode_rhs_c
-        self._neuron.output_c = output_c
+        self._node.ode_rhs_c = ode_rhs_c
+        self._node.output_c = output_c
         # parameters
-        self._neuron.parameters = <LIDannerNeuronParameters*>malloc(
-            sizeof(LIDannerNeuronParameters)
+        self._node.parameters = <LIDannerNodeParameters*>malloc(
+            sizeof(LIDannerNodeParameters)
         )
 
     @classmethod
-    def from_options(cls, neuron_options: NeuronOptions):
-        """ From neuron options """
-        name: str = neuron_options.name
-        ninputs: int = neuron_options.ninputs
+    def from_options(cls, node_options: NodeOptions):
+        """ From node options """
+        name: str = node_options.name
+        ninputs: int = node_options.ninputs
         return cls(name, ninputs)

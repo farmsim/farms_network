@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Leaky Integrator Neuron Based on Danner et.al.
+Leaky Integrator Node Based on Danner et.al.
 """
 
-from ..core.neuron cimport Neuron, PyNeuron
+from ..core.node cimport Node, PyNode

@@ -16,13 +16,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Leaky Integrator Neuron Based on Danner et.al.
+Leaky Integrator Node Based on Danner et.al.
 """
 
-from ..core.neuron cimport Neuron, PyNeuron
+from ..core.node cimport Node, PyNode
 
 
-cdef packed struct LIDannerNeuronParameters:
+cdef packed struct LIDannerNodeParameters:
 
     double c_m                     # pF
     double g_leak                  # nS
@@ -47,11 +47,11 @@ cdef:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        Neuron neuron
+        Node node
     ) noexcept
-    double output_c(double time, double[:] states, Neuron neuron)
-    inline double neuron_inputs_eval_c(double _neuron_out, double _weight)
+    double output_c(double time, double[:] states, Node node)
+    inline double node_inputs_eval_c(double _node_out, double _weight)
 
 
-cdef class PyLIDannerNeuron(PyNeuron):
-    """ Python interface to Leaky Integrator Neuron C-Structure """
+cdef class PyLIDannerNode(PyNode):
+    """ Python interface to Leaky Integrator Node C-Structure """

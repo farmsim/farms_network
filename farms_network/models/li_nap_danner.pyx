@@ -16,7 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
+Leaky Integrator Node with persistent sodium channel based on Danner et.al.
 """
 
 # from libc.stdio cimport printf
@@ -32,13 +32,13 @@ Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
 #     double[:] weights,
 #     double[:] noise,
 #     double drive,
-#     Neuron neuron
+#     Node node
 # ):
 #     """ ODE """
 
 #     # # Parameters
-#     cdef LINapDannerNeuronParameters params = (
-#         <LINapDannerNeuronParameters*> neuron.parameters
+#     cdef LINapDannerNodeParameters params = (
+#         <LINapDannerNodeParameters*> node.parameters
 #     )[0]
 #     # States
 #     cdef double state_v = states[0]
@@ -56,14 +56,14 @@ Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
 #     # ISyn_Inhibitory
 #     cdef double i_syn_i = params.g_syn_i * d_i * (state_v - params.e_syn_i)
 
-#     # Neuron inputs
+#     # Node inputs
 #     cdef double _sum = 0.0
 #     cdef unsigned int j
-#     cdef double _neuron_out
+#     cdef double _node_out
 #     cdef double _weight
 
-#     # for j in range(neuron.ninputs):
-#     #     _sum += neuron_inputs_eval_c(inputs[j], weights[j])
+#     # for j in range(node.ninputs):
+#     #     _sum += node_inputs_eval_c(inputs[j], weights[j])
 
 #     # # noise current
 #     # cdef double i_noise = c_noise_current_update(
@@ -78,13 +78,13 @@ Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
 #     )
 
 
-# cdef double output_c(double time, double[:] states, Neuron neuron):
-#     """ Neuron output. """
+# cdef double output_c(double time, double[:] states, Node node):
+#     """ Node output. """
 
 #     cdef double state_v = states[0]
 #     cdef double _n_out = 1000.0
 
-#     # cdef LIDannerNeuronParameters params = <LIDannerNeuronParameters> neuron.parameters
+#     # cdef LIDannerNodeParameters params = <LIDannerNodeParameters> node.parameters
 
 #     # if state_v >= params.v_max:
 #     #     _n_out = 1.0
@@ -95,26 +95,26 @@ Leaky Integrator Neuron with persistent sodium channel based on Danner et.al.
 #     return _n_out
 
 
-# cdef double neuron_inputs_eval_c(double _neuron_out, double _weight):
+# cdef double node_inputs_eval_c(double _node_out, double _weight):
 #     return 0.0
 
 
-# cdef class PyLINapDannerNeuron(PyNeuron):
-#     """ Python interface to Leaky Integrator Neuron with persistence sodium C-Structure """
+# cdef class PyLINapDannerNode(PyNode):
+#     """ Python interface to Leaky Integrator Node with persistence sodium C-Structure """
 
 #     def __cinit__(self):
 #         # override defaults
-#         self._neuron.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
-#         self._neuron.nstates = 2
-#         self._neuron.nparameters = 13
+#         self._node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
+#         self._node.nstates = 2
+#         self._node.nparameters = 13
 #         # methods
-#         self._neuron.ode_rhs_c = ode_rhs_c
-#         self._neuron.output_c = output_c
+#         self._node.ode_rhs_c = ode_rhs_c
+#         self._node.output_c = output_c
 #         # parameters
-#         self._neuron.parameters = <LIDannerNeuronParameters*>malloc(
-#             sizeof(LIDannerNeuronParameters)
+#         self._node.parameters = <LIDannerNodeParameters*>malloc(
+#             sizeof(LIDannerNodeParameters)
 #         )
 
 #     def __dealloc__(self):
-#         if self._neuron.name is not NULL:
-#             free(self._neuron.parameters)
+#         if self._node.name is not NULL:
+#             free(self._node.parameters)
