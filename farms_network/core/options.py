@@ -96,6 +96,9 @@ class NodeStateOptions(Options):
     def __init__(self, **kwargs):
         super().__init__()
         self.initial: List[float] = kwargs.pop("initial")
+        self.names: List[str] = kwargs.pop("names")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
 
 class NodeVisualOptions(Options):
@@ -221,17 +224,22 @@ class LIDannerParameterOptions(NodeParameterOptions):
 class LIDannerStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
+    STATE_NAMES = ["v0",]
+
     def __init__(self, **kwargs):
         super().__init__(
-            initial=kwargs.pop("initial")
+            initial=kwargs.pop("initial"),
+            names=LIDannerStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 1, f"Number of initial states {len(self.initial)} should be 1"
 
     @classmethod
     def from_kwargs(cls, **kwargs):
         """ From node specific name-value kwargs """
-        v0 = kwargs.pop("v0")
-        initial = [v0,]
+        initial = [
+            kwargs.pop(name)
+            for name in cls.STATE_NAMES
+        ]
         return cls(initial=initial)
 
 
