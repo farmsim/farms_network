@@ -19,14 +19,14 @@ class NetworkOptions(Options):
         # Default properties to make it compatible with networkx
         self.directed: bool = kwargs.pop("directed", True)
         self.multigraph: bool = kwargs.pop("multigraph", False)
-        self.graph: dict = {
-            "name": _name
-        }
-
+        self.graph: dict = {"name": _name,}
         self.units = None
 
         self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
         self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
     def add_node(self, options: "NodeOptions"):
         """ Add a node if it does not already exist in the list """
@@ -71,6 +71,8 @@ class NodeOptions(Options):
 
         self._nstates: int = 0
         self._nparameters: int = 0
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
     def __eq__(self, other):
         if isinstance(other, NodeOptions):
@@ -112,6 +114,8 @@ class NodeVisualOptions(Options):
         self.label: str = kwargs.pop("label", "n")
         self.layer: str = kwargs.pop("layer", "background")
         self.latex: dict = kwargs.pop("latex", "{}")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
 
 ################
@@ -130,6 +134,8 @@ class EdgeOptions(Options):
         self.type: str = kwargs.pop("type")
 
         self.visual: NodeVisualOptions = kwargs.pop("visual")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
     def __eq__(self, other):
         if isinstance(other, EdgeOptions):
@@ -149,6 +155,8 @@ class EdgeVisualOptions(Options):
         self.label: str = kwargs.pop("label", "")
         self.layer: str = kwargs.pop("layer", "background")
         self.latex: dict = kwargs.pop("latex", "{}")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
 
 #########################################
@@ -201,6 +209,8 @@ class LIDannerParameterOptions(NodeParameterOptions):
         self.g_syn_i = kwargs.pop("g_syn_i")                # nS
         self.e_syn_e = kwargs.pop("e_syn_e")                # mV
         self.e_syn_i = kwargs.pop("e_syn_i")                # mV
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
     @classmethod
     def defaults(cls, **kwargs):
