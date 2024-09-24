@@ -15,12 +15,12 @@ class NetworkOptions(Options):
 
     def __init__(self, **kwargs):
         super().__init__()
-        _name: str = kwargs.pop("name", "")
+
         # Default properties to make it compatible with networkx
         self.directed: bool = kwargs.pop("directed", True)
         self.multigraph: bool = kwargs.pop("multigraph", False)
-        self.graph: dict = {"name": _name,}
-        self.units = None
+        self.graph: dict = kwargs.pop("graph", {"name": ""})
+        self.units = kwargs.pop("units", None)
 
         self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
         self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
@@ -101,6 +101,15 @@ class NodeStateOptions(Options):
         self.names: List[str] = kwargs.pop("names")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_kwargs(cls, **kwargs):
+        """ From node specific name-value kwargs """
+        initial = [
+            kwargs.pop(name)
+            for name in cls.STATE_NAMES
+        ]
+        return cls(initial=initial)
 
 
 class NodeVisualOptions(Options):
@@ -243,15 +252,6 @@ class LIDannerStateOptions(NodeStateOptions):
         )
         assert len(self.initial) == 1, f"Number of initial states {len(self.initial)} should be 1"
 
-    @classmethod
-    def from_kwargs(cls, **kwargs):
-        """ From node specific name-value kwargs """
-        initial = [
-            kwargs.pop(name)
-            for name in cls.STATE_NAMES
-        ]
-        return cls(initial=initial)
-
 
 ##################################################
 # Leaky Integrator With NaP Danner Model Options #
@@ -334,19 +334,14 @@ class LIDannerNaPParameterOptions(NodeParameterOptions):
 class LIDannerNaPStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
+    STATE_NAMES = ["v0", "h0"]
+
     def __init__(self, **kwargs):
         super().__init__(
-            initial=kwargs.pop("initial")
+            initial=kwargs.pop("initial"),
+            names=LIDannerNaPStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
-
-    @classmethod
-    def from_kwargs(cls, **kwargs):
-        """ From node specific name-value kwargs """
-        v0 = kwargs.pop("v0")
-        h0 = kwargs.pop("h0")
-        initial = [v0, h0]
-        return cls(initial=initial)
 
 
 
