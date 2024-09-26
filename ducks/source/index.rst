@@ -4,16 +4,19 @@
    contain the root `toctree` directive.
 
 Welcome to FARMS Network's documentation!
-===========================================
+=========================================
 
 .. warning:: Farmers are currently busy! Documentation is work in progress!!
 
+farms network provides commonly used neural models for locomotion circuits.
+
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    usage/installation
    core/index
+   models/index
 
 .. sidebar-links::
    :github:
