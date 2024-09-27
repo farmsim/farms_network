@@ -19,13 +19,32 @@ limitations under the License.
 
 import numpy as np
 
+from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from ..models.li_danner cimport PyLIDannerNode
-from .node cimport Node, PyNode
+# from ..models.li_danner cimport PyLIDannerNode
+
+from .options import NetworkOptions
+
+from .node cimport PyNode
 
 from tqdm import tqdm
+
+
+cdef void ode(
+    double time,
+    unsigned int iteration,
+    double[:] states,
+    double[:] derivatives,
+    Node **nodes,
+) noexcept:
+    """ C Implementation to compute full network state """
+    cdef Node __node
+    cdef unsigned int t, j
+    for t in range(int(1000*1e3)):
+        for j in range(100):
+            __node = nodes[j][0]
 
 
 cdef class PyNetwork:
@@ -37,17 +56,22 @@ cdef class PyNetwork:
         self._network = <Network*>malloc(sizeof(Network))
         if self._network is NULL:
             raise MemoryError("Failed to allocate memory for Network")
+        self._network.ode = ode
         self.c_nodes = <Node **>malloc(nnodes * sizeof(Node *))
         # if self._network.nodes is NULL:
         #     raise MemoryError("Failed to allocate memory for nodes in Network")
 
         self.nodes = []
         cdef Node *c_node
-        cdef PyLIDannerNode pyn
 
         for n in range(self.nnodes):
-            self.nodes.append(PyLIDannerNode(f"{n}", 0))
-            pyn = <PyLIDannerNode> self.nodes[n]
+            # self.nodes.append(PyLIDannerNode(f"{n}", 0))
+            # pyn = <PyLIDannerNode> self.nodes[n]
+            # c_node = (<Node*>pyn._node)
+            # self.c_nodes[n] = c_node
+
+            self.nodes.append(PyNode(f"{n}", 0))
+            pyn = <PyNode> self.nodes[n]
             c_node = (<Node*>pyn._node)
             self.c_nodes[n] = c_node
 
@@ -58,28 +82,19 @@ cdef class PyNetwork:
         if self._network is not NULL:
             free(self._network)
 
-    cpdef void test(self, data):
-        cdef double[:] states = data.states.array[0, :]
-        cdef double[:] dstates = np.empty((2,))
-        cdef double[:] inputs = np.empty((10,))
-        cdef double[:] weights = np.empty((10,))
-        cdef double[:] noise = np.empty((10,))
+    @classmethod
+    def from_options(cls, options: NetworkOptions):
+        """ Initialize network from NetworkOptions """
+        options
+        return cls
 
-        cdef Node **nodes = self.c_nodes
-        cdef unsigned int t, j
-        for t in tqdm(range(int(1000*1e3))):
-            for j in range(self.nnodes):
-                nodes[j][0].nstates
-                nodes[j][0].ode_rhs_c(
-                    0.0,
-                    states,
-                    dstates,
-                    inputs,
-                    weights,
-                    noise,
-                    nodes[j][0]
-                )
+    def setup_integrator(options: IntegratorOptions):
+        """ Setup integrator for neural network """
+        ...
 
-    def step(self):
+    cpdef void ode(self, double time, double[:] states):
+        self._network.ode(time, 0, states, states, self.c_nodes)
+
+    cpdef void step(self):
         """ Network step function """
-        self._network.step()
+        ...
