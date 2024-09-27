@@ -13,5 +13,5 @@ states = StatesArray(np.empty((niterations, nstates)))
 
 data = NetworkData(nstates=100, states=states)
 
-net = network.PyNetwork(nneurons=100)
+net = network.PyNetwork(nnodes=100)
 profile(net.test, data)

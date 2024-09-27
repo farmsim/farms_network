@@ -1,5 +1,5 @@
 import numpy as np
-from farms_network.core import li_danner, network, neuron, options
+from farms_network.core import li_danner, network, node, options
 from farms_network.data.data import NetworkData, StatesArray
 
 
@@ -10,16 +10,16 @@ states = StatesArray(np.empty((niterations, nstates)))
 data = NetworkData(nstates=100, states=states)
 
 
-net = network.PyNetwork(nneurons=10)
+net = network.PyNetwork(nnodes=10)
 net.test(data)
 
-n1_opts = options.NeuronOptions(
+n1_opts = options.NodeOptions(
     name="n1",
-    parameters=options.NeuronParameterOptions(),
-    visual=options.NeuronVisualOptions(),
-    state=options.NeuronStateOptions(initial=[0, 0]),
+    parameters=options.NodeParameterOptions(),
+    visual=options.NodeVisualOptions(),
+    state=options.NodeStateOptions(initial=[0, 0]),
 )
-n1 = neuron.PyNeuron.from_options(n1_opts)
+n1 = node.PyNode.from_options(n1_opts)
 n1_opts.save("/tmp/opts.yaml")
 
 
@@ -43,7 +43,7 @@ print(
     n1.output(0.0, states)
 )
 
-n2 = li_danner.PyLIDannerNeuron("n2", ninputs=50)
+n2 = li_danner.PyLIDannerNode("n2", ninputs=50)
 
 print(n2.name)
 print(n2.model_type)

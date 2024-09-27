@@ -9,23 +9,22 @@ from farms_core.options import Options
 from farms_network.core import options
 
 param_opts = options.LIDannerParameterOptions.defaults()
-state_opts = options.LIDannerStateOptions.from_kwargs(v0=0.0, h0=1.0)
-vis_opts = options.NeuronVisualOptions()
+state_opts = options.LIDannerNaPStateOptions.from_kwargs(v0=0.0, h0=-70.0)
+vis_opts = options.NodeVisualOptions()
 
-n1_opts = options.LIDannerNeuronOptions(
+n1_opts = options.LIDannerNodeOptions(
     name="n1",
     parameters=param_opts,
     visual=vis_opts,
     state=state_opts,
-    ninputs=10,
 )
 
 network = options.NetworkOptions(
     directed=True,
     multigraph=False,
-    name="network",
-    neurons=[n1_opts, n1_opts],
-    connections=[],
+    graph={"name": "network"},
+    nodes=[n1_opts, n1_opts],
+    edges=[],
 )
 
 print(type(network))
