@@ -5,10 +5,11 @@ cdef struct Network:
 
     # info
     unsigned long int nnodes
+    unsigned long int nedges
     unsigned long int nstates
 
     # nodes list
-    Node* nodes
+    Node **nodes
 
     # functions
     void ode(
@@ -16,7 +17,7 @@ cdef struct Network:
         unsigned int iteration,
         double[:] states,
         double[:] derivatives,
-        Node **nodes,
+        Network network,
     )
 
 
@@ -25,7 +26,7 @@ cdef void ode(
     unsigned int iteration,
     double[:] states,
     double[:] derivatives,
-    Node **nodes,
+    Network network,
 ) noexcept
     # cdef Node __node
     # cdef NodeData node_data
@@ -60,10 +61,8 @@ cdef class PyNetwork:
     """ Python interface to Network ODE """
 
     cdef:
-        Network *_network
-        unsigned int nnodes
+        Network *network
         list nodes
-        Node **c_nodes
 
     # cpdef void step(self)
     cpdef void ode(self, double time, double[:] states)

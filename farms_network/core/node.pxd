@@ -24,25 +24,24 @@ Header for Node Base Struture.
 
 cdef packed struct Node:
     # Generic parameters
-    unsigned int nstates
-    unsigned int nparameters
-    unsigned int ninputs
+    unsigned int nstates        # Number of state variables in the node.
+    unsigned int nparameters    # Number of parameters for the node.
+    unsigned int ninputs        # Number of inputs to the node.
 
-    char* model_type
-    char* name
+    char* model_type            # Type of the model (e.g., "empty").
+    char* name                  # Unique name of the node.
 
-    bint statefull
-
-    void* states
+    bint statefull              # Flag indicating whether the node is stateful. (ODE)
 
     # Parameters
-    void* parameters
+    void* parameters            # Pointer to the parameters of the node.
 
     # Functions
     void ode(
         double time,
         double[:] states,
         double[:] derivatives,
+        double usr_input,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
@@ -52,6 +51,7 @@ cdef packed struct Node:
     double output(
         double time,
         double[:] states,
+        double usr_input,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
@@ -64,6 +64,7 @@ cdef:
         double time,
         double[:] states,
         double[:] derivatives,
+        double usr_input,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
@@ -72,6 +73,7 @@ cdef:
     double output(
         double time,
         double[:] states,
+        double usr_input,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
@@ -83,4 +85,4 @@ cdef class PyNode:
     """ Python interface to Node C-Structure"""
 
     cdef:
-        Node* _node
+        Node* node

@@ -28,6 +28,7 @@ cdef void ode(
     double time,
     double[:] states,
     double[:] derivaties,
+    double usr_input,
     double[:] inputs,
     double[:] weights,
     double[:] noise,
@@ -40,6 +41,7 @@ cdef void ode(
 cdef double output(
     double time,
     double[:] states,
+    double usr_input,
     double[:] inputs,
     double[:] weights,
     double[:] noise,
@@ -54,86 +56,81 @@ cdef class PyNode:
     """ Python interface to Node C-Structure"""
 
     def __cinit__(self):
-        self._node = <Node*>malloc(sizeof(Node))
-        if self._node is NULL:
+        self.node = <Node*>malloc(sizeof(Node))
+        if self.node is NULL:
             raise MemoryError("Failed to allocate memory for Node")
-        self._node.name = NULL
-        self._node.model_type = strdup("base".encode('UTF-8'))
-        self._node.ode = ode
-        self._node.output = output
+        self.node.name = NULL
+        self.node.model_type = strdup("base".encode('UTF-8'))
+        self.node.ode = ode
+        self.node.output = output
 
     def __dealloc__(self):
-        if self._node.name is not NULL:
-            free(self._node.name)
-        if self._node.model_type is not NULL:
-            free(self._node.model_type)
-        if self._node.parameters is not NULL:
-            free(self._node.parameters)
-        if self._node is not NULL:
-            free(self._node)
+        if self.node.name is not NULL:
+            free(self.node.name)
+        if self.node.model_type is not NULL:
+            free(self.node.model_type)
+        if self.node.parameters is not NULL:
+            free(self.node.parameters)
+        if self.node is not NULL:
+            free(self.node)
 
-    def __init__(self, name, ninputs):
+    def __init__(self, name):
         self.name = name
-        self.ninputs = ninputs
 
     @classmethod
     def from_options(cls, node_options: NodeOptions):
         """ From node options """
         name: str = node_options.name
         ninputs: int = node_options.ninputs
-        return cls(name, ninputs)
+        return cls(name)
 
     # Property methods for name
     @property
     def name(self):
-        if self._node.name is NULL:
+        if self.node.name is NULL:
             return None
-        return self._node.name.decode('UTF-8')
+        return self.node.name.decode('UTF-8')
 
     @name.setter
     def name(self, value):
-        if self._node.name is not NULL:
-            free(self._node.name)
-        self._node.name = strdup(value.encode('UTF-8'))
+        if self.node.name is not NULL:
+            free(self.node.name)
+        self.node.name = strdup(value.encode('UTF-8'))
 
     # Property methods for model_type
     @property
     def model_type(self):
-        if self._node.model_type is NULL:
+        if self.node.model_type is NULL:
             return None
-        return self._node.model_type.decode('UTF-8')
+        return self.node.model_type.decode('UTF-8')
 
     # Property methods for nstates
     @property
     def nstates(self):
-        return self._node.nstates
+        return self.node.nstates
 
     # Property methods for nparameters
     @property
     def nparameters(self):
-        return self._node.nparameters
+        return self.node.nparameters
 
     # Property methods for ninputs
     @property
     def ninputs(self):
-        return self._node.ninputs
-
-    @ninputs.setter
-    def ninputs(self, value):
-        self._node.ninputs = value
+        return self.node.ninputs
 
     # Methods to wrap the ODE and output functions
-    def ode(self, double time, states, dstates, inputs, weights, noise):
+    def ode(self, double time, states, dstates, usr_input, inputs, weights, noise):
         cdef double[:] c_states = states
         cdef double[:] c_dstates = dstates
         cdef double[:] c_inputs = inputs
         cdef double[:] c_weights = weights
         cdef double[:] c_noise = noise
         # Call the C function directly
-        self._node.ode(
-            time, c_states, c_dstates, c_inputs, c_weights, c_noise, self._node[0]
+        self.node.ode(
+            time, c_states, c_dstates, usr_input, c_inputs, c_weights, c_noise, self.node[0]
         )
 
-    def output(self, double time, states, inputs, weights, noise):
+    def output(self, double time, states, usr_input, inputs, weights, noise):
         # Call the C function and return its result
-        return self._node[0].output(time, states, inputs, weights, noise, self._node[0])
+        return self.node[0].output(time, states, usr_input, inputs, weights, noise, self.node[0])

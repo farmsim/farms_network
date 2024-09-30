@@ -23,9 +23,9 @@ from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-# from ..models.li_danner cimport PyLIDannerNode
+from typing import Iterable
 
-from .options import NetworkOptions
+from .options import EdgeOptions, NetworkOptions, NodeOptions
 
 from .node cimport PyNode
 
@@ -37,10 +37,11 @@ cdef void ode(
     unsigned int iteration,
     double[:] states,
     double[:] derivatives,
-    Node **nodes,
+    Network network,
 ) noexcept:
     """ C Implementation to compute full network state """
     cdef Node __node
+    cdef Node **nodes = network.nodes
     cdef unsigned int t, j
     cdef double[:] arr = None
     printf("\n")
@@ -49,44 +50,44 @@ cdef void ode(
         for j in range(100):
             __node = nodes[j][0]
             if __node.statefull:
-                __node.output(0.0, states, arr, arr, arr, __node)
+                __node.output(0.0, states, 0.0, arr, arr, arr, __node)
             else:
-                __node.output(0.0, arr, arr, arr, arr, __node)
-            __node.ode(0.0, states, arr, arr, arr, arr, __node)
+                __node.output(0.0, arr, 0.0, arr, arr, arr, __node)
+            __node.ode(0.0, states, arr, 0.0, arr, arr, arr, __node)
 
 
 cdef class PyNetwork:
     """ Python interface to Network ODE """
 
-    def __cinit__(self, nnodes: int):
+    def __cinit__(self):
         """ C initialization for manual memory allocation """
-        self.nnodes = nnodes
-        self._network = <Network*>malloc(sizeof(Network))
-        if self._network is NULL:
+        self.network = <Network*>malloc(sizeof(Network))
+        if self.network is NULL:
             raise MemoryError("Failed to allocate memory for Network")
-        self._network.ode = ode
+        self.network.ode = ode
 
-    def __init__(self, nnodes):
+    def __init__(self, nodes: Iterable[NodeOptions], edges: Iterable[EdgeOptions]):
         """ Initialize """
-        self.c_nodes = <Node **>malloc(nnodes * sizeof(Node *))
-        # if self._network.nodes is NULL:
-        #     raise MemoryError("Failed to allocate memory for nodes in Network")
+        self.network.nnodes = len(nodes)
+        self.network.nedges = len(edges)
 
-        self.nodes = []
+        # Allocate memory for c-node structs
+        self.network.nodes = <Node **>malloc(self.nnodes * sizeof(Node *))
         cdef Node *c_node
+        self.nodes = []
 
         for n in range(self.nnodes):
-            self.nodes.append(PyNode(f"{n}", 0))
+            self.nodes.append(PyNode(f"{n}"))
             pyn = <PyNode> self.nodes[n]
-            c_node = (<Node*>pyn._node)
-            self.c_nodes[n] = c_node
+            c_node = (<Node*>pyn.node)
+            self.network.nodes[n] = c_node
 
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
-        if self._network.nodes is not NULL:
-            free(self._network.nodes)
-        if self._network is not NULL:
-            free(self._network)
+        if self.network.nodes is not NULL:
+            free(self.network.nodes)
+        if self.network is not NULL:
+            free(self.network)
 
     @classmethod
     def from_options(cls, options: NetworkOptions):
@@ -99,11 +100,27 @@ cdef class PyNetwork:
         ...
 
     cpdef void ode(self, double time, double[:] states):
-        self._network.ode(time, 0, states, states, self.c_nodes)
+        self.network.ode(time, 0, states, states, self.network[0])
+
+
+    @property
+    def nnodes(self):
+        """ Number of nodes in the network """
+        return self.network.nnodes
+
+    @property
+    def nedges(self):
+        """ Number of edges in the network """
+        return self.network.nedges
+
+    @property
+    def nstates(self):
+        """ Number of states in the network """
+        return self.network.nstates
 
     # def step(self, time, states):
     #     """ Update the network """
-    #     self._network.ode(time, 0, states, states, self.c_nodes)
+    #     self.network.ode(time, 0, states, states, self.c_nodes)
     #     dstates = None
     #     return dstates
 
