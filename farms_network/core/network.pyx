@@ -42,9 +42,17 @@ cdef void ode(
     """ C Implementation to compute full network state """
     cdef Node __node
     cdef unsigned int t, j
-    for t in range(int(1000*1e3)):
+    cdef double[:] arr = None
+    printf("\n")
+    for t in range(int(10)):
+        printf("%i \t", t)
         for j in range(100):
             __node = nodes[j][0]
+            if __node.statefull:
+                __node.output(0.0, states, arr, arr, arr, __node)
+            else:
+                __node.output(0.0, arr, arr, arr, arr, __node)
+            __node.ode(0.0, states, arr, arr, arr, arr, __node)
 
 
 cdef class PyNetwork:
@@ -57,6 +65,9 @@ cdef class PyNetwork:
         if self._network is NULL:
             raise MemoryError("Failed to allocate memory for Network")
         self._network.ode = ode
+
+    def __init__(self, nnodes):
+        """ Initialize """
         self.c_nodes = <Node **>malloc(nnodes * sizeof(Node *))
         # if self._network.nodes is NULL:
         #     raise MemoryError("Failed to allocate memory for nodes in Network")
@@ -65,11 +76,6 @@ cdef class PyNetwork:
         cdef Node *c_node
 
         for n in range(self.nnodes):
-            # self.nodes.append(PyLIDannerNode(f"{n}", 0))
-            # pyn = <PyLIDannerNode> self.nodes[n]
-            # c_node = (<Node*>pyn._node)
-            # self.c_nodes[n] = c_node
-
             self.nodes.append(PyNode(f"{n}", 0))
             pyn = <PyNode> self.nodes[n]
             c_node = (<Node*>pyn._node)
@@ -95,6 +101,12 @@ cdef class PyNetwork:
     cpdef void ode(self, double time, double[:] states):
         self._network.ode(time, 0, states, states, self.c_nodes)
 
-    cpdef void step(self):
-        """ Network step function """
-        ...
+    # def step(self, time, states):
+    #     """ Update the network """
+    #     self._network.ode(time, 0, states, states, self.c_nodes)
+    #     dstates = None
+    #     return dstates
+
+    # cpdef void step(self)
+    #     """ Network step function """
+    #     ...

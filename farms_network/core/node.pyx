@@ -37,9 +37,16 @@ cdef void ode(
     printf("Base implementation of ODE C function \n")
 
 
-cdef double output(double time, double[:] states, Node node):
+cdef double output(
+    double time,
+    double[:] states,
+    double[:] inputs,
+    double[:] weights,
+    double[:] noise,
+    Node node
+) noexcept:
     """ Node output """
-    printf("Base implementation of node output C function \n")
+    printf("Base implementation of output C function \n")
     return 0.0
 
 
@@ -127,7 +134,6 @@ cdef class PyNode:
             time, c_states, c_dstates, c_inputs, c_weights, c_noise, self._node[0]
         )
 
-    def output(self, double time, states):
-        cdef double[:] c_states = states
+    def output(self, double time, states, inputs, weights, noise):
         # Call the C function and return its result
-        return self._node.output(time, c_states, self._node[0])
+        return self._node[0].output(time, states, inputs, weights, noise, self._node[0])

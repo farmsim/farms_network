@@ -42,26 +42,41 @@ cdef packed struct Node:
     void ode(
         double time,
         double[:] states,
-        double[:] dstates,
+        double[:] derivatives,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
         Node node
-    )
-    double output(double time, double[:] states, Node node)
+    ) noexcept
+
+    double output(
+        double time,
+        double[:] states,
+        double[:] inputs,
+        double[:] weights,
+        double[:] noise,
+        Node node
+    ) noexcept
 
 
 cdef:
     void ode(
         double time,
         double[:] states,
-        double[:] dstates,
+        double[:] derivatives,
         double[:] inputs,
         double[:] weights,
         double[:] noise,
         Node node
-    )
-    double output(double time, double[:] states, Node node)
+    ) noexcept
+    double output(
+        double time,
+        double[:] states,
+        double[:] inputs,
+        double[:] weights,
+        double[:] noise,
+        Node node
+    ) noexcept
 
 
 cdef class PyNode:

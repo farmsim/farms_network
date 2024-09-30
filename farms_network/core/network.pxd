@@ -65,5 +65,5 @@ cdef class PyNetwork:
         list nodes
         Node **c_nodes
 
-    cpdef void step(self)
+    # cpdef void step(self)
     cpdef void ode(self, double time, double[:] states)
