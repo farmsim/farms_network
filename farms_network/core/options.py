@@ -22,6 +22,8 @@ class NetworkOptions(Options):
         self.graph: dict = kwargs.pop("graph", {"name": ""})
         self.units = kwargs.pop("units", None)
 
+        self.integration = kwargs.pop("integration", IntegrationOptions.defaults())
+
         self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
         self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
 
@@ -51,6 +53,42 @@ class NetworkOptions(Options):
         for edge in other.edges:
             self.add_edge(edge)
         return self
+
+
+#################################
+# Numerical Integration Options #
+#################################
+class IntegrationOptions(Options):
+    """ Class to set the options for numerical integration """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.timestep: float = kwargs.pop("timestep")
+        self.integrator: str = kwargs.pop("integrator")
+        self.method: str = kwargs.pop("method")
+        self.atol: float = kwargs.pop("atol")
+        self.rtol: float = kwargs.pop("rtol")
+        self.max_step: float = kwargs.pop("max_step")
+        self.checks: bool = kwargs.pop("checks")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+
+        options = {}
+
+        options["timestep"] = kwargs.pop("timestep", "1e-3")
+        options["integrator"] = kwargs.pop("integrator", "dopri5")
+        options["method"] = kwargs.pop("method", "adams")
+        options["atol"] = kwargs.pop("atol", 1e-12)
+        options["rtol"] = kwargs.pop("rtol", 1e-6)
+        options["max_step"] = kwargs.pop("max_step", 0.0)
+        options["checks"] = kwargs.pop("checks", True)
+        return cls(**options)
+
 
 
 ###########################
