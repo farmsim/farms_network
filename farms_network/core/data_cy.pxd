@@ -18,46 +18,38 @@ limitations under the License.
 """
 
 
-from farms_core.array.array_cy cimport DoubleArray1D, DoubleArray2D
+from farms_core.array.array_cy cimport (DoubleArray1D, DoubleArray2D,
+                                        IntegerArray1D)
+
+include 'types.pxd'
 
 
 cdef class NetworkDataCy:
 
     cdef:
-        public StatesArrayCy states
+        public NetworkStatesCy states
+        public NetworkStatesCy derivatives
+        public DoubleArray1D external_inputs
+        public DoubleArray1D outputs
+        public DoubleArray2D weights
 
-    cdef:
-        public nodes
-        public connectivity
+        public DoubleArray1D states_noise
+        public DoubleArray1D outputs_noise
+
+        # _state_indices = None
+        # _state_index_skips = None
+        # _connectivity_indices = None
+        # _connectivity_index_skips = None
+        # _outputs = None
 
 
-cdef class NodeDataCy:
-    """ Node data """
-
-
-cdef class StatesArrayCy(DoubleArray2D):
+cdef class NetworkStatesCy(DoubleArray1D):
     """ State array """
 
-
-cdef class DStatesArrayCy(DoubleArray2D):
-    """ DStates array """
+    cdef public UITYPEv1 indices
 
 
-cdef class ParametersArrayCy(DoubleArray2D):
-    """ Parameters array """
+cdef class NetworkConnectivityCy(IntegerArray1D):
+    """ Network connectivity array """
 
-
-cdef class OutputsArrayCy(DoubleArray2D):
-    """ Outputs array """
-
-
-cdef class InputsArrayCy(DoubleArray2D):
-    """ Inputs array """
-
-
-cdef class DriveArrayCy(DoubleArray2D):
-    """ Drive Array """
-
-
-# # class User2DArrayCy(DoubleArray2D):
-# #     ...
+    cdef public UITYPEv1 indices

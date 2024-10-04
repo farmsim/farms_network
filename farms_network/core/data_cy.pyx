@@ -28,20 +28,10 @@ import numpy as np
 cdef class NetworkDataCy:
     """ Network data """
 
-    def __init__(
-            self,
-            nstates: int,
-            # states
-            # nodes = None,
-            # connectivity = None,
-            # inputs = None,
-            # drives = None,
-            # outputs = None,
-    ):
+    def __init__(self):
         """ nodes data initialization """
 
         super().__init__()
-        # self.states = states
         # self.nodes = nodes
         # self.connectivity = connectivity
         # self.inputs = inputs
@@ -49,24 +39,25 @@ cdef class NetworkDataCy:
         # self.outputs = outputs
 
 
-cdef class NodeData:
-    """ Base Class for node data """
-
-
-cdef class StatesArrayCy(DoubleArray2D):
+cdef class NetworkStatesCy(DoubleArray1D):
     """ State array """
 
-    def __init__(self, array):
+    def __init__(
+            self,
+            array: NDArray[(Any,), np.double],
+            indices: NDArray[(Any,), np.uintc],
+    ):
         super().__init__(array)
+        self.indices = np.array(indices, dtype=np.uintc)
 
 
-cdef class DStatesArrayCy(DoubleArray2D):
-    """ DStates array """
+cdef class NetworkConnectivityCy(IntegerArray1D):
+    """ Connectivity array """
 
-
-cdef class OutputsArrayCy(DoubleArray2D):
-    """ Outputs array """
-
-
-# class User2DArrayCy(DoubleArray2D):
-#     ...
+    def __init__(
+            self,
+            array: NDArray[(Any,), np.uintc],
+            indices: NDArray[(Any,), np.uintc],
+    ):
+        super().__init__(array)
+        self.indices = np.array(indices, dtype=np.uintc)

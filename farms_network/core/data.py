@@ -20,76 +20,181 @@ Main data structure for the network
 
 """
 
-from typing import List
+from typing import Dict, List
 
 import numpy as np
+from farms_core import pylog
+from farms_core.array.array import to_array
+from farms_core.array.array_cy import DoubleArray1D
 from farms_core.array.types import (NDARRAY_V1, NDARRAY_V1_D, NDARRAY_V2_D,
                                     NDARRAY_V3_D)
+from farms_core.io.hdf5 import dict_to_hdf5, hdf5_to_dict
 
-from data_cy import NetworkDataCy, StatesArrayCy
-from .options import NodeOptions, NodeStateOptions
+from .data_cy import NetworkConnectivityCy, NetworkDataCy, NetworkStatesCy
+from .options import NetworkOptions, NodeOptions, NodeStateOptions
 
 
 class NetworkData(NetworkDataCy):
     """ Network data """
 
-    def __init__(self, nstates,):
+    def __init__(
+            self,
+            states,
+            derivatives,
+            connectivity,
+            outputs,
+            external_inputs,
+            **kwargs,
+    ):
         """ Network data structure """
 
-        super().__init__(
-            nstates,
-            # states
-        )
-
-        # self.states = states
-        self.nodes: List[NodeData] = [NodeData(),]
-
-        _connectivity = None
-        _states = None
-        _dstates = None
-        _outputs = None
-        _nodes = None
-
-
-class NodeData:
-    """ Base class for representing an arbitrary node data """
-
-    def __init__(self, states_arr: StatesArray, out_arr: OutputArray):
-        """Node data initialization """
-
         super().__init__()
+        self.states = states
+        self.derivatives = derivatives
+        self.connectivity = connectivity
+        self.outputs = outputs
+        self.external_inputs = external_inputs
 
-        self.states = states_arr
-        self.output = out_arr
-        self.variables = None
+        # self.nodes: List[NodeData] = [NodeData(),]
 
     @classmethod
-    def from_options(cls, options: NodeOptions):
-        """ Node data from class """
-        nstates = options._nstates
-        return cls(
+    def from_options(cls, network_options: NetworkOptions):
+        """ From options """
 
+        states = NetworkStates.from_options(network_options)
+        derivatives = NetworkStates.from_options(network_options)
+        connectivity = NetworkConnectivity.from_options(network_options)
+        outputs = DoubleArray1D(array=np.zeros(len(network_options.nodes),))
+        external_inputs = DoubleArray1D(array=np.zeros(len(network_options.nodes),))
+        return cls(
+            states=states,
+            derivatives=derivatives,
+            connectivity=connectivity,
+            outputs=outputs,
+            external_inputs=external_inputs
         )
 
+    def to_dict(self, iteration: int = None) -> Dict:
+        """Convert data to dictionary"""
+        return {
+            'states': self.states.to_dict(),
+            'derivatives': self.derivatives.to_dict(),
+            'connectivity': self.connectivity.to_dict(),
+            'outputs': to_array(self.outputs.array),
+            'external_inputs': to_array(self.external_inputs.array),
+        }
 
-class StatesArray(StatesArrayCy):
-    """ State array data """
+    def to_file(self, filename: str, iteration: int = None):
+        """Save data to file"""
+        pylog.info('Exporting to dictionary')
+        data_dict = self.to_dict(iteration)
+        pylog.info('Saving data to %s', filename)
+        dict_to_hdf5(filename=filename, data=data_dict)
+        pylog.info('Saved data to %s', filename)
 
-    def __init__(self, array: NDARRAY_V2_D, names: List):
-        super().__init__(array)
-        self.names = names
+
+class NetworkStates(NetworkStatesCy):
+
+    def __init__(self, array, indices):
+        super().__init__(array, indices)
 
     @classmethod
-    def from_options(cls, options: NodeStateOptions):
-        """ State options """
+    def from_options(cls, network_options: NetworkOptions):
+
+        nodes = network_options.nodes
+        nstates = 0
+        indices = [0,]
+        for index, node in enumerate(nodes):
+            nstates += node._nstates
+            indices.append(nstates)
+
+        return cls(
+            array=np.zeros((nstates,)),
+            indices=np.array(indices)
+        )
+
+    def to_dict(self, iteration: int = None) -> Dict:
+        """Convert data to dictionary"""
+        return {
+            'array': to_array(self.array),
+            'indices': to_array(self.indices),
+        }
 
 
 
-class OutputArray:
-    """ Output array data """
+class NetworkConnectivity(NetworkConnectivityCy):
 
-    def __init__(self, array):
-        super().__init__(array)
+    def __init__(self, array, indices):
+        super().__init__(array, indices)
+
+    @classmethod
+    def from_options(cls, network_options: NetworkOptions):
+
+        nodes = network_options.nodes
+        edges = network_options.edges
+
+        connectivity = np.empty((len(edges), 2))
+        node_names = [node.name for node in nodes]
+
+        for index, edge in enumerate(edges):
+            connectivity[index][0] = int(node_names.index(edge.from_node))
+            connectivity[index][1] = int(node_names.index(edge.to_node))
+        connectivity = np.array(sorted(connectivity, key=lambda row: row[1]))
+
+        sources = np.empty((len(edges),))
+        nedges = 0
+        indices = [0,]
+        for index, node in enumerate(nodes):
+            node_sources = connectivity[connectivity[:, 1] == index][:, 0].tolist()
+            nedges += len(node_sources)
+            indices.append(nedges)
+            sources[indices[index]:indices[index+1]] += node_sources
+
+        return cls(
+            array=np.array(sources, dtype=np.uintc),
+            indices=np.array(indices, dtype=np.uintc)
+        )
+
+    def to_dict(self, iteration: int = None) -> Dict:
+        """Convert data to dictionary"""
+        return {
+            'array': to_array(self.array),
+            'indices': to_array(self.indices),
+        }
+
+
+# class NodeData:
+#     """ Base class for representing an arbitrary node data """
+
+#     def __init__(self, states_arr: StatesArray, out_arr: OutputArray):
+#         """Node data initialization """
+
+#         super().__init__()
+
+#         self.states = states_arr
+#         self.dstates = states_arr
+#         self.usr_inputs = None
+#         self.state_noise = None
+#         self.output_noise = None
+#         self.output = out_arr
+
+#     @classmethod
+#     def from_options(cls, options: NodeOptions):
+#         """ Node data from class """
+#         nstates = options._nstates
+#         return cls()
+
+
+# class StatesArray(StatesArrayCy):
+#     """ State array data """
+
+#     def __init__(self, array: NDARRAY_V2_D, names: List):
+#         super().__init__(array)
+#         self.names = names
+
+#     @classmethod
+#     def from_options(cls, options: NodeStateOptions):
+#         """ State options """
 
 
 def main():
