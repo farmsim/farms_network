@@ -1,4 +1,5 @@
 from .node cimport Node
+from .data_cy cimport NetworkDataCy
 
 
 cdef struct Network:
@@ -18,6 +19,7 @@ cdef struct Network:
         double[:] states,
         double[:] derivatives,
         Network network,
+        NetworkDataCy data,
     )
 
 
@@ -27,34 +29,8 @@ cdef void ode(
     double[:] states,
     double[:] derivatives,
     Network network,
+    NetworkDataCy data,
 ) noexcept
-    # cdef Node __node
-    # cdef NodeData node_data
-    # cdef unsigned int j
-    # cdef nnodes = sizeof(nodes)/sizeof(node)
-
-    # double[:, :] states
-    # double[:, :] dstates
-    # double[:, :] inputs
-    # double[:, :] weights
-    # double[:, :] noise
-
-    # for j in range(nnodes):
-    #     node = node[j]
-    #     node_data = network_data[j]
-    #     if node.statefull:
-    #         nstates = 2
-    #         node.ode(t, state)
-    #     nodes[j].step(
-    #         time,
-    #         node_data.curr_state,
-    #         dstates,
-    #         inputs,
-    #         weights,
-    #         noise,
-    #         drive,
-    #         nodes[j]
-    #     )
 
 
 cdef class PyNetwork:
@@ -63,6 +39,7 @@ cdef class PyNetwork:
     cdef:
         Network *network
         list nodes
+        NetworkDataCy data
 
     # cpdef void step(self)
     cpdef void ode(self, double time, double[:] states)

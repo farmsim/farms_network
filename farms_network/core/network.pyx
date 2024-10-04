@@ -17,6 +17,8 @@ limitations under the License.
 -----------------------------------------------------------------------
 """
 
+include "types.pxd"
+
 import numpy as np
 
 from libc.stdio cimport printf
@@ -25,11 +27,13 @@ from libc.string cimport strdup
 
 from typing import Iterable
 
-from .options import EdgeOptions, NetworkOptions, NodeOptions
+from .data import NetworkData, NetworkStates
 
 from .node cimport PyNode
 
 from tqdm import tqdm
+
+from .options import EdgeOptions, NetworkOptions, NodeOptions
 
 
 cdef void ode(
@@ -38,6 +42,7 @@ cdef void ode(
     double[:] states,
     double[:] derivatives,
     Network network,
+    NetworkDataCy data,
 ) noexcept:
     """ C Implementation to compute full network state """
     cdef Node __node
@@ -45,15 +50,17 @@ cdef void ode(
     cdef unsigned int t, j
     cdef double[:] arr = None
     printf("\n")
-    for t in range(int(10)):
+    cdef double[:] _states = data.states.array
+    cdef long unsigned int nnodes = network.nnodes
+    for t in range(nnodes):
         printf("%i \t", t)
         for j in range(100):
             __node = nodes[j][0]
+            __node.ode(0.0, _states, arr, 0.0, arr, arr, arr, __node)
             if __node.statefull:
                 __node.output(0.0, states, 0.0, arr, arr, arr, __node)
             else:
                 __node.output(0.0, arr, 0.0, arr, arr, arr, __node)
-            __node.ode(0.0, states, arr, 0.0, arr, arr, arr, __node)
 
 
 cdef class PyNetwork:
@@ -66,11 +73,14 @@ cdef class PyNetwork:
             raise MemoryError("Failed to allocate memory for Network")
         self.network.ode = ode
 
-    def __init__(self, nodes: Iterable[NodeOptions], edges: Iterable[EdgeOptions]):
+    def __init__(self, network_options):
         """ Initialize """
+        nodes = network_options.nodes
+        edges = network_options.edges
         self.network.nnodes = len(nodes)
         self.network.nedges = len(edges)
 
+        self.data = NetworkData.from_options(network_options)
         # Allocate memory for c-node structs
         self.network.nodes = <Node **>malloc(self.nnodes * sizeof(Node *))
         cdef Node *c_node
@@ -92,15 +102,18 @@ cdef class PyNetwork:
     @classmethod
     def from_options(cls, options: NetworkOptions):
         """ Initialize network from NetworkOptions """
-        options
-        return cls
+        return cls(options)
 
     def setup_integrator(options: IntegratorOptions):
         """ Setup integrator for neural network """
         ...
 
     cpdef void ode(self, double time, double[:] states):
-        self.network.ode(time, 0, states, states, self.network[0])
+        cdef double[:] _states = self.data.states.array
+        cdef UITYPEv1 _indices = self.data.states.indices
+        self.network.ode(
+            time, 0, _states, states, self.network[0], self.data
+        )
 
 
     @property
