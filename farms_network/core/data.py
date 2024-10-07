@@ -107,9 +107,8 @@ class NetworkStates(NetworkStatesCy):
         for index, node in enumerate(nodes):
             nstates += node._nstates
             indices.append(nstates)
-
         return cls(
-            array=np.zeros((nstates,)),
+            array=np.array(np.arange(0, nstates), dtype=np.double),
             indices=np.array(indices)
         )
 
@@ -124,8 +123,8 @@ class NetworkStates(NetworkStatesCy):
 
 class NetworkConnectivity(NetworkConnectivityCy):
 
-    def __init__(self, array, indices):
-        super().__init__(array, indices)
+    def __init__(self, sources, weights, indices):
+        super().__init__(sources, weights, indices)
 
     @classmethod
     def from_options(cls, network_options: NetworkOptions):
@@ -133,25 +132,30 @@ class NetworkConnectivity(NetworkConnectivityCy):
         nodes = network_options.nodes
         edges = network_options.edges
 
-        connectivity = np.empty((len(edges), 2))
+        connectivity = np.empty((len(edges), 3))
         node_names = [node.name for node in nodes]
 
         for index, edge in enumerate(edges):
             connectivity[index][0] = int(node_names.index(edge.from_node))
             connectivity[index][1] = int(node_names.index(edge.to_node))
-        connectivity = np.array(sorted(connectivity, key=lambda row: row[1]))
+            connectivity[index][2] = edge.weight
+        connectivity = np.array(sorted(connectivity, key=lambda col: col[1]))
 
         sources = np.empty((len(edges),))
+        weights = np.empty((len(edges),))
         nedges = 0
         indices = [0,]
+        print(connectivity)
         for index, node in enumerate(nodes):
             node_sources = connectivity[connectivity[:, 1] == index][:, 0].tolist()
+            node_weights = connectivity[connectivity[:, 1] == index][:, 2].tolist()
             nedges += len(node_sources)
             indices.append(nedges)
-            sources[indices[index]:indices[index+1]] += node_sources
-
+            sources[indices[index]:indices[index+1]] = node_sources
+            weights[indices[index]:indices[index+1]] = node_weights
         return cls(
-            array=np.array(sources, dtype=np.uintc),
+            sources=np.array(sources, dtype=np.uintc),
+            weights=np.array(weights, dtype=np.double),
             indices=np.array(indices, dtype=np.uintc)
         )
 

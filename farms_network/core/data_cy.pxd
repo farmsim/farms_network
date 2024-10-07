@@ -31,7 +31,7 @@ cdef class NetworkDataCy:
         public NetworkStatesCy derivatives
         public DoubleArray1D external_inputs
         public DoubleArray1D outputs
-        public DoubleArray2D weights
+        public NetworkConnectivityCy connectivity
 
         public DoubleArray1D states_noise
         public DoubleArray1D outputs_noise
@@ -49,7 +49,9 @@ cdef class NetworkStatesCy(DoubleArray1D):
     cdef public UITYPEv1 indices
 
 
-cdef class NetworkConnectivityCy(IntegerArray1D):
+cdef class NetworkConnectivityCy:
     """ Network connectivity array """
 
+    cdef public UITYPEv1 sources
+    cdef public DTYPEv1 weights
     cdef public UITYPEv1 indices

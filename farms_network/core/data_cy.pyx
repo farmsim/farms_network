@@ -32,11 +32,6 @@ cdef class NetworkDataCy:
         """ nodes data initialization """
 
         super().__init__()
-        # self.nodes = nodes
-        # self.connectivity = connectivity
-        # self.inputs = inputs
-        # self.drives = drives
-        # self.outputs = outputs
 
 
 cdef class NetworkStatesCy(DoubleArray1D):
@@ -51,13 +46,16 @@ cdef class NetworkStatesCy(DoubleArray1D):
         self.indices = np.array(indices, dtype=np.uintc)
 
 
-cdef class NetworkConnectivityCy(IntegerArray1D):
+cdef class NetworkConnectivityCy:
     """ Connectivity array """
 
     def __init__(
             self,
-            array: NDArray[(Any,), np.uintc],
+            sources: NDArray[(Any,), np.uintc],
+            weights: NDArray[(Any,), np.double],
             indices: NDArray[(Any,), np.uintc],
     ):
-        super().__init__(array)
+        super().__init__()
+        self.sources = np.array(sources, dtype=np.uintc)
+        self.weights = np.array(weights, dtype=np.double)
         self.indices = np.array(indices, dtype=np.uintc)
