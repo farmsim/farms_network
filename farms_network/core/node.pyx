@@ -24,7 +24,7 @@ from libc.string cimport strdup
 from .options import NodeOptions
 
 
-cdef void ode(
+cdef inline void ode(
     double time,
     double[:] states,
     double[:] derivaties,
@@ -32,7 +32,7 @@ cdef void ode(
     double[:] inputs,
     double[:] weights,
     double[:] noise,
-    Node node
+    Node* node
 ) noexcept:
     """ Node ODE """
     printf("Base implementation of ODE C function \n")
@@ -74,15 +74,14 @@ cdef class PyNode:
         if self.node is not NULL:
             free(self.node)
 
-    def __init__(self, name):
+    def __init__(self, name: str, **kwargs):
         self.name = name
 
     @classmethod
     def from_options(cls, node_options: NodeOptions):
         """ From node options """
         name: str = node_options.name
-        ninputs: int = node_options.ninputs
-        return cls(name)
+        return cls(name, **node_options.parameters)
 
     # Property methods for name
     @property
@@ -109,15 +108,20 @@ cdef class PyNode:
     def nstates(self):
         return self.node.nstates
 
+    # Property methods for ninputs
+    @property
+    def ninputs(self):
+        return self.node.ninputs
+
     # Property methods for nparameters
     @property
     def nparameters(self):
         return self.node.nparameters
 
-    # Property methods for ninputs
     @property
-    def ninputs(self):
-        return self.node.ninputs
+    def parameters(self):
+        """ Number of states in the network """
+        return self.node.parameters[0]
 
     # Methods to wrap the ODE and output functions
     def ode(self, double time, states, dstates, usr_input, inputs, weights, noise):
@@ -128,7 +132,7 @@ cdef class PyNode:
         cdef double[:] c_noise = noise
         # Call the C function directly
         self.node.ode(
-            time, c_states, c_dstates, usr_input, c_inputs, c_weights, c_noise, self.node[0]
+            time, c_states, c_dstates, usr_input, c_inputs, c_weights, c_noise, self.node
         )
 
     def output(self, double time, states, usr_input, inputs, weights, noise):

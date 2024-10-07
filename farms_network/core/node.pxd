@@ -22,11 +22,11 @@ Header for Node Base Struture.
 """
 
 
-cdef packed struct Node:
+cdef struct Node:
     # Generic parameters
     unsigned int nstates        # Number of state variables in the node.
     unsigned int nparameters    # Number of parameters for the node.
-    unsigned int ninputs        # Number of inputs to the node.
+    unsigned int ninputs        # Number of inputs
 
     char* model_type            # Type of the model (e.g., "empty").
     char* name                  # Unique name of the node.
@@ -37,7 +37,7 @@ cdef packed struct Node:
     void* parameters            # Pointer to the parameters of the node.
 
     # Functions
-    void ode(
+    inline void (*ode)(
         double time,
         double[:] states,
         double[:] derivatives,
@@ -45,7 +45,7 @@ cdef packed struct Node:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        Node node
+        Node* node
     ) noexcept
 
     double output(
@@ -58,9 +58,16 @@ cdef packed struct Node:
         Node node
     ) noexcept
 
+    void (*test_function)(double time,
+                          double* states,
+                          double* derivaties,
+                          double usr_input,
+                          double* inputs,
+                          Node* node) noexcept
+
 
 cdef:
-    void ode(
+    inline void ode(
         double time,
         double[:] states,
         double[:] derivatives,
@@ -68,7 +75,7 @@ cdef:
         double[:] inputs,
         double[:] weights,
         double[:] noise,
-        Node node
+        Node* node
     ) noexcept
     double output(
         double time,
