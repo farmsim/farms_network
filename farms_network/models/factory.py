@@ -19,38 +19,39 @@ limitations under the License.
 Factory class for generating the node model.
 """
 
-from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
-from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
-from farms_network.models.hopf_oscillator import HopfOscillator
-from farms_network.models.leaky_integrator import LeakyIntegrator
-from farms_network.models.lif_danner import LIFDanner
-from farms_network.models.lif_danner_nap import LIFDannerNap
-from farms_network.models.lif_daun_interneuron import LIFDaunInterneuron
-from farms_network.models.matsuoka_node import MatsuokaNode
-from farms_network.models.morphed_oscillator import MorphedOscillator
-from farms_network.models.morris_lecar import MorrisLecarNode
-from farms_network.models.oscillator import Oscillator
-from farms_network.models.relu import ReLUNode
-from farms_network.models.sensory_node import SensoryNode
+# from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
+# from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
+# from farms_network.models.hopf_oscillator import HopfOscillator
+# from farms_network.models.leaky_integrator import LeakyIntegrator
+from farms_network.models.li_danner import PyLIDannerNode
+from farms_network.models.li_nap_danner import PyLINaPDannerNode
+# from farms_network.models.lif_daun_interneuron import LIFDaunInterneuron
+# from farms_network.models.matsuoka_node import MatsuokaNode
+# from farms_network.models.morphed_oscillator import MorphedOscillator
+# from farms_network.models.morris_lecar import MorrisLecarNode
+from farms_network.models.oscillator import PyOscillatorNode
+# from farms_network.models.relu import ReLUNode
+# from farms_network.models.sensory_node import SensoryNode
 
 
 class NodeFactory:
     """Implementation of Factory Node class.
     """
-    nodes = {  # 'if': IntegrateAndFire,
-        'oscillator': Oscillator,
-        'hopf_oscillator': HopfOscillator,
-        'morphed_oscillator': MorphedOscillator,
-        'leaky': LeakyIntegrator,
-        'sensory': SensoryNode,
-        'lif_danner_nap': LIFDannerNap,
-        'lif_danner': LIFDanner,
-        'lif_daun_interneuron': LIFDaunInterneuron,
-        'hh_daun_motoneuron': HHDaunMotoneuron,
-        'fitzhugh_nagumo': FitzhughNagumo,
-        'matsuoka_node': MatsuokaNode,
-        'morris_lecar': MorrisLecarNode,
-        'relu': ReLUNode,
+    nodes = {
+        # 'if': IntegrateAndFire,
+        'oscillator': PyOscillatorNode,
+        # 'hopf_oscillator': HopfOscillator,
+        # 'morphed_oscillator': MorphedOscillator,
+        # 'leaky': LeakyIntegrator,
+        # 'sensory': SensoryNode,
+        'li_nap_danner': PyLINaPDannerNode,
+        'li_danner': PyLIDannerNode,
+        # 'lif_daun_interneuron': LIFDaunInterneuron,
+        # 'hh_daun_motoneuron': HHDaunMotoneuron,
+        # 'fitzhugh_nagumo': FitzhughNagumo,
+        # 'matsuoka_node': MatsuokaNode,
+        # 'morris_lecar': MorrisLecarNode,
+        # 'relu': ReLUNode,
     }
 
     def __init__(self):
@@ -73,7 +74,7 @@ class NodeFactory:
         NodeFactory.nodes[node_type] = node_instance
 
     @staticmethod
-    def gen_node(node_type):
+    def generate_node(node_type):
         """Generate the necessary type of node.
         Parameters
         ----------
