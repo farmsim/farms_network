@@ -22,6 +22,13 @@ Leaky Integrator Node Based on Danner et.al.
 from ..core.node cimport Node, PyNode
 
 
+cdef enum:
+
+    #STATES
+    NSTATES = 1
+    STATE_V = 0
+
+
 cdef packed struct LIDannerNodeParameters:
 
     double c_m                     # pF
@@ -33,25 +40,32 @@ cdef packed struct LIDannerNodeParameters:
     double g_syn_i                 # nS
     double e_syn_e                 # mV
     double e_syn_i                 # mV
-    double m_e                     # -
-    double m_i                     # -
-    double b_e                     # -
-    double b_i                     # -
 
 
 cdef:
-    void ode_rhs_c(
+    void ode(
         double time,
-        double[:] states,
-        double[:] dstates,
-        double[:] inputs,
-        double[:] weights,
-        double[:] noise,
-        Node node
+        double* states,
+        double* derivatives,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
+        Node* node
     ) noexcept
-    double output_c(double time, double[:] states, Node node)
-    inline double node_inputs_eval_c(double _node_out, double _weight)
+    double output(
+        double time,
+        double* states,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
+        Node* node
+    ) noexcept
 
 
 cdef class PyLIDannerNode(PyNode):
     """ Python interface to Leaky Integrator Node C-Structure """
+
+    cdef:
+        LIDannerNodeParameters parameters
