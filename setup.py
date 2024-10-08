@@ -35,16 +35,65 @@ Options.closure_freelist_size = 8
 
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
+# extensions = [
+#     Extension(
+#         f"farms_network.{subpackage}.*",
+#         [f"farms_network/{subpackage}/*.pyx"],
+#         include_dirs=[numpy.get_include(),],
+#         # libraries=["c", "stdc++"],
+#         extra_compile_args=['-ffast-math', '-O3'],
+#         extra_link_args=['-O3'],
+#     )
+#     for subpackage in (
+#             'core',
+#             # 'models'
+
+#     )
+# ]
+
 extensions = [
     Extension(
-        f"farms_network.{subpackage}.*",
-        [f"farms_network/{subpackage}/*.pyx"],
-        include_dirs=[numpy.get_include(),],
-        # libraries=["c", "stdc++"],
+        "farms_network.core.network",
+        ["farms_network/core/network.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
         extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3'],
-    )
-    for subpackage in ('core', 'models')
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.core.node",
+        ["farms_network/core/node.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.core.data_cy",
+        ["farms_network/core/data_cy.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.models.li_danner",
+        ["farms_network/models/li_danner.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.models.li_nap_danner",
+        ["farms_network/models/li_nap_danner.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.models.oscillator",
+        ["farms_network/models/oscillator.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
 ]
 
 setup(
