@@ -1,5 +1,5 @@
-from .node cimport Node
 from .data_cy cimport NetworkDataCy
+from .node cimport Node
 
 
 cdef struct Network:
@@ -12,6 +12,7 @@ cdef struct Network:
     # nodes list
     Node** nodes
 
+
 cdef class PyNetwork:
     """ Python interface to Network ODE """
 
@@ -19,6 +20,7 @@ cdef class PyNetwork:
         Network *network
         public list pynodes
         public NetworkDataCy data
+        double[:] __tmp_node_outputs
 
     # cpdef void step(self)
-    cpdef void ode(self, double time, double[:] states)
+    cpdef double[:] ode(self, double time, double[::1] states)

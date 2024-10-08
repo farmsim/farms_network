@@ -19,77 +19,45 @@ limitations under the License.
 
 include "types.pxd"
 
+cimport numpy as cnp
 import numpy as np
 
 from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from typing import Iterable
-
 from ..models.factory import NodeFactory
-from ..models.li_danner cimport LIDannerNodeParameters
-from .data import NetworkData, NetworkStates
-from .data_cy cimport NetworkDataCy, NetworkStatesCy
 
+from ..models.li_danner cimport LIDannerNodeParameters
+
+from .data import NetworkData, NetworkStates
+
+from .data_cy cimport NetworkDataCy, NetworkStatesCy
 from .node cimport Node, PyNode
 
 from tqdm import tqdm
 
-from .options import EdgeOptions, NetworkOptions, NodeOptions
+from .options import (EdgeOptions, IntegrationOptions, NetworkOptions,
+                      NodeOptions)
 
 
-cdef enum state_conv:
-    state0 = 0
-    state1 = 1
+cpdef rk4(double time, cnp.ndarray[double, ndim=1] state, func, double step_size):
+    """ Runge-kutta order 4 integrator """
 
-
-cdef void li_ode(
-    double time,
-    double* states,
-    double* derivatives,
-    double external_input,
-    double* network_outputs,
-    unsigned int* input_neurons,
-    double* input_weights,
-    Node* node
-) noexcept:
-    """ ODE """
-    # Parameters
-    cdef LIDannerNodeParameters params = (<LIDannerNodeParameters*> node[0].parameters)[0]
-
-    # States
-    cdef double state_v = states[<int>state_conv.state0]
-    # printf("states: %f \n", state_v)
-
-    # Ileak
-    cdef double i_leak = params.g_leak * (state_v - params.e_leak)
-
-    # Node inputs
-    cdef double _sum = 0.0
-    cdef unsigned int j
-    cdef double _node_out
-    cdef double res
-
-    cdef double _input
-    cdef double _weight
-
-    cdef unsigned int ninputs = node[0].ninputs
-    for j in range(ninputs):
-        _input = network_outputs[input_neurons[j]]
-        _weight = input_weights[j]
-        # _sum += node_inputs_eval_c(_input, _weight)
-
-    # dV
-    cdef double i_noise = 0.0
-    states[<int>state_conv.state0] = (-(i_leak + i_noise + _sum)/params.c_m)
+    K1 = np.array(func(time, state))
+    K2 = np.array(func(time + step_size/2, state + (step_size/2 * K1)))
+    K3 = np.array(func(time + step_size/2, state + (step_size/2 * K2)))
+    K4 = np.array(func(time + step_size, state + (step_size * K3)))
+    state = state + (K1 + 2*K2 + 2*K3 + K4)*(step_size/6)
+    time += step_size
+    return state
 
 
 cdef void ode(
     double time,
-    unsigned int iteration,
     NetworkDataCy data,
     Network* network,
+    double[:] tmp_node_outputs
 ) noexcept:
     """ C Implementation to compute full network state """
     cdef int j, step, steps, nnodes
@@ -112,20 +80,14 @@ cdef void ode(
     cdef double* weights = &data.connectivity.weights[0]
     cdef unsigned int* input_neurons_indices = &data.connectivity.indices[0]
 
-    # cdef double[::1] node_states
-    # cdef double[::1] node_derivatives
+    cdef double* tmp_node_outputs_ptr = &tmp_node_outputs[0]
 
-    # node_derivatives = states[derivatives_indices[0]:derivatives_indices[1]]
-
-    for step in range(steps):
-        for j in range(nnodes):
-            # node_states = states[states_indices[0]:states_indices[1]]
-            # (nodes[j][0]).ode(
-            #     time, node_states, node_derivatives, time, node_states, node_states, node_states, nodes[j]
-            # )
-            li_ode(
+    for j in range(nnodes):
+        __node = nodes[j][0]
+        if __node.is_statefull:
+            __node.ode(
                 time,
-                states + states_indices_ptr[j],
+                states + states_indices[j],
                 derivatives + derivatives_indices[j],
                 external_input,
                 outputs,
@@ -133,10 +95,17 @@ cdef void ode(
                 weights + input_neurons_indices[j],
                 nodes[j]
             )
-            # if __node.statefull:
-            #     __node.output(0.0, states, 0.0, arr, arr, arr, __node)
-            # else:
-            #     __node.output(0.0, arr, 0.0, arr, arr, arr, __node)
+        tmp_node_outputs_ptr[j] = __node.output(
+            time,
+            states + states_indices[j],
+            external_input,
+            outputs,
+            input_neurons + input_neurons_indices[j],
+            weights + input_neurons_indices[j],
+            nodes[j]
+        )
+    # Update all node outputs data for next iteration
+    data.outputs.array[:] = tmp_node_outputs[:]
 
 
 cdef class PyNetwork:
@@ -158,6 +127,7 @@ cdef class PyNetwork:
         super().__init__()
         self.data = <NetworkDataCy>NetworkData.from_options(network_options)
         self.pynodes = []
+        self.__tmp_node_outputs = np.zeros((self.network.nnodes,))
         self.setup_network(network_options, self.data)
 
     def __dealloc__(self):
@@ -172,7 +142,7 @@ cdef class PyNetwork:
         """ Initialize network from NetworkOptions """
         return cls(options)
 
-    def setup_integrator(options: IntegratorOptions):
+    def setup_integrator(options: IntegrationOptions):
         """ Setup integrator for neural network """
         ...
 
@@ -191,17 +161,18 @@ cdef class PyNetwork:
             )
             self.network.nodes[index] = c_node
 
-    def generate_node(self, node_options: NodeOptions):
+    @staticmethod
+    def generate_node(node_options: NodeOptions):
         """ Generate a node from options """
         Node = NodeFactory.generate_node(node_options.model)
         node = Node.from_options(node_options)
         return node
 
-    cpdef void ode(self, double time, double[:] states):
+    cpdef double[:] ode(self, double time, double[::1] states):
         """ ODE Wrapper for numerical integrators  """
         self.data.states.array[:] = states[:]
-        cdef int iteration = 0
-        ode(time, iteration, self.data, self.network)
+        ode(time, self.data, self.network, self.__tmp_node_outputs)
+        return self.data.derivatives.array
 
     @property
     def nnodes(self):
