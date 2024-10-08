@@ -24,14 +24,14 @@ from libc.string cimport strdup
 from .options import NodeOptions
 
 
-cdef inline void ode(
+cdef void ode(
     double time,
-    double[:] states,
-    double[:] derivaties,
-    double usr_input,
-    double[:] inputs,
-    double[:] weights,
-    double[:] noise,
+    double* states,
+    double* derivatives,
+    double external_input,
+    double* network_outputs,
+    unsigned int* inputs,
+    double* weights,
     Node* node
 ) noexcept:
     """ Node ODE """
@@ -40,12 +40,12 @@ cdef inline void ode(
 
 cdef double output(
     double time,
-    double[:] states,
-    double usr_input,
-    double[:] inputs,
-    double[:] weights,
-    double[:] noise,
-    Node node
+    double* states,
+    double external_input,
+    double* network_outputs,
+    unsigned int* inputs,
+    double* weights,
+    Node* node
 ) noexcept:
     """ Node output """
     printf("Base implementation of output C function \n")
@@ -124,17 +124,54 @@ cdef class PyNode:
         return self.node.parameters[0]
 
     # Methods to wrap the ODE and output functions
-    def ode(self, double time, states, dstates, usr_input, inputs, weights, noise):
-        cdef double[:] c_states = states
-        cdef double[:] c_dstates = dstates
-        cdef double[:] c_inputs = inputs
-        cdef double[:] c_weights = weights
-        cdef double[:] c_noise = noise
+    def ode(
+            self,
+            double time,
+            double[:] states,
+            double[:] derivatives,
+            double external_input,
+            double[:] network_outputs,
+            unsigned int[:] inputs,
+            double[:] weights,
+    ):
+        cdef double* states_ptr = &states[0]
+        cdef double* derivatives_ptr = &derivatives[0]
+        cdef double* network_outputs_ptr = &network_outputs[0]
+        cdef unsigned int* inputs_ptr = &inputs[0]
+        cdef double* weights_ptr = &weights[0]
+
         # Call the C function directly
         self.node.ode(
-            time, c_states, c_dstates, usr_input, c_inputs, c_weights, c_noise, self.node
+            time,
+            states_ptr,
+            derivatives_ptr,
+            external_input,
+            network_outputs_ptr,
+            inputs_ptr,
+            weights_ptr,
+            self.node
         )
 
-    def output(self, double time, states, usr_input, inputs, weights, noise):
+    def output(
+            self,
+            double time,
+            double[:] states,
+            double external_input,
+            double[:] network_outputs,
+            unsigned int[:] inputs,
+            double[:] weights
+    ):
         # Call the C function and return its result
-        return self.node[0].output(time, states, usr_input, inputs, weights, noise, self.node[0])
+        cdef double* states_ptr = &states[0]
+        cdef double* network_outputs_ptr = &network_outputs[0]
+        cdef unsigned int* inputs_ptr = &inputs[0]
+        cdef double* weights_ptr = &weights[0]
+        return self.node.output(
+            time,
+            states_ptr,
+            external_input,
+            network_outputs_ptr,
+            inputs_ptr,
+            weights_ptr,
+            self.node
+        )

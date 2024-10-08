@@ -31,60 +31,53 @@ cdef struct Node:
     char* model_type            # Type of the model (e.g., "empty").
     char* name                  # Unique name of the node.
 
-    bint statefull              # Flag indicating whether the node is stateful. (ODE)
+    bint is_statefull              # Flag indicating whether the node is stateful. (ODE)
 
     # Parameters
     void* parameters            # Pointer to the parameters of the node.
 
     # Functions
-    inline void (*ode)(
+    void ode(
         double time,
-        double[:] states,
-        double[:] derivatives,
-        double usr_input,
-        double[:] inputs,
-        double[:] weights,
-        double[:] noise,
+        double* states,
+        double* derivatives,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
         Node* node
     ) noexcept
 
     double output(
         double time,
-        double[:] states,
-        double usr_input,
-        double[:] inputs,
-        double[:] weights,
-        double[:] noise,
-        Node node
+        double* states,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
+        Node* node
     ) noexcept
-
-    void (*test_function)(double time,
-                          double* states,
-                          double* derivaties,
-                          double usr_input,
-                          double* inputs,
-                          Node* node) noexcept
 
 
 cdef:
-    inline void ode(
+    void ode(
         double time,
-        double[:] states,
-        double[:] derivatives,
-        double usr_input,
-        double[:] inputs,
-        double[:] weights,
-        double[:] noise,
+        double* states,
+        double* derivatives,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
         Node* node
     ) noexcept
     double output(
         double time,
-        double[:] states,
-        double usr_input,
-        double[:] inputs,
-        double[:] weights,
-        double[:] noise,
-        Node node
+        double* states,
+        double external_input,
+        double* network_outputs,
+        unsigned int* inputs,
+        double* weights,
+        Node* node
     ) noexcept
 
 
