@@ -108,7 +108,7 @@ class NetworkStates(NetworkStatesCy):
             nstates += node._nstates
             indices.append(nstates)
         return cls(
-            array=np.array(np.arange(0, nstates), dtype=np.double),
+            array=np.array(np.zeros((nstates,)), dtype=np.double),
             indices=np.array(indices)
         )
 
@@ -145,7 +145,6 @@ class NetworkConnectivity(NetworkConnectivityCy):
         weights = np.empty((len(edges),))
         nedges = 0
         indices = [0,]
-        print(connectivity)
         for index, node in enumerate(nodes):
             node_sources = connectivity[connectivity[:, 1] == index][:, 0].tolist()
             node_weights = connectivity[connectivity[:, 1] == index][:, 2].tolist()
