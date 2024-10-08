@@ -74,7 +74,6 @@ cdef void ode(
     # dV
     cdef double i_noise = 0.0
     derivatives[<int>STATE.v] = (-(i_leak + i_noise + _sum)/params.c_m)
-    # printf("%f -- %f -- %f -- %f %f\n ", derivatives[<int>STATE.v], i_leak, i_noise, _sum, params.c_m)
 
 
 cdef double output(
