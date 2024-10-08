@@ -16,105 +16,158 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Leaky Integrator Node with persistent sodium channel based on Danner et.al.
+Leaky Integrator Node based on Danner et.al.
 """
 
-# from libc.stdio cimport printf
-# from libc.stdlib cimport free, malloc
-# from libc.string cimport strdup
+from libc.math cimport cosh as ccosh
+from libc.math cimport exp as cexp
+from libc.math cimport fabs as cfabs
+from libc.stdio cimport printf
+from libc.stdlib cimport free, malloc
+from libc.string cimport strdup
+
+from ..core.options import LINaPDannerParameterOptions
 
 
-# cdef void ode_rhs_c(
-#     double time,
-#     double[:] states,
-#     double[:] dstates,
-#     double[:] inputs,
-#     double[:] weights,
-#     double[:] noise,
-#     double drive,
-#     Node node
-# ):
-#     """ ODE """
+cpdef enum STATE:
 
-#     # # Parameters
-#     cdef LINapDannerNodeParameters params = (
-#         <LINapDannerNodeParameters*> node.parameters
-#     )[0]
-#     # States
-#     cdef double state_v = states[0]
-
-#     # Drive inputs
-#     cdef double d_e = params.m_e * drive + params.b_e # Excitatory drive
-#     cdef double d_i = params.m_i * drive + params.b_i # Inhibitory drive
-
-#     # Ileak
-#     cdef double i_leak = params.g_leak * (state_v - params.e_leak)
-
-#     # ISyn_Excitatory
-#     cdef double i_syn_e = params.g_syn_e * d_e * (state_v - params.e_syn_e)
-
-#     # ISyn_Inhibitory
-#     cdef double i_syn_i = params.g_syn_i * d_i * (state_v - params.e_syn_i)
-
-#     # Node inputs
-#     cdef double _sum = 0.0
-#     cdef unsigned int j
-#     cdef double _node_out
-#     cdef double _weight
-
-#     # for j in range(node.ninputs):
-#     #     _sum += node_inputs_eval_c(inputs[j], weights[j])
-
-#     # # noise current
-#     # cdef double i_noise = c_noise_current_update(
-#     #     self.state_noise.c_get_value(), &(self.noise_params)
-#     # )
-#     # self.state_noise.c_set_value(i_noise)
-
-#     # dV
-#     cdef i_noise = 0.0
-#     dstates[0] = (
-#         -(i_leak + i_syn_e + i_syn_i + i_noise + _sum)/params.c_m
-#     )
+    #STATES
+    nstates = NSTATES
+    v = STATE_V
+    h = STATE_H
 
 
-# cdef double output_c(double time, double[:] states, Node node):
-#     """ Node output. """
+cdef void ode(
+    double time,
+    double* states,
+    double* derivatives,
+    double external_input,
+    double* network_outputs,
+    unsigned int* inputs,
+    double* weights,
+    Node* node
+) noexcept:
+    """ ODE """
+    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node[0].parameters)[0]
 
-#     cdef double state_v = states[0]
-#     cdef double _n_out = 1000.0
+    # States
+    cdef double state_v = states[<int>STATE.v]
+    cdef double state_h = states[<int>STATE.h]
 
-#     # cdef LIDannerNodeParameters params = <LIDannerNodeParameters> node.parameters
+    # tau_h(V)
+    cdef double tau_h = params.tau_0 + (params.tau_max - params.tau_0) / \
+        ccosh((state_v - params.v1_2_t) / params.k_t)
 
-#     # if state_v >= params.v_max:
-#     #     _n_out = 1.0
-#     # elif (params.v_thr <= state_v) and (state_v < params.v_max):
-#     #     _n_out = (state_v - params.v_thr) / (params.v_max - params.v_thr)
-#     # elif state_v < params.v_thr:
-#     #     _n_out = 0.0
-#     return _n_out
+    # h_inf(V)
+    cdef double h_inf = 1./(1.0 + cexp((state_v - params.v1_2_h) / params.k_h))
+
+    # m(V)
+    cdef double m = 1./(1.0 + cexp((state_v - params.v1_2_m) / params.k_m))
+
+    # Inap
+    # pylint: disable=no-member
+    cdef double i_nap = params.g_nap * m * state_h * (state_v - params.e_na)
+
+    # Ileak
+    cdef double i_leak = params.g_leak * (state_v - params.e_leak)
+
+    # Neuron inputs
+    cdef:
+        double _sum = 0.0
+        unsigned int j
+        double _node_out, res, _input, _weight
+
+    cdef unsigned int ninputs = node.ninputs
+    for j in range(ninputs):
+        _input = network_outputs[inputs[j]]
+        _weight = weights[j]
+        if _weight >= 0.0:
+            # Excitatory Synapse
+            _sum += params.g_syn_e*cfabs(_weight)*_input*(state_v - params.e_syn_e)
+        elif _weight < 0.0:
+            # Inhibitory Synapse
+            _sum += params.g_syn_i*cfabs(_weight)*_input*(state_v - params.e_syn_i)
+
+    # noise current
+    cdef double i_noise = 0.0
+
+    # Slow inactivation
+    derivatives[<int>STATE.h] = (h_inf - state_h) / tau_h
+
+    # dV
+    derivatives[<int>STATE.v] = -(i_nap + i_leak + i_noise + _sum)/params.c_m
 
 
-# cdef double node_inputs_eval_c(double _node_out, double _weight):
-#     return 0.0
+cdef double output(
+    double time,
+    double* states,
+    double external_input,
+    double* network_outputs,
+    unsigned int* inputs,
+    double* weights,
+    Node* node
+) noexcept:
+    """ Node output. """
+
+    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node.parameters)[0]
+    cdef double _n_out = 0.0
+    if states[<int>STATE.v] >= params.v_max:
+        _n_out = 1.0
+    elif (params.v_thr <= states[<int>STATE.v]) and (states[<int>STATE.v] < params.v_max):
+        _n_out = (states[<int>STATE.v] - params.v_thr) / (params.v_max - params.v_thr)
+    elif states[0] < params.v_thr:
+        _n_out = 0.0
+    return _n_out
 
 
-# cdef class PyLINapDannerNode(PyNode):
-#     """ Python interface to Leaky Integrator Node with persistence sodium C-Structure """
+cdef class PyLINapDannerNode(PyNode):
+    """ Python interface to Leaky Integrator Node with persistence sodium C-Structure """
 
-#     def __cinit__(self):
-#         # override defaults
-#         self._node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
-#         self._node.nstates = 2
-#         self._node.nparameters = 13
-#         # methods
-#         self._node.ode_rhs_c = ode_rhs_c
-#         self._node.output_c = output_c
-#         # parameters
-#         self._node.parameters = <LIDannerNodeParameters*>malloc(
-#             sizeof(LIDannerNodeParameters)
-#         )
+    def __cinit__(self):
+        # override defaults
+        self._node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
+        # override default ode and out methods
+        self.node.is_statefull = True
+        self.node.ode = ode
+        self.node.output = output
+        # parameters
+        self.node.parameters = malloc(sizeof(LINaPDannerNodeParameters))
+        if self.node.parameters is NULL:
+            raise MemoryError("Failed to allocate memory for node parameters")
 
-#     def __dealloc__(self):
-#         if self._node.name is not NULL:
-#             free(self._node.parameters)
+    def __init__(self, name: str, **kwargs):
+        super().__init__(name)
+
+        # Set node parameters
+        cdef LINaPDannerNodeParameters* param = <LINaPDannerNodeParameters*>(
+            self.node.parameters
+        )
+        param.c_m = kwargs.pop("c_m")
+        param.g_nap = kwargs.pop("g_nap")
+        param.e_na = kwargs.pop("e_na")
+        param.v1_2_m = kwargs.pop("v1_2_m")
+        param.k_m = kwargs.pop("k_m")
+        param.v1_2_h = kwargs.pop("v1_2_h")
+        param.k_h = kwargs.pop("k_h")
+        param.v1_2_t = kwargs.pop("v1_2_t")
+        param.k_t = kwargs.pop("k_t")
+        param.g_leak = kwargs.pop("g_leak")
+        param.e_leak = kwargs.pop("e_leak")
+        param.tau_0 = kwargs.pop("tau_0")
+        param.tau_max = kwargs.pop("tau_max")
+        param.v_max = kwargs.pop("v_max")
+        param.v_thr = kwargs.pop("v_thr")
+        param.g_syn_e = kwargs.pop("g_syn_e")
+        param.g_syn_i = kwargs.pop("g_syn_i")
+        param.e_syn_e = kwargs.pop("e_syn_e")
+        param.e_syn_i = kwargs.pop("e_syn_i")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @property
+    def parameters(self):
+        """ Parameters in the network """
+        cdef LINaPDannerNodeParameters params = (
+            <LINaPDannerNodeParameters*> self.node.parameters
+        )[0]
+        return params
