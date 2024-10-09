@@ -136,22 +136,24 @@ class NetworkConnectivity(NetworkConnectivityCy):
         node_names = [node.name for node in nodes]
 
         for index, edge in enumerate(edges):
-            connectivity[index][0] = int(node_names.index(edge.from_node))
-            connectivity[index][1] = int(node_names.index(edge.to_node))
+            connectivity[index][0] = int(node_names.index(edge.source))
+            connectivity[index][1] = int(node_names.index(edge.target))
             connectivity[index][2] = edge.weight
         connectivity = np.array(sorted(connectivity, key=lambda col: col[1]))
 
         sources = np.empty((len(edges),))
         weights = np.empty((len(edges),))
         nedges = 0
-        indices = [0,]
-        for index, node in enumerate(nodes):
-            node_sources = connectivity[connectivity[:, 1] == index][:, 0].tolist()
-            node_weights = connectivity[connectivity[:, 1] == index][:, 2].tolist()
-            nedges += len(node_sources)
-            indices.append(nedges)
-            sources[indices[index]:indices[index+1]] = node_sources
-            weights[indices[index]:indices[index+1]] = node_weights
+        indices = []
+        if len(edges) > 0:
+            indices.append(0)
+            for index, node in enumerate(nodes):
+                node_sources = connectivity[connectivity[:, 1] == index][:, 0].tolist()
+                node_weights = connectivity[connectivity[:, 1] == index][:, 2].tolist()
+                nedges += len(node_sources)
+                indices.append(nedges)
+                sources[indices[index]:indices[index+1]] = node_sources
+                weights[indices[index]:indices[index+1]] = node_weights
         return cls(
             sources=np.array(sources, dtype=np.uintc),
             weights=np.array(weights, dtype=np.double),
