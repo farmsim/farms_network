@@ -1,5 +1,6 @@
 from .data_cy cimport NetworkDataCy
 from .node cimport Node
+from .edge cimport Edge
 
 
 cdef struct Network:
@@ -12,6 +13,9 @@ cdef struct Network:
     # nodes list
     Node** nodes
 
+    # edges list
+    Edge** edges
+
 
 cdef class PyNetwork:
     """ Python interface to Network ODE """
@@ -19,6 +23,7 @@ cdef class PyNetwork:
     cdef:
         Network *network
         public list pynodes
+        public list pyedges
         public NetworkDataCy data
         double[:] __tmp_node_outputs
 
