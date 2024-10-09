@@ -5,4 +5,5 @@ Core
    :maxdepth: 3
    :caption: Contents:
 
-.. include:: neuron.rst
+.. include:: node.rst
+.. include:: options.rst
