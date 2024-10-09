@@ -20,6 +20,7 @@ Leaky Integrator Node Based on Danner et.al. with Na and K channels
 """
 
 from ..core.node cimport Node, PyNode
+from ..core.edge cimport Edge
 
 
 cdef enum:
@@ -62,7 +63,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
     double output(
         double time,
@@ -71,7 +73,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
 
 

@@ -26,8 +26,6 @@ from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from ..core.options import OscillatorParameterOptions
-
 
 cpdef enum STATE:
 
@@ -45,11 +43,13 @@ cdef void ode(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node
+    Node* node,
+    Edge* edges,
 ) noexcept:
     """ ODE """
     # Parameters
     cdef OscillatorNodeParameters params = (<OscillatorNodeParameters*> node[0].parameters)[0]
+    cdef OscillatorEdgeParameters edge_params
 
     # States
     cdef double state_phase = states[<int>STATE.phase]
@@ -58,16 +58,15 @@ cdef void ode(
     cdef:
         double _sum = 0.0
         unsigned int j
-        double _node_out, res, _input, _weight
+        double _input, _weight
 
     cdef unsigned int ninputs = node.ninputs
-    cdef int SIGN = 1
+
     for j in range(ninputs):
         _input = network_outputs[inputs[j]]
         _weight = weights[j]
-        # _phi = _p[self.neuron_inputs[j].phi_idx]
-        SIGN *= -1
-        _sum += _weight*state_amplitude*csin(_input - state_phase - SIGN*2.5)
+        edge_params = (<OscillatorEdgeParameters*> edges[j].parameters)[0]
+        _sum += _weight*state_amplitude*csin(_input - state_phase - edge_params.phase_difference)
 
     cdef double i_noise = 0.0
     # phidot : phase_dot
@@ -76,7 +75,6 @@ cdef void ode(
     derivatives[<int>STATE.amplitude] = params.amplitude_rate*(
         params.nominal_amplitude - state_amplitude
     )
-    # printf("%f -- %f -- %f -- %f %f\n ", derivatives[<int>STATE.v], i_leak, i_noise, _sum, params.c_m)
 
 
 cdef double output(
@@ -86,14 +84,15 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node
+    Node* node,
+    Edge* edges,
 ) noexcept:
     """ Node output. """
     return states[<int>STATE.phase]
 
 
 cdef class PyOscillatorNode(PyNode):
-    """ Python interface to Leaky Integrator Node C-Structure """
+    """ Python interface to Oscillator Node C-Structure """
 
     def __cinit__(self):
         self.node.model_type = strdup("OSCILLATOR".encode('UTF-8'))
@@ -121,4 +120,31 @@ cdef class PyOscillatorNode(PyNode):
     def parameters(self):
         """ Parameters in the network """
         cdef OscillatorNodeParameters params = (<OscillatorNodeParameters*> self.node.parameters)[0]
+        return params
+
+
+cdef class PyOscillatorEdge(PyEdge):
+    """ Python interface to Oscillator Edge C-Structure """
+
+    def __cinit__(self):
+
+        # parameters
+        self.edge.parameters = malloc(sizeof(OscillatorEdgeParameters))
+        if self.edge.parameters is NULL:
+            raise MemoryError("Failed to allocate memory for edge parameters")
+
+    def __init__(self, source: str, target: str, edge_type: str, **kwargs):
+        super().__init__(source, target, edge_type)
+
+        # Set edge parameters
+        cdef OscillatorEdgeParameters* param = <OscillatorEdgeParameters*>(self.edge.parameters)
+        param.phase_difference = kwargs.pop("phase_difference")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @property
+    def parameters(self):
+        """ Parameters in the network """
+        cdef OscillatorEdgeParameters params = (<OscillatorEdgeParameters*> self.edge.parameters)[0]
         return params

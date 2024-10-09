@@ -21,6 +21,7 @@ Oscillator model
 
 
 from ..core.node cimport Node, PyNode
+from ..core.edge cimport Edge, PyEdge
 
 
 cdef enum:
@@ -37,6 +38,12 @@ cdef packed struct OscillatorNodeParameters:
     double nominal_amplitude       #
     double amplitude_rate          #
 
+
+cdef packed struct OscillatorEdgeParameters:
+
+    double phase_difference        # radians
+
+
 cdef:
     void ode(
         double time,
@@ -46,7 +53,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
     double output(
         double time,
@@ -55,7 +63,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
 
 
@@ -64,3 +73,10 @@ cdef class PyOscillatorNode(PyNode):
 
     cdef:
         OscillatorNodeParameters parameters
+
+
+cdef class PyOscillatorEdge(PyEdge):
+    """ Python interface to Oscillator Edge C-Structure """
+
+    cdef:
+        OscillatorEdgeParameters parameters

@@ -45,7 +45,8 @@ cdef void ode(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node
+    Node* node,
+    Edge* edges,
 ) noexcept:
     """ ODE """
     cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node[0].parameters)[0]
@@ -105,7 +106,8 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node
+    Node* node,
+    Edge* edges,
 ) noexcept:
     """ Node output. """
 

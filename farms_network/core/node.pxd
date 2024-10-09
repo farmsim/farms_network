@@ -21,6 +21,8 @@ Header for Node Base Struture.
 
 """
 
+from .edge cimport Edge
+
 
 cdef struct Node:
     # Generic parameters
@@ -45,7 +47,8 @@ cdef struct Node:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
 
     double output(
@@ -55,7 +58,8 @@ cdef struct Node:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
 
 
@@ -68,7 +72,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
     double output(
         double time,
@@ -77,7 +82,8 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node
+        Node* node,
+        Edge* edges,
     ) noexcept
 
 
