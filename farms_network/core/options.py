@@ -40,7 +40,7 @@ class NetworkOptions(Options):
 
     def add_edge(self, options: "EdgeOptions"):
         """ Add a node if it does not already exist in the list """
-        if (options.from_node in self.nodes) and (options.to_node in self.nodes):
+        if (options.source in self.nodes) and (options.target in self.nodes):
             self.edges.append(options)
         else:
             print(f"Edge {options} does not contain the nodes.")
@@ -175,12 +175,15 @@ class EdgeOptions(Options):
         """ Initialize """
         super().__init__()
 
-        self.from_node: str = kwargs.pop("from_node")
-        self.to_node: str = kwargs.pop("to_node")
+        self.source: str = kwargs.pop("source")
+        self.target: str = kwargs.pop("target")
         self.weight: float = kwargs.pop("weight")
         self.type: str = kwargs.pop("type")
+        self.parameters: EdgeParameterOptions = kwargs.pop(
+            "parameters", EdgeParameterOptions()
+        )
 
-        self.visual: NodeVisualOptions = kwargs.pop("visual")
+        self.visual: EdgeVisualOptions = kwargs.pop("visual")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
@@ -191,6 +194,13 @@ class EdgeOptions(Options):
                 (self.target == other.target)
             )
         return False
+
+
+class EdgeParameterOptions(Options):
+    """ Base class for edge specific parameters """
+
+    def __init__(self):
+        super().__init__()
 
 
 class EdgeVisualOptions(Options):
@@ -204,6 +214,127 @@ class EdgeVisualOptions(Options):
         self.latex: dict = kwargs.pop("latex", "{}")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+########################
+# Linear Model Options #
+########################
+class LinearNodeOptions(NodeOptions):
+    """ Class to define the properties of Linear node model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "linear"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state", None),
+        )
+        self._nstates = 0
+        self._nparameters = 1
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+class LinearParameterOptions(NodeParameterOptions):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.bias = kwargs.pop("bias")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for Linear Node model """
+
+        options = {}
+
+        options["bias"] = kwargs.pop("bias", 0.0)
+
+        return cls(**options)
+
+############################################
+# Phase-Amplitude Oscillator Model Options #
+############################################
+class OscillatorNodeOptions(NodeOptions):
+    """ Class to define the properties of Oscillator node model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "oscillator"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state"),
+        )
+        self._nstates = 2
+        self._nparameters = 3
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+class OscillatorParameterOptions(NodeParameterOptions):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.intrinsic_frequency = kwargs.pop("intrinsic_frequency")  # Hz
+        self.nominal_amplitude = kwargs.pop("nominal_amplitude")      #
+        self.amplitude_rate = kwargs.pop("amplitude_rate")            #
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for Oscillator Node model """
+
+        options = {}
+
+        options["intrinsic_frequency"] = kwargs.pop("intrinsic_frequency", 1.0)
+        options["nominal_amplitude"] = kwargs.pop("nominal_amplitude", 1.0)
+        options["amplitude_rate"] = kwargs.pop("amplitude_rate", 1.0)
+
+        return cls(**options)
+
+
+class OscillatorStateOptions(NodeStateOptions):
+    """ Oscillator node state options """
+
+    STATE_NAMES = ["phase", "amplitude"]
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            initial=kwargs.pop("initial"),
+            names=OscillatorStateOptions.STATE_NAMES
+        )
+        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
+class OscillatorEdgeParameterOptions(EdgeParameterOptions):
+    """ Oscillator edge parameter options """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.phase_difference = kwargs.pop("phase_difference")   # radians
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for Oscillator Node model """
+
+        options = {}
+        options["phase_difference"] = kwargs.pop("phase_difference", 0.0)
+        return cls(**options)
 
 
 #########################################
@@ -294,7 +425,7 @@ class LIDannerStateOptions(NodeStateOptions):
 ##################################################
 # Leaky Integrator With NaP Danner Model Options #
 ##################################################
-class LIDannerNaPNodeOptions(NodeOptions):
+class LINaPDannerNodeOptions(NodeOptions):
     """ Class to define the properties of Leaky integrator danner node model """
 
     def __init__(self, **kwargs):
@@ -314,7 +445,7 @@ class LIDannerNaPNodeOptions(NodeOptions):
             raise Exception(f'Unknown kwargs: {kwargs}')
 
 
-class LIDannerNaPParameterOptions(NodeParameterOptions):
+class LINaPDannerParameterOptions(NodeParameterOptions):
     """ Class to define the parameters of Leaky integrator danner node model """
 
     def __init__(self, **kwargs):
@@ -369,7 +500,7 @@ class LIDannerNaPParameterOptions(NodeParameterOptions):
         return cls(**options)
 
 
-class LIDannerNaPStateOptions(NodeStateOptions):
+class LINaPDannerStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
     STATE_NAMES = ["v0", "h0"]
@@ -377,7 +508,7 @@ class LIDannerNaPStateOptions(NodeStateOptions):
     def __init__(self, **kwargs):
         super().__init__(
             initial=kwargs.pop("initial"),
-            names=LIDannerNaPStateOptions.STATE_NAMES
+            names=LINaPDannerStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
 
@@ -395,9 +526,9 @@ def main():
 
     li_opts = LIDannerNodeOptions(
         name="li",
-        parameters=LIDannerNaPParameterOptions.defaults(),
+        parameters=LINaPDannerParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LIDannerNaPStateOptions.from_kwargs(
+        state=LINaPDannerStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
@@ -405,11 +536,11 @@ def main():
     print(f"Is hashable {isinstance(li_opts, typing.Hashable)}")
 
     network_opts.add_node(li_opts)
-    li_opts = LIDannerNaPNodeOptions(
+    li_opts = LINaPDannerNodeOptions(
         name="li-2",
-        parameters=LIDannerNaPParameterOptions.defaults(),
+        parameters=LINaPDannerParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LIDannerNaPStateOptions.from_kwargs(
+        state=LINaPDannerStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
@@ -417,8 +548,8 @@ def main():
 
     network_opts.add_edge(
         EdgeOptions(
-            from_node="li",
-            to_node="li-2",
+            source="li",
+            target="li-2",
             weight=0.0,
             type="excitatory",
             visual=EdgeVisualOptions()
@@ -435,8 +566,8 @@ def main():
         multigraph=False,
         link="edges",
         name="name",
-        source="from_node",
-        target="to_node"
+        source="source",
+        target="target"
     )
     nx.draw(
         graph, pos=nx.nx_agraph.graphviz_layout(graph),
