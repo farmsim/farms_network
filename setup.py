@@ -67,6 +67,13 @@ extensions = [
         extra_link_args=['-O3', '-lm']
     ),
     Extension(
+        "farms_network.core.edge",
+        ["farms_network/core/edge.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
         "farms_network.core.data_cy",
         ["farms_network/core/data_cy.pyx"],
         include_dirs=[numpy.get_include(), get_include()],
@@ -90,6 +97,13 @@ extensions = [
     Extension(
         "farms_network.models.oscillator",
         ["farms_network/models/oscillator.pyx"],
+        include_dirs=[numpy.get_include(), get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
+    Extension(
+        "farms_network.models.linear",
+        ["farms_network/models/linear.pyx"],
         include_dirs=[numpy.get_include(), get_include()],
         extra_compile_args=['-ffast-math', '-O3'],
         extra_link_args=['-O3', '-lm']

@@ -19,17 +19,19 @@ limitations under the License.
 Factory class for generating the node model.
 """
 
+from farms_network.core.edge import PyEdge
 # from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
 # from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
 # from farms_network.models.hopf_oscillator import HopfOscillator
 # from farms_network.models.leaky_integrator import LeakyIntegrator
+from farms_network.models.linear import PyLinearNode
 from farms_network.models.li_danner import PyLIDannerNode
 from farms_network.models.li_nap_danner import PyLINaPDannerNode
 # from farms_network.models.lif_daun_interneuron import LIFDaunInterneuron
 # from farms_network.models.matsuoka_node import MatsuokaNode
 # from farms_network.models.morphed_oscillator import MorphedOscillator
 # from farms_network.models.morris_lecar import MorrisLecarNode
-from farms_network.models.oscillator import PyOscillatorNode
+from farms_network.models.oscillator import PyOscillatorNode, PyOscillatorEdge
 # from farms_network.models.relu import ReLUNode
 # from farms_network.models.sensory_node import SensoryNode
 
@@ -44,6 +46,7 @@ class NodeFactory:
         # 'morphed_oscillator': MorphedOscillator,
         # 'leaky': LeakyIntegrator,
         # 'sensory': SensoryNode,
+        'linear': PyLinearNode,
         'li_nap_danner': PyLINaPDannerNode,
         'li_danner': PyLIDannerNode,
         # 'lif_daun_interneuron': LIFDaunInterneuron,
@@ -96,3 +99,46 @@ class NodeFactory:
         if not node:
             raise ValueError(node_type)
         return node
+
+
+class EdgeFactory:
+    """Implementation of Factory Edge class.
+    """
+    edges = {
+        'oscillator': PyOscillatorEdge,
+    }
+
+    def __init__(self):
+        """Factory initialization."""
+        super().__init__()
+
+    @staticmethod
+    def register_edge(edge_type, edge_instance):
+        """
+        Register a new type of edge that is a child class of Edge.
+        Parameters
+        ----------
+        self: type
+            description
+        edge_type: <str>
+            String to identifier for the edge.
+        edge_instance: <cls>
+            Class of the edge to register.
+        """
+        EdgeFactory.edges[edge_type] = edge_instance
+
+    @staticmethod
+    def generate_edge(edge_type):
+        """Generate the necessary type of edge.
+        Parameters
+        ----------
+        edge_type: <str>
+        Returns
+        -------
+        edge: <cls>
+            Appropriate edge class.
+        """
+        edge = EdgeFactory.edges.get(edge_type, PyEdge)
+        if not edge:
+            raise ValueError(edge_type)
+        return edge
