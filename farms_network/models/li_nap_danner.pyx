@@ -46,7 +46,7 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ ODE """
     cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node[0].parameters)[0]
@@ -76,7 +76,7 @@ cdef void ode(
     cdef:
         double _sum = 0.0
         unsigned int j
-        double _node_out, res, _input, _weight
+        double _input, _weight
 
     cdef unsigned int ninputs = node.ninputs
     for j in range(ninputs):
@@ -107,7 +107,7 @@ cdef double output(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node output. """
 
@@ -122,12 +122,12 @@ cdef double output(
     return _n_out
 
 
-cdef class PyLINapDannerNode(PyNode):
+cdef class PyLINaPDannerNode(PyNode):
     """ Python interface to Leaky Integrator Node with persistence sodium C-Structure """
 
     def __cinit__(self):
         # override defaults
-        self._node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
+        self.node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
         # override default ode and out methods
         self.node.is_statefull = True
         self.node.ode = ode

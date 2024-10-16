@@ -43,7 +43,7 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ ODE """
     # Parameters
@@ -85,7 +85,7 @@ cdef double output(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node output. """
 

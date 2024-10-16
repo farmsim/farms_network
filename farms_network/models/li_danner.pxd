@@ -53,7 +53,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         Node* node,
-        Edge* edges,
+        Edge** edges,
     ) noexcept
     double output(
         double time,
@@ -63,7 +63,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         Node* node,
-        Edge* edges,
+        Edge** edges,
     ) noexcept
 
 
