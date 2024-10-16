@@ -30,6 +30,7 @@ cdef enum:
 
 
 cdef packed struct LinearNodeParameters:
+    double slope
     double bias
 
 
@@ -42,7 +43,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         Node* node,
-        Edge* edges,
+        Edge** edges,
     ) noexcept
 
 

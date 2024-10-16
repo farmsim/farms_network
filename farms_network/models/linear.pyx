@@ -38,7 +38,7 @@ cdef double output(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node output. """
     cdef LinearNodeParameters params = (<LinearNodeParameters*> node[0].parameters)[0]
@@ -54,7 +54,7 @@ cdef double output(
         _weight = weights[j]
         _sum += _weight*_input
 
-    return (_sum + params.bias)
+    return (params.slope*_sum + params.bias)
 
 
 cdef class PyLinearNode(PyNode):
@@ -75,6 +75,7 @@ cdef class PyLinearNode(PyNode):
 
         # Set node parameters
         cdef LinearNodeParameters* param = <LinearNodeParameters*>(self.node.parameters)
+        param.slope = kwargs.pop("slope")
         param.bias = kwargs.pop("bias")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
