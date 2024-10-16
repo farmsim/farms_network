@@ -33,7 +33,7 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node ODE """
     printf("Base implementation of ODE C function \n")
@@ -47,7 +47,7 @@ cdef double output(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node output """
     printf("Base implementation of output C function \n")
@@ -141,7 +141,7 @@ cdef class PyNode:
         cdef double* network_outputs_ptr = &network_outputs[0]
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
-        cdef Edge* edges = NULL
+        cdef Edge** edges = NULL
 
         # Call the C function directly
         self.node.ode(
@@ -170,7 +170,7 @@ cdef class PyNode:
         cdef double* network_outputs_ptr = &network_outputs[0]
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
-        cdef Edge* edges = NULL
+        cdef Edge** edges = NULL
         return self.node.output(
             time,
             states_ptr,
