@@ -33,6 +33,7 @@ cpdef enum STATE:
     nstates = NSTATES
     phase = STATE_PHASE
     amplitude = STATE_AMPLITUDE
+    amplitude_0 = STATE_AMPLITUDE_0
 
 
 cdef void ode(
@@ -44,7 +45,7 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ ODE """
     # Parameters
@@ -54,6 +55,7 @@ cdef void ode(
     # States
     cdef double state_phase = states[<int>STATE.phase]
     cdef double state_amplitude = states[<int>STATE.amplitude]
+    cdef double state_amplitude_0 = states[<int>STATE.amplitude_0]
 
     cdef:
         double _sum = 0.0
@@ -61,19 +63,20 @@ cdef void ode(
         double _input, _weight
 
     cdef unsigned int ninputs = node.ninputs
-
     for j in range(ninputs):
         _input = network_outputs[inputs[j]]
         _weight = weights[j]
         edge_params = (<OscillatorEdgeParameters*> edges[j].parameters)[0]
-        _sum += _weight*state_amplitude*csin(_input - state_phase - edge_params.phase_difference)
+        _sum += _weight*state_amplitude*csin(
+            _input - state_phase - edge_params.phase_difference
+        )
 
-    cdef double i_noise = 0.0
     # phidot : phase_dot
     derivatives[<int>STATE.phase] = 2*M_PI*params.intrinsic_frequency + _sum
     # ampdot
-    derivatives[<int>STATE.amplitude] = params.amplitude_rate*(
-        params.nominal_amplitude - state_amplitude
+    derivatives[<int>STATE.amplitude] = state_amplitude_0
+    derivatives[<int>STATE.amplitude_0] = params.amplitude_rate*(
+        (params.amplitude_rate/4.0)*(params.nominal_amplitude - state_amplitude) - state_amplitude_0
     )
 
 
@@ -85,7 +88,7 @@ cdef double output(
     unsigned int* inputs,
     double* weights,
     Node* node,
-    Edge* edges,
+    Edge** edges,
 ) noexcept:
     """ Node output. """
     return states[<int>STATE.phase]

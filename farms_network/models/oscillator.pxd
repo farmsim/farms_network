@@ -27,9 +27,10 @@ from ..core.edge cimport Edge, PyEdge
 cdef enum:
 
     #STATES
-    NSTATES = 1
+    NSTATES = 3
     STATE_PHASE = 0
-    STATE_AMPLITUDE = 1
+    STATE_AMPLITUDE= 1
+    STATE_AMPLITUDE_0 = 2
 
 
 cdef packed struct OscillatorNodeParameters:
@@ -54,7 +55,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         Node* node,
-        Edge* edges,
+        Edge** edges,
     ) noexcept
     double output(
         double time,
@@ -64,7 +65,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         Node* node,
-        Edge* edges,
+        Edge** edges,
     ) noexcept
 
 
