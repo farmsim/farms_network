@@ -243,7 +243,7 @@ class LinearNodeOptions(NodeOptions):
             state=kwargs.pop("state", None),
         )
         self._nstates = 0
-        self._nparameters = 1
+        self._nparameters = 2
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
@@ -253,6 +253,7 @@ class LinearParameterOptions(NodeParameterOptions):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.slope = kwargs.pop("slope")
         self.bias = kwargs.pop("bias")
 
         if kwargs:
@@ -264,6 +265,7 @@ class LinearParameterOptions(NodeParameterOptions):
 
         options = {}
 
+        options["slope"] = kwargs.pop("slope", 1.0)
         options["bias"] = kwargs.pop("bias", 0.0)
 
         return cls(**options)
