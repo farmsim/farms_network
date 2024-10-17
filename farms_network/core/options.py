@@ -157,6 +157,8 @@ class NodeStateOptions(Options):
             kwargs.pop(name)
             for name in cls.STATE_NAMES
         ]
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
         return cls(initial=initial)
 
 
@@ -173,6 +175,10 @@ class NodeVisualOptions(Options):
         self.latex: dict = kwargs.pop("latex", "{}")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+class NodeLogOptions(Options):
+    """ Base class for node logging options """
 
 
 ################
@@ -286,14 +292,14 @@ class OscillatorNodeOptions(NodeOptions):
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
         )
-        self._nstates = 2
+        self._nstates = 3
         self._nparameters = 3
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
 
-class OscillatorParameterOptions(NodeParameterOptions):
+class OscillatorNodeParameterOptions(NodeParameterOptions):
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -320,14 +326,14 @@ class OscillatorParameterOptions(NodeParameterOptions):
 class OscillatorStateOptions(NodeStateOptions):
     """ Oscillator node state options """
 
-    STATE_NAMES = ["phase", "amplitude"]
+    STATE_NAMES = ["phase", "amplitude_0", "amplitude"]
 
     def __init__(self, **kwargs):
         super().__init__(
             initial=kwargs.pop("initial"),
             names=OscillatorStateOptions.STATE_NAMES
         )
-        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+        assert len(self.initial) == 3, f"Number of initial states {len(self.initial)} should be 3"
 
 
 class OscillatorEdgeParameterOptions(EdgeParameterOptions):
@@ -442,7 +448,7 @@ class LINaPDannerNodeOptions(NodeOptions):
 
     def __init__(self, **kwargs):
         """ Initialize """
-        model = "li_danner_nap"
+        model = "li_nap_danner"
         super().__init__(
             name=kwargs.pop("name"),
             model=model,
