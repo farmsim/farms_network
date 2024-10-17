@@ -1,6 +1,6 @@
 """ Options to configure the neural and network models """
 
-from typing import List, Self
+from typing import List, Self, Iterable
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -38,12 +38,22 @@ class NetworkOptions(Options):
         else:
             print(f"Node {options.name} already exists and will not be added again.")
 
+    def add_nodes(self, options: Iterable["NodeOptions"]):
+        """ Add a collection of nodes """
+        for node in options:
+            self.add_node(node)
+
     def add_edge(self, options: "EdgeOptions"):
         """ Add a node if it does not already exist in the list """
         if (options.source in self.nodes) and (options.target in self.nodes):
             self.edges.append(options)
         else:
             print(f"Edge {options} does not contain the nodes.")
+
+    def add_edges(self, options: Iterable["EdgeOptions"]):
+        """ Add a collection of edges """
+        for edge in options:
+            self.add_edge(edge)
 
     def __add__(self, other: Self):
         """ Combine two network options """
