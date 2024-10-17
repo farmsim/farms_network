@@ -95,7 +95,7 @@ cdef void ode(
                 input_neurons + input_neurons_indices[j],
                 weights + input_neurons_indices[j],
                 nodes[j],
-                edges[input_neurons_indices[j]]
+                edges + input_neurons_indices[j],
             )
         tmp_node_outputs_ptr[j] = __node.output(
             time,
@@ -105,7 +105,7 @@ cdef void ode(
             input_neurons + input_neurons_indices[j],
             weights + input_neurons_indices[j],
             nodes[j],
-            edges[input_neurons_indices[j]]
+            edges + input_neurons_indices[j],
         )
     # Update all node outputs data for next iteration
     data.outputs.array[:] = tmp_node_outputs[:]
