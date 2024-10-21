@@ -1,8 +1,6 @@
 from setuptools import setup, dist, find_packages
 from setuptools.extension import Extension
 
-from farms_container import get_include
-
 dist.Distribution().fetch_build_eggs(['numpy'])
 import numpy
 
