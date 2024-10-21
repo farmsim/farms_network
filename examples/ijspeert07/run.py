@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from farms_core.io.yaml import read_yaml, write_yaml
+from farms_core.utils import profile
 from farms_network.core import options
 from farms_network.core.data import (NetworkConnectivity, NetworkData,
                                      NetworkStates)
 from farms_network.core.network import PyNetwork, rk4
 from tqdm import tqdm
-from pprint import pprint
 
 plt.rcParams['text.usetex'] = False
 
@@ -132,7 +132,6 @@ def oscillator_double_chain(network_options, n_oscillators, **kwargs):
     return network_options
 
 
-
 class RhythmDrive:
     """ Generate Drive Network """
 
@@ -171,9 +170,9 @@ def generate_network():
     )
 
     # Generate rhythm centers
-    n_oscillators = 168
+    n_oscillators = 20
     network_options = oscillator_double_chain(network_options, n_oscillators)
-    pprint(network_options)
+
     data = NetworkData.from_options(network_options)
 
     network = PyNetwork.from_options(network_options)
@@ -191,21 +190,19 @@ def generate_network():
     iterations = 20000
     states = np.ones((iterations+1, len(data.states.array)))*0.0
     outputs = np.ones((iterations, len(data.outputs.array)))*1.0
-    K1 = np.zeros((len(data.states.array),))
     # states[0, 2] = -1.0
 
-    for index, node in enumerate(network_options.nodes):
-        print(index, node.name)
+    # for index, node in enumerate(network_options.nodes):
+    #     print(index, node.name)
     # network.data.external_inputs.array[:] = np.ones((1,))*(iteration/iterations)*1.0
     for iteration in tqdm(range(0, iterations), colour='green', ascii=' >='):
-        network.step()
-        states[iteration+1, :] = network.data.outputs.array
-        # rk4(
-        #     iteration*1e-3, states[iteration, :], network.ode, step_size=1e-3,
-        # )
+        # network.step(network.ode, iteration*1e-3, network.data.states.array)
+        # network.step()
+        # states[iteration+1, :] = network.data.states.array
+        states[iteration+1, :] = rk4(iteration*1e-3, states[iteration, :], network.ode, step_size=1e-3,)
         outputs[iteration, :] = network.data.outputs.array
 
-    network.data.to_file("/tmp/network.h5")
+    # network.data.to_file("/tmp/network.h5")
 
     plt.figure()
     for j in range(int(n_oscillators/2)+1):
@@ -237,10 +234,10 @@ def generate_network():
     plt.figure()
     pos_circular = nx.circular_layout(graph)
     pos_spring = nx.spring_layout(graph)
-    pos_graphviz = nx.nx_agraph.pygraphviz_layout(graph)
+    # pos_graphviz = nx.nx_agraph.pygraphviz_layout(graph)
     _ = nx.draw_networkx_nodes(
         graph,
-        pos=pos_graphviz,
+        pos=pos_spring,
         node_color=[data["visual"]["color"] for node, data in graph.nodes.items()],
         alpha=0.25,
         edgecolors='k',
@@ -248,7 +245,7 @@ def generate_network():
     )
     nx.draw_networkx_labels(
         graph,
-        pos=pos_graphviz,
+        pos=pos_spring,
         labels={node: data["visual"]["label"] for node, data in graph.nodes.items()},
         font_size=11.0,
         font_weight='bold',
@@ -257,7 +254,7 @@ def generate_network():
     )
     nx.draw_networkx_edges(
         graph,
-        pos=pos_graphviz,
+        pos=pos_spring,
         edge_color=[
             [0.0, 1.0, 0.0] if data["type"] == "excitatory" else [1.0, 0.0, 0.0]
             for edge, data in graph.edges.items()
@@ -284,7 +281,7 @@ def main():
     """Main."""
 
     # Generate the network
-    generate_network()
+    profile.profile(generate_network)
 
     # Run the network
     # run_network()
