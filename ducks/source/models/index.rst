@@ -2,7 +2,6 @@ Models
 ======
 
 .. toctree::
-   :maxdepth: 3
-   :caption: Contents:
+   :hidden:
 
-.. include:: li_danner.rst
+   li_danner
