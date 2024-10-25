@@ -167,6 +167,9 @@ def generate_network():
         directed=True,
         multigraph=False,
         graph={"name": "ijspeert07"},
+        logs=options.NetworkLogOptions(
+            n_iterations=10000,
+        )
     )
 
     # Generate rhythm centers
