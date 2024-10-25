@@ -17,10 +17,12 @@ class NetworkOptions(Options):
         super().__init__()
 
         # Default properties to make it compatible with networkx
+        # seed
         self.directed: bool = kwargs.pop("directed", True)
         self.multigraph: bool = kwargs.pop("multigraph", False)
         self.graph: dict = kwargs.pop("graph", {"name": ""})
         self.units = kwargs.pop("units", None)
+        self.logs = kwargs.pop("logs")
 
         self.integration = kwargs.pop("integration", IntegrationOptions.defaults())
 
@@ -100,6 +102,24 @@ class IntegrationOptions(Options):
         return cls(**options)
 
 
+###################
+# Logging Options #
+###################
+class NetworkLogOptions(Options):
+    """ Log options for the network level """
+
+    def __init__(self, n_iterations: int, **kwargs):
+        super().__init__(**kwargs)
+
+        self.n_iterations = n_iterations
+        self.buffer_size: int = kwargs.pop('buffer_size', self.n_iterations)
+        if self.buffer_size == 0:
+            self.buffer_size = self.n_iterations
+        self.nodes_all: bool = kwargs.pop("nodes_all", False)
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
 
 ###########################
 # Node Base Class Options #
@@ -160,6 +180,16 @@ class NodeStateOptions(Options):
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
         return cls(initial=initial)
+
+
+class NodeLogOptions(Options):
+    """ Log options for the node level """
+
+    def __init__(self, buffer_size: int, enable: bool, **kwargs):
+        super().__init__(**kwargs)
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
 
 
 class NodeVisualOptions(Options):
