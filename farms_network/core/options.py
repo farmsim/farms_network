@@ -1,9 +1,10 @@
 """ Options to configure the neural and network models """
 
-from typing import List, Self, Iterable
+from typing import Iterable, List, Self
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from farms_core import pylog
 from farms_core.options import Options
 
 
@@ -50,7 +51,11 @@ class NetworkOptions(Options):
         if (options.source in self.nodes) and (options.target in self.nodes):
             self.edges.append(options)
         else:
-            print(f"Edge {options} does not contain the nodes.")
+            missing_nodes = [
+                "" if (options.source in self.nodes) else options.source,
+                "" if (options.target in self.nodes) else options.target,
+            ]
+            pylog.debug(f"Missing node {*missing_nodes,} in Edge {options}")
 
     def add_edges(self, options: Iterable["EdgeOptions"]):
         """ Add a collection of edges """
