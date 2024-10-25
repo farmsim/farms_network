@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'FARMS_NETWORK'
+project = 'FARMS-NETWORK'
 copyright = '2019, BioRob'
 author = 'FARMSIM'
 master_doc = 'index'
