@@ -412,7 +412,7 @@ class LIDannerNodeOptions(NodeOptions):
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
         )
-        self._nstates = 2
+        self._nstates = 1
         self._nparameters = 13
 
         if kwargs:
