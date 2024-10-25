@@ -82,6 +82,7 @@ class IntegrationOptions(Options):
         super().__init__()
 
         self.timestep: float = kwargs.pop("timestep")
+        self.n_interations: float = kwargs.pop("n_iterations")
         self.integrator: str = kwargs.pop("integrator")
         self.method: str = kwargs.pop("method")
         self.atol: float = kwargs.pop("atol")
@@ -97,7 +98,8 @@ class IntegrationOptions(Options):
 
         options = {}
 
-        options["timestep"] = kwargs.pop("timestep", "1e-3")
+        options["timestep"] = kwargs.pop("timestep", 1e-3)
+        options["n_iterations"] = kwargs.pop("n_interations", 1e3)
         options["integrator"] = kwargs.pop("integrator", "dopri5")
         options["method"] = kwargs.pop("method", "adams")
         options["atol"] = kwargs.pop("atol", 1e-12)
@@ -210,10 +212,6 @@ class NodeVisualOptions(Options):
         self.latex: dict = kwargs.pop("latex", "{}")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
-
-
-class NodeLogOptions(Options):
-    """ Base class for node logging options """
 
 
 ################
