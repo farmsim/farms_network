@@ -258,9 +258,17 @@ class EdgeVisualOptions(Options):
     def __init__(self, **kwargs):
         super().__init__()
         self.color: List[float] = kwargs.pop("color", [1.0, 0.0, 0.0])
+        self.alpha: float = kwargs.pop("alpha", 1.0)
         self.label: str = kwargs.pop("label", "")
         self.layer: str = kwargs.pop("layer", "background")
         self.latex: dict = kwargs.pop("latex", "{}")
+
+        # New options for FancyArrowPatch compatibility
+        self.arrowstyle: str = kwargs.pop("arrowstyle", "->")
+        self.connectionstyle: str = kwargs.pop("connectionstyle", "arc3,rad=0.1")
+        self.linewidth: float = kwargs.pop("linewidth", 1.5)
+        self.edgecolor: List[float] = kwargs.pop("edgecolor", [0.0, 0.0, 0.0])
+
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
