@@ -33,6 +33,8 @@ cdef class NetworkDataCy:
         public DoubleArray1D outputs
         public NetworkConnectivityCy connectivity
 
+        public NodeDataCy[:] nodes
+
         public DoubleArray1D states_noise
         public DoubleArray1D outputs_noise
 
@@ -52,6 +54,16 @@ cdef class NetworkStatesCy(DoubleArray1D):
 cdef class NetworkConnectivityCy:
     """ Network connectivity array """
 
-    cdef public UITYPEv1 sources
-    cdef public DTYPEv1 weights
-    cdef public UITYPEv1 indices
+    cdef:
+        public DTYPEv1 weights
+        public UITYPEv1 sources
+        public UITYPEv1 indices
+
+
+cdef class NodeDataCy:
+    """ Node data """
+    cdef:
+        public DoubleArray2D states
+        public DoubleArray2D derivatives
+        public DoubleArray1D output
+        public DoubleArray1D external_input

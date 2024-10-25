@@ -17,6 +17,8 @@ limitations under the License.
 -----------------------------------------------------------------------
 """
 
+from typing import Dict, Iterable, List
+
 cimport numpy as cnp
 
 import numpy as np
@@ -29,7 +31,7 @@ cdef class NetworkDataCy:
     """ Network data """
 
     def __init__(self):
-        """ nodes data initialization """
+        """ network data initialization """
 
         super().__init__()
 
@@ -59,3 +61,25 @@ cdef class NetworkConnectivityCy:
         self.sources = np.array(sources, dtype=np.uintc)
         self.weights = np.array(weights, dtype=np.double)
         self.indices = np.array(indices, dtype=np.uintc)
+
+
+#############
+# Node Data #
+#############
+cdef class NodeDataCy:
+    """ Node data """
+
+    def __init__(
+            self,
+            states: DoubleArray2D,
+            derivatives: DoubleArray2D,
+            output: DoubleArray1D,
+            external_input: DoubleArray1D,
+    ):
+        """ nodes data initialization """
+
+        super().__init__()
+        self.states = states
+        self.derivatives = derivatives
+        self.output = output
+        self.external_input = external_input
