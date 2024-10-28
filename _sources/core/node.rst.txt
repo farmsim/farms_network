@@ -1,5 +1,5 @@
-Node Module Documentation
-==========================
+Node
+====
 
 This documentation describes the Node structure and Python interface provided in the `node.pyx` and `node.pxd` files.
 

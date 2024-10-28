@@ -13,12 +13,11 @@ farms network provides commonly used neural models for locomotion circuits.
 A neural network simulation library designed for simulating neural models such as leaky integrators with efficient computing through Cython and future GPU integration.
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+   :hidden:
 
-   usage/index
-   core/index
-   models/index
+   usage/index.rst
+   core/index.rst
+   models/index.rst
 
 .. sidebar-links::
    :github:

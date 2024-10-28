@@ -1,5 +1,5 @@
-Options Module Documentation
-============================
+Options
+=======
 
 This module contains the configuration options for neural network models, including options for nodes, edges, integration, and visualization.
 
@@ -152,9 +152,9 @@ LIDannerParameterOptions Class
    | e_syn_i        | ``-75.0`` mV   |
    +----------------+----------------+
 
-LIDannerNaPParameterOptions Class
+LINaPDannerParameterOptions Class
 ---------------------------------
-.. autoclass:: farms_network.core.options.LIDannerNaPParameterOptions
+.. autoclass:: farms_network.core.options.LINaPDannerParameterOptions
    :members:
    :undoc-members:
 

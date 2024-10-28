@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Models" href="../models/index.html" /><link rel="prev" title="Welcome to FARMS Network’s documentation!" href="../index.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Options" href="options.html" /><link rel="prev" title="Welcome to FARMS Network’s documentation!" href="../index.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>Core - FARMS-NETWORK documentation</title>
@@ -212,14 +212,16 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Core</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+  <ul class="current">
+<li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">Core</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Core</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="options.html">Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="node.html">Node</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#options-module-documentation">Options Module Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#node-module-documentation">Node Module Documentation</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../models/index.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../models/index.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/li_danner.html">Models</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -271,70 +273,18 @@
 <div class="toctree-wrapper compound">
 </div>
 </section>
-<section id="options-module-documentation">
-<h1>Options Module Documentation<a class="headerlink" href="#options-module-documentation" title="Link to this heading">¶</a></h1>
-<p>This module contains the configuration options for neural network models, including options for nodes, edges, integration, and visualization.</p>
-<section id="networkoptions-class">
-<h2>NetworkOptions Class<a class="headerlink" href="#networkoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="integrationoptions-class">
-<h2>IntegrationOptions Class<a class="headerlink" href="#integrationoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="nodeoptions-class">
-<h2>NodeOptions Class<a class="headerlink" href="#nodeoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="nodeparameteroptions-class">
-<h2>NodeParameterOptions Class<a class="headerlink" href="#nodeparameteroptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="nodestateoptions-class">
-<h2>NodeStateOptions Class<a class="headerlink" href="#nodestateoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="edgeoptions-class">
-<h2>EdgeOptions Class<a class="headerlink" href="#edgeoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="edgevisualoptions-class">
-<h2>EdgeVisualOptions Class<a class="headerlink" href="#edgevisualoptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="lidannerparameteroptions-class">
-<h2>LIDannerParameterOptions Class<a class="headerlink" href="#lidannerparameteroptions-class" title="Link to this heading">¶</a></h2>
-</section>
-<section id="lidannernapparameteroptions-class">
-<h2>LIDannerNaPParameterOptions Class<a class="headerlink" href="#lidannernapparameteroptions-class" title="Link to this heading">¶</a></h2>
-</section>
-</section>
-<section id="node-module-documentation">
-<h1>Node Module Documentation<a class="headerlink" href="#node-module-documentation" title="Link to this heading">¶</a></h1>
-<p>This documentation describes the Node structure and Python interface provided in the <cite>node.pyx</cite> and <cite>node.pxd</cite> files.</p>
-<section id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading">¶</a></h2>
-<ul class="simple">
-<li><p>Node C Structure</p></li>
-<li><p>PyNode Python Class</p></li>
-<li><p>Functions (ODE and Output)</p></li>
-</ul>
-</section>
-<section id="node-c-structure">
-<h2>Node C Structure<a class="headerlink" href="#node-c-structure" title="Link to this heading">¶</a></h2>
-<p>The Node C structure defines the internal state and behavior of a node in a dynamical system.
-It contains generic attributes like state variables, inputs, and parameters.
-All nodes are many-inputs-single-output (MISO).
-The simplest case would be a node with one input and one input.
-A node can have N-states that will be integrated by a numerical integrator over time.
-A stateless node will have zero states and is useful in using the node as a transfer function.</p>
-</section>
-</section>
 
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../models/index.html">
+          <a class="next-page" href="options.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Models</div>
+                <div class="title">Options</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
