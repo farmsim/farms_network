@@ -82,7 +82,7 @@ class IntegrationOptions(Options):
         super().__init__()
 
         self.timestep: float = kwargs.pop("timestep")
-        self.n_interations: float = kwargs.pop("n_iterations")
+        self.n_iterations: int = int(kwargs.pop("n_iterations"))
         self.integrator: str = kwargs.pop("integrator")
         self.method: str = kwargs.pop("method")
         self.atol: float = kwargs.pop("atol")
@@ -99,7 +99,7 @@ class IntegrationOptions(Options):
         options = {}
 
         options["timestep"] = kwargs.pop("timestep", 1e-3)
-        options["n_iterations"] = kwargs.pop("n_interations", 1e3)
+        options["n_iterations"] = int(kwargs.pop("n_iterations", 1e3))
         options["integrator"] = kwargs.pop("integrator", "dopri5")
         options["method"] = kwargs.pop("method", "adams")
         options["atol"] = kwargs.pop("atol", 1e-12)
@@ -113,7 +113,15 @@ class IntegrationOptions(Options):
 # Logging Options #
 ###################
 class NetworkLogOptions(Options):
-    """ Log options for the network level """
+    """ Log options for the network level
+
+    Configure logging for network events and iterations.
+
+    Attributes:
+        n_iterations (int): Number of iterations to log.
+        buffer_size (int): Size of the log buffer. Defaults to n_iterations if 0.
+        nodes_all (bool): Whether to log all nodes or only selected ones. Defaults to False.
+    """
 
     def __init__(self, n_iterations: int, **kwargs):
         super().__init__(**kwargs)
@@ -268,6 +276,33 @@ class EdgeVisualOptions(Options):
         self.connectionstyle: str = kwargs.pop("connectionstyle", "arc3,rad=0.1")
         self.linewidth: float = kwargs.pop("linewidth", 1.5)
         self.edgecolor: List[float] = kwargs.pop("edgecolor", [0.0, 0.0, 0.0])
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+################################
+# External Relay Model Options #
+################################
+class ExternalRelayNodeOptions(NodeOptions):
+    """ Class to define the properties of ExternalRelay node model
+
+    # TODO: Remove parameters from options
+
+    """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "external_relay"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state", None),
+        )
+        self._nstates = 0
+        self._nparameters = 0
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')

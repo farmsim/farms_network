@@ -24,6 +24,7 @@ from farms_network.core.edge import PyEdge
 # from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
 # from farms_network.models.hopf_oscillator import HopfOscillator
 # from farms_network.models.leaky_integrator import LeakyIntegrator
+from farms_network.models.external_relay import PyExternalRelayNode
 from farms_network.models.linear import PyLinearNode
 from farms_network.models.li_danner import PyLIDannerNode
 from farms_network.models.li_nap_danner import PyLINaPDannerNode
@@ -45,7 +46,7 @@ class NodeFactory:
         # 'hopf_oscillator': HopfOscillator,
         # 'morphed_oscillator': MorphedOscillator,
         # 'leaky': LeakyIntegrator,
-        # 'sensory': SensoryNode,
+        'external_relay': PyExternalRelayNode,
         'linear': PyLinearNode,
         'li_nap_danner': PyLINaPDannerNode,
         'li_danner': PyLIDannerNode,

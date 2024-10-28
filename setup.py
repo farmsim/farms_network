@@ -106,6 +106,13 @@ extensions = [
         extra_compile_args=['-ffast-math', '-O3'],
         extra_link_args=['-O3', '-lm']
     ),
+    Extension(
+        "farms_network.models.external_relay",
+        ["farms_network/models/external_relay.pyx"],
+        include_dirs=[numpy.get_include()],
+        extra_compile_args=['-ffast-math', '-O3'],
+        extra_link_args=['-O3', '-lm']
+    ),
 ]
 
 setup(
