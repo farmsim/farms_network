@@ -44,6 +44,7 @@ class NetworkData(NetworkDataCy):
 
     def __init__(
             self,
+            times,
             states,
             derivatives,
             connectivity,
@@ -55,6 +56,7 @@ class NetworkData(NetworkDataCy):
         """ Network data structure """
 
         super().__init__()
+        self.times = times
         self.states = states
         self.derivatives = derivatives
         self.connectivity = connectivity
@@ -67,6 +69,14 @@ class NetworkData(NetworkDataCy):
     def from_options(cls, network_options: NetworkOptions):
         """ From options """
 
+        buffer_size = network_options.logs.buffer_size
+        times = DoubleArray1D(
+            array=np.full(
+                shape=buffer_size,
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
         states = NetworkStates.from_options(network_options)
         derivatives = NetworkStates.from_options(network_options)
         connectivity = NetworkConnectivity.from_options(network_options)
@@ -83,6 +93,7 @@ class NetworkData(NetworkDataCy):
             dtype=NodeDataCy
         )
         return cls(
+            times=times,
             states=states,
             derivatives=derivatives,
             connectivity=connectivity,
@@ -94,6 +105,7 @@ class NetworkData(NetworkDataCy):
     def to_dict(self, iteration: int = None) -> Dict:
         """Convert data to dictionary"""
         return {
+            'times': to_array(self.times.array),
             'states': self.states.to_dict(),
             'derivatives': self.derivatives.to_dict(),
             'connectivity': self.connectivity.to_dict(),
