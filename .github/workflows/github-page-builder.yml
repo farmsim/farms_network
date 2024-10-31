@@ -35,7 +35,7 @@ jobs:
           cd ../
           git clone https://github.com/farmsim/farms_core.git
           cd farms_core
-          python3 setup.py build_ext --inplace
+          python3 -m pip install .
           python3 -m pip --version
           python3 -m pip list
           cd ../farms_network
