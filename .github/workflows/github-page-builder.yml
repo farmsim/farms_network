@@ -32,6 +32,7 @@ jobs:
           python3 -m pip install --no-use-pep517 setuptools==65.5.0
           python3 -m pip install --no-use-pep517 cython
           python3 -m pip install --no-use-pep517 numpy
+          python3 -m pip install --no-use-pep517 networkx
           python3 -m pip install --no-use-pep517 -r ducks/source/requirements.txt
           cd ../
           git clone https://github.com/farmsim/farms_core.git
