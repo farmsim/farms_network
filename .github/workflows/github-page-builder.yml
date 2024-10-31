@@ -26,11 +26,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make automake gcc g++ subversion python3-dev
-          pip show setuptools
-          pip install setuptools==70.3.0
-          pip install -r ducks/source/requirements.txt
-          pip install -r requirements.txt
-          pip install .
+          pip install --use-pep517 -r ducks/source/requirements.txt
+          pip install --use-pep517 -r requirements.txt
+          pip install --use-pep517 .
 
       - name: Build HTML
         run: |
