@@ -32,8 +32,8 @@ jobs:
           git clone https://github.com/farmsim/farms_core.git
           cd farms_core
           python setup.py build_ext --inplace
-          cd ..
-          pip install --use-pep517 .
+          cd ../farms_network
+          python setup.py build_ext --inplace
 
       - name: Build HTML
         run: |
