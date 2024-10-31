@@ -33,7 +33,8 @@ jobs:
           git clone https://github.com/farmsim/farms_core.git
           cd farms_core
           python setup.py build_ext --inplace
-          pip install .
+          pip --version
+          pip list
           cd ../farms_network
           python setup.py build_ext --inplace
 
