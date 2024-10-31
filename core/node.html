@@ -287,6 +287,69 @@ All nodes are many-inputs-single-output (MISO).
 The simplest case would be a node with one input and one input.
 A node can have N-states that will be integrated by a numerical integrator over time.
 A stateless node will have zero states and is useful in using the node as a transfer function.</p>
+<p>Licensed under the Apache License, Version 2.0 (the “License”);
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at</p>
+<blockquote>
+<div><p><a class="reference external" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+</div></blockquote>
+<p>Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an “AS IS” BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+———————————————————————–</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.node.</span></span><span class="sig-name descname"><span class="pre">PyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unicode</span> <span class="pre">name:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Python interface to Node C-Structure</p>
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__new__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__reduce__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>PyNode.__reduce_cython__(self)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__setstate__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>PyNode.__setstate_cython__(self, __pyx_state)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">from_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="options.html#farms_network.core.options.NodeOptions" title="farms_network.core.options.NodeOptions"><span class="pre">NodeOptions</span></a></span></em><span class="sig-paren">)</span></dt>
+<dd><p>From node options</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double</span> <span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">derivatives</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double</span> <span class="pre">external_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">network_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int[:]</span> <span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">weights</span></span></em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double</span> <span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double</span> <span class="pre">external_input</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">network_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unsigned</span> <span class="pre">int[:]</span> <span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double[:]</span> <span class="pre">weights</span></span></em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">parameters</span></span></dt>
+<dd><p>Number of states in the network</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

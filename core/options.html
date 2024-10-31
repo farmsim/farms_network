@@ -273,30 +273,354 @@
 <p>This module contains the configuration options for neural network models, including options for nodes, edges, integration, and visualization.</p>
 <section id="networkoptions-class">
 <h2>NetworkOptions Class<a class="headerlink" href="#networkoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.NetworkOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">NetworkOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NetworkOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for neural network options</p>
+<p><strong>Attributes:</strong></p>
+<ul class="simple">
+<li><p><strong>directed</strong> (bool): Whether the network is directed. Default is <cite>True</cite>.</p></li>
+<li><p><strong>multigraph</strong> (bool): Whether the network allows multiple edges between nodes. Default is <cite>False</cite>.</p></li>
+<li><p><strong>graph</strong> (dict): Graph properties (e.g., name). Default is <cite>{“name”: “”}</cite>.</p></li>
+<li><p><strong>units</strong> (optional): Units for the network. Default is <cite>None</cite>.</p></li>
+<li><p><strong>integration</strong> (<a class="reference internal" href="#farms_network.core.options.IntegrationOptions" title="farms_network.core.options.IntegrationOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationOptions</span></code></a>): Options for numerical integration. Default values shown in the table below.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.NetworkOptions.add_edge">
+<span class="sig-name descname"><span class="pre">add_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#farms_network.core.options.EdgeOptions" title="farms_network.core.options.EdgeOptions"><span class="pre">EdgeOptions</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NetworkOptions.add_edge" title="Link to this definition">¶</a></dt>
+<dd><p>Add a node if it does not already exist in the list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.NetworkOptions.add_edges">
+<span class="sig-name descname"><span class="pre">add_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#farms_network.core.options.EdgeOptions" title="farms_network.core.options.EdgeOptions"><span class="pre">EdgeOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NetworkOptions.add_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Add a collection of edges</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.NetworkOptions.add_node">
+<span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#farms_network.core.options.NodeOptions" title="farms_network.core.options.NodeOptions"><span class="pre">NodeOptions</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NetworkOptions.add_node" title="Link to this definition">¶</a></dt>
+<dd><p>Add a node if it does not already exist in the list</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.NetworkOptions.add_nodes">
+<span class="sig-name descname"><span class="pre">add_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#farms_network.core.options.NodeOptions" title="farms_network.core.options.NodeOptions"><span class="pre">NodeOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NetworkOptions.add_nodes" title="Link to this definition">¶</a></dt>
+<dd><p>Add a collection of nodes</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="integrationoptions-class">
 <h2>IntegrationOptions Class<a class="headerlink" href="#integrationoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.IntegrationOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">IntegrationOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.IntegrationOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Class to set the options for numerical integration</p>
+<p>The default values for <cite>IntegrationOptions</cite> are as follows:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Parameter</p></td>
+<td><p>Default Value</p></td>
+</tr>
+<tr class="row-even"><td><p>timestep</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-3</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>integrator</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;dopri5&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>method</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;adams&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>atol</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-12</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>rtol</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1e-6</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>max_step</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>checks</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.IntegrationOptions.defaults">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.IntegrationOptions.defaults" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="nodeoptions-class">
 <h2>NodeOptions Class<a class="headerlink" href="#nodeoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.NodeOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">NodeOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NodeOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for defining node options</p>
+<p><strong>Attributes:</strong></p>
+<ul class="simple">
+<li><p><strong>name</strong> (str): Name of the node.</p></li>
+<li><p><strong>model</strong> (str): Node model type.</p></li>
+<li><p><strong>parameters</strong> (<a class="reference internal" href="#farms_network.core.options.NodeParameterOptions" title="farms_network.core.options.NodeParameterOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeParameterOptions</span></code></a>): Node-specific parameters.</p></li>
+<li><p><strong>state</strong> (<a class="reference internal" href="#farms_network.core.options.NodeStateOptions" title="farms_network.core.options.NodeStateOptions"><code class="xref py py-class docutils literal notranslate"><span class="pre">NodeStateOptions</span></code></a>): Node state options.</p></li>
+</ul>
+</dd></dl>
+
 </section>
 <section id="nodeparameteroptions-class">
 <h2>NodeParameterOptions Class<a class="headerlink" href="#nodeparameteroptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.NodeParameterOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">NodeParameterOptions</span></span><a class="headerlink" href="#farms_network.core.options.NodeParameterOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for node specific parameters</p>
+<p>The default values for <cite>NodeParameterOptions</cite> are as follows:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>c_m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> pF</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2.8</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>e_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-60.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>v_max</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>v_thr</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-50.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>g_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-odd"><td><p>e_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-10.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>e_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-75.0</span></code> mV</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</dd></dl>
+
 </section>
 <section id="nodestateoptions-class">
 <h2>NodeStateOptions Class<a class="headerlink" href="#nodestateoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.NodeStateOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">NodeStateOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NodeStateOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for node specific state options</p>
+<p><strong>Attributes:</strong></p>
+<ul class="simple">
+<li><p><strong>initial</strong> (list of float): Initial state values.</p></li>
+<li><p><strong>names</strong> (list of str): State variable names.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.NodeStateOptions.from_kwargs">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_kwargs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.NodeStateOptions.from_kwargs" title="Link to this definition">¶</a></dt>
+<dd><p>From node specific name-value kwargs</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="edgeoptions-class">
 <h2>EdgeOptions Class<a class="headerlink" href="#edgeoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.EdgeOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">EdgeOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.EdgeOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for defining edge options between nodes</p>
+<p><strong>Attributes:</strong></p>
+<ul class="simple">
+<li><p><strong>from_node</strong> (str): Source node of the edge.</p></li>
+<li><p><strong>to_node</strong> (str): Target node of the edge.</p></li>
+<li><p><strong>weight</strong> (float): Weight of the edge.</p></li>
+<li><p><strong>type</strong> (str): Edge type (e.g., excitatory, inhibitory).</p></li>
+</ul>
+</dd></dl>
+
 </section>
 <section id="edgevisualoptions-class">
 <h2>EdgeVisualOptions Class<a class="headerlink" href="#edgevisualoptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.EdgeVisualOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">EdgeVisualOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.EdgeVisualOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for edge visualization parameters</p>
+<p><strong>Attributes:</strong></p>
+<ul class="simple">
+<li><p><strong>color</strong> (list of float): Color of the edge.</p></li>
+<li><p><strong>label</strong> (str): Label for the edge.</p></li>
+<li><p><strong>layer</strong> (str): Layer in which the edge is displayed.</p></li>
+</ul>
+</dd></dl>
+
 </section>
 <section id="lidannerparameteroptions-class">
 <h2>LIDannerParameterOptions Class<a class="headerlink" href="#lidannerparameteroptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.LIDannerParameterOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">LIDannerParameterOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.LIDannerParameterOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Class to define the parameters of Leaky Integrator Danner node model.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>c_m (float): Membrane capacitance (in pF).
+g_leak (float): Leak conductance (in nS).
+e_leak (float): Leak reversal potential (in mV).
+v_max (float): Maximum voltage (in mV).
+v_thr (float): Threshold voltage (in mV).
+g_syn_e (float): Excitatory synaptic conductance (in nS).
+g_syn_i (float): Inhibitory synaptic conductance (in nS).
+e_syn_e (float): Excitatory synaptic reversal potential (in mV).
+e_syn_i (float): Inhibitory synaptic reversal potential (in mV).</p>
+</dd>
+</dl>
+<p>The default values for <cite>LIDannerParameterOptions</cite> are as follows:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>c_m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> pF</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">2.8</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>e_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-60.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>v_max</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>v_thr</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-50.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>g_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-odd"><td><p>e_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-10.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>e_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-75.0</span></code> mV</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.LIDannerParameterOptions.defaults">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.LIDannerParameterOptions.defaults" title="Link to this definition">¶</a></dt>
+<dd><p>Get the default parameters for LI Danner Node model</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="linapdannerparameteroptions-class">
 <h2>LINaPDannerParameterOptions Class<a class="headerlink" href="#linapdannerparameteroptions-class" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="farms_network.core.options.LINaPDannerParameterOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">farms_network.core.options.</span></span><span class="sig-name descname"><span class="pre">LINaPDannerParameterOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.LINaPDannerParameterOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Class to define the parameters of Leaky integrator danner node model</p>
+<p>The default values for <cite>LIDannerNaPParameterOptions</cite> are as follows:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>c_m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> pF</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_nap</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4.5</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>e_na</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">50.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>v1_2_m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-40.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>k_m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-6.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>v1_2_h</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-45.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>k_h</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>v1_2_t</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-35.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>k_t</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">15.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>g_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">4.5</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>e_leak</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-62.5</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>tau_0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">80.0</span></code> ms</p></td>
+</tr>
+<tr class="row-even"><td><p>tau_max</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">160.0</span></code> ms</p></td>
+</tr>
+<tr class="row-odd"><td><p>v_max</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>v_thr</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-50.0</span></code> mV</p></td>
+</tr>
+<tr class="row-odd"><td><p>g_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-even"><td><p>g_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">10.0</span></code> nS</p></td>
+</tr>
+<tr class="row-odd"><td><p>e_syn_e</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-10.0</span></code> mV</p></td>
+</tr>
+<tr class="row-even"><td><p>e_syn_i</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">-75.0</span></code> mV</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="farms_network.core.options.LINaPDannerParameterOptions.defaults">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">defaults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#farms_network.core.options.LINaPDannerParameterOptions.defaults" title="Link to this definition">¶</a></dt>
+<dd><p>Get the default parameters for LI NaP Danner Node model</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -356,15 +680,60 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Options</a><ul>
-<li><a class="reference internal" href="#networkoptions-class">NetworkOptions Class</a></li>
-<li><a class="reference internal" href="#integrationoptions-class">IntegrationOptions Class</a></li>
-<li><a class="reference internal" href="#nodeoptions-class">NodeOptions Class</a></li>
-<li><a class="reference internal" href="#nodeparameteroptions-class">NodeParameterOptions Class</a></li>
-<li><a class="reference internal" href="#nodestateoptions-class">NodeStateOptions Class</a></li>
-<li><a class="reference internal" href="#edgeoptions-class">EdgeOptions Class</a></li>
-<li><a class="reference internal" href="#edgevisualoptions-class">EdgeVisualOptions Class</a></li>
-<li><a class="reference internal" href="#lidannerparameteroptions-class">LIDannerParameterOptions Class</a></li>
-<li><a class="reference internal" href="#linapdannerparameteroptions-class">LINaPDannerParameterOptions Class</a></li>
+<li><a class="reference internal" href="#networkoptions-class">NetworkOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NetworkOptions"><code class="docutils literal notranslate"><span class="pre">NetworkOptions</span></code></a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NetworkOptions.add_edge"><code class="docutils literal notranslate"><span class="pre">NetworkOptions.add_edge()</span></code></a></li>
+<li><a class="reference internal" href="#farms_network.core.options.NetworkOptions.add_edges"><code class="docutils literal notranslate"><span class="pre">NetworkOptions.add_edges()</span></code></a></li>
+<li><a class="reference internal" href="#farms_network.core.options.NetworkOptions.add_node"><code class="docutils literal notranslate"><span class="pre">NetworkOptions.add_node()</span></code></a></li>
+<li><a class="reference internal" href="#farms_network.core.options.NetworkOptions.add_nodes"><code class="docutils literal notranslate"><span class="pre">NetworkOptions.add_nodes()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#integrationoptions-class">IntegrationOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.IntegrationOptions"><code class="docutils literal notranslate"><span class="pre">IntegrationOptions</span></code></a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.IntegrationOptions.defaults"><code class="docutils literal notranslate"><span class="pre">IntegrationOptions.defaults()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodeoptions-class">NodeOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NodeOptions"><code class="docutils literal notranslate"><span class="pre">NodeOptions</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodeparameteroptions-class">NodeParameterOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NodeParameterOptions"><code class="docutils literal notranslate"><span class="pre">NodeParameterOptions</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nodestateoptions-class">NodeStateOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NodeStateOptions"><code class="docutils literal notranslate"><span class="pre">NodeStateOptions</span></code></a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.NodeStateOptions.from_kwargs"><code class="docutils literal notranslate"><span class="pre">NodeStateOptions.from_kwargs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edgeoptions-class">EdgeOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.EdgeOptions"><code class="docutils literal notranslate"><span class="pre">EdgeOptions</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#edgevisualoptions-class">EdgeVisualOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.EdgeVisualOptions"><code class="docutils literal notranslate"><span class="pre">EdgeVisualOptions</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#lidannerparameteroptions-class">LIDannerParameterOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.LIDannerParameterOptions"><code class="docutils literal notranslate"><span class="pre">LIDannerParameterOptions</span></code></a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.LIDannerParameterOptions.defaults"><code class="docutils literal notranslate"><span class="pre">LIDannerParameterOptions.defaults()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#linapdannerparameteroptions-class">LINaPDannerParameterOptions Class</a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.LINaPDannerParameterOptions"><code class="docutils literal notranslate"><span class="pre">LINaPDannerParameterOptions</span></code></a><ul>
+<li><a class="reference internal" href="#farms_network.core.options.LINaPDannerParameterOptions.defaults"><code class="docutils literal notranslate"><span class="pre">LINaPDannerParameterOptions.defaults()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
