@@ -26,15 +26,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make automake gcc g++ subversion python3-dev
-          pip install cython
-          pip install numpy
-          pip install --use-pep517 -r ducks/source/requirements.txt
+          python3 -m pip install pip==23.2.1
+          python3 -m pip install distlib==0.3.8
+          python3 -m pip install setuptools==65.5.0
+          python3 -m pip install cython
+          python3 -m pip install numpy
+          python3 -m pip install --use-pep517 -r ducks/source/requirements.txt
           cd ../
           git clone https://github.com/farmsim/farms_core.git
           cd farms_core
-          python setup.py build_ext --inplace
-          pip --version
-          pip list
+          python3 setup.py build_ext --inplace
+          python3 -m pip --version
+          python3 -m pip list
           cd ../farms_network
           python setup.py build_ext --inplace
 
