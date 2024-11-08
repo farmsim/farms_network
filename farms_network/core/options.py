@@ -1,6 +1,6 @@
 """ Options to configure the neural and network models """
 
-from typing import Iterable, List, Self
+from typing import Dict, Iterable, List, Self, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -23,15 +23,48 @@ class NetworkOptions(Options):
         self.multigraph: bool = kwargs.pop("multigraph", False)
         self.graph: dict = kwargs.pop("graph", {"name": ""})
         self.units = kwargs.pop("units", None)
-        self.logs = kwargs.pop("logs")
+        self.logs: NetworkLogOptions = kwargs.pop("logs")
 
-        self.integration = kwargs.pop("integration", IntegrationOptions.defaults())
+        self.integration = kwargs.pop(
+            "integration", IntegrationOptions.defaults()
+        )
 
         self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
         self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs):
+        """ From options """
+        options = {}
+        options["directed"] = kwargs["directed"]
+        options["multigraph"] = kwargs["multigraph"]
+        options["graph"] = kwargs["graph"]
+        options["units"] = kwargs["units"]
+        # Log options
+        options["logs"] = NetworkLogOptions.from_options(kwargs["logs"])
+        # Integration options
+        options["integration"] = IntegrationOptions.from_options(kwargs["integration"])
+        # Nodes
+        node_types = {
+            "linear": LinearNodeOptions,
+            "external_relay": ExternalRelayNodeOptions,
+            "oscillator": OscillatorNodeOptions,
+            "li_danner": LIDannerNodeOptions,
+            "li_nap_danner": LINaPDannerNodeOptions,
+        }
+        options["nodes"] = [
+            node_types[node["model"]].from_options(node)
+            for node in kwargs["nodes"]
+        ]
+        # Edges
+        options["edges"] = [
+            EdgeOptions.from_options(edge)
+            for edge in kwargs["edges"]
+        ]
+        return cls(**options)
 
     def add_node(self, options: "NodeOptions"):
         """ Add a node if it does not already exist in the list """
@@ -108,6 +141,11 @@ class IntegrationOptions(Options):
         options["checks"] = kwargs.pop("checks", True)
         return cls(**options)
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
+
 
 ###################
 # Logging Options #
@@ -135,6 +173,12 @@ class NetworkLogOptions(Options):
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        n_iterations = kwargs.pop("n_iterations")
+        return cls(n_iterations, **kwargs)
+
 
 ###########################
 # Node Base Class Options #
@@ -147,7 +191,7 @@ class NodeOptions(Options):
         super().__init__()
         self.name: str = kwargs.pop("name")
 
-        self.model: str = kwargs.pop("model")
+        self.model: str = kwargs.pop("model", None)
         self.parameters: NodeParameterOptions = kwargs.pop("parameters")
         self.visual: NodeVisualOptions = kwargs.pop("visual")
         self.state: NodeStateOptions = kwargs.pop("state")
@@ -167,12 +211,27 @@ class NodeOptions(Options):
     def __hash__(self):
         return hash(self.name)  # Hash based on the node name (or any unique property)
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = kwargs.pop("parameters")
+        options["visual"] = kwargs.pop("visual")
+        options["state"] = kwargs.pop("state")
+        return cls(**options)
+
 
 class NodeParameterOptions(Options):
     """ Base class for node specific parameters """
 
     def __init__(self):
         super().__init__()
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
 
 
 class NodeStateOptions(Options):
@@ -196,6 +255,11 @@ class NodeStateOptions(Options):
             raise Exception(f'Unknown kwargs: {kwargs}')
         return cls(initial=initial)
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
+
 
 class NodeLogOptions(Options):
     """ Log options for the node level """
@@ -205,6 +269,11 @@ class NodeLogOptions(Options):
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
 
 
 class NodeVisualOptions(Options):
@@ -220,6 +289,11 @@ class NodeVisualOptions(Options):
         self.latex: dict = kwargs.pop("latex", "{}")
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
 
 
 ################
@@ -252,12 +326,33 @@ class EdgeOptions(Options):
             )
         return False
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = EdgeParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = EdgeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        return cls(**options)
+
 
 class EdgeParameterOptions(Options):
     """ Base class for edge specific parameters """
 
     def __init__(self):
         super().__init__()
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
 
 
 class EdgeVisualOptions(Options):
@@ -279,6 +374,11 @@ class EdgeVisualOptions(Options):
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
 
 
 ################################
@@ -307,6 +407,15 @@ class ExternalRelayNodeOptions(NodeOptions):
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = NodeParameterOptions()
+        options["visual"] = kwargs.pop("visual")
+        return cls(**options)
+
 
 ########################
 # Linear Model Options #
@@ -329,6 +438,20 @@ class LinearNodeOptions(NodeOptions):
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = LinearParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = None
+        return cls(**options)
 
 
 class LinearParameterOptions(NodeParameterOptions):
@@ -373,6 +496,22 @@ class OscillatorNodeOptions(NodeOptions):
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = OscillatorNodeParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = OscillatorStateOptions.from_options(
+            kwargs["state"]
+        )
+        return cls(**options)
 
 
 class OscillatorNodeParameterOptions(NodeParameterOptions):
@@ -452,6 +591,22 @@ class LIDannerNodeOptions(NodeOptions):
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = LIDannerParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = LIDannerStateOptions.from_options(
+            kwargs["state"]
+        )
+        return cls(**options)
 
 
 class LIDannerParameterOptions(NodeParameterOptions):
@@ -538,6 +693,22 @@ class LINaPDannerNodeOptions(NodeOptions):
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = LINaPDannerParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = LINaPDannerStateOptions.from_options(
+            kwargs["state"]
+        )
+        return cls(**options)
+
 
 class LINaPDannerParameterOptions(NodeParameterOptions):
     """ Class to define the parameters of Leaky integrator danner node model """
@@ -607,9 +778,71 @@ class LINaPDannerStateOptions(NodeStateOptions):
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
 
 
+####################
+# Izhikevich Model #
+####################
+class IzhikevichNodeOptions(NodeOptions):
+    """ Class to define the properties of Leaky integrator danner node model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "izhikevich"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state"),
+        )
+        self._nstates = 2
+        self._nparameters = 5
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+
+class IzhikevichParameterOptions(NodeParameterOptions):
+    """ Class to define the parameters of Leaky integrator danner node model """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.recovery_time = kwargs.pop("recovery_time")    # pF
+        self.recovery_sensitivity = kwargs.pop("recovery_sensitivity")  # nS
+        self.membrane_reset = kwargs.pop("membrane_reset")              # mV
+        self.recovery_reset = kwargs.pop("recovery_reset")              # mV
+        self.membrane_threshold = kwargs.pop("membrane_threshold")      # mV
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for LI NaP Danner Node model """
+
+        options = {}
+
+        options["recovery_time"] = kwargs.pop("recovery_time", 0.02)    # pF
+        options["recovery_sensitivity"] = kwargs.pop("recovery_sensitivity", 0.2)  # nS
+        options["membrane_reset"] = kwargs.pop("membrane_reset", -65.0)              # mV
+        options["recovery_reset"] = kwargs.pop("recovery_reset", 2)              # mV
+        options["membrane_threshold"] = kwargs.pop("membrane_threshold", 30.0)      # mV
+
+        return cls(**options)
+
+
+class IzhikevichStateOptions(NodeStateOptions):
+    """ LI Danner node state options """
+
+    STATE_NAMES = ["v", "u"]
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            initial=kwargs.pop("initial"),
+            names=IzhikevichStateOptions.STATE_NAMES
+        )
+        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
 
 ########
-# MAIN #
+# Main #
 ########
 def main():
     """ Main """
@@ -620,9 +853,9 @@ def main():
 
     li_opts = LIDannerNodeOptions(
         name="li",
-        parameters=LINaPDannerParameterOptions.defaults(),
+        parameters=IzhikevichParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LINaPDannerStateOptions.from_kwargs(
+        state=IzhikevichStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
@@ -630,11 +863,11 @@ def main():
     print(f"Is hashable {isinstance(li_opts, typing.Hashable)}")
 
     network_opts.add_node(li_opts)
-    li_opts = LINaPDannerNodeOptions(
+    li_opts = IzhikevichNodeOptions(
         name="li-2",
-        parameters=LINaPDannerParameterOptions.defaults(),
+        parameters=IzhikevichParameterOptions.defaults(),
         visual=NodeVisualOptions(),
-        state=LINaPDannerStateOptions.from_kwargs(
+        state=IzhikevichStateOptions.from_kwargs(
             v0=-60.0, h0=0.1
         ),
     )
