@@ -18,6 +18,7 @@ from farms_network.core.data import (NetworkConnectivity, NetworkData,
                                      NetworkStates)
 from farms_network.core.network import PyNetwork, rk4
 from tqdm import tqdm
+import seaborn as sns
 
 plt.rcParams['text.usetex'] = False
 
@@ -269,6 +270,13 @@ def generate_network():
         min_source_margin=5,
         min_target_margin=5,
         connectionstyle="arc3,rad=-0.2",
+    )
+    plt.figure()
+    sparse_array = nx.to_scipy_sparse_array(graph)
+    sns.heatmap(
+        sparse_array.todense(), cbar=False, square=True,
+        linewidths=0.5,
+        annot=True
     )
     plt.show()
 
