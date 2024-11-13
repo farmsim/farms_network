@@ -19,8 +19,6 @@ limitations under the License.
 
 include "types.pxd"
 
-cimport numpy as cnp
-
 import numpy as np
 
 from libc.stdio cimport printf
@@ -33,7 +31,7 @@ from ..models.li_danner cimport LIDannerNodeParameters
 
 from .data import NetworkData, NetworkStates
 
-from .data_cy cimport NetworkDataCy, NetworkStatesCy
+from .data_cy cimport NetworkDataCy, NetworkStatesCy, NetworkConnectivityCy
 from .edge cimport Edge, PyEdge
 from .node cimport Node, PyNode
 
@@ -41,27 +39,14 @@ from .options import (EdgeOptions, IntegrationOptions, NetworkOptions,
                       NodeOptions)
 
 
-cpdef double[:] rk4(double time, double[:] state, func, double step_size):
-    """ Runge-kutta order 4 integrator """
-
-    K1 = np.array(func(time, state))
-    K2 = np.array(func(time + step_size/2, state + (step_size/2 * K1)))
-    K3 = np.array(func(time + step_size/2, state + (step_size/2 * K2)))
-    K4 = np.array(func(time + step_size, state + (step_size * K3)))
-    state = state + (K1 + 2*K2 + 2*K3 + K4)*(step_size/6)
-    time += step_size
-    return state
-
-
-cdef void ode(
+cdef inline void ode(
     double time,
     NetworkDataCy data,
     Network* network,
     double[:] node_outputs_tmp,
 ) noexcept:
     """ C Implementation to compute full network state """
-    cdef int j, step, steps, nnodes
-    steps = 4
+    cdef Py_ssize_t j, nnodes
 
     cdef Node __node
     cdef Node** nodes = network.nodes
@@ -109,7 +94,7 @@ cdef void ode(
         )
 
 
-cdef class PyNetwork:
+cdef class PyNetwork(ODESystem):
     """ Python interface to Network ODE """
 
     def __cinit__(self, network_options: NetworkOptions):
@@ -128,16 +113,21 @@ cdef class PyNetwork:
         if self.network.edges is NULL:
             raise MemoryError("Failed to allocate memory for Network edges")
 
-    def __init__(self, network_options):
+    def __init__(self, network_options: NetworkOptions):
         """ Initialize """
 
         super().__init__()
         self.data = <NetworkDataCy>NetworkData.from_options(network_options)
         self.pynodes = []
         self.pyedges = []
+        self.nodes_output_data = []
         self.__tmp_node_outputs = np.zeros((self.network.nnodes,))
         self.setup_network(network_options, self.data)
-        self.iteration = 0
+
+        # Integration options
+        self.n_iterations: int = network_options.integration.n_iterations
+        self.timestep: int = network_options.integration.timestep
+        self.iteration: int = 0
 
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
@@ -151,9 +141,15 @@ cdef class PyNetwork:
         """ Initialize network from NetworkOptions """
         return cls(options)
 
-    def setup_integrator(options: IntegrationOptions):
+    def to_options(self):
+        """ Return NetworkOptions from network """
+        return self.options
+
+    def setup_integrator(self, options: IntegrationOptions):
         """ Setup integrator for neural network """
-        ...
+        cdef double timestep = options.timestep
+        print(timestep)
+        self.integrator = RK4Solver(self.network.nstates, timestep)
 
     def setup_network(self, options: NetworkOptions, data: NetworkData):
         """ Setup network """
@@ -161,6 +157,10 @@ cdef class PyNetwork:
         cdef Node* c_node
 
         connectivity = data.connectivity
+        cdef Py_ssize_t __nstates = 0
+        cdef Py_ssize_t index
+        cdef PyNode pyn
+        cdef PyEdge pye
         for index, node_options in enumerate(options.nodes):
             self.pynodes.append(self.generate_node(node_options))
             pyn = <PyNode> self.pynodes[index]
@@ -169,6 +169,8 @@ cdef class PyNetwork:
                 connectivity.sources[connectivity.indices[index]:connectivity.indices[index+1]]
             ) if connectivity.indices else 0
             self.network.nodes[index] = c_node
+            __nstates += node_options._nstates
+        self.network.nstates = __nstates
 
         cdef Edge* c_edge
         for index, edge_options in enumerate(options.edges):
@@ -207,23 +209,12 @@ cdef class PyNetwork:
         """ Number of states in the network """
         return self.network.nstates
 
-    # cpdef void step(self) noexcept:
-    #     """ Step the network state """
-    #     self.integrator.step(self.odeint, 0.0, self.data.states.array, &self)
-    #     # self.data.states.array = rk4(0.0, self.data.states.array, self.odeint, step_size=1e-3)
-
-    # cdef void odeint(
-    #     self,
-    #     double time,
-    #     double[:] states,
-    #     double[:] derivatives,
-    # ) noexcept:
-    #     """ ODE function signature for integrators """
-    #     data.states.array[:] = curr_states[:]
-    #     ode(time, data, network, node_outputs_tmp)
-    #     # Update all node derivatives and outputs data for next iteration
-    #     data.outputs.array[:] = self.__tmp_node_outputs
-    #     derivatives[:] = self.data.derivatives.array
+    cpdef void step(self) noexcept:
+        """ Step the network state """
+        self.iteration += 1
+        self.integrator.step(
+            self, self.iteration*self.timestep, self.data.states.array
+        )
 
     cpdef void logging(self, Py_ssize_t iteration) noexcept:
         """ Log network data """
@@ -238,17 +229,15 @@ cdef class PyNetwork:
 
         # cdef double[:] derivatives = data.derivatives.array
         cdef double* derivatives_ptr = &data.derivatives.array[0]
-        cdef unsigned int[:] derivatives_indices = data.derivatives.indices
 
         cdef double[:] outputs = data.outputs.array
 
         cdef double[:] external_inputs = data.external_inputs.array
 
         cdef NodeDataCy node_data
-        cdef NodeDataCy[:] nodes_data = self.data.nodes
         for j in range(nnodes):
             # Log states
-            node_data = nodes_data[j]
+            node_data = <NodeDataCy>data.nodes[j]
             start_idx = state_indices[j]
             end_idx = state_indices[j+1]
             state_iteration = 0
@@ -259,11 +248,10 @@ cdef class PyNetwork:
             node_data.output.array[iteration] = outputs[j]
             node_data.external_input.array[iteration] = external_inputs[j]
 
-    cpdef double[:] ode(self, double time, double[::1] states) noexcept:
-        """ ODE Wrapper for numerical integrators  """
-
-        cdef NetworkDataCy data = <NetworkDataCy> self.data
-        data.states.array[:] = states[:]
-        ode(time, data, self.network, self.__tmp_node_outputs)
-        data.outputs.array[:] = self.__tmp_node_outputs
-        return data.derivatives.array
+    cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
+        """ Evaluate the ODE """
+        # cdef NetworkDataCy data = <NetworkDataCy> self.data
+        self.data.states.array[:] = states[:]
+        ode(time, self.data, self.network, self.__tmp_node_outputs)
+        self.data.outputs.array[:] = self.__tmp_node_outputs
+        derivatives[:] = self.data.derivatives.array
