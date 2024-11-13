@@ -80,8 +80,20 @@ class NetworkData(NetworkDataCy):
         states = NetworkStates.from_options(network_options)
         derivatives = NetworkStates.from_options(network_options)
         connectivity = NetworkConnectivity.from_options(network_options)
-        outputs = DoubleArray1D(array=np.zeros(len(network_options.nodes),))
-        external_inputs = DoubleArray1D(array=np.zeros(len(network_options.nodes),))
+        outputs = DoubleArray1D(
+            array=np.full(
+                shape=len(network_options.nodes),
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
+        external_inputs = DoubleArray1D(
+            array=np.full(
+                shape=len(network_options.nodes),
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
         nodes = np.array(
             [
                 NodeData.from_options(
@@ -161,7 +173,11 @@ class NetworkConnectivity(NetworkConnectivityCy):
         nodes = network_options.nodes
         edges = network_options.edges
 
-        connectivity = np.empty((len(edges), 3))
+        connectivity = np.full(
+            shape=(len(edges), 3),
+            fill_value=0,
+            dtype=NPDTYPE,
+        )
         node_names = [node.name for node in nodes]
 
         for index, edge in enumerate(edges):
@@ -170,8 +186,16 @@ class NetworkConnectivity(NetworkConnectivityCy):
             connectivity[index][2] = edge.weight
         connectivity = np.array(sorted(connectivity, key=lambda col: col[1]))
 
-        sources = np.empty((len(edges),))
-        weights = np.empty((len(edges),))
+        sources = np.full(
+            shape=len(edges),
+            fill_value=0,
+            dtype=NPDTYPE,
+        )
+        weights = np.full(
+            shape=len(edges),
+            fill_value=0,
+            dtype=NPDTYPE,
+        )
         nedges = 0
         indices = []
         if len(edges) > 0:
@@ -211,13 +235,12 @@ class NodeData(NodeDataCy):
     ):
         """ Node data initialization """
 
-        super().__init__(
-            states=states,
-            derivatives=derivatives,
-            output=output,
-            external_input=external_input,
-        )
+        super().__init__()
         self.name = name
+        self.states = states
+        self.derivatives = derivatives
+        self.output = output
+        self.external_input = external_input
 
     @classmethod
     def from_options(cls, options: NodeOptions, buffer_size: int):
@@ -256,14 +279,14 @@ class NodeStatesArray(DoubleArray2D):
             array = np.full(
                 shape=[buffer_size, nstates],
                 fill_value=0,
-                dtype=NPDTYPE,
+                dtype=np.double,
             )
         else:
             names = []
             array = np.full(
                 shape=[buffer_size, 0],
                 fill_value=0,
-                dtype=NPDTYPE,
+                dtype=np.double,
             )
         return cls(array=array, names=names)
 
@@ -287,7 +310,7 @@ class NodeOutputArray(DoubleArray1D):
         array = np.full(
             shape=buffer_size,
             fill_value=0,
-            dtype=NPDTYPE,
+            dtype=np.double,
         )
         return cls(array=array)
 
@@ -304,7 +327,7 @@ class NodeExternalInputArray(DoubleArray1D):
         array = np.full(
             shape=buffer_size,
             fill_value=0,
-            dtype=NPDTYPE,
+            dtype=np.double,
         )
         return cls(array=array)
 

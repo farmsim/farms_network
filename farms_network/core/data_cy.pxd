@@ -33,16 +33,11 @@ cdef class NetworkDataCy:
         public DoubleArray1D outputs
         public NetworkConnectivityCy connectivity
 
-        public NodeDataCy[:] nodes
-
         public DoubleArray1D states_noise
+        public DoubleArray1D derivatives_noise
         public DoubleArray1D outputs_noise
 
-        # _state_indices = None
-        # _state_index_skips = None
-        # _connectivity_indices = None
-        # _connectivity_index_skips = None
-        # _outputs = None
+        public NodeDataCy[:] nodes
 
 
 cdef class NetworkStatesCy(DoubleArray1D):

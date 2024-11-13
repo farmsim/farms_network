@@ -69,17 +69,7 @@ cdef class NetworkConnectivityCy:
 cdef class NodeDataCy:
     """ Node data """
 
-    def __init__(
-            self,
-            states: DoubleArray2D,
-            derivatives: DoubleArray2D,
-            output: DoubleArray1D,
-            external_input: DoubleArray1D,
-    ):
+    def __init__(self):
         """ nodes data initialization """
 
         super().__init__()
-        self.states = states
-        self.derivatives = derivatives
-        self.output = output
-        self.external_input = external_input
