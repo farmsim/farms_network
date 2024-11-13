@@ -1,5 +1,7 @@
 import numpy as np
 
+from libc.stdio cimport printf
+
 NPDTYPE = np.float64
 
 
@@ -26,8 +28,8 @@ cdef class RK4Solver:
 
     cdef void step(self, ODESystem sys, double time, double[:] state) noexcept:
         cdef Py_ssize_t i
-        cdef double dt2 = 1.0 / 2.0
-        cdef double dt6 = 1.0 / 6.0
+        cdef double dt2 = self.dt / 2.0
+        cdef double dt6 = self.dt / 6.0
         cdef double[:] k1 = self.k1.array
         cdef double[:] k2 = self.k2.array
         cdef double[:] k3 = self.k3.array
@@ -37,17 +39,17 @@ cdef class RK4Solver:
         # Compute k1
         sys.evaluate(time, state, k1)
         for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + (1.0 * k1[i])/2.0
+            self.states_tmp.array[i] = state[i] + (self.dt * k1[i])/2.0
 
         # Compute k2
         sys.evaluate(time + dt2, self.states_tmp.array, k2)
         for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + (1.0 * k2[i])/2.0
+            self.states_tmp.array[i] = state[i] + (self.dt * k2[i])/2.0
 
         # Compute k3
         sys.evaluate(time + dt2, self.states_tmp.array, k3)
         for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + 1.0*k3[i]
+            self.states_tmp.array[i] = state[i] + self.dt * k3[i]
 
         # Compute k4
         sys.evaluate(time + 1.0, states_tmp, k4)
