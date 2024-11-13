@@ -46,7 +46,7 @@ cdef inline void ode(
     double[:] node_outputs_tmp,
 ) noexcept:
     """ C Implementation to compute full network state """
-    cdef Py_ssize_t j, nnodes
+    cdef unsigned int j, nnodes
 
     cdef Node __node
     cdef Node** nodes = network.nodes
@@ -148,7 +148,6 @@ cdef class PyNetwork(ODESystem):
     def setup_integrator(self, options: IntegrationOptions):
         """ Setup integrator for neural network """
         cdef double timestep = options.timestep
-        print(timestep)
         self.integrator = RK4Solver(self.network.nstates, timestep)
 
     def setup_network(self, options: NetworkOptions, data: NetworkData):
@@ -157,8 +156,8 @@ cdef class PyNetwork(ODESystem):
         cdef Node* c_node
 
         connectivity = data.connectivity
-        cdef Py_ssize_t __nstates = 0
-        cdef Py_ssize_t index
+        cdef unsigned int __nstates = 0
+        cdef unsigned int index
         cdef PyNode pyn
         cdef PyEdge pye
         for index, node_options in enumerate(options.nodes):
@@ -215,17 +214,18 @@ cdef class PyNetwork(ODESystem):
         self.integrator.step(
             self, self.iteration*self.timestep, self.data.states.array
         )
+        PyNetwork.logging(self.iteration, self.data, self.network)
 
-    cpdef void logging(self, Py_ssize_t iteration) noexcept:
+    @staticmethod
+    cdef void logging(int iteration, NetworkDataCy data, Network* network) noexcept:
         """ Log network data """
-        cdef Py_ssize_t j, nnodes
-        nnodes = self.network.nnodes
-        cdef NetworkDataCy data = <NetworkDataCy> self.data
+        cdef int j, nnodes
+        nnodes = network.nnodes
 
         # cdef double[:] states = data.states.array
         cdef double* states_ptr = &data.states.array[0]
         cdef unsigned int[:] state_indices = data.states.indices
-        cdef Py_ssize_t state_idx, start_idx, end_idx, state_iteration
+        cdef int state_idx, start_idx, end_idx, state_iteration
 
         # cdef double[:] derivatives = data.derivatives.array
         cdef double* derivatives_ptr = &data.derivatives.array[0]
@@ -233,7 +233,6 @@ cdef class PyNetwork(ODESystem):
         cdef double[:] outputs = data.outputs.array
 
         cdef double[:] external_inputs = data.external_inputs.array
-
         cdef NodeDataCy node_data
         for j in range(nnodes):
             # Log states

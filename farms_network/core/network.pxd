@@ -6,9 +6,6 @@ from .data_cy cimport NetworkDataCy, NodeDataCy
 from .edge cimport Edge
 from .node cimport Node
 
-# Typedef for a function signature: ODE system f(t, y) -> dydt
-ctypedef void (*ode_func)(void*, double, double[:], double[:])
-
 
 cdef struct Network:
 
@@ -34,8 +31,8 @@ cdef class PyNetwork(ODESystem):
         public NetworkDataCy data
         double[:] __tmp_node_outputs
 
-        Py_ssize_t iteration
-        Py_ssize_t n_iterations
+        unsigned int iteration
+        unsigned int n_iterations
         double timestep
 
         public RK4Solver integrator
@@ -46,4 +43,5 @@ cdef class PyNetwork(ODESystem):
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept
     cpdef void step(self) noexcept
 
-    cpdef void logging(self, Py_ssize_t) noexcept
+    @staticmethod
+    cdef void logging(unsigned int iteration, NetworkDataCy data, Network* network) noexcept
