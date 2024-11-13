@@ -1,8 +1,11 @@
-Installation steps
--------------------
+==============
+ Installation
+==============
+
 
 Requirements
-^^^^^^^^^^^^
+============
+
 
 "Code is only currently tested with Python3"
 

@@ -3,27 +3,34 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to FARMS Network's documentation!
-=========================================
+===========================================
+ Welcome to FARMS Network's documentation!
+===========================================
 
 .. warning:: Farmers are currently busy! Documentation is work in progress!!
 
 farms network provides commonly used neural models for locomotion circuits.
 
-A neural network simulation library designed for simulating neural models such as leaky integrators with efficient computing through Cython and future GPU integration.
+A neural network simulation library designed for simulating sparse neural networks with models such as leaky integrators with efficient computing through Cython and future GPU integration.
+
+=============
+ Introduction
+=============
+
+Contents
 
 .. toctree::
-   :hidden:
 
-   usage/index.rst
+   introduction/index.rst
    core/index.rst
    models/index.rst
 
 .. sidebar-links::
    :github:
 
-Indices and tables
-==================
+====================
+ Indices and tables
+====================
 
 * :ref:`genindex`
 * :ref:`modindex`
