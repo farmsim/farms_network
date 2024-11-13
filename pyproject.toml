@@ -15,8 +15,41 @@ license = {file = "LICENSE"}
 dependencies = [
     "farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git",
     "tqdm",
+]
+authors = [
+  {name = "Jonathan Arreguit", email = ""},
+  {name = "Shravan Tata Ramalingasetty", email = ""},
+]
+classifiers = [
+  "Development Status :: 3 - Beta",
+
+  # Indicate who your project is intended for
+  "Intended Audience :: Science/Research",
+  "ScieTopic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence"
+  "Topic :: Scientific/Engineering :: Artificial Life"
+
+  # Specify the Python versions you support here.
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+]
+
+[project.urls]
+Homepage = "https://farmsim.dev"
+Documentation = "https://farmsim.dev"
+Repository = "https://github.com/farmsim/farms_network.git"
+Issues = "https://github.com/farmsim/farms_network/issues"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[project.optional-dependencies]
+gui = [
+    "scipy",
     "matplotlib",
+    "PyQt5",
     "networkx",
     "pydot",
-    "scipy"
 ]
+cli = ["rich",]
