@@ -60,8 +60,12 @@ class NetworkOptions(Options):
             for node in kwargs["nodes"]
         ]
         # Edges
+        edge_types = {
+            "standard": EdgeOptions,
+            "oscillator": OscillatorEdgeOptions,
+        }
         options["edges"] = [
-            EdgeOptions.from_options(edge)
+            edge_types[edge["model"]].from_options(edge)
             for edge in kwargs["edges"]
         ]
         return cls(**options)
@@ -305,7 +309,8 @@ class EdgeOptions(Options):
     def __init__(self, **kwargs):
         """ Initialize """
         super().__init__()
-
+        model = "standard"
+        self.model: str = kwargs.pop("model", model)
         self.source: str = kwargs.pop("source")
         self.target: str = kwargs.pop("target")
         self.weight: float = kwargs.pop("weight")
@@ -329,6 +334,7 @@ class EdgeOptions(Options):
     @classmethod
     def from_options(cls, kwargs: Dict):
         """ From options """
+
         options = {}
         options["source"] = kwargs["source"]
         options["target"] = kwargs["target"]
@@ -549,6 +555,48 @@ class OscillatorStateOptions(NodeStateOptions):
             names=OscillatorStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 3, f"Number of initial states {len(self.initial)} should be 3"
+
+
+class OscillatorEdgeOptions(EdgeOptions):
+    """ Oscillator edge options """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "oscillator"
+        super().__init__(
+            model=model,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    def __eq__(self, other):
+        if isinstance(other, EdgeOptions):
+            return (
+                (self.source == other.source) and
+                (self.target == other.target)
+            )
+        return False
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = OscillatorEdgeParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
+        return cls(**options)
 
 
 class OscillatorEdgeParameterOptions(EdgeParameterOptions):
