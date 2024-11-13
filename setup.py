@@ -1,16 +1,9 @@
-from setuptools import setup, dist, find_packages
-from setuptools.extension import Extension
-
-dist.Distribution().fetch_build_eggs(['numpy'])
 import numpy
-
-dist.Distribution().fetch_build_eggs(['Cython>=0.15.1'])
 from Cython.Build import cythonize
 from Cython.Compiler import Options
-
-dist.Distribution().fetch_build_eggs(['farms_core'])
-from farms_core import get_include_paths  # pylint: disable=wrong-import-position
-
+from farms_core import get_include_paths
+from setuptools import dist, find_packages, setup
+from setuptools.extension import Extension
 
 DEBUG = False
 Options.docstrings = True
@@ -33,86 +26,16 @@ Options.closure_freelist_size = 8
 
 # directive_defaults = Cython.Compiler.Options.get_directive_defaults()
 
-# extensions = [
-#     Extension(
-#         f"farms_network.{subpackage}.*",
-#         [f"farms_network/{subpackage}/*.pyx"],
-#         include_dirs=[numpy.get_include(),],
-#         # libraries=["c", "stdc++"],
-#         extra_compile_args=['-ffast-math', '-O3'],
-#         extra_link_args=['-O3'],
-#     )
-#     for subpackage in (
-#             'core',
-#             # 'models'
-
-#     )
-# ]
-
 extensions = [
     Extension(
-        "farms_network.core.network",
-        ["farms_network/core/network.pyx"],
-        include_dirs=[numpy.get_include()],
+        f"farms_network.{subpackage}.*",
+        [f"farms_network/{subpackage}/*.pyx"],
+        include_dirs=[numpy.get_include(),],
+        # libraries=["c", "stdc++"],
         extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.core.node",
-        ["farms_network/core/node.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.core.edge",
-        ["farms_network/core/edge.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.core.data_cy",
-        ["farms_network/core/data_cy.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.models.li_danner",
-        ["farms_network/models/li_danner.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.models.li_nap_danner",
-        ["farms_network/models/li_nap_danner.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.models.oscillator",
-        ["farms_network/models/oscillator.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.models.linear",
-        ["farms_network/models/linear.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
-    Extension(
-        "farms_network.models.external_relay",
-        ["farms_network/models/external_relay.pyx"],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=['-ffast-math', '-O3'],
-        extra_link_args=['-O3', '-lm']
-    ),
+        extra_link_args=['-O3'],
+    )
+    for subpackage in ('core', 'models', 'numeric')
 ]
 
 setup(
@@ -124,14 +47,6 @@ setup(
     author_email='biorob-farms@groupes.epfl.ch',
     license='Apache-2.0',
     packages=find_packages(exclude=['tests*']),
-    install_requires=[
-        'farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git',
-        'tqdm',
-        'matplotlib',
-        'networkx',
-        'pydot',
-        'scipy'
-    ],
     zip_safe=False,
     ext_modules=cythonize(
         extensions,

@@ -1,0 +1,22 @@
+[build-system]
+requires = [
+     "setuptools",
+     "Cython >= 0.15.1",
+     "numpy",
+     "farms_core @ git+https://github.com/farmsim/farms_core.git"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "farms_network"
+version = "0.1"
+description = "Module to generate, develop and visualize neural networks"
+license = {file = "LICENSE"}
+dependencies = [
+    "farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git",
+    "tqdm",
+    "matplotlib",
+    "networkx",
+    "pydot",
+    "scipy"
+]
