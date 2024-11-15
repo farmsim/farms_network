@@ -51,3 +51,6 @@ gui = [
     "pydot",
 ]
 cli = ["rich",]
+
+[project.scripts]
+farms_network = "farms_network.utils.run:main"
