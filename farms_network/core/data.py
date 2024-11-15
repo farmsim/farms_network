@@ -50,6 +50,9 @@ class NetworkData(NetworkDataCy):
             connectivity,
             outputs,
             external_inputs,
+            noise_states,
+            noise_derivatives,
+            noise_outputs,
             nodes,
             **kwargs,
     ):
@@ -62,6 +65,10 @@ class NetworkData(NetworkDataCy):
         self.connectivity = connectivity
         self.outputs = outputs
         self.external_inputs = external_inputs
+
+        self.noise_states = noise_states
+        self.noise_derivatives = noise_derivatives
+        self.noise_outputs = noise_outputs
 
         self.nodes: np.ndarray[NodeDataCy] = nodes
 
@@ -94,6 +101,27 @@ class NetworkData(NetworkDataCy):
                 dtype=NPDTYPE,
             )
         )
+        noise_states = DoubleArray1D(
+            array=np.full(
+                shape=len(network_options.nodes),
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
+        noise_derivatives = DoubleArray1D(
+            array=np.full(
+                shape=len(network_options.nodes),
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
+        noise_outputs = DoubleArray1D(
+            array=np.full(
+                shape=len(network_options.nodes),
+                fill_value=0,
+                dtype=NPDTYPE,
+            )
+        )
         nodes = np.array(
             [
                 NodeData.from_options(
@@ -111,6 +139,9 @@ class NetworkData(NetworkDataCy):
             connectivity=connectivity,
             outputs=outputs,
             external_inputs=external_inputs,
+            noise_states=noise_states,
+            noise_derivatives=noise_derivatives,
+            noise_outputs=noise_outputs,
             nodes=nodes,
         )
 

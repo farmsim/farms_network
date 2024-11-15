@@ -33,9 +33,9 @@ cdef class NetworkDataCy:
         public DoubleArray1D outputs
         public NetworkConnectivityCy connectivity
 
-        public DoubleArray1D states_noise
-        public DoubleArray1D derivatives_noise
-        public DoubleArray1D outputs_noise
+        public DoubleArray1D noise_states
+        public DoubleArray1D noise_derivatives
+        public DoubleArray1D noise_outputs
 
         public NodeDataCy[:] nodes
 
