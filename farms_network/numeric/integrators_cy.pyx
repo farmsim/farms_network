@@ -1,4 +1,8 @@
+# distutils: language = c++
+
 import numpy as np
+
+from ..core.options import IntegrationOptions
 
 from libc.stdio cimport printf
 
@@ -7,7 +11,9 @@ NPDTYPE = np.float64
 
 cdef class RK4Solver:
 
-    def __init__(self, int dim, double dt):
+    def __init__ (self, unsigned int dim, double dt):
+
+        super().__init__()
         self.dim = dim
         self.dt = dt
         self.k1 = DoubleArray1D(
@@ -27,7 +33,7 @@ cdef class RK4Solver:
         )
 
     cdef void step(self, ODESystem sys, double time, double[:] state) noexcept:
-        cdef Py_ssize_t i
+        cdef unsigned int i
         cdef double dt2 = self.dt / 2.0
         cdef double dt6 = self.dt / 6.0
         cdef double[:] k1 = self.k1.array
@@ -57,3 +63,26 @@ cdef class RK4Solver:
         # Update y: y = y + (k1 + 2*k2 + 2*k3 + k4) / 6
         for i in range(self.dim):
             state[i] += dt6 * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i])
+
+
+cdef class EulerMaruyamaSolver:
+
+    def __init__ (self, unsigned int dim, double dt):
+
+        super().__init__()
+        self.dim = dim
+        self.dt = dt
+        self.parameters = OrnsteinUhlenbeckParameters()
+
+    cdef void step(self, ODESystem sys, double time, double[:] state) noexcept:
+        """ Update stochastic noise process with Euler–Maruyama method (also called the
+        Euler method) is a method for the approximate numerical solution of a stochastic
+        differential equation (SDE) """
+
+        cdef unsigned int i
+        cdef double noise
+
+        cdef OrnsteinUhlenbeckParameters params = self.parameters
+        for j in range(self.dim):
+            noise = params.distribution(params.random_generator)
+            state[i] += ((params.mu-state[j])*params.dt/params.tau) + params.sigma*(csqrt((2.0*params.dt)/params.tau))*noise
