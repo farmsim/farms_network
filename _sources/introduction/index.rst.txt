@@ -1,0 +1,6 @@
+Introduction
+============
+
+.. toctree::
+
+   installation
