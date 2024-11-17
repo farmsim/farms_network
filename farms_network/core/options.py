@@ -419,7 +419,7 @@ class ExternalRelayNodeOptions(NodeOptions):
         options = {}
         options["name"] = kwargs.pop("name")
         options["parameters"] = NodeParameterOptions()
-        options["visual"] = kwargs.pop("visual")
+        options["visual"] = NodeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
