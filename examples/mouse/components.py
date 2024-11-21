@@ -266,7 +266,7 @@ class RhythmGenerator:
                 np.array((3.0, 0.0)),
                 "F",
                 [1.0, 0.0, 0.0],
-                {"v0": -62.5, "h0": np.random.uniform(0, 1)},
+                {"v": -62.5, "h": np.random.uniform(0, 1)},
                 {},
             ),
             (
@@ -275,7 +275,7 @@ class RhythmGenerator:
                 np.array((-3.0, 0.0)),
                 "E",
                 [0.0, 1.0, 0.0],
-                {"v0": -62.5, "h0": np.random.uniform(0, 1)},
+                {"v": -62.5, "h": np.random.uniform(0, 1)},
                 {},
             ),
             (
@@ -284,7 +284,7 @@ class RhythmGenerator:
                 np.array((1.0, -1.5)),
                 "In",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -293,7 +293,7 @@ class RhythmGenerator:
                 np.array((-1.0, 1.5)),
                 "In",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -302,7 +302,7 @@ class RhythmGenerator:
                 np.array((-5.0, 1.0)),
                 "In",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -368,7 +368,7 @@ class PatternFormation:
                 np.array((-3.0, 0.0)),
                 "F\\textsubscript{A}",
                 [1.0, 0.0, 0.0],
-                {"v0": -60.0, "h0": np.random.uniform(0, 1)},
+                {"v": -60.0, "h": np.random.uniform(0, 1)},
                 {"g_nap": 0.125, "e_leak": -67.5},
             ),
             (
@@ -377,7 +377,7 @@ class PatternFormation:
                 np.array((-9.0, 0.0)),
                 "E\\textsubscript{A}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0, "h0": np.random.uniform(0, 1)},
+                {"v": -60.0, "h": np.random.uniform(0, 1)},
                 {"g_nap": 0.125, "e_leak": -67.5},
             ),
             (
@@ -386,7 +386,7 @@ class PatternFormation:
                 np.array((-5.0, -1.5)),
                 "In\\textsubscript{A}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -395,7 +395,7 @@ class PatternFormation:
                 np.array((-7.0, 1.5)),
                 "In\\textsubscript{A}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -404,7 +404,7 @@ class PatternFormation:
                 np.array((9.0, 0.0)),
                 "F\\textsubscript{B}",
                 [1.0, 0.0, 0.0],
-                {"v0": -60.0, "h0": np.random.uniform(0, 1)},
+                {"v": -60.0, "h": np.random.uniform(0, 1)},
                 {"g_nap": 0.125, "g_leak": 1.0, "e_leak": -67.5},
             ),
             (
@@ -413,7 +413,7 @@ class PatternFormation:
                 np.array((3.0, 0.0)),
                 "E\\textsubscript{B}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0, "h0": np.random.uniform(0, 1)},
+                {"v": -60.0, "h": np.random.uniform(0, 1)},
                 {"g_nap": 0.125, "g_leak": 1.0, "e_leak": -67.5},
             ),
             (
@@ -422,7 +422,7 @@ class PatternFormation:
                 np.array((7.0, -1.5)),
                 "In\\textsubscript{B}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -431,7 +431,7 @@ class PatternFormation:
                 np.array((5.0, 1.5)),
                 "In\\textsubscript{B}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -440,7 +440,7 @@ class PatternFormation:
                 np.array((9.0, -3.0)),
                 "In\\textsubscript{2F}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {"g_leak": 5.0},
             ),
             (
@@ -449,7 +449,7 @@ class PatternFormation:
                 np.array((3.0, -3.0)),
                 "In\\textsubscript{2E}",
                 [0.2, 0.2, 0.2],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {"g_leak": 5.0},
             ),
             (
@@ -552,7 +552,7 @@ class Commissural:
                 np.array((0.0, 2.0, 1.0)),
                 "V2\\textsubscript{a}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -561,7 +561,7 @@ class Commissural:
                 np.array((0.0, 0.0, 1.0)),
                 "In\\textsubscript{i}",
                 [1.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -570,7 +570,7 @@ class Commissural:
                 np.array((2.0, 0.5, 1.0)),
                 "V0\\textsubscript{V}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -579,7 +579,7 @@ class Commissural:
                 np.array((2.0, -2.0, 1.0)),
                 "V0\\textsubscript{D}",
                 [1.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -588,7 +588,7 @@ class Commissural:
                 np.array((2.0, 3.0, 1.0)),
                 "V3\\textsubscript{E}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -597,7 +597,7 @@ class Commissural:
                 np.array((2.0, -4.0, 1.0)),
                 "V3\\textsubscript{F}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -659,7 +659,7 @@ class LPSN:
                 np.array((0.0, 0.0, 1.0)),
                 "V0\\textsubscript{D}",
                 [0.5, 0.0, 0.5],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -668,7 +668,7 @@ class LPSN:
                 np.array((0.0, -1.25, 1.0)),
                 "V0\\textsubscript{V}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -677,7 +677,7 @@ class LPSN:
                 np.array((0.0, -4.0, 1.0)),
                 "V3\\textsubscript{a}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -686,7 +686,7 @@ class LPSN:
                 np.array((-4.0, 0.0, 1.0)),
                 "LPN\\textsubscript{i}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -695,7 +695,7 @@ class LPSN:
                 np.array((-8.0, 0.0, 1.0)),
                 "Sh\\textsubscript{2}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -704,7 +704,7 @@ class LPSN:
                 np.array((-8.0, -4.0, 1.0)),
                 "Sh\\textsubscript{2}",
                 [0.0, 1.0, 0.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -778,7 +778,7 @@ class MotorLayer:
                 np.array((IaIn_x_positions[0], y_off, 1.0)),
                 "Ia\\textsubscript{ea}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -787,7 +787,7 @@ class MotorLayer:
                 np.array((IaIn_x_positions[1], y_off, 1.0)),
                 "Ia\\textsubscript{eb}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -796,7 +796,7 @@ class MotorLayer:
                 np.array((IaIn_x_positions[2], y_off, 1.0)),
                 "Ia\\textsubscript{fa}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -805,7 +805,7 @@ class MotorLayer:
                 np.array((IaIn_x_positions[3], y_off, 1.0)),
                 "Ia\\textsubscript{fb}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -814,7 +814,7 @@ class MotorLayer:
                 np.array((np.mean(IaIn_x_positions), y_off - spacing, 1.0)),
                 "Ib\\textsubscript{rg}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
         ]
@@ -855,7 +855,7 @@ class MotorLayer:
                 np.array((x_off, y_off, 1.0)),
                 "Mn",
                 [1.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {"e_leak": -52.5, "g_leak": 1.0},
             ),
             (
@@ -891,7 +891,7 @@ class MotorLayer:
                 np.array((x_off + 0.5, y_off - 1.0 * mirror_y_sign, 1.0)),
                 "Rn",
                 [1.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -900,7 +900,7 @@ class MotorLayer:
                 np.array((x_off + 1.0, y_off, 1.0)),
                 "Ib\\textsubscript{i}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -909,7 +909,7 @@ class MotorLayer:
                 np.array((x_off + 1.0, y_off + 1.5 * mirror_y_sign, 1.0)),
                 "Ib\\textsubscript{e}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
             (
@@ -918,7 +918,7 @@ class MotorLayer:
                 np.array((x_off - 1.0, y_off, 1.0)),
                 "II\\textsubscript{RG}",
                 [0.0, 0.0, 1.0],
-                {"v0": -60.0},
+                {"v": -60.0},
                 {},
             ),
         ]
