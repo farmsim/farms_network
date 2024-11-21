@@ -32,7 +32,8 @@ from farms_core.array.types import (NDARRAY_V1, NDARRAY_V1_D, NDARRAY_V2_D,
                                     NDARRAY_V3_D)
 from farms_core.io.hdf5 import dict_to_hdf5, hdf5_to_dict
 
-from .data_cy import NetworkConnectivityCy, NetworkDataCy, NetworkStatesCy, NodeDataCy
+from .data_cy import (NetworkConnectivityCy, NetworkDataCy, NetworkNoiseCy,
+                      NetworkStatesCy, NodeDataCy)
 from .options import NetworkOptions, NodeOptions, NodeStateOptions
 
 NPDTYPE = np.float64
@@ -50,9 +51,7 @@ class NetworkData(NetworkDataCy):
             connectivity,
             outputs,
             external_inputs,
-            noise_states,
-            noise_derivatives,
-            noise_outputs,
+            noise,
             nodes,
             **kwargs,
     ):
@@ -66,9 +65,7 @@ class NetworkData(NetworkDataCy):
         self.outputs = outputs
         self.external_inputs = external_inputs
 
-        self.noise_states = noise_states
-        self.noise_derivatives = noise_derivatives
-        self.noise_outputs = noise_outputs
+        self.noise = noise
 
         self.nodes: np.ndarray[NodeDataCy] = nodes
 
@@ -87,6 +84,7 @@ class NetworkData(NetworkDataCy):
         states = NetworkStates.from_options(network_options)
         derivatives = NetworkStates.from_options(network_options)
         connectivity = NetworkConnectivity.from_options(network_options)
+        noise = NetworkNoise.from_options(network_options)
         outputs = DoubleArray1D(
             array=np.full(
                 shape=len(network_options.nodes),
@@ -95,27 +93,6 @@ class NetworkData(NetworkDataCy):
             )
         )
         external_inputs = DoubleArray1D(
-            array=np.full(
-                shape=len(network_options.nodes),
-                fill_value=0,
-                dtype=NPDTYPE,
-            )
-        )
-        noise_states = DoubleArray1D(
-            array=np.full(
-                shape=len(network_options.nodes),
-                fill_value=0,
-                dtype=NPDTYPE,
-            )
-        )
-        noise_derivatives = DoubleArray1D(
-            array=np.full(
-                shape=len(network_options.nodes),
-                fill_value=0,
-                dtype=NPDTYPE,
-            )
-        )
-        noise_outputs = DoubleArray1D(
             array=np.full(
                 shape=len(network_options.nodes),
                 fill_value=0,
@@ -139,9 +116,7 @@ class NetworkData(NetworkDataCy):
             connectivity=connectivity,
             outputs=outputs,
             external_inputs=external_inputs,
-            noise_states=noise_states,
-            noise_derivatives=noise_derivatives,
-            noise_outputs=noise_outputs,
+            noise=noise,
             nodes=nodes,
         )
 
@@ -154,6 +129,7 @@ class NetworkData(NetworkDataCy):
             'connectivity': self.connectivity.to_dict(),
             'outputs': to_array(self.outputs.array),
             'external_inputs': to_array(self.external_inputs.array),
+            'noise': self.noise.to_dict(),
             'nodes': {node.name: node.to_dict() for node in self.nodes},
         }
 
@@ -250,6 +226,50 @@ class NetworkConnectivity(NetworkConnectivityCy):
             'sources': to_array(self.sources),
             'weights': to_array(self.weights),
             'indices': to_array(self.indices),
+        }
+
+
+class NetworkNoise(NetworkNoiseCy):
+    """ Data for network noise modeling """
+
+    def __init__(self, states, derivatives, outputs):
+        super().__init__(states, derivatives, outputs)
+
+    @classmethod
+    def from_options(cls, network_options: NetworkOptions):
+
+        nodes = network_options.nodes
+        n_noise_states = 0
+        n_nodes = len(nodes)
+
+        for index, node in enumerate(nodes):
+            if node.noise and node.noise.is_stochastic:
+                n_noise_states += 1
+
+        return cls(
+            states=np.full(
+                shape=n_noise_states,
+                fill_value=0.0,
+                dtype=NPDTYPE,
+            ),
+            derivatives=np.full(
+                shape=n_noise_states,
+                fill_value=0.0,
+                dtype=NPDTYPE,
+            ),
+            outputs=np.full(
+                shape=n_nodes,
+                fill_value=0.0,
+                dtype=NPDTYPE,
+            )
+        )
+
+    def to_dict(self, iteration: int = None) -> Dict:
+        """Convert data to dictionary"""
+        return {
+            'states': to_array(self.states),
+            'derivatives': to_array(self.derivatives),
+            'outputs': to_array(self.outputs),
         }
 
 

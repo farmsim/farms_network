@@ -63,6 +63,21 @@ cdef class NetworkConnectivityCy:
         self.indices = np.array(indices, dtype=np.uintc)
 
 
+cdef class NetworkNoiseCy:
+    """ Noise data """
+
+    def __init__(
+            self,
+            states: NDArray[(Any,), np.double],
+            derivatives: NDArray[(Any,), np.double],
+            outputs: NDArray[(Any,), np.double],
+    ):
+        super().__init__()
+        self.states = np.array(states, dtype=np.double)
+        self.derivatives = np.array(derivatives, dtype=np.double)
+        self.outputs = np.array(outputs, dtype=np.double)
+
+
 #############
 # Node Data #
 #############
