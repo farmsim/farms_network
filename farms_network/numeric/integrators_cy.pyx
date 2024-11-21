@@ -72,9 +72,8 @@ cdef class EulerMaruyamaSolver:
         super().__init__()
         self.dim = dim
         self.dt = dt
-        self.parameters = OrnsteinUhlenbeckParameters()
 
-    cdef void step(self, ODESystem sys, double time, double[:] state) noexcept:
+    cdef void step(self, SDESystem sys, double time, double[:] state) noexcept:
         """ Update stochastic noise process with Euler–Maruyama method (also called the
         Euler method) is a method for the approximate numerical solution of a stochastic
         differential equation (SDE) """
@@ -82,7 +81,6 @@ cdef class EulerMaruyamaSolver:
         cdef unsigned int i
         cdef double noise
 
-        cdef OrnsteinUhlenbeckParameters params = self.parameters
-        for j in range(self.dim):
-            noise = params.distribution(params.random_generator)
-            state[i] += ((params.mu-state[j])*params.dt/params.tau) + params.sigma*(csqrt((2.0*params.dt)/params.tau))*noise
+        # for j in range(self.dim):
+        #     noise = params.distribution(params.random_generator)
+        #     state[i] += ((params.mu-state[j])*params.dt/params.tau) + params.sigma*(csqrt((2.0*params.dt)/params.tau))*noise

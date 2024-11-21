@@ -4,7 +4,7 @@ from farms_core.array.array_cy cimport DoubleArray1D
 from libc.math cimport sqrt as csqrt
 from libcpp.random cimport mt19937, normal_distribution
 
-from .system cimport ODESystem
+from .system cimport ODESystem, SDESystem
 
 include 'types.pxd'
 
@@ -23,18 +23,7 @@ cdef class RK4Solver:
     cdef void step(self, ODESystem sys, double time, double[:] state) noexcept
 
 
-cdef struct OrnsteinUhlenbeckParameters:
-    double mu
-    double sigma
-    double tau
-    double dt
-    mt19937 random_generator
-    normal_distribution[double] distribution
-
-
 cdef class EulerMaruyamaSolver:
-    cdef:
-        OrnsteinUhlenbeckParameters parameters
 
     cdef:
-        cdef void step(self, ODESystem sys, double time, double[:] state) noexcept
+        cdef void step(self, SDESystem sys, double time, double[:] state) noexcept

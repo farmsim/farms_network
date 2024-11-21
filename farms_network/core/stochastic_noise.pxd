@@ -1,6 +1,24 @@
-from ..numeric.system cimport ODESystem
+# distutils: language = c++
+
+from ..numeric.system cimport SDESystem
+from libc.math cimport sqrt as csqrt
+from libcpp.random cimport mt19937, normal_distribution
 
 
-cdef class OrnsteinUhlenbeck(ODESystem):
+cdef struct OrnsteinUhlenbeckParameters:
+    double* mu
+    double* sigma
+    double* tau
+    mt19937* random_generator
+    normal_distribution[double]* distribution
 
-    cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept
+
+cdef class OrnsteinUhlenbeck(SDESystem):
+
+    cdef:
+        double timestep
+        unsigned int n_dim
+        OrnsteinUhlenbeckParameters* parameters
+
+    cdef void evaluate_a(self, double time, double[:] states, double[:] derivatives) noexcept
+    cdef void evaluate_b(self, double time, double[:] states, double[:] derivatives) noexcept
