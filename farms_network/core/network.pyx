@@ -166,7 +166,9 @@ cdef class PyNetwork(ODESystem):
             pyn = <PyNode> self.pynodes[index]
             c_node = (<Node*>pyn.node)
             c_node.ninputs = len(
-                connectivity.sources[connectivity.indices[index]:connectivity.indices[index+1]]
+                connectivity.sources[
+                    connectivity.indices[index]:connectivity.indices[index+1]
+                ]
             ) if connectivity.indices else 0
             self.network.nodes[index] = c_node
             __nstates += node_options._nstates
@@ -178,6 +180,15 @@ cdef class PyNetwork(ODESystem):
             pye = <PyEdge> self.pyedges[index]
             c_edge = (<Edge*>pye.edge)
             self.network.edges[index] = c_edge
+
+        # Initial states data
+        # Initialize states
+        for j, node in enumerate(options.nodes):
+            if node.state:
+                for state_index, index in enumerate(
+                        range(data.states.indices[j], data.states.indices[j+1])
+                ):
+                    data.states.array[index] = node.state.initial[state_index]
 
     @staticmethod
     def generate_node(node_options: NodeOptions):
