@@ -168,10 +168,12 @@ class NetworkLogOptions(Options):
     def __init__(self, n_iterations: int, **kwargs):
         super().__init__(**kwargs)
 
-        self.n_iterations = n_iterations
+        self.n_iterations: int = n_iterations
+        assert isinstance(self.n_iterations, int), "iterations shoulde be an integer"
         self.buffer_size: int = kwargs.pop('buffer_size', self.n_iterations)
         if self.buffer_size == 0:
             self.buffer_size = self.n_iterations
+        assert isinstance(self.buffer_size, int), "buffer_size shoulde be an integer"
         self.nodes_all: bool = kwargs.pop("nodes_all", False)
 
         if kwargs:
