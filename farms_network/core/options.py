@@ -711,7 +711,7 @@ class LIDannerParameterOptions(NodeParameterOptions):
 class LIDannerStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
-    STATE_NAMES = ["v0",]
+    STATE_NAMES = ["v",]
 
     def __init__(self, **kwargs):
         super().__init__(
@@ -818,7 +818,7 @@ class LINaPDannerParameterOptions(NodeParameterOptions):
 class LINaPDannerStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
-    STATE_NAMES = ["v0", "h0"]
+    STATE_NAMES = ["v", "h"]
 
     def __init__(self, **kwargs):
         super().__init__(
