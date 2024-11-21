@@ -1,0 +1,531 @@
+import time
+from argparse import ArgumentParser
+
+import numpy as np
+from farms_core.io.yaml import read_yaml
+from farms_network.core.network import PyNetwork
+from farms_network.core.options import NetworkOptions
+from farms_network.gui.gui import NetworkGUI
+from imgui_bundle import imgui, imgui_ctx, implot
+from tqdm import tqdm
+
+
+# From farms_amphibious. To be replaced!
+def rotate(vector, theta):
+    """Rotate vector"""
+    cos_t, sin_t = np.cos(theta), np.sin(theta)
+    rotation = np.array(((cos_t, -sin_t), (sin_t, cos_t)))
+    return np.dot(rotation, vector)
+
+
+def direction(vector1, vector2):
+    """Unit direction"""
+    return (vector2-vector1)/np.linalg.norm(vector2-vector1)
+
+
+def connect_positions(source, destination, dir_shift, perp_shift):
+    """Connect positions"""
+    connection_direction = direction(source, destination)
+    connection_perp = rotate(connection_direction, 0.5*np.pi)
+    new_source = (
+        source
+        + dir_shift*connection_direction
+        + perp_shift*connection_perp
+    )
+    new_destination = (
+        destination
+        - dir_shift*connection_direction
+        + perp_shift*connection_perp
+    )
+    return new_source, new_destination
+
+
+def compute_phases(times, data):
+    phases = (np.array(data) > 0.1).astype(np.int16)
+    phases = np.logical_not(phases).astype(np.int16)
+    phases_xs = []
+    phases_ys = []
+    for j in range(len(data)):
+        phases_start = np.where(np.diff(phases[j, :], prepend=0) == 1.0)[0]
+        phases_ends = np.where(np.diff(phases[j, :], append=0) == -1.0)[0]
+        phases_xs.append(np.vstack(
+            (times[phases_start], times[phases_start], times[phases_ends], times[phases_ends])
+        ).T)
+        phases_ys.append(np.ones(np.shape(phases_xs[j]))*j)
+        if np.all(len(phases_start) > 3):
+            phases_ys[j][:, 1] += 1
+            phases_ys[j][:, 2] += 1
+    return phases_xs, phases_ys
+
+
+def add_plot(iteration, data):
+    """ """
+    # times = data.times.array[iteration%1000:]
+    side = "right"
+    limb = "fore"
+    plot_names = [
+        f"{side}_{limb}_RG_E",
+        f"{side}_{limb}_RG_F",
+        f"left_fore_RG_F",
+        f"right_hind_RG_F",
+        f"left_hind_RG_F",
+        f"{side}_{limb}_PF_FA",
+        f"{side}_{limb}_PF_EA",
+        f"{side}_{limb}_PF_FB",
+        f"{side}_{limb}_PF_EB",
+        f"{side}_{limb}_RG_F_DR",
+    ]
+
+    nodes_names = [
+        node.name
+        for node in data.nodes
+    ]
+
+    plot_nodes = [
+        nodes_names.index(name)
+        for name in plot_names
+    ]
+    if not plot_nodes:
+        return
+
+    outputs = np.vstack(
+        (
+            *[
+                data.nodes[plot_nodes[j]].output.array
+                for j in range(len(plot_names))
+            ],
+            data.nodes[plot_nodes[-1]].external_input.array,
+        )
+    )
+    if iteration < 1000:
+        plot_data = np.array(outputs[:, :iteration])
+    else:
+        plot_data = np.array(outputs[:, iteration-1000:iteration])
+    # plot_data = np.vstack((outputs[iteration%1000:], outputs[:iteration%1000]))
+
+    times = np.array((np.linspace(0.0, 1.0, 1000)*-1.0)[::-1])
+
+    phases_xs, phases_ys = compute_phases(times, plot_data[1:5, :])
+
+    # phases = (np.array(plot_data[0, :]) > 0.1).astype(np.int16)
+    # phases = np.logical_not(phases).astype(np.int16)
+    # phases_start = np.where(np.diff(phases, prepend=0) == 1.0)[0]
+    # phases_ends = np.where(np.diff(phases, append=0) == -1.0)[0]
+    # phases_xs = np.vstack(
+    #     (times[phases_start], times[phases_start], times[phases_ends], times[phases_ends])
+    # ).T
+    # phases_ys = np.ones(np.shape(phases_xs))
+    # if len(phases_start) > 3:
+    #     phases_ys[:, 1] += 1.0
+    #     phases_ys[:, 2] += 1.0
+    row_col_ratios = implot.SubplotsRowColRatios(row_ratios=[0.1, 0.6, 0.3], col_ratios=[1])
+    colors = {
+        "RF": imgui.IM_COL32(28, 107, 180, 255),
+        "LF": imgui.IM_COL32(23, 163, 74, 255),
+        "RH": imgui.IM_COL32(200, 38, 39, 255),
+        "LH": imgui.IM_COL32(0, 0, 0, 255), # imgui.IM_COL32(255, 252, 212, 255)
+        "right_fore_RG_F": imgui.IM_COL32(28, 107, 180, 255),
+        "left_fore_RG_F": imgui.IM_COL32(23, 163, 74, 255),
+        "right_hind_RG_F": imgui.IM_COL32(200, 38, 39, 255),
+        "left_hind_RG_F": imgui.IM_COL32(0, 0, 0, 255), # imgui.IM_COL32(255, 252, 212, 255)
+    }
+    with imgui_ctx.begin("States"):
+        if implot.begin_subplots(
+                "Network Activity",
+                3,
+                1,
+                imgui.ImVec2(-1, -1),
+                row_col_ratios=implot.SubplotsRowColRatios(row_ratios=[0.1, 0.6, 0.3], col_ratios=[1])
+        ):
+            if implot.begin_plot(""):
+                flags = (
+                    implot.AxisFlags_.no_label | implot.AxisFlags_.no_tick_labels | implot.AxisFlags_.no_tick_marks
+                )
+                implot.setup_axis(implot.ImAxis_.y1, "Drive")
+                implot.setup_axis(implot.ImAxis_.x1, flags=flags)
+                implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 1.5)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, 0.0, 1.5)
+                implot.plot_line("RG-F-Dr", times, plot_data[-1, :])
+                implot.end_plot()
+            if implot.begin_plot(""):
+                implot.setup_axis(implot.ImAxis_.x1, "Time")
+                implot.setup_axis(implot.ImAxis_.y1, "Activity")
+                implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_names), 1.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -1*len(plot_names), 1.0)
+                for j, name in enumerate(plot_names[:-1]):
+                    if plot_names[j] in colors:
+                        implot.push_style_color(implot.Col_.line, colors.get(plot_names[j]))
+                        implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
+                        implot.pop_style_color()
+                    else:
+                        implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
+                implot.end_plot()
+            if implot.begin_plot(""):
+                implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits(implot.ImAxis_.y1, -2.0, 6.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -2.0, 4.0)
+                implot.setup_axis(implot.ImAxis_.y1, flags=implot.AxisFlags_.invert)
+                for j, limb in enumerate(("RF", "LF", "RH", "LH")):
+                    if len(phases_xs[j]) > 3:
+                        implot.push_style_color(
+                            implot.Col_.fill,
+                            colors[limb]
+                        )
+                        implot.plot_shaded(
+                            limb,
+                            phases_xs[j].flatten(),
+                            phases_ys[j].flatten(),
+                            yref=j
+                        )
+                        implot.pop_style_color()
+                implot.end_plot()
+            implot.end_subplots()
+
+
+def draw_muscle_activity(iteration, data):
+    """ Draw muscle activity """
+    side = "left"
+    limb = "hind"
+
+    muscle_names = [
+        "bfa",
+        "ip",
+        "bfpst",
+        "rf",
+        "va",
+        "mg",
+        "sol",
+        "ta",
+        "ab",
+        "gm_dorsal",
+        "edl",
+        "fdl",
+    ]
+
+    nodes_names = [
+        node.name
+        for node in data.nodes
+    ]
+
+    plot_nodes = [
+        nodes_names.index(f"{side}_{limb}_{name}_Mn")
+        for name in muscle_names
+    ]
+    if not plot_nodes:
+        return
+    outputs = np.vstack(
+        [
+            data.nodes[plot_nodes[j]].output.array
+            for j in range(len(plot_nodes))
+        ]
+    )
+    if iteration < 1000:
+        plot_data = np.array(outputs[:, :iteration])
+    else:
+        plot_data = np.array(outputs[:, iteration-1000:iteration])
+
+    times = np.array((np.linspace(0.0, 1.0, 1000)*-1.0)[::-1])
+
+    with imgui_ctx.begin("Muscle activity"):
+        if implot.begin_plot("Muscle Activity", imgui.ImVec2(-1, -1)):
+            implot.setup_axis(implot.ImAxis_.x1, "Time")
+            implot.setup_axis(implot.ImAxis_.y1, "Activity")
+            implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_nodes), 1.0)
+            implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+            # implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -5.2, 1.0)
+            for j in range(len(plot_nodes)):
+                implot.plot_line(muscle_names[j], times, plot_data[j, :] - j)
+            implot.end_plot()
+
+    # plot_nodes = [
+    #     nodes_names.index(f"{side}_{limb}_{name}_Rn")
+    #     for name in muscle_names
+    # ]
+    # if not plot_nodes:
+    #     return
+    # outputs = np.vstack(
+    #     [
+    #         data.nodes[plot_nodes[j]].output.array
+    #         for j in range(len(plot_nodes))
+    #     ]
+    # )
+    # if iteration < 1000:
+    #     plot_data = np.array(outputs[:, :iteration])
+    # else:
+    #     plot_data = np.array(outputs[:, iteration-1000:iteration])
+
+    # with imgui_ctx.begin("Renshaw activity"):
+    #     if implot.begin_plot("Renshaw Activity", imgui.ImVec2(-1, -1)):
+    #         implot.setup_axis(implot.ImAxis_.x1, "Time")
+    #         implot.setup_axis(implot.ImAxis_.y1, "Activity")
+    #         implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+    #         implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+    #         implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_nodes), 1.0)
+    #         implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+    #         # implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -5.2, 1.0)
+    #         for j in range(len(plot_nodes)):
+    #             implot.plot_line(muscle_names[j], times, plot_data[j, :] - j)
+    #         implot.end_plot()
+
+    Ia_In_names = ("EA", "EB", "FA", "FB")
+    plot_nodes = [
+        nodes_names.index(f"{side}_{limb}_Ia_In_{name}")
+        for name in ("EA", "EB", "FA", "FB")
+    ]
+    plot_nodes = [
+        nodes_names.index(name)
+        for name in nodes_names
+        if "Ib_In_e" in name
+    ]
+    plot_labels = [
+        name
+        for name in nodes_names
+        if "Ib_In_e" in name
+    ]
+    if not plot_nodes:
+        return
+    outputs = np.vstack(
+        [
+            data.nodes[plot_nodes[j]].output.array
+            for j in range(len(plot_nodes))
+        ]
+    )
+    if iteration < 1000:
+        plot_data = np.array(outputs[:, :iteration])
+    else:
+        plot_data = np.array(outputs[:, iteration-1000:iteration])
+
+    with imgui_ctx.begin("Sensory interneuron activity"):
+        if implot.begin_plot("Sensory interneuron Activity", imgui.ImVec2(-1, -1)):
+            implot.setup_axis(implot.ImAxis_.x1, "Time")
+            implot.setup_axis(implot.ImAxis_.y1, "Activity")
+            implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_nodes), 1.0)
+            implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+            # implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -5.2, 1.0)
+            for j in range(len(plot_nodes)):
+                implot.plot_line(plot_labels[j], times, plot_data[j, :] - j)
+            implot.end_plot()
+
+
+def draw_network(network_options, data, iteration, edges_x, edges_y):
+    """ Draw network """
+
+    nodes = network_options.nodes
+
+    with imgui_ctx.begin("Full-Network"):
+        if implot.begin_plot("vis", imgui.ImVec2((-1, -1))):
+            radius = implot.plot_to_pixels(implot.Point((7.5, 7.5)))
+
+            implot.plot_line(
+                "",
+                xs=edges_x,
+                ys=edges_y,
+                flags=implot.LineFlags_.segments
+            )
+            for index, node in enumerate(nodes):
+                implot.set_next_marker_style(
+                    size=7.5# *node.visual.radius
+                )
+                implot.push_style_var(
+                    implot.StyleVar_.fill_alpha,
+                    0.05+data.nodes[index].output.array[iteration]*2.0
+                )
+                implot.plot_scatter(
+                    "##",
+                    xs=np.array((node.visual.position[0],)),
+                    ys=np.array((node.visual.position[1],)),
+                )
+                implot.pop_style_var()
+                # implot.push_plot_clip_rect()
+                # position = implot.plot_to_pixels(implot.Point(node.visual.position[:2]))
+                # color = imgui.IM_COL32(
+                #     0, 0, 0, 255
+                # )
+                # implot.get_plot_draw_list().add_circle(position, 7.5, color)
+                # implot.pop_plot_clip_rect()
+
+                # implot.push_plot_clip_rect()
+                # color = imgui.IM_COL32(
+                #     100, 185, 0,
+                #     int(255*(data.nodes[index].output.array[iteration]))
+                # )
+                # implot.get_plot_draw_list().add_circle_filled(position, 7.5, color)
+                # implot.pop_plot_clip_rect()
+                implot.plot_text(
+                    node.visual.label.replace("\\textsubscript", "")[0],
+                    node.visual.position[0],
+                    node.visual.position[1],
+                )
+
+            implot.end_plot()
+
+
+def draw_slider(
+        label: str,
+        name: str,
+        values: list,
+        min_value: float = 0.0,
+        max_value: float = 1.0
+):
+    with imgui_ctx.begin(name):
+        clicked, values[0] = imgui.slider_float(
+            label="drive",
+            v=values[0],
+            v_min=min_value,
+            v_max=max_value,
+        )
+        clicked, values[1] = imgui.slider_float(
+            label="Ia",
+            v=values[1],
+            v_min=min_value,
+            v_max=max_value,
+        )
+        clicked, values[2] = imgui.slider_float(
+            label="II",
+            v=values[2],
+            v_min=min_value,
+            v_max=max_value,
+        )
+        clicked, values[3] = imgui.slider_float(
+            label="Ib",
+            v=values[3],
+            v_min=min_value,
+            v_max=max_value,
+        )
+    return values
+
+
+def draw_table():
+    """ Draw table """
+    with imgui_ctx.begin("Table"):
+        if imgui.begin_table("table", 5):
+            for row in range(6):
+                imgui.table_next_row()
+                for column in range(5):
+                    imgui.table_set_column_index(column)
+                    imgui.text(f"Row {row} Column {column}")
+            imgui.end_table()
+
+
+def draw_polar():
+    """ Draw polar """
+    with imgui_ctx.begin("Polar"):
+        if imgui.begin_plot("polar"):
+            implot.plot_line
+            imgui.end_plot()
+
+
+
+def main():
+    """ Main """
+
+    parser = ArgumentParser()
+    parser.add_argument(
+        "--config_path", "-c", dest="config_path", type=str, required=True
+    )
+    clargs = parser.parse_args()
+    # run network
+    network_options = NetworkOptions.from_options(read_yaml(clargs.config_path))
+
+    network = PyNetwork.from_options(network_options)
+    network.setup_integrator(network_options.integration)
+
+    # Integrate
+    N_ITERATIONS = network_options.integration.n_iterations
+    TIMESTEP = network_options.integration.timestep
+    BUFFER_SIZE = network_options.logs.buffer_size
+
+    gui = NetworkGUI()
+    gui.create_context()
+
+    inputs_view = network.data.external_inputs.array
+    drive_input = 0.0
+    imgui.style_colors_light()
+    implot.style_colors_light()
+
+    edges_xy = np.array(
+        [
+            network_options.nodes[node_idx].visual.position[:2]
+            for edge in network_options.edges
+            for node_idx in (
+                    network_options.nodes.index(edge.source),
+                    network_options.nodes.index(edge.target),
+            )
+        ]
+    )
+    # for index in range(len(edges_xy) - 1):
+    #     edges_xy[index], edges_xy[index + 1] = connect_positions(
+    #         edges_xy[index+1], edges_xy[index], 10.0, 0.0
+    #     )
+    edges_x = np.array(edges_xy[:, 0])
+    edges_y = np.array(edges_xy[:, 1])
+
+    fps = 30.0
+    _time_draw = time.time()
+    _time_draw_last = _time_draw
+    _realtime = 0.1
+
+    imgui.get_io().config_flags |= imgui.ConfigFlags_.docking_enable
+
+    drive_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "DR" in node.name
+    ]
+    Ia_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "Ia" == node.name[-2:]
+    ]
+    II_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "II" == node.name[-2:]
+    ]
+    Ib_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "Ib" == node.name[-2:]
+    ]
+    slider_values = np.zeros((4,))
+    slider_values[0] = 0.25
+    input_array = np.zeros(np.shape(inputs_view))
+    input_array[drive_input_indices] = 0.25
+    input_array[drive_input_indices[0]] *= 1.05
+    for iteration in tqdm(range(0, N_ITERATIONS), colour="green", ascii=" >="):
+        input_array[drive_input_indices] = slider_values[0]
+        input_array[Ia_input_indices] = slider_values[1]
+        input_array[II_input_indices] = slider_values[2]
+        input_array[Ib_input_indices] = slider_values[3]
+
+        inputs_view[:] = input_array
+        network.step()
+        buffer_iteration = iteration%BUFFER_SIZE
+        network.data.times.array[buffer_iteration] = (iteration)*TIMESTEP
+        _time_draw_last = _time_draw
+        _time_draw = time.time()
+        fps = _realtime*1/(_time_draw-_time_draw_last)+(1-_realtime)*fps
+        # print(imgui.get_io().delta_time, imgui.get_io().framerate)
+        time.sleep(1e-4)
+        if not (iteration % 2):
+            gui.new_frame()
+            slider_values = draw_slider(label="d", name="Drive", values=slider_values)
+            add_plot(buffer_iteration, network.data)
+            draw_table()
+            draw_network(network_options, network.data, buffer_iteration, edges_x, edges_y)
+            draw_muscle_activity(buffer_iteration, network.data)
+            gui.render_frame()
+
+
+if __name__ == '__main__':
+    main()
