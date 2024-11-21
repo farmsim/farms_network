@@ -33,6 +33,7 @@ cdef class PyNetwork(ODESystem):
 
         unsigned int iteration
         unsigned int n_iterations
+        unsigned int buffer_size
         double timestep
 
         public RK4Solver integrator

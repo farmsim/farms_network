@@ -128,6 +128,7 @@ cdef class PyNetwork(ODESystem):
         self.n_iterations: int = network_options.integration.n_iterations
         self.timestep: int = network_options.integration.timestep
         self.iteration: int = 0
+        self.buffer_size: int = network_options.logs.buffer_size
 
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
