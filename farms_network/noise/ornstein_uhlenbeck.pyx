@@ -26,9 +26,10 @@ from libc.stdlib cimport free, malloc
 cdef class OrnsteinUhlenbeck(SDESystem):
     """ Ornstein Uhlenheck parameters """
 
-    def __cinit__(self, unsigned int n_dim):
+    def __cinit__(self, network_options):
         """ C initialization for manual memory allocation """
 
+        n_dim = 1
         self.parameters = <OrnsteinUhlenbeckParameters*>malloc(sizeof(OrnsteinUhlenbeckParameters))
         if self.parameters is NULL:
             raise MemoryError("Failed to allocate memory for OrnsteinUhlenbeck Parameters")
@@ -69,17 +70,22 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         if self.parameters is not NULL:
             free(self.parameters)
 
-    def __init__(self, options):
+    def __init__(self, network_options):
         super().__init__()
+        self.n_dim = 1
+        self.timestep = 0.001
+        self.parameters.mu[0] = 1.0
 
-    cdef void evaluate_a(self, double time, double[:] states, double[:] derivatives) noexcept:
+    cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept:
         ...
         # cdef unsigned int j
-        # cdef OrnsteinUhlenbeckParameters params = <OrnsteinUhlenbeckParameters>self.OrnsteinUhlenbeckParameters[0]
-        # for j range(self.n_dim):
+        # cdef OrnsteinUhlenbeckParameters params = (
+        #     <OrnsteinUhlenbeckParameters>self.OrnsteinUhlenbeckParameters[0]
+        # )
+        # for j in range(self.n_dim):
         #     derivatives[j] = (params.mu[j]-states[j])/params.tau[0]
 
-    cdef void evaluate_b(self, double time, double[:] states, double[:] derivatives) noexcept:
+    cdef void evaluate_b(self, double time, double[:] states, double[:] diffusion) noexcept:
         ...
         # cdef unsigned int j
         # cdef OrnsteinUhlenbeckParameters params = (
