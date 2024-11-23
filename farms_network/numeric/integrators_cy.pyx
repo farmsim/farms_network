@@ -72,6 +72,12 @@ cdef class EulerMaruyamaSolver:
         super().__init__()
         self.dim = dim
         self.dt = dt
+        self.drift = DoubleArray1D(
+            array=np.full(shape=self.dim, fill_value=0.0, dtype=NPDTYPE,)
+        )
+        self.diffusion = DoubleArray1D(
+            array=np.full(shape=self.dim, fill_value=0.0, dtype=NPDTYPE,)
+        )
 
     cdef void step(self, SDESystem sys, double time, double[:] state) noexcept:
         """ Update stochastic noise process with Euler–Maruyama method (also called the
@@ -79,8 +85,10 @@ cdef class EulerMaruyamaSolver:
         differential equation (SDE) """
 
         cdef unsigned int i
-        cdef double noise
+        cdef double[:] drift = self.drift.array
+        cdef double[:] diffusion = self.diffusion.array
 
-        # for j in range(self.dim):
-        #     noise = params.distribution(params.random_generator)
-        #     state[i] += ((params.mu-state[j])*params.dt/params.tau) + params.sigma*(csqrt((2.0*params.dt)/params.tau))*noise
+        sys.evaluate_a(time, self.dt, state, drift)
+        sys.evaluate_b(time, self.dt, state, diffusion)
+        for i in range(self.dim):
+            state[i] += drift[i]*self.dt + csqrt((2.0*self.dt))*diffusion[i]

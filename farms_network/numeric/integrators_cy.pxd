@@ -26,4 +26,11 @@ cdef class RK4Solver:
 cdef class EulerMaruyamaSolver:
 
     cdef:
+        DoubleArray1D drift
+        DoubleArray1D diffusion
+
+        unsigned int dim
+        double dt
+
+    cdef:
         cdef void step(self, SDESystem sys, double time, double[:] state) noexcept
