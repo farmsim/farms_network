@@ -1,5 +1,6 @@
 """ Options to configure the neural and network models """
 
+from enum import IntEnum
 from typing import Dict, Iterable, List, Self, Union
 
 import matplotlib.pyplot as plt
@@ -201,6 +202,7 @@ class NodeOptions(Options):
         self.parameters: NodeParameterOptions = kwargs.pop("parameters")
         self.visual: NodeVisualOptions = kwargs.pop("visual")
         self.state: NodeStateOptions = kwargs.pop("state")
+        self.noise: NoiseOptions = kwargs.pop("noise", None)
 
         self._nstates: int = 0
         self._nparameters: int = 0
@@ -225,6 +227,7 @@ class NodeOptions(Options):
         options["parameters"] = kwargs.pop("parameters")
         options["visual"] = kwargs.pop("visual")
         options["state"] = kwargs.pop("state")
+        options["noise"] = kwargs.pop("noise")
         return cls(**options)
 
 
@@ -389,6 +392,68 @@ class EdgeVisualOptions(Options):
         return cls(**kwargs)
 
 
+#################
+# Noise Options #
+#################
+class NoiseOptions(Options):
+    """ Base class for node noise options """
+
+    NOISE_TYPES = ("additive",)
+    NOISE_MODELS = ("white", "ornstein_uhlenbeck")
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.type = kwargs.pop("type", NoiseOptions.NOISE_TYPES[0])
+        assert self.type.lower() in NoiseOptions.NOISE_TYPES
+        self.model = kwargs.pop("model", None)
+        assert self.model.lower() in NoiseOptions.NOISE_MODELS
+        self.is_stochastic = kwargs.pop("is_stochastic")
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        noise_models = {
+            cls.NOISE_MODELS[0]: NoiseOptions,
+            cls.NOISE_MODELS[1]: OrnsteinUhlenbeckOptions
+        }
+        noise_model = kwargs.pop("model")
+        return noise_models[noise_model].from_options(kwargs)
+
+
+class OrnsteinUhlenbeckOptions(NoiseOptions):
+    """ Options to  OrnsteinUhlenbeckOptions """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = NoiseOptions.NOISE_MODELS[1]
+        is_stochastic = True
+        super().__init__(model=model, is_stochastic=is_stochastic)
+        self.mu: float = kwargs.pop("mu")
+        self.sigma: float = kwargs.pop("sigma")
+        self.tau: float = kwargs.pop("tau")
+        self.timestep: float = kwargs.pop("timestep")
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        options = {}
+        options["mu"] = kwargs.pop("mu")
+        options["sigma"] = kwargs.pop("sigma")
+        options["tau"] = kwargs.pop("tau")
+        options["timestep"] = kwargs.pop("timestep")
+        return cls(**options)
+
+    @classmethod
+    def defaults(cls, **kwargs: Dict):
+        """ From options """
+        options = {}
+        options["mu"] = kwargs.pop("mu", 0.0)
+        options["sigma"] = kwargs.pop("sigma", 0.005)
+        options["tau"] = kwargs.pop("tau", 10.0)
+        options["timestep"] = kwargs.pop("timestep", 1/2.0)
+        return cls(**options)
+
+
 ################################
 # External Relay Model Options #
 ################################
@@ -408,6 +473,7 @@ class ExternalRelayNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state", None),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 0
         self._nparameters = 0
@@ -422,6 +488,7 @@ class ExternalRelayNodeOptions(NodeOptions):
         options["name"] = kwargs.pop("name")
         options["parameters"] = NodeParameterOptions()
         options["visual"] = NodeVisualOptions.from_options(kwargs["visual"])
+        options["noise"] = kwargs.pop("noise", None)
         return cls(**options)
 
 
@@ -440,6 +507,7 @@ class LinearNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state", None),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 0
         self._nparameters = 2
@@ -459,6 +527,7 @@ class LinearNodeOptions(NodeOptions):
             kwargs["visual"]
         )
         options["state"] = None
+        options["noise"] = kwargs.pop("noise", None)
         return cls(**options)
 
 
@@ -498,6 +567,7 @@ class OscillatorNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 3
         self._nparameters = 3
@@ -519,6 +589,7 @@ class OscillatorNodeOptions(NodeOptions):
         options["state"] = OscillatorStateOptions.from_options(
             kwargs["state"]
         )
+        options["noise"] = NoiseOptions.from_options(kwargs["noise"])
         return cls(**options)
 
 
@@ -635,6 +706,7 @@ class LIDannerNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 1
         self._nparameters = 13
@@ -656,6 +728,7 @@ class LIDannerNodeOptions(NodeOptions):
         options["state"] = LIDannerStateOptions.from_options(
             kwargs["state"]
         )
+        options["noise"] = NoiseOptions.from_options(kwargs["noise"])
         return cls(**options)
 
 
@@ -736,6 +809,7 @@ class LINaPDannerNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 2
         self._nparameters = 19
@@ -756,6 +830,9 @@ class LINaPDannerNodeOptions(NodeOptions):
         )
         options["state"] = LINaPDannerStateOptions.from_options(
             kwargs["state"]
+        )
+        options["noise"] = NoiseOptions.from_options(
+            kwargs["noise"]
         )
         return cls(**options)
 
@@ -843,6 +920,7 @@ class IzhikevichNodeOptions(NodeOptions):
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
         )
         self._nstates = 2
         self._nparameters = 5
