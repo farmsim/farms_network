@@ -20,5 +20,5 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         unsigned int n_dim
         OrnsteinUhlenbeckParameters* parameters
 
-    cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept
-    cdef void evaluate_b(self, double time, double[:] states, double[:] diffusion) noexcept
+    cdef void evaluate_a(self, double time, double timestep, double[:] states, double[:] drift) noexcept
+    cdef void evaluate_b(self, double time, double timestep, double[:] states, double[:] diffusion) noexcept
