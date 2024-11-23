@@ -57,7 +57,8 @@ cdef class NetworkNoiseCy:
 
     cdef:
         public DTYPEv1 states
-        public DTYPEv1 derivatives
+        public DTYPEv1 drift
+        public DTYPEv1 diffusion
         public DTYPEv1 outputs
 
 

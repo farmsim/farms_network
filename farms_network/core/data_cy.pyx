@@ -69,12 +69,14 @@ cdef class NetworkNoiseCy:
     def __init__(
             self,
             states: NDArray[(Any,), np.double],
-            derivatives: NDArray[(Any,), np.double],
+            drift: NDArray[(Any,), np.double],
+            diffusion: NDArray[(Any,), np.double],
             outputs: NDArray[(Any,), np.double],
     ):
         super().__init__()
         self.states = np.array(states, dtype=np.double)
-        self.derivatives = np.array(derivatives, dtype=np.double)
+        self.drift = np.array(drift, dtype=np.double)
+        self.diffusion = np.array(diffusion, dtype=np.double)
         self.outputs = np.array(outputs, dtype=np.double)
 
 

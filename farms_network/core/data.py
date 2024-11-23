@@ -232,8 +232,8 @@ class NetworkConnectivity(NetworkConnectivityCy):
 class NetworkNoise(NetworkNoiseCy):
     """ Data for network noise modeling """
 
-    def __init__(self, states, derivatives, outputs):
-        super().__init__(states, derivatives, outputs)
+    def __init__(self, states, drift, diffusion, outputs):
+        super().__init__(states, drift, diffusion, outputs)
 
     @classmethod
     def from_options(cls, network_options: NetworkOptions):
@@ -252,7 +252,12 @@ class NetworkNoise(NetworkNoiseCy):
                 fill_value=0.0,
                 dtype=NPDTYPE,
             ),
-            derivatives=np.full(
+            drift=np.full(
+                shape=n_noise_states,
+                fill_value=0.0,
+                dtype=NPDTYPE,
+            ),
+            diffusion=np.full(
                 shape=n_noise_states,
                 fill_value=0.0,
                 dtype=NPDTYPE,
@@ -268,7 +273,8 @@ class NetworkNoise(NetworkNoiseCy):
         """Convert data to dictionary"""
         return {
             'states': to_array(self.states),
-            'derivatives': to_array(self.derivatives),
+            'drift': to_array(self.drift),
+            'diffusion': to_array(self.diffusion),
             'outputs': to_array(self.outputs),
         }
 
