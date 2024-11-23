@@ -35,7 +35,7 @@ extensions = [
         extra_compile_args=['-ffast-math', '-O3'],
         extra_link_args=['-O3'],
     )
-    for subpackage in ('core', 'models', 'numeric')
+    for subpackage in ('core', 'models', 'numeric', 'noise')
 ]
 
 setup(
