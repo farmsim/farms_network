@@ -52,9 +52,9 @@ def compute_phases(times, data):
             (times[phases_start], times[phases_start], times[phases_ends], times[phases_ends])
         ).T)
         phases_ys.append(np.ones(np.shape(phases_xs[j]))*j)
-        if np.all(len(phases_start) > 3):
-            phases_ys[j][:, 1] += 1
-            phases_ys[j][:, 2] += 1
+        # if np.all(len(phases_start) > 3):
+        phases_ys[j][:, 1] += 1
+        phases_ys[j][:, 2] += 1
     return phases_xs, phases_ys
 
 
@@ -123,11 +123,11 @@ def add_plot(iteration, data):
         "RF": imgui.IM_COL32(28, 107, 180, 255),
         "LF": imgui.IM_COL32(23, 163, 74, 255),
         "RH": imgui.IM_COL32(200, 38, 39, 255),
-        "LH": imgui.IM_COL32(0, 0, 0, 255), # imgui.IM_COL32(255, 252, 212, 255)
+        "LH": imgui.IM_COL32(255, 252, 212, 255), # imgui.IM_COL32(0, 0, 0, 255),
         "right_fore_RG_F": imgui.IM_COL32(28, 107, 180, 255),
         "left_fore_RG_F": imgui.IM_COL32(23, 163, 74, 255),
         "right_hind_RG_F": imgui.IM_COL32(200, 38, 39, 255),
-        "left_hind_RG_F": imgui.IM_COL32(0, 0, 0, 255), # imgui.IM_COL32(255, 252, 212, 255)
+        "left_hind_RG_F": imgui.IM_COL32(255, 252, 212, 255), # imgui.IM_COL32(0, 0, 0, 255),
     }
     with imgui_ctx.begin("States"):
         if implot.begin_subplots(
@@ -167,23 +167,23 @@ def add_plot(iteration, data):
                 implot.end_plot()
             if implot.begin_plot(""):
                 implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
-                implot.setup_axis_limits(implot.ImAxis_.y1, -2.0, 6.0)
+                implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 4.0)
                 implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
-                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -2.0, 4.0)
+                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, 0.0, 4.0)
                 implot.setup_axis(implot.ImAxis_.y1, flags=implot.AxisFlags_.invert)
                 for j, limb in enumerate(("RF", "LF", "RH", "LH")):
-                    if len(phases_xs[j]) > 3:
-                        implot.push_style_color(
-                            implot.Col_.fill,
-                            colors[limb]
-                        )
-                        implot.plot_shaded(
-                            limb,
-                            phases_xs[j].flatten(),
-                            phases_ys[j].flatten(),
-                            yref=j
-                        )
-                        implot.pop_style_color()
+                    # if len(phases_xs[j]) > 3:
+                    implot.push_style_color(
+                        implot.Col_.fill,
+                        colors[limb]
+                    )
+                    implot.plot_shaded(
+                        limb,
+                        phases_xs[j].flatten(),
+                        phases_ys[j].flatten(),
+                        yref=j
+                    )
+                    implot.pop_style_color()
                 implot.end_plot()
             implot.end_subplots()
 
@@ -322,6 +322,7 @@ def draw_network(network_options, data, iteration, edges_x, edges_y):
 
     nodes = network_options.nodes
 
+    imgui.WindowFlags_
     with imgui_ctx.begin("Full-Network"):
         if implot.begin_plot("vis", imgui.ImVec2((-1, -1))):
             radius = implot.plot_to_pixels(implot.Point((7.5, 7.5)))
@@ -405,15 +406,31 @@ def draw_slider(
     return values
 
 
-def draw_table():
+def draw_table(network_options, network_data):
     """ Draw table """
+    flags = (
+        imgui.TableFlags_.borders | imgui.TableFlags_.row_bg | imgui.TableFlags_.resizable | \
+        imgui.TableFlags_.sortable
+    )
     with imgui_ctx.begin("Table"):
-        if imgui.begin_table("table", 5):
-            for row in range(6):
+        edges = network_options.edges
+        nodes = network_options.nodes
+        n_edges = len(edges)
+        if imgui.begin_table("Edges", 3, flags):
+            weights = network_data.connectivity.weights
+            for col in ("Source", "Target", "Weight"):
+                imgui.table_setup_column(col)
+            imgui.table_headers_row()
+            for row in range(n_edges):
                 imgui.table_next_row()
-                for column in range(5):
-                    imgui.table_set_column_index(column)
-                    imgui.text(f"Row {row} Column {column}")
+                imgui.table_set_column_index(0)
+                imgui.text(edges[row].source)
+                imgui.table_set_column_index(1)
+                imgui.text(edges[row].target)
+                imgui.table_set_column_index(2)
+                imgui.push_id(row)
+                _, weights[row] = imgui.input_float("##row", weights[row])
+                imgui.pop_id()
             imgui.end_table()
 
 
@@ -438,7 +455,7 @@ def main():
     network_options = NetworkOptions.from_options(read_yaml(clargs.config_path))
 
     network = PyNetwork.from_options(network_options)
-    network.setup_integrator(network_options.integration)
+    network.setup_integrator(network_options)
 
     # Integrate
     N_ITERATIONS = network_options.integration.n_iterations
@@ -450,8 +467,8 @@ def main():
 
     inputs_view = network.data.external_inputs.array
     drive_input = 0.0
-    imgui.style_colors_light()
-    implot.style_colors_light()
+    imgui.style_colors_dark()
+    implot.style_colors_dark()
 
     edges_xy = np.array(
         [
@@ -476,6 +493,9 @@ def main():
     _realtime = 0.1
 
     imgui.get_io().config_flags |= imgui.ConfigFlags_.docking_enable
+    imgui.get_style().anti_aliased_lines = True
+    imgui.get_style().anti_aliased_lines_use_tex = True
+    imgui.get_style().anti_aliased_fill = True
 
     drive_input_indices = [
         index
@@ -516,12 +536,11 @@ def main():
         _time_draw = time.time()
         fps = _realtime*1/(_time_draw-_time_draw_last)+(1-_realtime)*fps
         # print(imgui.get_io().delta_time, imgui.get_io().framerate)
-        time.sleep(1e-4)
         if not (iteration % 2):
             gui.new_frame()
             slider_values = draw_slider(label="d", name="Drive", values=slider_values)
             add_plot(buffer_iteration, network.data)
-            draw_table()
+            draw_table(network_options, network.data)
             draw_network(network_options, network.data, buffer_iteration, edges_x, edges_y)
             draw_muscle_activity(buffer_iteration, network.data)
             gui.render_frame()
