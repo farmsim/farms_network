@@ -20,14 +20,10 @@ cdef class SDESystem:
         """ Initialize """
         ...
 
-    cdef void evaluate_a(
-        self, double time, double timestep, double[:] states, double[:] drift
-    ) noexcept:
+    cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept:
         """ a(Xt,t) """
         ...
 
-    cdef void evaluate_b(
-        self, double time, double timestep, double[:] states, double[:] diffusion
-    ) noexcept:
+    cdef void evaluate_b(self, double time, double[:] states, double[:] diffusion) noexcept:
         """ b(Xt,t) """
         ...

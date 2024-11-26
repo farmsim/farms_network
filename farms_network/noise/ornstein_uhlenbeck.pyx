@@ -96,9 +96,7 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         super().__init__()
         self.initialize_parameters_from_options(noise_options)
 
-    cdef void evaluate_a(
-        self, double time, double timestep, double[:] states, double[:] drift
-    ) noexcept:
+    cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept:
         cdef unsigned int j
         cdef OrnsteinUhlenbeckParameters params = (
             <OrnsteinUhlenbeckParameters>self.parameters[0]
@@ -106,9 +104,7 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         for j in range(self.n_dim):
             drift[j] = (params.mu[j]-states[j])/params.tau[j]
 
-    cdef void evaluate_b(
-        self, double time, double timestep, double[:] states, double[:] diffusion
-    ) noexcept:
+    cdef void evaluate_b(self, double time, double[:] states, double[:] diffusion) noexcept:
         cdef unsigned int j
         cdef OrnsteinUhlenbeckParameters params = (
             <OrnsteinUhlenbeckParameters>self.parameters[0]
@@ -119,11 +115,11 @@ cdef class OrnsteinUhlenbeck(SDESystem):
             diffusion[j] = (params.sigma[j]/cppsqrt(params.tau[j]))*noise
 
     def py_evaluate_a(self, time, states, drift):
-        self.evaluate_a(time, 0.0, states, drift)
+        self.evaluate_a(time, states, drift)
         return drift
 
     def py_evaluate_b(self, time, states, diffusion):
-        self.evaluate_b(time, 0.0, states, diffusion)
+        self.evaluate_b(time, states, diffusion)
         return diffusion
 
     def initialize_parameters_from_options(self, noise_options):
