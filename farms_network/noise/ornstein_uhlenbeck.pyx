@@ -112,7 +112,7 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         cdef double noise
         for j in range(self.n_dim):
             noise = params.distribution[j](params.random_generator[j])
-            diffusion[j] = (params.sigma[j]/cppsqrt(params.tau[j]))*noise
+            diffusion[j] = params.sigma[j]*cppsqrt(2.0/params.tau[j])*noise
 
     def py_evaluate_a(self, time, states, drift):
         self.evaluate_a(time, states, drift)
@@ -123,13 +123,12 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         return diffusion
 
     def initialize_parameters_from_options(self, noise_options):
-        """ """
+        """ Initialize the parameters from noise options  """
         for index in range(self.n_dim):
             noise_option = noise_options[index]
             self.parameters.mu[index] = noise_option.mu
             self.parameters.sigma[index] = noise_option.sigma
             self.parameters.tau[index] = noise_option.tau
-            self.parameters.random_generator[index] = mt19937(12131)
-            self.parameters.distribution[index] = normal_distribution[double](
-                self.parameters.mu[index], self.parameters.sigma[index]
-            )
+            self.parameters.random_generator[index] = mt19937(self.parameters.seed[index])
+            # The distribution should always be mean=0.0 and std=1.0
+            self.parameters.distribution[index] = normal_distribution[double](0.0, 1.0)
