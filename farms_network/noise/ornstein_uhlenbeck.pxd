@@ -9,6 +9,7 @@ cdef struct OrnsteinUhlenbeckParameters:
     double* mu
     double* sigma
     double* tau
+    unsigned int* seed
     mt19937* random_generator
     normal_distribution[double]* distribution
 

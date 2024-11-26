@@ -1,10 +1,12 @@
 """ Options to configure the neural and network models """
 
+import time
 from enum import IntEnum
 from typing import Dict, Iterable, List, Self, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
+import numpy as np
 from farms_core import pylog
 from farms_core.options import Options
 
@@ -25,6 +27,7 @@ class NetworkOptions(Options):
         self.graph: dict = kwargs.pop("graph", {"name": ""})
         self.units = kwargs.pop("units", None)
         self.logs: NetworkLogOptions = kwargs.pop("logs")
+        self.random_seed: int = kwargs.pop("random_seed", time.time_ns())
 
         self.integration = kwargs.pop(
             "integration", IntegrationOptions.defaults()
@@ -408,6 +411,7 @@ class NoiseOptions(Options):
         self.model = kwargs.pop("model", None)
         assert self.model.lower() in NoiseOptions.NOISE_MODELS
         self.is_stochastic = kwargs.pop("is_stochastic")
+        self.seed = kwargs.pop("seed", None)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
@@ -431,7 +435,7 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         self.mu: float = kwargs.pop("mu")
         self.sigma: float = kwargs.pop("sigma")
         self.tau: float = kwargs.pop("tau")
-        self.timestep: float = kwargs.pop("timestep")
+        self.seed: float = kwargs.pop("seed", None)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
@@ -440,7 +444,7 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         options["mu"] = kwargs.pop("mu")
         options["sigma"] = kwargs.pop("sigma")
         options["tau"] = kwargs.pop("tau")
-        options["timestep"] = kwargs.pop("timestep")
+        options["seed"] = kwargs.pop("seed", None)
         return cls(**options)
 
     @classmethod
@@ -450,7 +454,7 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         options["mu"] = kwargs.pop("mu", 0.0)
         options["sigma"] = kwargs.pop("sigma", 0.005)
         options["tau"] = kwargs.pop("tau", 10.0)
-        options["timestep"] = kwargs.pop("timestep", 1/2.0)
+        options["seed"] = kwargs.pop("seed", None)
         return cls(**options)
 
 

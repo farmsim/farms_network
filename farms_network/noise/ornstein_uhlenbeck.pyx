@@ -25,6 +25,8 @@ from libcpp.cmath cimport sqrt as cppsqrt
 
 from typing import List
 
+import numpy as np
+
 from ..core.options import OrnsteinUhlenbeckOptions
 
 
@@ -60,6 +62,12 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         if self.parameters.tau is NULL:
             raise MemoryError(
                 "Failed to allocate memory for OrnsteinUhlenbeck parameter TAU"
+            )
+
+        self.parameters.seed = <unsigned int*>malloc(self.n_dim*sizeof(unsigned int))
+        if self.parameters.seed is NULL:
+            raise MemoryError(
+                "Failed to allocate memory for OrnsteinUhlenbeck parameter SEED"
             )
 
         self.parameters.random_generator = <mt19937*>malloc(self.n_dim*sizeof(mt19937))
