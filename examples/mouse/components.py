@@ -172,18 +172,22 @@ def create_node(
     if node_type == "LINaPDanner":
         state_options = options.LINaPDannerStateOptions.from_kwargs(**states)
         parameters = options.LINaPDannerParameterOptions.defaults(**parameters)
+        noise = options.OrnsteinUhlenbeckOptions.defaults()
         node_options_class = options.LINaPDannerNodeOptions
     elif node_type == "LIDanner":
         state_options = options.LIDannerStateOptions.from_kwargs(**states)
         parameters = options.LIDannerParameterOptions.defaults(**parameters)
+        noise = options.OrnsteinUhlenbeckOptions.defaults()
         node_options_class = options.LIDannerNodeOptions
     elif node_type == "Linear":
         state_options = None
         parameters = options.LinearParameterOptions.defaults(**parameters)
+        noise = None
         node_options_class = options.LinearNodeOptions
     elif node_type == "ExternalRelay":
         state_options = None
         parameters = options.NodeParameterOptions()
+        noise = None
         visual_options.radius = 0.0
         node_options_class = options.ExternalRelayNodeOptions
     else:
@@ -195,6 +199,7 @@ def create_node(
         parameters=parameters,
         visual=visual_options,
         state=state_options,
+        noise=noise,
     )
 
 
