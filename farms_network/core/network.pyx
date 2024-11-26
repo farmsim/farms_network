@@ -26,12 +26,10 @@ from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
 from ..models.factory import EdgeFactory, NodeFactory
-
-from ..models.li_danner cimport LIDannerNodeParameters
-
+from ..noise.ornstein_uhlenbeck import OrnsteinUhlenbeck
 from .data import NetworkData, NetworkStates
 
-from .data_cy cimport NetworkDataCy, NetworkStatesCy, NetworkConnectivityCy
+from .data_cy cimport NetworkConnectivityCy, NetworkDataCy, NetworkStatesCy
 from .edge cimport Edge, PyEdge
 from .node cimport Node, PyNode
 
@@ -118,6 +116,7 @@ cdef class PyNetwork(ODESystem):
 
         super().__init__()
         self.data = <NetworkDataCy>NetworkData.from_options(network_options)
+        self.nodes_data = self.data.nodes
         self.pynodes = []
         self.pyedges = []
         self.nodes_output_data = []
@@ -226,29 +225,24 @@ cdef class PyNetwork(ODESystem):
         self.integrator.step(
             self, self.iteration*self.timestep, self.data.states.array
         )
-        PyNetwork.logging(self.iteration, self.data, self.network)
+        PyNetwork.logging((self.iteration%self.buffer_size), self.data, self.nodes_data, self.network)
 
     @staticmethod
-    cdef void logging(int iteration, NetworkDataCy data, Network* network) noexcept:
+    cdef void logging(int iteration, NetworkDataCy data, NodeDataCy[:] nodes_data, Network* network) noexcept:
         """ Log network data """
-        cdef int j, nnodes
-        nnodes = network.nnodes
 
-        # cdef double[:] states = data.states.array
+        cdef unsigned int nnodes = network.nnodes
+        cdef unsigned int j
         cdef double* states_ptr = &data.states.array[0]
-        cdef unsigned int[:] state_indices = data.states.indices
-        cdef int state_idx, start_idx, end_idx, state_iteration
-
-        # cdef double[:] derivatives = data.derivatives.array
         cdef double* derivatives_ptr = &data.derivatives.array[0]
-
+        cdef unsigned int[:] state_indices = data.states.indices
         cdef double[:] outputs = data.outputs.array
-
         cdef double[:] external_inputs = data.external_inputs.array
         cdef NodeDataCy node_data
+        cdef int state_idx, start_idx, end_idx, state_iteration
         for j in range(nnodes):
             # Log states
-            node_data = <NodeDataCy>data.nodes[j]
+            node_data = nodes_data[j]
             start_idx = state_indices[j]
             end_idx = state_indices[j+1]
             state_iteration = 0

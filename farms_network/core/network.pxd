@@ -1,7 +1,7 @@
 cimport numpy as cnp
 
-from ..numeric.integrators_cy cimport RK4Solver
-from ..numeric.system cimport ODESystem
+from ..numeric.integrators_cy cimport EulerMaruyamaSolver, RK4Solver
+from ..numeric.system cimport ODESystem, SDESystem
 from .data_cy cimport NetworkDataCy, NodeDataCy
 from .edge cimport Edge
 from .node cimport Node
@@ -29,6 +29,7 @@ cdef class PyNetwork(ODESystem):
         public list pynodes
         public list pyedges
         public NetworkDataCy data
+        NodeDataCy[:] nodes_data
         double[:] __tmp_node_outputs
 
         unsigned int iteration
@@ -45,4 +46,4 @@ cdef class PyNetwork(ODESystem):
     cpdef void step(self) noexcept
 
     @staticmethod
-    cdef void logging(unsigned int iteration, NetworkDataCy data, Network* network) noexcept
+    cdef void logging(unsigned int iteration, NetworkDataCy data, NodeDataCy[:] nodes_data, Network* network) noexcept
