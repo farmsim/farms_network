@@ -2,7 +2,6 @@
 
 from farms_core.array.array_cy cimport DoubleArray1D
 from libc.math cimport sqrt as csqrt
-from libcpp.random cimport mt19937, normal_distribution
 
 from .system cimport ODESystem, SDESystem
 

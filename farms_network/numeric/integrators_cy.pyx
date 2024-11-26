@@ -88,7 +88,7 @@ cdef class EulerMaruyamaSolver:
         cdef double[:] drift = self.drift.array
         cdef double[:] diffusion = self.diffusion.array
 
-        sys.evaluate_a(time, self.dt, state, drift)
-        sys.evaluate_b(time, self.dt, state, diffusion)
+        sys.evaluate_a(time, state, drift)
+        sys.evaluate_b(time, state, diffusion)
         for i in range(self.dim):
-            state[i] += drift[i]*self.dt + csqrt((2.0*self.dt))*diffusion[i]
+            state[i] += drift[i]*self.dt + csqrt(self.dt)*diffusion[i]
