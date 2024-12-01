@@ -25,15 +25,16 @@ from farms_network.core.edge import PyEdge
 # from farms_network.models.hopf_oscillator import HopfOscillator
 # from farms_network.models.leaky_integrator import LeakyIntegrator
 from farms_network.models.external_relay import PyExternalRelayNode
-from farms_network.models.linear import PyLinearNode
 from farms_network.models.li_danner import PyLIDannerNode
 from farms_network.models.li_nap_danner import PyLINaPDannerNode
+from farms_network.models.linear import PyLinearNode
 # from farms_network.models.lif_daun_interneuron import LIFDaunInterneuron
 # from farms_network.models.matsuoka_node import MatsuokaNode
 # from farms_network.models.morphed_oscillator import MorphedOscillator
 # from farms_network.models.morris_lecar import MorrisLecarNode
-from farms_network.models.oscillator import PyOscillatorNode, PyOscillatorEdge
-# from farms_network.models.relu import ReLUNode
+from farms_network.models.oscillator import PyOscillatorEdge, PyOscillatorNode
+from farms_network.models.relu import PyReLUNode
+
 # from farms_network.models.sensory_node import SensoryNode
 
 
@@ -55,7 +56,7 @@ class NodeFactory:
         # 'fitzhugh_nagumo': FitzhughNagumo,
         # 'matsuoka_node': MatsuokaNode,
         # 'morris_lecar': MorrisLecarNode,
-        # 'relu': ReLUNode,
+        'relu': PyReLUNode,
     }
 
     def __init__(self):

@@ -6,7 +6,6 @@ from typing import Dict, Iterable, List, Self, Union
 
 import matplotlib.pyplot as plt
 import networkx as nx
-import numpy as np
 from farms_core import pylog
 from farms_core.options import Options
 
@@ -55,6 +54,7 @@ class NetworkOptions(Options):
         node_types = {
             "linear": LinearNodeOptions,
             "external_relay": ExternalRelayNodeOptions,
+            "relu": ReLUNodeOptions,
             "oscillator": OscillatorNodeOptions,
             "li_danner": LIDannerNodeOptions,
             "li_nap_danner": LINaPDannerNodeOptions,
@@ -141,7 +141,7 @@ class IntegrationOptions(Options):
 
         options["timestep"] = kwargs.pop("timestep", 1e-3)
         options["n_iterations"] = int(kwargs.pop("n_iterations", 1e3))
-        options["integrator"] = kwargs.pop("integrator", "dopri5")
+        options["integrator"] = kwargs.pop("integrator", "rk4")
         options["method"] = kwargs.pop("method", "adams")
         options["atol"] = kwargs.pop("atol", 1e-12)
         options["rtol"] = kwargs.pop("rtol", 1e-6)
@@ -153,6 +153,7 @@ class IntegrationOptions(Options):
     def from_options(cls, kwargs: Dict):
         """ From options """
         return cls(**kwargs)
+
 
 
 ###################
@@ -411,7 +412,6 @@ class NoiseOptions(Options):
         self.model = kwargs.pop("model", None)
         assert self.model.lower() in NoiseOptions.NOISE_MODELS
         self.is_stochastic = kwargs.pop("is_stochastic")
-        self.seed = kwargs.pop("seed", None)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
@@ -435,7 +435,6 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         self.mu: float = kwargs.pop("mu")
         self.sigma: float = kwargs.pop("sigma")
         self.tau: float = kwargs.pop("tau")
-        self.seed: float = kwargs.pop("seed", None)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
@@ -444,7 +443,6 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         options["mu"] = kwargs.pop("mu")
         options["sigma"] = kwargs.pop("sigma")
         options["tau"] = kwargs.pop("tau")
-        options["seed"] = kwargs.pop("seed", None)
         return cls(**options)
 
     @classmethod
@@ -454,7 +452,6 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         options["mu"] = kwargs.pop("mu", 0.0)
         options["sigma"] = kwargs.pop("sigma", 0.005)
         options["tau"] = kwargs.pop("tau", 10.0)
-        options["seed"] = kwargs.pop("seed", None)
         return cls(**options)
 
 
@@ -555,6 +552,70 @@ class LinearParameterOptions(NodeParameterOptions):
         options["bias"] = kwargs.pop("bias", 0.0)
 
         return cls(**options)
+
+
+######################
+# ReLU Model Options #
+######################
+class ReLUNodeOptions(NodeOptions):
+    """ Class to define the properties of ReLU node model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "relu"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state", None),
+            noise=kwargs.pop("noise"),
+        )
+        self._nstates = 0
+        self._nparameters = 3
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = ReLUParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = None
+        options["noise"] = kwargs.pop("noise", None)
+        return cls(**options)
+
+
+class ReLUParameterOptions(NodeParameterOptions):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.gain = kwargs.pop("gain")
+        self.sign = kwargs.pop("sign")
+        self.offset = kwargs.pop("offset")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for ReLU Node model """
+
+        options = {}
+
+        options["gain"] = kwargs.pop("gain", 1.0)
+        options["sign"] = kwargs.pop("sign", 1)
+        options["offset"] = kwargs.pop("offset", 0.0)
+
+        return cls(**options)
+
 
 ############################################
 # Phase-Amplitude Oscillator Model Options #
