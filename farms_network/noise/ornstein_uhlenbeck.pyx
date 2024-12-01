@@ -20,8 +20,10 @@ limitations under the License.
 """
 
 
+from libc.math cimport sqrt as csqrt
 from libc.stdlib cimport free, malloc
-from libcpp.cmath cimport sqrt as cppsqrt
+
+from .ornstein_uhlenbeck cimport mt19937, mt19937_64, normal_distribution
 
 from typing import List
 
@@ -33,7 +35,7 @@ from ..core.options import OrnsteinUhlenbeckOptions
 cdef class OrnsteinUhlenbeck(SDESystem):
     """ Ornstein Uhlenheck parameters """
 
-    def __cinit__(self, noise_options: List[OrnsteinUhlenbeckOptions]):
+    def __cinit__(self, noise_options: List[OrnsteinUhlenbeckOptions], random_seed: int=None):
         """ C initialization for manual memory allocation """
 
         self.n_dim = len(noise_options)
@@ -64,26 +66,6 @@ cdef class OrnsteinUhlenbeck(SDESystem):
                 "Failed to allocate memory for OrnsteinUhlenbeck parameter TAU"
             )
 
-        self.parameters.seed = <unsigned int*>malloc(self.n_dim*sizeof(unsigned int))
-        if self.parameters.seed is NULL:
-            raise MemoryError(
-                "Failed to allocate memory for OrnsteinUhlenbeck parameter SEED"
-            )
-
-        self.parameters.random_generator = <mt19937*>malloc(self.n_dim*sizeof(mt19937))
-        if self.parameters.random_generator is NULL:
-            raise MemoryError(
-                "Failed to allocate memory for OrnsteinUhlenbeck parameter RANDOM GENERATOR"
-            )
-
-        self.parameters.distribution = <normal_distribution[double]*>malloc(
-            self.n_dim*sizeof(normal_distribution[double])
-        )
-        if self.parameters.distribution is NULL:
-            raise MemoryError(
-                "Failed to allocate memory for OrnsteinUhlenbeck parameter Distribution"
-            )
-
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
 
@@ -93,15 +75,13 @@ cdef class OrnsteinUhlenbeck(SDESystem):
             free(self.parameters.sigma)
         if self.parameters.tau is not NULL:
             free(self.parameters.tau)
-        if self.parameters.random_generator is not NULL:
-            free(self.parameters.random_generator)
-        if self.parameters.distribution is not NULL:
-            free(self.parameters.distribution)
         if self.parameters is not NULL:
             free(self.parameters)
 
-    def __init__(self, noise_options: List[OrnsteinUhlenbeckOptions]):
+    def __init__(self, noise_options: List[OrnsteinUhlenbeckOptions], random_seed: int=None):
         super().__init__()
+        # if random_seed is None:
+        #     random_seed = np.random.rand
         self.initialize_parameters_from_options(noise_options)
 
     cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept:
@@ -117,10 +97,12 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         cdef OrnsteinUhlenbeckParameters params = (
             <OrnsteinUhlenbeckParameters>self.parameters[0]
         )
-        cdef double noise
+        cdef normal_distribution[double] distribution = self.distribution
+        cdef mt19937_64 random_generator = self.random_generator
         for j in range(self.n_dim):
-            noise = params.distribution[j](params.random_generator[j])
-            diffusion[j] = params.sigma[j]*cppsqrt(2.0/params.tau[j])*noise
+            diffusion[j] = params.sigma[j]*csqrt(2.0/params.tau[j])*(
+                distribution(random_generator)
+            )
 
     def py_evaluate_a(self, time, states, drift):
         self.evaluate_a(time, states, drift)
@@ -130,13 +112,13 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         self.evaluate_b(time, states, diffusion)
         return diffusion
 
-    def initialize_parameters_from_options(self, noise_options):
+    def initialize_parameters_from_options(self, noise_options, random_seed=123124):
         """ Initialize the parameters from noise options  """
         for index in range(self.n_dim):
             noise_option = noise_options[index]
             self.parameters.mu[index] = noise_option.mu
             self.parameters.sigma[index] = noise_option.sigma
             self.parameters.tau[index] = noise_option.tau
-            self.parameters.random_generator[index] = mt19937(self.parameters.seed[index])
-            # The distribution should always be mean=0.0 and std=1.0
-            self.parameters.distribution[index] = normal_distribution[double](0.0, 1.0)
+        self.random_generator = mt19937_64(random_seed)
+        # The distribution should always be mean=0.0 and std=1.0
+        self.distribution = normal_distribution[double](0.0, 1.0)
