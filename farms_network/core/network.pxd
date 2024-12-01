@@ -37,13 +37,13 @@ cdef class PyNetwork(ODESystem):
         unsigned int buffer_size
         double timestep
 
-        public RK4Solver integrator
+        public RK4Solver ode_integrator
+        public EulerMaruyamaSolver sde_integrator
+
+        SDESystem sde_system
 
         list nodes_output_data
 
     # cpdef void step(self)
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept
-    cpdef void step(self) noexcept
-
-    @staticmethod
-    cdef void logging(unsigned int iteration, NetworkDataCy data, NodeDataCy[:] nodes_data, Network* network) noexcept
+    cpdef void step(self)

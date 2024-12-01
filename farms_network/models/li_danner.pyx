@@ -42,6 +42,7 @@ cdef void ode(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
+    double noise,
     Node* node,
     Edge** edges,
 ) noexcept:
@@ -72,8 +73,10 @@ cdef void ode(
             # Inhibitory Synapse
             _sum += params.g_syn_i*cfabs(_weight)*_input*(state_v - params.e_syn_i)
 
+    # noise current
+    cdef double i_noise = noise
+
     # dV
-    cdef double i_noise = 0.0
     derivatives[<int>STATE.v] = (-(i_leak + i_noise + _sum)/params.c_m)
 
 

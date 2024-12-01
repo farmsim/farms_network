@@ -32,6 +32,7 @@ cdef void ode(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
+    double noise,
     Node* node,
     Edge** edges,
 ) noexcept:
@@ -135,12 +136,14 @@ cdef class PyNode:
             double[:] network_outputs,
             unsigned int[:] inputs,
             double[:] weights,
+            double noise,
     ):
         cdef double* states_ptr = &states[0]
         cdef double* derivatives_ptr = &derivatives[0]
         cdef double* network_outputs_ptr = &network_outputs[0]
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
+
         cdef Edge** edges = NULL
 
         # Call the C function directly
@@ -152,6 +155,7 @@ cdef class PyNode:
             network_outputs_ptr,
             inputs_ptr,
             weights_ptr,
+            noise,
             self.node,
             edges
         )
@@ -163,7 +167,7 @@ cdef class PyNode:
             double external_input,
             double[:] network_outputs,
             unsigned int[:] inputs,
-            double[:] weights
+            double[:] weights,
     ):
         # Call the C function and return its result
         cdef double* states_ptr = &states[0]

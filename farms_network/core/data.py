@@ -64,7 +64,6 @@ class NetworkData(NetworkDataCy):
         self.connectivity = connectivity
         self.outputs = outputs
         self.external_inputs = external_inputs
-
         self.noise = noise
 
         self.nodes: np.ndarray[NodeDataCy] = nodes
@@ -157,7 +156,7 @@ class NetworkStates(NetworkStatesCy):
             nstates += node._nstates
             indices.append(nstates)
         return cls(
-            array=np.array(np.zeros((nstates,)), dtype=np.double),
+            array=np.array(np.zeros((nstates,)), dtype=NPDTYPE),
             indices=np.array(indices)
         )
 
@@ -215,9 +214,9 @@ class NetworkConnectivity(NetworkConnectivityCy):
                 sources[indices[index]:indices[index+1]] = node_sources
                 weights[indices[index]:indices[index+1]] = node_weights
         return cls(
-            sources=np.array(sources, dtype=np.uintc),
-            weights=np.array(weights, dtype=np.double),
-            indices=np.array(indices, dtype=np.uintc)
+            sources=np.array(sources, dtype=NPUITYPE),
+            weights=np.array(weights, dtype=NPDTYPE),
+            indices=np.array(indices, dtype=NPUITYPE)
         )
 
     def to_dict(self, iteration: int = None) -> Dict:
@@ -232,8 +231,8 @@ class NetworkConnectivity(NetworkConnectivityCy):
 class NetworkNoise(NetworkNoiseCy):
     """ Data for network noise modeling """
 
-    def __init__(self, states, drift, diffusion, outputs):
-        super().__init__(states, drift, diffusion, outputs)
+    def __init__(self, states, indices,drift, diffusion, outputs):
+        super().__init__(states, indices, drift, diffusion, outputs)
 
     @classmethod
     def from_options(cls, network_options: NetworkOptions):
@@ -242,15 +241,21 @@ class NetworkNoise(NetworkNoiseCy):
         n_noise_states = 0
         n_nodes = len(nodes)
 
+        indices = []
         for index, node in enumerate(nodes):
             if node.noise and node.noise.is_stochastic:
                 n_noise_states += 1
+                indices.append(index)
 
         return cls(
             states=np.full(
                 shape=n_noise_states,
                 fill_value=0.0,
                 dtype=NPDTYPE,
+            ),
+            indices=np.array(
+                indices,
+                dtype=NPUITYPE,
             ),
             drift=np.full(
                 shape=n_noise_states,
@@ -273,6 +278,7 @@ class NetworkNoise(NetworkNoiseCy):
         """Convert data to dictionary"""
         return {
             'states': to_array(self.states),
+            'indices': to_array(self.indices),
             'drift': to_array(self.drift),
             'diffusion': to_array(self.diffusion),
             'outputs': to_array(self.outputs),
@@ -336,14 +342,14 @@ class NodeStatesArray(DoubleArray2D):
             array = np.full(
                 shape=[buffer_size, nstates],
                 fill_value=0,
-                dtype=np.double,
+                dtype=NPDTYPE,
             )
         else:
             names = []
             array = np.full(
                 shape=[buffer_size, 0],
                 fill_value=0,
-                dtype=np.double,
+                dtype=NPDTYPE,
             )
         return cls(array=array, names=names)
 
@@ -367,7 +373,7 @@ class NodeOutputArray(DoubleArray1D):
         array = np.full(
             shape=buffer_size,
             fill_value=0,
-            dtype=np.double,
+            dtype=NPDTYPE,
         )
         return cls(array=array)
 
@@ -384,7 +390,7 @@ class NodeExternalInputArray(DoubleArray1D):
         array = np.full(
             shape=buffer_size,
             fill_value=0,
-            dtype=np.double,
+            dtype=NPDTYPE,
         )
         return cls(array=array)
 

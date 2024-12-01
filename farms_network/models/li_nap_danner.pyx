@@ -45,6 +45,7 @@ cdef void ode(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
+    double noise,
     Node* node,
     Edge** edges,
 ) noexcept:
@@ -90,7 +91,7 @@ cdef void ode(
             _sum += params.g_syn_i*cfabs(_weight)*_input*(state_v - params.e_syn_i)
 
     # noise current
-    cdef double i_noise = 0.0
+    cdef double i_noise = noise
 
     # Slow inactivation
     derivatives[<int>STATE.h] = (h_inf - state_h) / tau_h

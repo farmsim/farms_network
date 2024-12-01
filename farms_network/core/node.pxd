@@ -47,6 +47,7 @@ cdef struct Node:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
+        double noise,
         Node* node,
         Edge** edges,
     ) noexcept
@@ -72,6 +73,7 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
+        double noise,
         Node* node,
         Edge** edges,
     ) noexcept

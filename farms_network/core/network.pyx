@@ -29,7 +29,8 @@ from ..models.factory import EdgeFactory, NodeFactory
 from ..noise.ornstein_uhlenbeck import OrnsteinUhlenbeck
 from .data import NetworkData, NetworkStates
 
-from .data_cy cimport NetworkConnectivityCy, NetworkDataCy, NetworkStatesCy
+from .data_cy cimport (NetworkConnectivityCy, NetworkDataCy, NetworkNoiseCy,
+                       NetworkStatesCy)
 from .edge cimport Edge, PyEdge
 from .node cimport Node, PyNode
 
@@ -60,6 +61,8 @@ cdef inline void ode(
     cdef double* external_input = &data.external_inputs.array[0]
     cdef double* outputs = &data.outputs.array[0]
 
+    cdef double* noise = &data.noise.outputs[0]
+
     cdef unsigned int* input_neurons = &data.connectivity.sources[0]
     cdef double* weights = &data.connectivity.weights[0]
     cdef unsigned int* input_neurons_indices = &data.connectivity.indices[0]
@@ -77,6 +80,7 @@ cdef inline void ode(
                 outputs,
                 input_neurons + input_neurons_indices[j],
                 weights + input_neurons_indices[j],
+                noise[j],
                 nodes[j],
                 edges + input_neurons_indices[j],
             )
@@ -90,6 +94,49 @@ cdef inline void ode(
             nodes[j],
             edges + input_neurons_indices[j],
         )
+
+
+cdef inline void logger(
+    int iteration,
+    NetworkDataCy data,
+    NodeDataCy[:] nodes_data,
+    Network* network
+) noexcept:
+    cdef unsigned int nnodes = network.nnodes
+    cdef unsigned int j
+    cdef double* states_ptr = &data.states.array[0]
+    cdef double* derivatives_ptr = &data.derivatives.array[0]
+    cdef unsigned int[:] state_indices = data.states.indices
+    cdef double[:] outputs = data.outputs.array
+    cdef double* outputs_ptr = &data.outputs.array[0]
+    cdef double[:] external_inputs = data.external_inputs.array
+    cdef NodeDataCy node_data
+    cdef double[:] node_states
+    cdef int state_idx, start_idx, end_idx, state_iteration
+    for j in range(nnodes):
+        # Log states
+        start_idx = state_indices[j]
+        end_idx = state_indices[j+1]
+        state_iteration = 0
+        node_states = nodes_data[j].states.array[iteration]
+        for state_idx in range(start_idx, end_idx):
+            node_states[state_iteration] = states_ptr[state_idx]
+            # nodes_data[j].derivatives.array[iteration, state_iteration] = derivatives_ptr[state_idx]
+            state_iteration += 1
+        nodes_data[j].output.array[iteration] = outputs_ptr[j]
+        nodes_data[j].external_input.array[iteration] = external_inputs[j]
+
+
+cdef inline void _noise_states_to_output(
+    double[:] states,
+    unsigned int[:] indices,
+    double[:] outputs,
+) noexcept:
+    """ Copy noise states data to noise outputs """
+    cdef int n_indices = indices.shape[0]
+    cdef int index
+    for index in range(n_indices):
+        outputs[indices[index]] = states[index]
 
 
 cdef class PyNetwork(ODESystem):
@@ -129,6 +176,10 @@ cdef class PyNetwork(ODESystem):
         self.iteration: int = 0
         self.buffer_size: int = network_options.logs.buffer_size
 
+        # Set the seed for random number generation
+        random_seed = network_options.random_seed
+        # np.random.seed(random_seed)
+
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
         if self.network.nodes is not NULL:
@@ -145,10 +196,21 @@ cdef class PyNetwork(ODESystem):
         """ Return NetworkOptions from network """
         return self.options
 
-    def setup_integrator(self, options: IntegrationOptions):
+    def setup_integrator(self, network_options: NetworkOptions):
         """ Setup integrator for neural network """
-        cdef double timestep = options.timestep
-        self.integrator = RK4Solver(self.network.nstates, timestep)
+        # Setup ODE numerical integrator
+        integration_options = network_options.integration
+        cdef double timestep = integration_options.timestep
+        self.ode_integrator = RK4Solver(self.network.nstates, timestep)
+        # Setup SDE numerical integrator for noise models if any
+        noise_options = []
+        for node in network_options.nodes:
+            if node.noise is not None:
+                if node.noise.is_stochastic:
+                    noise_options.append(node.noise)
+
+        self.sde_system = OrnsteinUhlenbeck(noise_options)
+        self.sde_integrator = EulerMaruyamaSolver(len(noise_options), timestep)
 
     def setup_network(self, options: NetworkOptions, data: NetworkData):
         """ Setup network """
@@ -219,43 +281,30 @@ cdef class PyNetwork(ODESystem):
         """ Number of states in the network """
         return self.network.nstates
 
-    cpdef void step(self) noexcept:
+    cpdef void step(self):
         """ Step the network state """
+        cdef NetworkDataCy data = self.data
         self.iteration += 1
-        self.integrator.step(
-            self, self.iteration*self.timestep, self.data.states.array
+        self.ode_integrator.step(
+            self, (self.iteration%self.buffer_size)*self.timestep, data.states.array
         )
-        PyNetwork.logging((self.iteration%self.buffer_size), self.data, self.nodes_data, self.network)
-
-    @staticmethod
-    cdef void logging(int iteration, NetworkDataCy data, NodeDataCy[:] nodes_data, Network* network) noexcept:
-        """ Log network data """
-
-        cdef unsigned int nnodes = network.nnodes
-        cdef unsigned int j
-        cdef double* states_ptr = &data.states.array[0]
-        cdef double* derivatives_ptr = &data.derivatives.array[0]
-        cdef unsigned int[:] state_indices = data.states.indices
-        cdef double[:] outputs = data.outputs.array
-        cdef double[:] external_inputs = data.external_inputs.array
-        cdef NodeDataCy node_data
-        cdef int state_idx, start_idx, end_idx, state_iteration
-        for j in range(nnodes):
-            # Log states
-            node_data = nodes_data[j]
-            start_idx = state_indices[j]
-            end_idx = state_indices[j+1]
-            state_iteration = 0
-            for state_idx in range(start_idx, end_idx):
-                node_data.states.array[iteration, state_iteration] = states_ptr[state_idx]
-                node_data.derivatives.array[iteration, state_iteration] = derivatives_ptr[state_idx]
-                state_iteration += 1
-            node_data.output.array[iteration] = outputs[j]
-            node_data.external_input.array[iteration] = external_inputs[j]
+        logger((self.iteration%self.buffer_size), data, self.nodes_data, self.network)
 
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
         """ Evaluate the ODE """
         # cdef NetworkDataCy data = <NetworkDataCy> self.data
+        # Update noise model
+        cdef SDESystem sde_system = self.sde_system
+        self.sde_integrator.step(
+            sde_system,
+            (self.iteration%self.buffer_size)*self.timestep,
+            self.data.noise.states
+        )
+        _noise_states_to_output(
+            self.data.noise.states,
+            self.data.noise.indices,
+            self.data.noise.outputs
+        )
         self.data.states.array[:] = states[:]
         ode(time, self.data, self.network, self.__tmp_node_outputs)
         self.data.outputs.array[:] = self.__tmp_node_outputs

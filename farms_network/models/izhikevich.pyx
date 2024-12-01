@@ -31,16 +31,17 @@ cpdef enum STATE:
 
 
 cdef void ode(
-        double time,
-        double* states,
-        double* derivatives,
-        double external_input,
-        double* network_outputs,
-        unsigned int* inputs,
-        double* weights,
-        Node* node,
-        Edge** edges,
-    ) noexcept:
+    double time,
+    double* states,
+    double* derivatives,
+    double external_input,
+    double* network_outputs,
+    unsigned int* inputs,
+    double* weights,
+    double noise,
+    Node* node,
+    Edge** edges,
+) noexcept:
     """ Node ODE """
     ...
 
