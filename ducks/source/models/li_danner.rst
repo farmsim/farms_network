@@ -1,9 +1,8 @@
-Models
-------
+Leaky Integrator Danner
+=======================
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+   :hidden:
 
 .. automodule:: farms_network.models.li_danner
    :members:
