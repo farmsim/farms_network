@@ -292,20 +292,22 @@ cdef class PyNetwork(ODESystem):
 
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
         """ Evaluate the ODE """
-        # cdef NetworkDataCy data = <NetworkDataCy> self.data
         # Update noise model
+        cdef NetworkDataCy data = <NetworkDataCy> self.data
         cdef SDESystem sde_system = self.sde_system
-        self.sde_integrator.step(
+        cdef EulerMaruyamaSolver sde_integrator = self.sde_integrator
+
+        sde_integrator.step(
             sde_system,
             (self.iteration%self.buffer_size)*self.timestep,
-            self.data.noise.states
+            data.noise.states
         )
         _noise_states_to_output(
-            self.data.noise.states,
-            self.data.noise.indices,
-            self.data.noise.outputs
+            data.noise.states,
+            data.noise.indices,
+            data.noise.outputs
         )
-        self.data.states.array[:] = states[:]
-        ode(time, self.data, self.network, self.__tmp_node_outputs)
-        self.data.outputs.array[:] = self.__tmp_node_outputs
-        derivatives[:] = self.data.derivatives.array
+        data.states.array[:] = states[:]
+        ode(time, data, self.network, self.__tmp_node_outputs)
+        data.outputs.array[:] = self.__tmp_node_outputs
+        derivatives[:] = data.derivatives.array
