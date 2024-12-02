@@ -2,7 +2,7 @@ import numpy
 from Cython.Build import cythonize
 from Cython.Compiler import Options
 from farms_core import get_include_paths
-from setuptools import dist, find_packages, setup
+from setuptools import find_packages, setup
 from setuptools.extension import Extension
 
 DEBUG = False
