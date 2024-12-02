@@ -8,8 +8,8 @@ import farms_pylog as pylog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from farms_network.core import options
 from farms_core.io.yaml import read_yaml
+from farms_network.core import options
 from farms_network.core.data import NetworkData
 from farms_network.core.network import PyNetwork
 from jinja2 import Environment, FileSystemLoader
@@ -184,6 +184,11 @@ def create_node(
         parameters = options.LinearParameterOptions.defaults(**parameters)
         noise = None
         node_options_class = options.LinearNodeOptions
+    elif node_type == "ReLU":
+        state_options = None
+        parameters = options.ReLUParameterOptions.defaults(**parameters)
+        noise = None
+        node_options_class = options.ReLUNodeOptions
     elif node_type == "ExternalRelay":
         state_options = None
         parameters = options.NodeParameterOptions()
@@ -957,6 +962,147 @@ class MotorLayer:
         return edge_specs
 
 
+#####################
+# Vestibular System #
+#####################
+class VestibularSystem:
+    """Generate Vestibular System Network"""
+
+    def __init__(self, side="", rate="", axis="", transform_mat=np.identity(3)):
+        """Initialization."""
+        self.side = side
+        self.rate = rate
+        self.axis = axis
+        self.transform_mat = transform_mat
+
+    def nodes(self):
+        """Define nodes."""
+        directions = ("cclock", "clock")
+        node_specs = [
+            (
+                join_str((self.side, self.rate, self.axis, "Vn")),
+                "ExternalRelay",
+                np.array((0.0, 0.0)),
+                "Vn",
+                [1.0, 1.0, 0.0],  # Yellow for sensory neuron
+                None,
+                {},
+            )
+        ]
+
+        for direction, x_offset in zip(directions, (-1.0, 1.0)):
+            # ReLU Interneurons
+            node_specs.append(
+                (
+                    join_str((self.side, self.rate, self.axis, direction, "ReLU", "Vn")),
+                    "ReLU",
+                    np.array((0.0 - x_offset, 1.0)),
+                    "ReLU",
+                    [0.2, 0.2, 1.0],  # Blue for interneurons
+                    None,
+                    {"sign": 1.0 if direction == "cclock" else -1.0, "offset": np.deg2rad(10), "gain": 0.5},
+                )
+            )
+            # Inhibitory Interneurons
+            node_specs.append(
+                (
+                    join_str((self.side, self.rate, self.axis, direction, "In", "Vn")),
+                    "LIDanner",
+                    np.array((0.0 - x_offset, 2.0)),
+                    "In",
+                    [0.5, 0.5, 0.5],  # Gray for inhibitory interneurons
+                    {"v": -60.0},
+                    {},
+                )
+            )
+
+        # Create nodes using the `create_nodes` utility
+        return create_nodes(node_specs, base_name="", transform_mat=self.transform_mat)
+
+    def edges(self):
+        """Define edges."""
+        directions = ("cclock", "clock")
+        edge_specs = []
+
+        for direction in directions:
+            edge_specs.append(
+                (
+                    (self.side, self.rate, self.axis, "Vn"),
+                    (self.side, self.rate, self.axis, direction, "ReLU", "Vn"),
+                    1.0,
+                    "excitatory",
+                )
+            )
+            edge_specs.append(
+                (
+                    (self.side, self.rate, self.axis, direction, "ReLU", "Vn"),
+                    (self.side, self.rate, self.axis, direction, "In", "Vn"),
+                    1.0,
+                    "excitatory",
+                )
+            )
+
+        # Create edges using the `create_edges` utility
+        return create_edges(edge_specs, base_name="")
+
+
+########################
+# SomatoSensory System #
+########################
+class SomatoSensory:
+    """Generate Afferents Network"""
+
+    def __init__(self, contacts, name="", transform_mat=np.identity(3)):
+        """Initialization."""
+        self.contacts = contacts
+        self.name = name
+        self.transform_mat = transform_mat
+
+    def nodes(self):
+        """Define nodes."""
+        n_contacts = len(self.contacts)
+        node_y_pos = np.linspace(-1 * n_contacts, 1 * n_contacts, n_contacts)
+        node_specs = []
+
+        for y_pos, contact in zip(node_y_pos, self.contacts):
+            node_specs.append(
+                (
+                    join_str((contact, "cut")),
+                    "ExternalRelay",
+                    np.array((0.0, y_pos)),
+                    "C",
+                    [1.0, 0.0, 0.0],
+                    {},
+                    {}
+                )
+            )
+
+        node_specs.append(
+            (
+                join_str(("In", "cut")),
+                "LIDanner",
+                np.array((-1.0, np.mean(node_y_pos))),
+                "In\\textsubscript{C}",
+                [1.0, 0.0, 0.0],
+                {"v": -60.0},
+                {}
+            )
+        )
+
+        return create_nodes(node_specs, base_name=self.name, transform_mat=self.transform_mat)
+
+    def edges(self):
+        """Define edges."""
+        edge_specs = []
+
+        for contact in self.contacts:
+            edge_specs.append(
+                ((contact, "cut"), ("In", "cut"), 1.0, "excitatory")
+            )
+
+        return create_edges(edge_specs, base_name=self.name)
+
+
 ######################
 # CONNECT RG PATTERN #
 ######################
@@ -1179,67 +1325,77 @@ def connect_II_rg_feedback(flexor):
     return edge_specs
 
 
-def connect_roll_vestibular_to_mn(side, fore_muscles, hind_muscles):
+def connect_roll_vestibular_to_mn(side, fore_muscles, hind_muscles, default_weight=0.01):
     """Return edge specs for roll vestibular to motor neurons."""
     rates = ("position", "velocity")
-    weights = {"position": 0.01, "velocity": 0.01}
+    weights = {"position": default_weight, "velocity": default_weight}
     edge_specs = []
 
     for rate in rates:
         for muscle in fore_muscles:
-            name = "_".join(muscle["name"].split("_")[2:])
             edge_specs.append(
                 (
                     (rate, "roll", "cclock", "In", "Vn"),
-                    ("fore", name, "Mn"),
+                    ("fore", muscle["name"], "Mn"),
                     weights[rate],
                     "excitatory",
                 )
             )
 
         for muscle in hind_muscles:
-            name = "_".join(muscle["name"].split("_")[2:])
             edge_specs.append(
                 (
                     (rate, "roll", "cclock", "In", "Vn"),
-                    ("hind", name, "Mn"),
+                    ("hind", muscle["name"], "Mn"),
                     weights[rate],
                     "excitatory",
                 )
             )
-
-    return edge_specs
+    edges = create_edges(edge_specs, base_name=side)
+    return edges
 
 
 def connect_pitch_vestibular_to_mn(
-    side, rate, fore_muscles, hind_muscles, default_weight=0.01
+    side, fore_muscles, hind_muscles, default_weight=0.01
 ):
     """Return edge specs for pitch vestibular to motor neurons."""
+    rates = ("position", "velocity")
+
     edge_specs = []
-
-    for muscle in fore_muscles:
-        name = "_".join(muscle["name"].split("_")[2:])
-        edge_specs.append(
-            (
-                (rate, "pitch", "cclock", "In", "Vn"),
-                ("fore", name, "Mn"),
-                default_weight,
-                "excitatory",
+    for rate in rates:
+        for muscle in fore_muscles:
+            edge_specs.append(
+                (
+                    (rate, "pitch", "cclock", "In", "Vn"),
+                    ("fore", muscle["name"], "Mn"),
+                    default_weight,
+                    "excitatory",
+                )
             )
-        )
 
-    for muscle in hind_muscles:
-        name = "_".join(muscle["name"].split("_")[2:])
-        edge_specs.append(
-            (
-                (rate, "pitch", "clock", "In", "Vn"),
-                ("hind", name, "Mn"),
-                default_weight,
-                "excitatory",
+        for muscle in hind_muscles:
+            edge_specs.append(
+                (
+                    (rate, "pitch", "clock", "In", "Vn"),
+                    ("hind", muscle["name"], "Mn"),
+                    default_weight,
+                    "excitatory",
+                )
             )
-        )
+    edges = create_edges(edge_specs, base_name=side)
+    return edges
 
-    return edge_specs
+
+def connect_somatosensory_to_rhythm(
+        side, limb, contacts, default_weight=0.01
+):
+    """ Connect somatosensory to Rhythm generation """
+    edge_specs = [
+        (("In", "cut"), ("RG", "In", "E"), default_weight, "excitatory"),
+        (("In", "cut"), ("RG", "E"), default_weight, "excitatory"),
+    ]
+    edges = create_edges(edge_specs, base_name=join_str((side, limb)))
+    return edges
 
 
 ###########
@@ -1316,6 +1472,8 @@ def limb_circuit(
         network_options: options.NetworkOptions,
         side: str,
         limb: str,
+        muscles: dict,
+        contacts: Iterable[str] = None,
         transform_mat=np.identity(3)
 ):
 
@@ -1352,10 +1510,6 @@ def limb_circuit(
     ##############
     # MotorLayer #
     ##############
-    # read muscle config file
-    muscles_config_path = "/Users/tatarama/projects/work/research/neuromechanics/quadruped/mice/mouse-locomotion/data/config/muscles/quadruped_siggraph.yaml"
-    muscles = generate_muscle_agonist_antagonist_pairs(muscles_config_path)
-
     ###################################
     # Connect patterns and motorlayer #
     ###################################
@@ -1501,6 +1655,25 @@ def limb_circuit(
 
     edges = create_edges(edge_specs, name)
     network_options.add_edges(edges.values())
+
+    # somatosensory system
+    if contacts:
+        somatosensory_transformation_mat = (
+            motor_transformation_mat@get_translation_matrix(off_x=1.0, off_y=10.0)
+        )
+        somatosensory = SomatoSensory(
+            contacts=contacts,
+            name=join_str((side, limb)),
+            transform_mat=somatosensory_transformation_mat
+        )
+        network_options.add_nodes(somatosensory.nodes().values())
+        network_options.add_edges(somatosensory.edges().values())
+        # Connect somatosensory to Rhythm
+        edges = connect_somatosensory_to_rhythm(
+            side, limb, contacts, default_weight=1.0
+        )
+        network_options.add_edges(edges.values())
+
     return network_options
 
 
@@ -1549,6 +1722,48 @@ def interlimb_circuit(
     return network_options
 
 
+######################
+# Vestibular Circuit #
+######################
+def vestibular_circuit(
+        network_options: options.NetworkLogOptions,
+        position=True,
+        velocity=True,
+        transform_mat=np.identity(3),
+):
+    rates = ("position", "velocity",)
+    axes = ("roll", "pitch",)
+    # Define base offsets for positioning
+    base_x_offset = -15.0
+    base_y_offset = 0.0
+    spacing_x = 10.0  # Horizontal spacing between systems
+    spacing_y = 5.0   # Vertical spacing between systems
+    for side_index, side in enumerate(("left", "right",)):
+        for rate_index, rate in enumerate(rates):
+            for axis_index, axis in enumerate(axes):
+                # Calculate unique offsets for each system
+                off_x = base_x_offset + axis_index * spacing_x  # Axes placed next to each other
+                off_y = base_y_offset + rate_index * spacing_y  # Rates placed below each other
+
+                mirror_x = False
+                if rate == "position":
+                    mirror_x = True
+                if side == "right":
+                    off_x = -1*off_x
+                vestibular = VestibularSystem(
+                    side=side,
+                    rate=rate,
+                    axis=axis,
+                    transform_mat=transform_mat@get_translation_matrix(
+                        off_x=off_x, off_y=off_y
+                    )@get_mirror_matrix(mirror_x=mirror_x, mirror_y=False)
+                )
+                network_options.add_nodes(vestibular.nodes().values())
+                network_options.add_edges(vestibular.edges().values())
+
+    return network_options
+
+
 #####################
 # Quadruped Circuit #
 #####################
@@ -1558,11 +1773,17 @@ def quadruped_circuit(
 ):
     """ Full Quadruped Circuit """
 
+    # read muscle config file
+    muscles_config_path = "/Users/tatarama/projects/work/research/neuromechanics/quadruped/mice/mouse-locomotion/data/config/muscles/quadruped_siggraph.yaml"
+    muscles = generate_muscle_agonist_antagonist_pairs(muscles_config_path)
+
     # Limb circuitry
     network_options = limb_circuit(
         network_options,
         side="left",
         limb="hind",
+        muscles=muscles,
+        contacts=("PHALANGE",),
         transform_mat=get_translation_matrix(
             off_x=-25.0, off_y=0.0
         )@get_mirror_matrix(
@@ -1574,6 +1795,8 @@ def quadruped_circuit(
         network_options,
         side="right",
         limb="hind",
+        muscles=muscles,
+        contacts=("PHALANGE",),
         transform_mat=get_translation_matrix(
             off_x=25.0, off_y=0.0
         )@get_mirror_matrix(
@@ -1585,6 +1808,8 @@ def quadruped_circuit(
         network_options,
         side="left",
         limb="fore",
+        muscles=muscles,
+        contacts=("PHALANGE",),
         transform_mat=get_translation_matrix(
             off_x=-25.0, off_y=25.0
         )@get_rotation_matrix(angle=45)
@@ -1594,6 +1819,8 @@ def quadruped_circuit(
         network_options,
         side="right",
         limb="fore",
+        muscles=muscles,
+        contacts=("PHALANGE",),
         transform_mat=get_translation_matrix(
             off_x=25.0, off_y=25.0
         )@get_rotation_matrix(angle=-45)
@@ -1623,5 +1850,38 @@ def quadruped_circuit(
     ##############################
     fore_hind_edges = connect_fore_hind_circuits()
     network_options.add_edges(fore_hind_edges.values())
+
+    ####################
+    # VestibularSystem #
+    ####################
+    network_options = vestibular_circuit(network_options)
+    for side in ('left', 'right'):
+        vn_edges = connect_pitch_vestibular_to_mn(
+            side=side,
+            fore_muscles=[
+                *muscles[side]['fore']['agonist'],
+                *muscles[side]['fore']['antagonist']
+            ],
+            hind_muscles=[
+                *muscles[side]['hind']['agonist'],
+                *muscles[side]['hind']['antagonist']
+            ],
+            default_weight=0.1
+        )
+        network_options.add_edges(vn_edges.values())
+
+        vn_edges = connect_roll_vestibular_to_mn(
+            side=side,
+            fore_muscles=[
+                *muscles['left']['fore']['agonist'],
+                *muscles['left']['fore']['antagonist']
+            ],
+            hind_muscles=[
+                *muscles['left']['hind']['agonist'],
+                *muscles['left']['hind']['antagonist']
+            ],
+            default_weight=0.1
+        )
+        network_options.add_edges(vn_edges.values())
 
     return network_options
