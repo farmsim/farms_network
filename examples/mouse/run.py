@@ -286,7 +286,7 @@ def generate_limb_circuit(n_iterations: int):
         ),
     )
 
-     ##############
+    ##############
     # MotorLayer #
     ##############
     # read muscle config file
@@ -354,42 +354,12 @@ def generate_limb_circuit(n_iterations: int):
 
     network_options = limb_circuit(
         network_options,
-        join_str(("left", "fore")),
-        muscles["left"]["fore"],
-        fore_muscle_patterns,
+        side="right",
+        limb="hind",
+        muscles=muscles,
+        contacts=("PHALANGE",),
         transform_mat=get_translation_matrix(off_x=-25.0, off_y=0.0)
     )
-
-    # network_options = limb_circuit(
-    #     network_options,
-    #     join_str(("right", "fore")),
-    #     muscles["right"]["fore"],
-    #     fore_muscle_patterns,
-    #     transform_mat=get_translation_matrix(off_x=25.0, off_y=0.0)
-    # )
-
-    # network_options = limb_circuit(
-    #     network_options,
-    #     join_str(("left", "hind")),
-    #     muscles["left"]["hind"],
-    #     hind_muscle_patterns,
-    #     transform_mat=get_translation_matrix(
-    #         off_x=-25.0, off_y=-25.0
-    #     ) @ get_mirror_matrix(mirror_x=True, mirror_y=False)
-    # )
-
-    # network_options = limb_circuit(
-    #     network_options,
-    #     join_str(("right", "hind")),
-    #     muscles["right"]["hind"],
-    #     hind_muscle_patterns,
-    #     transform_mat=get_translation_matrix(
-    #         off_x=25.0, off_y=-25.0
-    #     ) @ get_mirror_matrix(mirror_x=True, mirror_y=False)
-    # )
-
-    # rg_commissural_edges = connect_rg_commissural()
-    # network_options.add_edges(rg_commissural_edges.values())
 
     return network_options
 
@@ -419,7 +389,7 @@ def run_network(*args):
     network_options = args[0]
 
     network = PyNetwork.from_options(network_options)
-    network.setup_integrator(network_options.integration)
+    network.setup_integrator(network_options)
 
     # data.to_file("/tmp/sim.hdf5")
 
@@ -570,16 +540,16 @@ def main():
 
     # Generate the network
     # network_options = generate_network(int(1e4))
-    # network_options = generate_limb_circuit(int(1e4))
+    # network_options = generate_limb_circuit(int(5e4))
     network_options = generate_quadruped_circuit((5e4))
     network_options.save("/tmp/network_options.yaml")
 
     # Run the network
-    # network = profile.profile(run_network, network_options)
+    network = profile.profile(run_network, network_options)
     # network = run_network(network_options)
 
     # Results
-    plot_network(network_options)
+    # plot_network(network_options)
 
     # run_network()
 
