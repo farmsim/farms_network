@@ -1,5 +1,5 @@
-""" Generate and reproduce Zhang, Shevtsova, et al. eLife 2022;11:e73424. DOI:
-https://doi.org/10.7554/eLife.73424 paper network """
+""" Generate and reproduce Ijspeert 07 Science paper
+DOI: 10.1126/science.1138353 """
 
 
 import farms_pylog as pylog
