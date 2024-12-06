@@ -76,6 +76,19 @@ def add_plot(iteration, data):
         f"{side}_{limb}_RG_F_DR",
     ]
 
+    plot_labels = [
+        "RH_RG_E",
+        "RH_RG_F",
+        "LF_RG_F",
+        "RH_RG_F",
+        "LH_RG_F",
+        "RH_PF_FA",
+        "RH_PF_EA",
+        "RH_PF_FB",
+        "RH_PF_EB",
+        "RH_RG_F_DR",
+    ]
+
     nodes_names = [
         node.name
         for node in data.nodes
@@ -84,6 +97,7 @@ def add_plot(iteration, data):
     plot_nodes = [
         nodes_names.index(name)
         for name in plot_names
+        if name in nodes_names
     ]
     if not plot_nodes:
         return
@@ -92,7 +106,7 @@ def add_plot(iteration, data):
         (
             *[
                 data.nodes[plot_nodes[j]].output.array
-                for j in range(len(plot_names))
+                for j in range(len(plot_nodes))
             ],
             data.nodes[plot_nodes[-1]].external_input.array,
         )
@@ -123,11 +137,11 @@ def add_plot(iteration, data):
         "RF": imgui.IM_COL32(28, 107, 180, 255),
         "LF": imgui.IM_COL32(23, 163, 74, 255),
         "RH": imgui.IM_COL32(200, 38, 39, 255),
-        "LH": imgui.IM_COL32(255, 252, 212, 255), # imgui.IM_COL32(0, 0, 0, 255),
+        "LH":  imgui.IM_COL32(255, 252, 212, 255),  # imgui.IM_COL32(0, 0, 0, 255),
         "right_fore_RG_F": imgui.IM_COL32(28, 107, 180, 255),
         "left_fore_RG_F": imgui.IM_COL32(23, 163, 74, 255),
         "right_hind_RG_F": imgui.IM_COL32(200, 38, 39, 255),
-        "left_hind_RG_F": imgui.IM_COL32(255, 252, 212, 255), # imgui.IM_COL32(0, 0, 0, 255),
+        "left_hind_RG_F": imgui.IM_COL32(255, 252, 212, 255), #  imgui.IM_COL32(0, 0, 0, 255),
     }
     with imgui_ctx.begin("States"):
         if implot.begin_subplots(
@@ -151,13 +165,27 @@ def add_plot(iteration, data):
                 implot.plot_line("RG-F-Dr", times, plot_data[-1, :])
                 implot.end_plot()
             if implot.begin_plot(""):
-                implot.setup_axis(implot.ImAxis_.x1, "Time")
                 implot.setup_axis(implot.ImAxis_.y1, "Activity")
+                implot.setup_axis(
+                    implot.ImAxis_.x1,
+                    flags=(
+                        implot.AxisFlags_.no_tick_labels |
+                        implot.AxisFlags_.no_tick_marks
+                    )
+                )
                 implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
                 implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_names), 1.0)
                 implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
-                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -1*len(plot_names), 1.0)
-                for j, name in enumerate(plot_names[:-1]):
+                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -8.2, 1.0)
+                implot.setup_axis_ticks(
+                    axis=implot.ImAxis_.y1,
+                    v_min=-8.0,
+                    v_max=0.0,
+                    n_ticks=int(len(plot_names[:-1])),
+                    labels=(plot_labels[:-1])[::-1],
+                    keep_default=False
+                )
+                for j in range(len(plot_nodes[:-1])):
                     if plot_names[j] in colors:
                         implot.push_style_color(implot.Col_.line, colors.get(plot_names[j]))
                         implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
@@ -165,30 +193,139 @@ def add_plot(iteration, data):
                     else:
                         implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
                 implot.end_plot()
-            if implot.begin_plot(""):
-                implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
-                implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 4.0)
-                implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
-                implot.setup_axis_limits_constraints(implot.ImAxis_.y1, 0.0, 4.0)
-                implot.setup_axis(implot.ImAxis_.y1, flags=implot.AxisFlags_.invert)
-                for j, limb in enumerate(("RF", "LF", "RH", "LH")):
-                    # if len(phases_xs[j]) > 3:
-                    implot.push_style_color(
-                        implot.Col_.fill,
-                        colors[limb]
+            if len(plot_nodes) > 7:
+                if implot.begin_plot(""):
+                    implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+                    implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 4.0)
+                    implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+                    implot.setup_axis_limits_constraints(implot.ImAxis_.y1, 0.0, 4.0)
+                    implot.setup_axis(implot.ImAxis_.y1, flags=implot.AxisFlags_.invert)
+                    implot.setup_axis_ticks(
+                        axis=implot.ImAxis_.y1,
+                        v_min=0.5,
+                        v_max=3.5,
+                        n_ticks=int(4),
+                        labels=("RF", "LF", "RH", "LH"),
+                        keep_default=False
                     )
-                    implot.plot_shaded(
-                        limb,
-                        phases_xs[j].flatten(),
-                        phases_ys[j].flatten(),
-                        yref=j
-                    )
-                    implot.pop_style_color()
-                implot.end_plot()
+                    for j, limb in enumerate(("RF", "LF", "RH", "LH")):
+                        # if len(phases_xs[j]) > 3:
+                        implot.push_style_color(
+                            implot.Col_.fill,
+                            colors[limb]
+                        )
+                        implot.plot_shaded(
+                            limb,
+                            phases_xs[j].flatten(),
+                            phases_ys[j].flatten(),
+                            yref=j
+                        )
+                        implot.pop_style_color()
+                    implot.end_plot()
             implot.end_subplots()
 
 
-def draw_muscle_activity(iteration, data):
+def draw_muscle_activity(iteration, data, plot_nodes, plot_names, title):
+
+    outputs = np.vstack(
+        [
+            data.nodes[plot_nodes[j]].output.array
+            for j in range(len(plot_nodes))
+        ]
+    )
+    if iteration < 1000:
+        plot_data = np.array(outputs[:, :iteration])
+    else:
+        plot_data = np.array(outputs[:, iteration-1000:iteration])
+
+    times = np.array((np.linspace(0.0, 1.0, 1000)*-1.0)[::-1])
+
+    with imgui_ctx.begin(title):
+        if implot.begin_plot("Muscle Activity", imgui.ImVec2(-1, -1)):
+            implot.setup_axis(implot.ImAxis_.x1, "Time")
+            implot.setup_axis(implot.ImAxis_.y1, "Activity")
+            implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.y1, -1*(len(plot_nodes)-1), 1.0)
+            implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_ticks(
+                axis=implot.ImAxis_.y1,
+                v_min=-1*(len(plot_nodes)-1),
+                v_max=0.0,
+                n_ticks=int(len(plot_names)),
+                labels=plot_names[::-1],
+                keep_default=False
+            )
+            # implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -5.2, 1.0)
+            for j in range(len(plot_nodes)):
+                implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
+            implot.end_plot()
+
+
+def plot_hind_motor_activity(iteration, data, side="right"):
+    side = "right"
+    limb = "hind"
+
+    muscle_names = [
+        "bfa",
+        "ip",
+        "bfpst",
+        "rf",
+        "va",
+        "mg",
+        "sol",
+        "ta",
+        "ab",
+        "gm_dorsal",
+        "edl",
+        "fdl",
+    ]
+
+    nodes_names = [
+        node.name
+        for node in data.nodes
+    ]
+
+    plot_nodes = [
+        nodes_names.index(f"{side}_{limb}_{name}_Mn")
+        for name in muscle_names
+        if f"{side}_{limb}_{name}_Mn" in nodes_names
+    ]
+    draw_muscle_activity(iteration, data, plot_nodes, muscle_names, title="Hindlimb muscles")
+
+
+def plot_fore_motor_activity(iteration, data, side="right"):
+    side = "right"
+    limb = "fore"
+
+    muscle_names = [
+        "spd",
+        "ssp",
+        "abd",
+        "add",
+        "tbl",
+        "tbo",
+        "bbs",
+        "bra",
+        "eip",
+        "fcu",
+    ]
+
+    nodes_names = [
+        node.name
+        for node in data.nodes
+    ]
+
+    plot_nodes = [
+        nodes_names.index(f"{side}_{limb}_{name}_Mn")
+        for name in muscle_names
+        if f"{side}_{limb}_{name}_Mn" in nodes_names
+    ]
+
+    draw_muscle_activity(iteration, data, plot_nodes, muscle_names, title="Forelimb muscles")
+
+
+def __draw_muscle_activity(iteration, data):
     """ Draw muscle activity """
     side = "left"
     limb = "hind"
@@ -221,7 +358,7 @@ def draw_muscle_activity(iteration, data):
         return
     outputs = np.vstack(
         [
-            data.nodes[plot_nodes[j]].output.array
+            data.nodes[plot_nodes[j]].output
             for j in range(len(plot_nodes))
         ]
     )
@@ -253,7 +390,7 @@ def draw_muscle_activity(iteration, data):
     #     return
     # outputs = np.vstack(
     #     [
-    #         data.nodes[plot_nodes[j]].output.array
+    #         data.nodes[plot_nodes[j]].output
     #         for j in range(len(plot_nodes))
     #     ]
     # )
@@ -294,7 +431,7 @@ def draw_muscle_activity(iteration, data):
         return
     outputs = np.vstack(
         [
-            data.nodes[plot_nodes[j]].output.array
+            data.nodes[plot_nodes[j]].output
             for j in range(len(plot_nodes))
         ]
     )
@@ -317,48 +454,115 @@ def draw_muscle_activity(iteration, data):
             implot.end_plot()
 
 
+def draw_vn_activity(iteration, data):
+    """ Draw muscle activity """
+    side = "left"
+    limb = "hind"
+
+    vn_names = [
+        f"{side}_{rate}_{axis}_{direction}_In_Vn"
+        for rate in ("position", "velocity")
+        for direction in ("clock", "cclock")
+        for axis in ("pitch", "roll")
+        for side in ("left", "right")
+    ]
+
+    nodes_names = [
+        node.name
+        for node in data.nodes
+    ]
+
+    plot_nodes = [
+        nodes_names.index(name)
+        for name in vn_names
+    ]
+    if not plot_nodes:
+        return
+    outputs = np.vstack(
+
+        [
+            data.nodes[plot_nodes[j]].output.array
+            for j in range(len(plot_nodes))
+        ]
+    )
+    if iteration < 1000:
+        plot_data = np.array(outputs[:, :iteration])
+    else:
+        plot_data = np.array(outputs[:, iteration-1000:iteration])
+
+    times = np.array((np.linspace(0.0, 1.0, 1000)*-1.0)[::-1])
+
+    with imgui_ctx.begin("Vestibular"):
+        if implot.begin_plot("Vestibular Activity", imgui.ImVec2(-1, -1)):
+            implot.setup_axis(implot.ImAxis_.x1, "Time")
+            implot.setup_axis(implot.ImAxis_.y1, "Activity")
+            implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_nodes), 1.0)
+            implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
+            # implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -5.2, 1.0)
+            for j in range(len(plot_nodes)):
+                implot.plot_line(vn_names[j], times, plot_data[j, :] - j)
+            implot.end_plot()
+
+
 def draw_network(network_options, data, iteration, edges_x, edges_y):
     """ Draw network """
 
     nodes = network_options.nodes
+    edges = network_options.edges
 
     imgui.WindowFlags_
     with imgui_ctx.begin("Full-Network"):
-        if implot.begin_plot("vis", imgui.ImVec2((-1, -1))):
-            radius = implot.plot_to_pixels(implot.Point((7.5, 7.5)))
-
+        flags = (
+            implot.AxisFlags_.no_label |
+            implot.AxisFlags_.no_tick_labels |
+            implot.AxisFlags_.no_tick_marks
+        )
+        if implot.begin_plot(
+                "vis", imgui.ImVec2((-1, -1)), implot.Flags_.equal
+        ):
+            implot.setup_axis(implot.ImAxis_.x1, flags=flags)
+            implot.setup_axis(implot.ImAxis_.y1, flags=flags)
             implot.plot_line(
                 "",
                 xs=edges_x,
                 ys=edges_y,
                 flags=implot.LineFlags_.segments
             )
+            radius = 0.1
+            circ_x = radius*np.cos(np.linspace(-np.pi, np.pi, 50))
+            circ_y = radius*np.sin(np.linspace(-np.pi, np.pi, 50))
             for index, node in enumerate(nodes):
                 implot.set_next_marker_style(
-                    size=7.5# *node.visual.radius
+                    size=10.0 # *node.visual.radius
                 )
                 implot.push_style_var(
                     implot.StyleVar_.fill_alpha,
-                    0.05+data.nodes[index].output.array[iteration]*2.0
+                    0.05+data.nodes[index].output.array[iteration]*3.0
                 )
                 implot.plot_scatter(
                     "##",
                     xs=np.array((node.visual.position[0],)),
                     ys=np.array((node.visual.position[1],)),
                 )
+                # implot.plot_line(
+                #     "##",
+                #     node.visual.position[0]+circ_x,
+                #     node.visual.position[1]+circ_y
+                # )
                 implot.pop_style_var()
                 # implot.push_plot_clip_rect()
                 # position = implot.plot_to_pixels(implot.Point(node.visual.position[:2]))
-                # color = imgui.IM_COL32(
-                #     0, 0, 0, 255
-                # )
-                # implot.get_plot_draw_list().add_circle(position, 7.5, color)
+                # radius = implot.plot_to_pixels(0.001, 0.001)
+                # color = imgui.IM_COL32(255, 0, 0, 255)
+                # implot.get_plot_draw_list().add_circle(position, radius[0], color)
                 # implot.pop_plot_clip_rect()
 
                 # implot.push_plot_clip_rect()
                 # color = imgui.IM_COL32(
                 #     100, 185, 0,
-                #     int(255*(data.nodes[index].output.array[iteration]))
+                #     int(255*(data.nodes[index].output[iteration]))
                 # )
                 # implot.get_plot_draw_list().add_circle_filled(position, 7.5, color)
                 # implot.pop_plot_clip_rect()
@@ -403,6 +607,18 @@ def draw_slider(
             v_min=min_value,
             v_max=max_value,
         )
+        clicked, values[4] = imgui.slider_float(
+            label="Vn",
+            v=values[4],
+            v_min=-1.0,
+            v_max=max_value,
+        )
+        clicked, values[5] = imgui.slider_float(
+            label="Cut",
+            v=values[5],
+            v_min=min_value,
+            v_max=max_value,
+        )
     return values
 
 
@@ -434,13 +650,15 @@ def draw_table(network_options, network_data):
             imgui.end_table()
 
 
-def draw_polar():
-    """ Draw polar """
-    with imgui_ctx.begin("Polar"):
-        if imgui.begin_plot("polar"):
-            implot.plot_line
-            imgui.end_plot()
+def draw_play_pause_button(button_state):
+    """ Draw button """
 
+    button_title = "Pause" if button_state else "Play"
+    with imgui_ctx.begin("Controls"):
+        if imgui.button(button_title):
+            button_state = not button_state
+            print(button_state)
+    return button_state
 
 
 def main():
@@ -482,7 +700,7 @@ def main():
     )
     # for index in range(len(edges_xy) - 1):
     #     edges_xy[index], edges_xy[index + 1] = connect_positions(
-    #         edges_xy[index+1], edges_xy[index], 10.0, 0.0
+    #         edges_xy[index+1], edges_xy[index], 0.1, 0.0
     #     )
     edges_x = np.array(edges_xy[:, 0])
     edges_y = np.array(edges_xy[:, 1])
@@ -517,16 +735,30 @@ def main():
         for index, node in enumerate(network_options.nodes)
         if "Ib" == node.name[-2:]
     ]
-    slider_values = np.zeros((4,))
+    Vn_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "Vn" == node.name[-2:] and node.model == "external_relay"
+    ]
+    Cut_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "cut" == node.name[-3:] and node.model == "external_relay"
+    ]
+    slider_values = np.zeros((6,))
     slider_values[0] = 0.25
     input_array = np.zeros(np.shape(inputs_view))
     input_array[drive_input_indices] = 0.25
-    input_array[drive_input_indices[0]] *= 1.05
+    button_state = False
+    # input_array[drive_input_indices[0]] *= 1.05
+
     for iteration in tqdm(range(0, N_ITERATIONS), colour="green", ascii=" >="):
         input_array[drive_input_indices] = slider_values[0]
         input_array[Ia_input_indices] = slider_values[1]
         input_array[II_input_indices] = slider_values[2]
         input_array[Ib_input_indices] = slider_values[3]
+        input_array[Vn_input_indices] = slider_values[4]
+        input_array[Cut_input_indices] = slider_values[5]
 
         inputs_view[:] = input_array
         network.step()
@@ -536,14 +768,20 @@ def main():
         _time_draw = time.time()
         fps = _realtime*1/(_time_draw-_time_draw_last)+(1-_realtime)*fps
         # print(imgui.get_io().delta_time, imgui.get_io().framerate)
-        if not (iteration % 2):
+        implot.push_style_var(implot.StyleVar_.line_weight, 2.0)
+        if not (iteration % 1):
+            time.sleep(1e-4)
             gui.new_frame()
             slider_values = draw_slider(label="d", name="Drive", values=slider_values)
             add_plot(buffer_iteration, network.data)
+            # button_state = draw_play_pause_button(button_state)
             draw_table(network_options, network.data)
             draw_network(network_options, network.data, buffer_iteration, edges_x, edges_y)
-            draw_muscle_activity(buffer_iteration, network.data)
+            plot_hind_motor_activity(buffer_iteration, network.data)
+            plot_fore_motor_activity(buffer_iteration, network.data)
+            # draw_vn_activity(buffer_iteration, network.data)
             gui.render_frame()
+        implot.pop_style_var()
 
 
 if __name__ == '__main__':
