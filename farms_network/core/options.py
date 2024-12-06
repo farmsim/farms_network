@@ -654,7 +654,11 @@ class OscillatorNodeOptions(NodeOptions):
         options["state"] = OscillatorStateOptions.from_options(
             kwargs["state"]
         )
-        options["noise"] = NoiseOptions.from_options(kwargs["noise"])
+        options["noise"] = None
+        if kwargs["noise"] is not None:
+            options["noise"] = NoiseOptions.from_options(
+                kwargs["noise"]
+            )
         return cls(**options)
 
 
