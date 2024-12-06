@@ -105,7 +105,6 @@ cdef inline void logger(
     cdef unsigned int nnodes = network.nnodes
     cdef unsigned int j
     cdef double* states_ptr = &data.states.array[0]
-    cdef double* derivatives_ptr = &data.derivatives.array[0]
     cdef unsigned int[:] state_indices = data.states.indices
     cdef double[:] outputs = data.outputs.array
     cdef double* outputs_ptr = &data.outputs.array[0]
@@ -121,7 +120,6 @@ cdef inline void logger(
         node_states = nodes_data[j].states.array[iteration]
         for state_idx in range(start_idx, end_idx):
             node_states[state_iteration] = states_ptr[state_idx]
-            # nodes_data[j].derivatives.array[iteration, state_iteration] = derivatives_ptr[state_idx]
             state_iteration += 1
         nodes_data[j].output.array[iteration] = outputs_ptr[j]
         nodes_data[j].external_input.array[iteration] = external_inputs[j]

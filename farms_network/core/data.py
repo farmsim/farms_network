@@ -292,7 +292,6 @@ class NodeData(NodeDataCy):
             self,
             name: str,
             states: "NodeStatesArray",
-            derivatives: "NodeStatesArray",
             output: "NodeOutputArray",
             external_input: "NodeExternalInputArray",
     ):
@@ -301,7 +300,6 @@ class NodeData(NodeDataCy):
         super().__init__()
         self.name = name
         self.states = states
-        self.derivatives = derivatives
         self.output = output
         self.external_input = external_input
 
@@ -311,7 +309,6 @@ class NodeData(NodeDataCy):
         return cls(
             name=options.name,
             states=NodeStatesArray.from_options(options, buffer_size),
-            derivatives=NodeStatesArray.from_options(options, buffer_size),
             output=NodeOutputArray.from_options(options, buffer_size),
             external_input=NodeExternalInputArray.from_options(options, buffer_size),
         )
@@ -320,7 +317,6 @@ class NodeData(NodeDataCy):
         """ Concert data to dictionary """
         return {
             'states': self.states.to_dict(iteration),
-            'derivatives': self.derivatives.to_dict(iteration),
             'output': to_array(self.output.array),
             'external_input': to_array(self.output.array),
         }

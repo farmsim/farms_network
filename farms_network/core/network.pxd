@@ -29,7 +29,6 @@ cdef class PyNetwork(ODESystem):
         public list pynodes
         public list pyedges
         public NetworkDataCy data
-        NodeDataCy[:] nodes_data
         double[:] __tmp_node_outputs
 
         unsigned int iteration
