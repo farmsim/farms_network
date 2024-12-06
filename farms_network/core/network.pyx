@@ -99,7 +99,6 @@ cdef inline void ode(
 cdef inline void logger(
     int iteration,
     NetworkDataCy data,
-    NodeDataCy[:] nodes_data,
     Network* network
 ) noexcept:
     cdef unsigned int nnodes = network.nnodes
@@ -112,6 +111,7 @@ cdef inline void logger(
     cdef NodeDataCy node_data
     cdef double[:] node_states
     cdef int state_idx, start_idx, end_idx, state_iteration
+    cdef NodeDataCy[:] nodes_data = data.nodes
     for j in range(nnodes):
         # Log states
         start_idx = state_indices[j]
@@ -161,7 +161,7 @@ cdef class PyNetwork(ODESystem):
 
         super().__init__()
         self.data = <NetworkDataCy>NetworkData.from_options(network_options)
-        self.nodes_data = self.data.nodes
+
         self.pynodes = []
         self.pyedges = []
         self.nodes_output_data = []
@@ -281,12 +281,12 @@ cdef class PyNetwork(ODESystem):
 
     cpdef void step(self):
         """ Step the network state """
-        cdef NetworkDataCy data = self.data
+        # cdef NetworkDataCy data = self.data
         self.iteration += 1
         self.ode_integrator.step(
-            self, (self.iteration%self.buffer_size)*self.timestep, data.states.array
+            self, (self.iteration%self.buffer_size)*self.timestep, self.data.states.array
         )
-        logger((self.iteration%self.buffer_size), data, self.nodes_data, self.network)
+        logger((self.iteration%self.buffer_size), self.data, self.network)
 
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
         """ Evaluate the ODE """
