@@ -2,23 +2,16 @@
 https://doi.org/10.7554/eLife.73424 paper network """
 
 
-import itertools
-import os
-from copy import deepcopy
-from pprint import pprint
-
 import farms_pylog as pylog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
-from farms_core.io.yaml import read_yaml, write_yaml
+import seaborn as sns
 from farms_core.utils import profile
 from farms_network.core import options
-from farms_network.core.data import (NetworkConnectivity, NetworkData,
-                                     NetworkStates)
+from farms_network.core.data import NetworkData
 from farms_network.core.network import PyNetwork
 from tqdm import tqdm
-import seaborn as sns
 
 plt.rcParams['text.usetex'] = False
 
@@ -58,6 +51,7 @@ def oscillator_chain(network_options, n_oscillators, name_prefix, **kwargs):
                     amplitude=np.random.uniform(0, 1),
                     amplitude_0=np.random.uniform(0, 1)
                 ),
+                noise=None,
             )
         )
     # Connect
@@ -68,7 +62,7 @@ def oscillator_chain(network_options, n_oscillators, name_prefix, **kwargs):
          np.roll(np.arange(n_oscillators), -1)))[:, :-1]
     for j in np.arange(n_oscillators-1):
         network_options.add_edge(
-            options.EdgeOptions(
+            options.OscillatorEdgeOptions(
                 source=oscillator_names[connections[0, j]],
                 target=oscillator_names[connections[1, j]],
                 weight=weight,
@@ -81,7 +75,7 @@ def oscillator_chain(network_options, n_oscillators, name_prefix, **kwargs):
         )
 
         network_options.add_edge(
-            options.EdgeOptions(
+            options.OscillatorEdgeOptions(
                 source=oscillator_names[connections[1, j]],
                 target=oscillator_names[connections[0, j]],
                 weight=weight,
@@ -107,7 +101,7 @@ def oscillator_double_chain(network_options, n_oscillators, **kwargs):
     weight = kwargs.get('anti_w', 50)
     for n in range(n_oscillators):
         network_options.add_edge(
-            options.EdgeOptions(
+            options.OscillatorEdgeOptions(
                 source=f'left_{n}',
                 target=f'right_{n}',
                 weight=weight,
@@ -119,7 +113,7 @@ def oscillator_double_chain(network_options, n_oscillators, **kwargs):
             )
         )
         network_options.add_edge(
-            options.EdgeOptions(
+            options.OscillatorEdgeOptions(
                 source=f'right_{n}',
                 target=f'left_{n}',
                 weight=weight,
@@ -185,7 +179,7 @@ def generate_network(iterations=2000):
     data = NetworkData.from_options(network_options)
 
     network = PyNetwork.from_options(network_options)
-    network.setup_integrator(network_options.integration)
+    network.setup_integrator(network_options)
 
     # nnodes = len(network_options.nodes)
     # integrator.set_initial_value(np.zeros(len(data.states.array),), 0.0)
@@ -216,19 +210,17 @@ def generate_network(iterations=2000):
     for j in range(int(n_oscillators/2)+1):
         plt.fill_between(
             np.array(network.data.times.array),
-            j + (1 + np.sin(network.data.nodes[j].output.array)),
-            j,
+            2*j + (1 + np.sin(network.data.nodes[j].output.array)),
+            2*j,
             alpha=0.2,
             lw=1.0,
         )
         plt.plot(
             np.array(network.data.times.array),
-            j + (1 + np.sin(network.data.nodes[j].output.array)),
+            2*j + (1 + np.sin(network.data.nodes[j].output.array)),
             label=f"{j}"
         )
     plt.legend()
-
-    network_options.save("/tmp/netwok_options.yaml")
 
     graph = nx.node_link_graph(
         network_options,
@@ -243,6 +235,11 @@ def generate_network(iterations=2000):
     pos_circular = nx.circular_layout(graph)
     pos_spring = nx.spring_layout(graph)
     pos_graphviz = nx.nx_agraph.pygraphviz_layout(graph)
+    for index, node in enumerate(network_options.nodes):
+        node.visual.position[:2] = pos_graphviz[node.name]
+
+    network_options.save("/tmp/network_options.yaml")
+
     _ = nx.draw_networkx_nodes(
         graph,
         pos=pos_graphviz,
