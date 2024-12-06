@@ -123,7 +123,7 @@ cdef class PyNode:
 
     @property
     def parameters(self):
-        """ Number of states in the network """
+        """ Return a view of parameters in the network """
         return self.node.parameters[0]
 
     # Methods to wrap the ODE and output functions
