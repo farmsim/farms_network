@@ -48,7 +48,9 @@ cdef void ode(
 ) noexcept:
     """ ODE """
     # Parameters
-    cdef LIDannerNodeParameters params = (<LIDannerNodeParameters*> node[0].parameters)[0]
+    cdef LIDannerNodeParameters params = (
+        <LIDannerNodeParameters*> node[0].parameters
+    )[0]
 
     # States
     cdef double state_v = states[<int>STATE.v]
@@ -77,7 +79,7 @@ cdef void ode(
     cdef double i_noise = noise
 
     # dV
-    derivatives[<int>STATE.v] = (-(i_leak + i_noise + _sum)/params.c_m)
+    derivatives[<int>STATE.v] = -(i_leak + i_noise + _sum)/params.c_m
 
 
 cdef double output(
