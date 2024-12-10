@@ -42,25 +42,25 @@ cdef class RK4Solver:
 
         # Compute k1
         sys.evaluate(time, state, k1)
-        for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + (self.dt * k1[i])/2.0
 
         # Compute k2
-        sys.evaluate(time + dt2, self.states_tmp.array, k2)
         for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + (self.dt * k2[i])/2.0
+            states_tmp[i] = state[i] + (dt2 * k1[i])
+        sys.evaluate(time + dt2, states_tmp, k2)
 
         # Compute k3
-        sys.evaluate(time + dt2, self.states_tmp.array, k3)
         for i in range(self.dim):
-            self.states_tmp.array[i] = state[i] + self.dt * k3[i]
+            states_tmp[i] = state[i] + (dt2 * k2[i])
+        sys.evaluate(time + dt2, states_tmp, k3)
 
         # Compute k4
-        sys.evaluate(time + 1.0, states_tmp, k4)
+        for i in range(self.dim):
+            states_tmp[i] = state[i] + self.dt * k3[i]
+        sys.evaluate(time + self.dt, states_tmp, k4)
 
         # Update y: y = y + (k1 + 2*k2 + 2*k3 + k4) / 6
         for i in range(self.dim):
-            state[i] += dt6 * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i])
+            state[i] = state[i] + dt6 * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i])
 
 
 cdef class EulerMaruyamaSolver:
