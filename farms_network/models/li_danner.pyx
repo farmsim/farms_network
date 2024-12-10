@@ -95,11 +95,12 @@ cdef double output(
     cdef LIDannerNodeParameters params = (<LIDannerNodeParameters*> node.parameters)[0]
 
     cdef double _n_out = 0.0
-    if states[<int>STATE.v] >= params.v_max:
+    cdef double state_v = states[<int>STATE.v]
+    if state_v >= params.v_max:
         _n_out = 1.0
-    elif (params.v_thr <= states[<int>STATE.v]) and (states[<int>STATE.v] < params.v_max):
-        _n_out = (states[<int>STATE.v] - params.v_thr) / (params.v_max - params.v_thr)
-    elif states[<int>STATE.v] < params.v_thr:
+    elif (params.v_thr <= state_v) and (state_v < params.v_max):
+        _n_out = (state_v - params.v_thr) / (params.v_max - params.v_thr)
+    elif state_v < params.v_thr:
         _n_out = 0.0
     return _n_out
 
