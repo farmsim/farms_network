@@ -395,14 +395,21 @@ def run_network(*args):
 
     # Integrate
     N_ITERATIONS = network_options.integration.n_iterations
-    states = np.ones((len(network.data.states.array),)) * 1.0
+    # states = np.ones((len(network.data.states.array),)) * 1.0
 
     # network_gui = NetworkGUI(data=data)
     # network_gui.run()
 
     inputs_view = network.data.external_inputs.array
+    drive_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "DR" in node.name and node.model == "linear"
+    ]
+    inputs = np.zeros((len(inputs_view),))
     for iteration in tqdm(range(0, N_ITERATIONS), colour="green", ascii=" >="):
-        inputs_view[:] = (iteration / N_ITERATIONS) * 1.0
+        inputs[drive_input_indices] = 0.02
+        inputs_view[:] = inputs
         # states = rk4(iteration * 1e-3, states, network.ode, step_size=1)
         # states = network.integrator.step(network, iteration * 1e-3, states)
         network.step()
@@ -544,12 +551,55 @@ def main():
     network_options = generate_quadruped_circuit((5e4))
     network_options.save("/tmp/network_options.yaml")
 
+    graph = nx.node_link_graph(
+        network_options,
+        directed=True,
+        multigraph=False,
+        link="edges",
+        name="name",
+        source="source",
+        target="target",
+    )
+
+
     # Run the network
-    network = profile.profile(run_network, network_options)
+    # network = profile.profile(run_network, network_options)
     # network = run_network(network_options)
 
-    # Results
+    # nodes_names = [
+    #     node.name
+    #     for node in network.data.nodes
+    # ]
+    # print(nodes_names)
+
+    # plot_nodes = [
+    #     nodes_names.index(name)
+    #     for name in ["left_hind_PF_FA",]
+    #     if name in nodes_names
+    # ]
+
+    # plt.plot(
+    #     # np.array(network.data.times.array),
+    #     np.array(network.data.nodes[0].output.array)
+    # )
+    # plt.figure()
+    # plt.plot(
+    #     np.array(network.data.times.array),
+    #     np.array(network.data.nodes[plot_nodes[0]].states.array),
+    # )
+    # plt.show()
+    # print(network.data.nodes[5].name)
+    # plt.plot(
+    #     np.array(network.data.times.array),
+    #     np.array(network.data.nodes[5].output.array)
+    # )
+    # plt.plot(
+    #     np.array(network.data.times.array),
+    #     np.array(network.data.nodes[6].output.array)
+    # )
     # plot_network(network_options)
+
+    # Results
 
     # run_network()
 

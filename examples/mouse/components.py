@@ -258,6 +258,44 @@ def create_edges(
     return edges
 
 
+class BrainStemDrive:
+    """ Generate Brainstem drive network """
+
+    def __init__(self, name="", transform_mat=np.identity(3)):
+        """Initialization."""
+        super().__init__()
+        self.name = name
+        self.transform_mat = transform_mat
+
+    def nodes(self):
+        """Add nodes."""
+        node_specs = [
+            (
+                join_str(("BS", "DR")),
+                "ExternalRelay",
+                np.array((3.0, 0.0)),
+                "A",
+                [0.0, 0.0, 0.0],
+                {},
+                {},
+            ),
+        ]
+
+        # Loop through the node specs to create each node using the create_node function
+        nodes = create_nodes(node_specs, self.name, self.transform_mat)
+        return nodes
+
+    def edges(self):
+        """Add edges."""
+
+        # Define edge details in a list for easier iteration
+        edge_specs = []
+
+        # Loop through the edge specs to create each edge
+        edges = create_edges(edge_specs, self.name)
+        return edges
+
+
 class RhythmGenerator:
     """Generate RhythmGenerator Network"""
 
@@ -1422,12 +1460,12 @@ def define_muscle_patterns() -> dict:
             "ssp": ["FA", "EA", "FB", "EB"],
             "abd": ["FA", "EA", "FB", "EB"],
             "add": ["FA", "EA", "FB", "EB"],
-            "tbl": ["FA", "EA", "FB", "EB"],
-            "tbo": ["FA", "EA", "FB", "EB"],
+            "tbl": ["EA", "EB"],
+            "tbo": ["EA", "EB"],
             "bbs": ["FA", "FB"],
-            "bra": ["FA", "EA", "FB", "EB"],
-            "ecu": ["FA", "EA", "FB", "EB"],
-            "fcu": ["FA", "EA", "FB", "EB"],
+            "bra": ["FA", "FB"],
+            "eip": ["FA", "FB"],
+            "fcu": ["EA", "EB"],
         }
     }
     return muscles_patterns
@@ -1529,7 +1567,7 @@ def limb_circuit(
     )
 
     network_options.add_nodes(motor.nodes().values())
-    network_options.add_edges(motor.edges().values())
+    # network_options.add_edges(motor.edges().values())
 
     # Connect pattern formation to motor neurons
     for muscle, patterns in muscles_patterns[limb].items():
@@ -1561,14 +1599,14 @@ def limb_circuit(
             "edl": muscles_patterns["hind"]["edl"],
         },
         "fore": {
-            "ssp": muscles_patterns["fore"]["ssp"],
-            "bra": muscles_patterns["fore"]["bra"],
+            "spd": muscles_patterns["fore"]["spd"],
+            "eip": muscles_patterns["fore"]["eip"],
         }
     }
 
     II_feedback_to_rg = {
         "hind": ["ip", "ta",],
-        "fore": ["ssp", "bra"]
+        "fore": ["ssp", "bra", "eip"]
     }
 
     Ia_reciprocal_inhibition_extensor2flexor = {
@@ -1578,7 +1616,7 @@ def limb_circuit(
         },
         "fore": {
             "extensors": ["ssp", "tbl", "tbo", "fcu"],
-            "flexors": ["spd", "bra", "bbs", "ecu"],
+            "flexors": ["spd", "bra", "bbs", "eip"],
         }
     }
 
@@ -1589,7 +1627,7 @@ def limb_circuit(
         },
         "fore": {
             "extensors": ["ssp", "tbl", "tbo", "fcu"],
-            "flexors": ["spd", "bra", "bbs", "ecu"],
+            "flexors": ["spd", "bra", "bbs", "eip"],
         }
     }
 
@@ -1600,7 +1638,7 @@ def limb_circuit(
         },
         "fore": {
             "extensors": ["ssp", "tbl", "tbo", "fcu"],
-            "flexors": ["spd", "bra", "bbs", "ecu"],
+            "flexors": ["spd", "bra", "bbs", "eip"],
         }
     }
 
@@ -1611,7 +1649,7 @@ def limb_circuit(
         },
         "fore": {
             "extensors": ["ssp", "tbl", "tbo", "fcu"],
-            "flexors": ["spd", "bra", "bbs", "ecu"],
+            "flexors": ["spd", "bra", "bbs", "eip"],
         }
     }
     # Type II connections
@@ -1726,7 +1764,7 @@ def interlimb_circuit(
 # Vestibular Circuit #
 ######################
 def vestibular_circuit(
-        network_options: options.NetworkLogOptions,
+        network_options: options.NetworkOptions,
         position=True,
         velocity=True,
         transform_mat=np.identity(3),
@@ -1762,6 +1800,35 @@ def vestibular_circuit(
                 network_options.add_edges(vestibular.edges().values())
 
     return network_options
+
+
+##################
+# BrainStemDrive #
+##################
+def brain_stem_circuit(
+        network_options: options.NetworkOptions,
+        transform_mat=np.identity(3),
+):
+    # Brain stem global drive(alpha)
+    brain_stem = BrainStemDrive(
+        transform_mat=transform_mat
+    )
+    network_options.add_nodes(brain_stem.nodes().values())
+    network_options.add_edges(brain_stem.edges().values())
+
+    edge_specs = []
+    for node in network_options.nodes:
+        if ("DR" in node.name) and node.model == "linear":
+            edge_specs.append(
+                (
+                    ("BS", "DR"),
+                    (node.name,),
+                    1.0,
+                    "excitatory",
+                )
+            )
+    edges = create_edges(edge_specs, base_name="")
+    return edges
 
 
 #####################
@@ -1883,5 +1950,11 @@ def quadruped_circuit(
             default_weight=0.1
         )
         network_options.add_edges(vn_edges.values())
+
+    edges = brain_stem_circuit(
+        network_options,
+        transform_mat=get_translation_matrix(off_x=0.0, off_y=40.0)
+    )
+    network_options.add_edges(edges.values())
 
     return network_options
