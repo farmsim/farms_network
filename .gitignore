@@ -36,8 +36,9 @@ build/
 *.so
 *.dylib
 
-# Generated cython c-files
+# Generated cython c/cpp-files
 *.c
+*.cpp
 
 # Generated cython perf html files
 *.html
