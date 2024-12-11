@@ -58,6 +58,7 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         OrnsteinUhlenbeckParameters* parameters
         normal_distribution[double] distribution
         mt19937_64 random_generator
+        double* random_samples
 
     cdef void evaluate_a(self, double time, double[:] states, double[:] drift) noexcept
     cdef void evaluate_b(self, double time, double[:] states, double[:] diffusion) noexcept

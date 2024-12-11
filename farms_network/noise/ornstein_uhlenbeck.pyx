@@ -66,6 +66,12 @@ cdef class OrnsteinUhlenbeck(SDESystem):
                 "Failed to allocate memory for OrnsteinUhlenbeck parameter TAU"
             )
 
+        self.random_samples = <double*>malloc(self.n_dim*sizeof(double))
+        if self.random_samples is NULL:
+            raise MemoryError(
+                "Failed to allocate memory for OrnsteinUhlenbeck random samples"
+            )
+
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
 
@@ -77,6 +83,8 @@ cdef class OrnsteinUhlenbeck(SDESystem):
             free(self.parameters.tau)
         if self.parameters is not NULL:
             free(self.parameters)
+        if self.random_samples is not NULL:
+            free(self.random_samples)
 
     def __init__(self, noise_options: List[OrnsteinUhlenbeckOptions], random_seed: int=None):
         super().__init__()
@@ -100,8 +108,10 @@ cdef class OrnsteinUhlenbeck(SDESystem):
         cdef normal_distribution[double] distribution = self.distribution
         cdef mt19937_64 random_generator = self.random_generator
         for j in range(self.n_dim):
+            self.random_samples[j] = distribution(random_generator)
+        for j in range(self.n_dim):
             diffusion[j] = params.sigma[j]*csqrt(2.0/params.tau[j])*(
-                distribution(random_generator)
+                self.random_samples[j]
             )
 
     def py_evaluate_a(self, time, states, drift):
