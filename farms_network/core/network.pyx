@@ -40,6 +40,7 @@ from .options import (EdgeOptions, IntegrationOptions, NetworkOptions,
 
 cdef inline void ode(
     double time,
+    double[:] states_arr,
     NetworkDataCy data,
     Network* network,
     double[:] node_outputs_tmp,
@@ -52,7 +53,8 @@ cdef inline void ode(
     cdef Edge** edges = network.edges
     nnodes = network.nnodes
 
-    cdef double* states = &data.states.array[0]
+    # It is important to use the states passed to the function and not from the data.states
+    cdef double* states = &states_arr[0]
     cdef unsigned int* states_indices = &data.states.indices[0]
 
     cdef double* derivatives = &data.derivatives.array[0]
@@ -282,30 +284,34 @@ cdef class PyNetwork(ODESystem):
     cpdef void step(self):
         """ Step the network state """
         # cdef NetworkDataCy data = self.data
-        self.iteration += 1
-        self.ode_integrator.step(
-            self, (self.iteration%self.buffer_size)*self.timestep, self.data.states.array
-        )
-        logger((self.iteration%self.buffer_size), self.data, self.network)
-
-    cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
-        """ Evaluate the ODE """
-        # Update noise model
-        cdef NetworkDataCy data = <NetworkDataCy> self.data
         cdef SDESystem sde_system = self.sde_system
         cdef EulerMaruyamaSolver sde_integrator = self.sde_integrator
 
         sde_integrator.step(
             sde_system,
             (self.iteration%self.buffer_size)*self.timestep,
-            data.noise.states
+            self.data.noise.states
         )
         _noise_states_to_output(
-            data.noise.states,
-            data.noise.indices,
-            data.noise.outputs
+            self.data.noise.states,
+            self.data.noise.indices,
+            self.data.noise.outputs
         )
-        data.states.array[:] = states[:]
-        ode(time, data, self.network, self.__tmp_node_outputs)
+        self.ode_integrator.step(
+            self,
+            (self.iteration%self.buffer_size)*self.timestep,
+            self.data.states.array
+        )
+        # Logging
+        # TODO: Use network options to check global logging flag
+        logger((self.iteration%self.buffer_size), self.data, self.network)
+        self.iteration += 1
+
+    cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
+        """ Evaluate the ODE """
+        # Update noise model
+        cdef NetworkDataCy data = <NetworkDataCy> self.data
+
+        ode(time, states, data, self.network, self.__tmp_node_outputs)
         data.outputs.array[:] = self.__tmp_node_outputs
         derivatives[:] = data.derivatives.array
