@@ -66,6 +66,8 @@ cdef class PyNode:
         self.node.model_type = strdup("base".encode('UTF-8'))
         self.node.ode = ode
         self.node.output = output
+        self.edge.nparameters = 0
+        self.edge.ninputs = 0
 
     def __dealloc__(self):
         if self.node.name is not NULL:
@@ -123,8 +125,14 @@ cdef class PyNode:
 
     @property
     def parameters(self):
-        """ Return a view of parameters in the network """
-        return self.node.parameters[0]
+        """Generic accessor for parameters."""
+        if not self.node.parameters:
+            raise ValueError("Node parameters are NULL")
+        if self.node.nparameters == 0:
+            raise ValueError("No parameters available")
+
+        # The derived class should override this method to provide specific behavior
+        raise NotImplementedError("Base class does not define parameter handling")
 
     # Methods to wrap the ODE and output functions
     def ode(

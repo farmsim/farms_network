@@ -31,6 +31,7 @@ cdef class PyEdge:
         self.edge = <Edge*>malloc(sizeof(Edge))
         if self.edge is NULL:
             raise MemoryError("Failed to allocate memory for Edge")
+        self.edge.nparameters = 0
 
     def __dealloc__(self):
         if self.edge.source is not NULL:
@@ -84,5 +85,11 @@ cdef class PyEdge:
 
     @property
     def parameters(self):
-        """ Number of states in the network """
-        return self.edge.parameters[0]
+        """Generic accessor for parameters."""
+        if not self.edge.parameters:
+            raise ValueError("Edge parameters are NULL")
+        if self.edge.nparameters == 0:
+            raise ValueError("No parameters available")
+
+        # The derived class should override this method to provide specific behavior
+        raise NotImplementedError("Base class does not define parameter handling")
