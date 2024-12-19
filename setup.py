@@ -47,6 +47,11 @@ setup(
     author_email='biorob-farms@groupes.epfl.ch',
     license='Apache-2.0',
     packages=find_packages(exclude=['tests*']),
+    package_dir={'farms_network': 'farms_network'},
+    package_data={'farms_network': [
+        f'{folder}*.pxd'
+        for folder in ['', 'core/', 'models/', 'numeric/', 'noise/']
+    ]},
     zip_safe=False,
     ext_modules=cythonize(
         extensions,
@@ -81,7 +86,4 @@ setup(
             'warn.multiple_declarators': True,
         }
     ),
-    package_data={
-        'farms_network': ['*.pxd'],
-    },
 )
