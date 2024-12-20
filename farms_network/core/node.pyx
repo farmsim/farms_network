@@ -66,8 +66,8 @@ cdef class PyNode:
         self.node.model_type = strdup("base".encode('UTF-8'))
         self.node.ode = ode
         self.node.output = output
-        self.edge.nparameters = 0
-        self.edge.ninputs = 0
+        self.node.nparameters = 0
+        self.node.ninputs = 0
 
     def __dealloc__(self):
         if self.node.name is not NULL:
