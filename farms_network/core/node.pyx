@@ -70,13 +70,13 @@ cdef class PyNode:
         self.node.ninputs = 0
 
     def __dealloc__(self):
-        if self.node.name is not NULL:
-            free(self.node.name)
-        if self.node.model_type is not NULL:
-            free(self.node.model_type)
-        if self.node.parameters is not NULL:
-            free(self.node.parameters)
         if self.node is not NULL:
+            if self.node.name is not NULL:
+                free(self.node.name)
+            if self.node.model_type is not NULL:
+                free(self.node.model_type)
+            if self.node.parameters is not NULL:
+                free(self.node.parameters)
             free(self.node)
 
     def __init__(self, name: str, **kwargs):
