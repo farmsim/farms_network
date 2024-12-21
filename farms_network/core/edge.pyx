@@ -34,15 +34,15 @@ cdef class PyEdge:
         self.edge.nparameters = 0
 
     def __dealloc__(self):
-        if self.edge.source is not NULL:
-            free(self.edge.source)
-        if self.edge.target is not NULL:
-            free(self.edge.target)
-        if self.edge.type is not NULL:
-            free(self.edge.type)
-        if self.edge.parameters is not NULL:
-            free(self.edge.parameters)
         if self.edge is not NULL:
+            if self.edge.source is not NULL:
+                free(self.edge.source)
+            if self.edge.target is not NULL:
+                free(self.edge.target)
+            if self.edge.type is not NULL:
+                free(self.edge.type)
+            if self.edge.parameters is not NULL:
+                free(self.edge.parameters)
             free(self.edge)
 
     def __init__(self, source: str, target: str, edge_type: str, **kwargs):
