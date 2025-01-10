@@ -760,6 +760,90 @@ class OscillatorEdgeParameterOptions(EdgeParameterOptions):
         return cls(**options)
 
 
+#################################
+# Hopf-Oscillator Model Options #
+#################################
+class HopfOscillatorNodeOptions(NodeOptions):
+    """ Class to define the properties of HopfOscillator node model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "hopf_oscillator"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
+        )
+        self._nstates = 2
+        self._nparameters = 4
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = HopfOscillatorNodeParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = HopfOscillatorStateOptions.from_options(
+            kwargs["state"]
+        )
+        options["noise"] = None
+        if kwargs["noise"] is not None:
+            options["noise"] = NoiseOptions.from_options(
+                kwargs["noise"]
+            )
+        return cls(**options)
+
+
+class HopfOscillatorNodeParameterOptions(NodeParameterOptions):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.mu = kwargs.pop("mu")
+        self.omega = kwargs.pop("omega")
+        self.alpha = kwargs.pop("alpha")
+        self.beta = kwargs.pop("beta")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for HopfOscillator Node model """
+
+        options = {}
+
+        options["mu"] = kwargs.pop("mu", 0.1)
+        options["omega"] = kwargs.pop("omega", 0.1)
+        options["alpha"] = kwargs.pop("alpha", 1.0)
+        options["beta"] = kwargs.pop("beta", 1.0)
+
+        return cls(**options)
+
+
+class HopfOscillatorStateOptions(NodeStateOptions):
+    """ HopfOscillator node state options """
+
+    STATE_NAMES = ["x", "y"]
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            initial=kwargs.pop("initial"),
+            names=HopfOscillatorStateOptions.STATE_NAMES
+        )
+        assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
 #########################################
 # Leaky Integrator Danner Model Options #
 #########################################

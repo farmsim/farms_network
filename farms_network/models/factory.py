@@ -20,11 +20,11 @@ Factory class for generating the node model.
 """
 
 from farms_network.core.edge import PyEdge
-# from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
-# from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
-# from farms_network.models.hopf_oscillator import HopfOscillator
 # from farms_network.models.leaky_integrator import LeakyIntegrator
 from farms_network.models.external_relay import PyExternalRelayNode
+# from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
+# from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
+from farms_network.models.hopf_oscillator import PyHopfOscillatorNode
 from farms_network.models.li_danner import PyLIDannerNode
 from farms_network.models.li_nap_danner import PyLINaPDannerNode
 from farms_network.models.linear import PyLinearNode
@@ -44,7 +44,7 @@ class NodeFactory:
     nodes = {
         # 'if': IntegrateAndFire,
         'oscillator': PyOscillatorNode,
-        # 'hopf_oscillator': HopfOscillator,
+        'hopf_oscillator': PyHopfOscillatorNode,
         # 'morphed_oscillator': MorphedOscillator,
         # 'leaky': LeakyIntegrator,
         'external_relay': PyExternalRelayNode,
