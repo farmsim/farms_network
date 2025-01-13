@@ -42,7 +42,7 @@ def connect_positions(source, destination, dir_shift, perp_shift):
 
 def compute_phases(times, data):
     phases = (np.array(data) > 0.1).astype(np.int16)
-    phases = np.logical_not(phases).astype(np.int16)
+    # phases = np.logical_not(phases).astype(np.int16)
     phases_xs = []
     phases_ys = []
     for j in range(len(data)):
@@ -55,6 +55,7 @@ def compute_phases(times, data):
         # if np.all(len(phases_start) > 3):
         phases_ys[j][:, 1] += 1
         phases_ys[j][:, 2] += 1
+
     return phases_xs, phases_ys
 
 
@@ -132,7 +133,7 @@ def add_plot(iteration, data):
     # if len(phases_start) > 3:
     #     phases_ys[:, 1] += 1.0
     #     phases_ys[:, 2] += 1.0
-    row_col_ratios = implot.SubplotsRowColRatios(row_ratios=[0.1, 0.6, 0.3], col_ratios=[1])
+
     colors = {
         "RF": imgui.IM_COL32(28, 107, 180, 255),
         "LF": imgui.IM_COL32(23, 163, 74, 255),
@@ -149,7 +150,7 @@ def add_plot(iteration, data):
                 3,
                 1,
                 imgui.ImVec2(-1, -1),
-                row_col_ratios=implot.SubplotsRowColRatios(row_ratios=[0.1, 0.6, 0.3], col_ratios=[1])
+                row_col_ratios=implot.SubplotsRowColRatios(row_ratios=[0.1, 0.8, 0.1], col_ratios=[1])
         ):
             if implot.begin_plot(""):
                 flags = (
