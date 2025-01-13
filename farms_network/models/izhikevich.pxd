@@ -25,11 +25,17 @@ from ..core.edge cimport Edge, PyEdge
 
 cdef enum:
     #STATES
-    NSTATES = 0
+    NSTATES = 2
+    STATE_V = 0
+    STATE_U = 1
+
 
 
 cdef packed struct IzhikevichNodeParameters:
-    double param
+    double a                    # recovery time scale
+    double b                    # recovery sensitivity
+    double c                    # after-spike reset
+    double d                    # after-spike recovery reset
 
 
 cdef:
@@ -58,7 +64,7 @@ cdef:
 
 
 cdef class PyIzhikevichNode(PyNode):
-    """ Python interface to Leaky Integrator Node C-Structure """
+    """ Python interface to Izhikevich Node C-Structure """
 
     cdef:
         IzhikevichNodeParameters parameters

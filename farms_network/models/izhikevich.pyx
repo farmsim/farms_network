@@ -28,6 +28,8 @@ cpdef enum STATE:
 
     #STATES
     nstates = NSTATES
+    v = STATE_V
+    u = STATE_U
 
 
 cdef void ode(
@@ -43,7 +45,36 @@ cdef void ode(
     Edge** edges,
 ) noexcept:
     """ Node ODE """
-    ...
+    # Parameters
+    cdef IzhikevichNodeParameters params = (
+        <IzhikevichNodeParameters*> node[0].parameters
+    )[0]
+
+    # States
+    cdef double state_v = states[<int>STATE.v]
+    cdef double state_u = states[<int>STATE.u]
+
+    # Node inputs
+    # cdef:
+    #     double _sum = 0.0
+    #     unsigned int j
+    #     double _node_out, res, _input, _weight
+
+    # cdef unsigned int ninputs = node.ninputs
+    # for j in range(ninputs):
+    #     _input = network_outputs[inputs[j]]
+    #     _weight = weights[j]
+    #     if _weight >= 0.0:
+    #         # Excitatory Synapse
+    #         _sum += params.g_syn_e*cfabs(_weight)*_input*(state_v - params.e_syn_e)
+    #     elif _weight < 0.0:
+    #         # Inhibitory Synapse
+    #         _sum += params.g_syn_i*cfabs(_weight)*_input*(state_v - params.e_syn_i)
+
+    # # dV
+    # derivatives[<int>STATE.v] = 0.04*state_v**2 + 5.0*state_v + 140.0 - state_u + _sum
+    # # dU
+    # derivatives[<int>STATE.u] = params.a*(params.b*state_v - state_u)
 
 
 cdef double output(
