@@ -1,5 +1,5 @@
 """
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
 Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
 
@@ -15,7 +15,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
-
-Fitzhugh Nagumo model.
-
+Matsuoka Neuron model
 """

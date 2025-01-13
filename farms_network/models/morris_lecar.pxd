@@ -1,5 +1,5 @@
 """
-----------------------------------------------------------------------
+-----------------------------------------------------------------------
 Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
 Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
 
@@ -16,6 +16,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Fitzhugh Nagumo model.
-
+Morris Lecar Neuron model.
 """
