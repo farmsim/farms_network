@@ -25,10 +25,8 @@ pp. 819–824. doi: 10.1109/ROBOT.2008.4543306.
 
 """
 
-from libc.math cimport M_PI
-from libc.math cimport sin as csin
 from libc.stdio cimport printf
-from libc.stdlib cimport free, malloc
+from libc.stdlib cimport malloc
 from libc.string cimport strdup
 
 
@@ -71,17 +69,14 @@ cdef void ode(
         _weight = weights[j]
         _sum += (_weight*_input)
 
+    r_square = (state_x**2 + state_y**2)
     # xdot : x_dot
     derivatives[<int>STATE.x] = (
-        params.alpha*(
-            params.mu - (state_x**2 + state_y**2)
-        )*state_x - params.omega*state_y
+        params.alpha*(params.mu - r_square)*state_x - params.omega*state_y
     )
     # ydot : y_dot
     derivatives[<int>STATE.y] = (
-        params.beta*(
-            params.mu - (state_x**2 + state_y**2)
-        )*state_y + params.omega*state_x + (_sum)
+        params.beta*(params.mu - r_square)*state_y + params.omega*state_x + (_sum)
     )
 
 
@@ -103,7 +98,7 @@ cdef class PyHopfOscillatorNode(PyNode):
     """ Python interface to HopfOscillator Node C-Structure """
 
     def __cinit__(self):
-        self.node.model_type = strdup("OSCILLATOR".encode('UTF-8'))
+        self.node.model_type = strdup("HOPF_OSCILLATOR".encode('UTF-8'))
         # override default ode and out methods
         self.node.is_statefull = True
         self.node.ode = ode
