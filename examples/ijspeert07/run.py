@@ -232,17 +232,16 @@ def generate_network(iterations=2000):
         target="target"
     )
     plt.figure()
-    pos_circular = nx.circular_layout(graph)
-    pos_spring = nx.spring_layout(graph)
-    pos_graphviz = nx.nx_agraph.pygraphviz_layout(graph)
+    node_positions = nx.circular_layout(graph)
+    node_positions = nx.spring_layout(graph)
     for index, node in enumerate(network_options.nodes):
-        node.visual.position[:2] = pos_graphviz[node.name]
+        node.visual.position[:2] = node_positions[node.name]
 
     network_options.save("/tmp/network_options.yaml")
 
     _ = nx.draw_networkx_nodes(
         graph,
-        pos=pos_graphviz,
+        pos=node_positions,
         node_color=[data["visual"]["color"] for node, data in graph.nodes.items()],
         alpha=0.25,
         edgecolors='k',
@@ -250,7 +249,7 @@ def generate_network(iterations=2000):
     )
     nx.draw_networkx_labels(
         graph,
-        pos=pos_graphviz,
+        pos=node_positions,
         labels={node: data["visual"]["label"] for node, data in graph.nodes.items()},
         font_size=11.0,
         font_weight='bold',
@@ -259,7 +258,7 @@ def generate_network(iterations=2000):
     )
     nx.draw_networkx_edges(
         graph,
-        pos=pos_graphviz,
+        pos=node_positions,
         edge_color=[
             [0.0, 1.0, 0.0] if data["type"] == "excitatory" else [1.0, 0.0, 0.0]
             for edge, data in graph.edges.items()
