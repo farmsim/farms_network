@@ -158,7 +158,7 @@ def add_plot(iteration, data):
                 )
                 implot.setup_axis(implot.ImAxis_.y1, "Drive")
                 implot.setup_axis(implot.ImAxis_.x1, flags=flags)
-                implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_links(implot.ImAxis_.x1, implot.BoxedValue(-1.0), implot.BoxedValue(0.0))
                 implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
                 implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 1.5)
                 implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
@@ -174,7 +174,7 @@ def add_plot(iteration, data):
                         implot.AxisFlags_.no_tick_marks
                     )
                 )
-                implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+                implot.setup_axis_links(implot.ImAxis_.x1, implot.BoxedValue(-1.0), implot.BoxedValue(0.0))
                 implot.setup_axis_limits(implot.ImAxis_.y1, -1*len(plot_names), 1.0)
                 implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
                 implot.setup_axis_limits_constraints(implot.ImAxis_.y1, -8.2, 1.0)
@@ -195,7 +195,7 @@ def add_plot(iteration, data):
                         implot.plot_line(plot_names[j], times, plot_data[j, :] - j)
                 implot.end_plot()
             if len(plot_nodes) > 7:
-                if implot.begin_plot(""):
+                if implot.begin_plot("", flags=implot.Flags_.no_legend):
                     implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
                     implot.setup_axis_limits(implot.ImAxis_.y1, 0.0, 4.0)
                     implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
@@ -245,7 +245,7 @@ def draw_muscle_activity(iteration, data, plot_nodes, plot_names, title):
         if implot.begin_plot("Muscle Activity", imgui.ImVec2(-1, -1)):
             implot.setup_axis(implot.ImAxis_.x1, "Time")
             implot.setup_axis(implot.ImAxis_.y1, "Activity")
-            implot.setup_axis_links(implot.ImAxis_.x1, -1.0, 0.0)
+            implot.setup_axis_links(implot.ImAxis_.x1, implot.BoxedValue(-1.0), implot.BoxedValue(0.0))
             implot.setup_axis_limits(implot.ImAxis_.x1, -1.0, 0.0)
             implot.setup_axis_limits(implot.ImAxis_.y1, -1*(len(plot_nodes)-1), 1.0)
             implot.setup_axis_limits_constraints(implot.ImAxis_.x1, -1.0, 0.0)
