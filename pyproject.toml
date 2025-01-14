@@ -13,7 +13,6 @@ version = "0.1"
 description = "Module to generate, develop and visualize neural networks"
 license = {file = "LICENSE"}
 dependencies = [
-    "farms_pylog @ git+https://gitlab.com/FARMSIM/farms_pylog.git",
     "tqdm",
 ]
 # authors = [
