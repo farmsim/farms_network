@@ -1921,7 +1921,7 @@ def quadruped_circuit(
     # Connect pattern to commissural #
     ##################################
     pattern_commissural_edges = connect_pattern_commissural()
-    network_options.add_edges(pattern_commissural_edges.values())
+    # network_options.add_edges(pattern_commissural_edges.values())
 
     ##############################
     # Connect fore and hind lpsn #
