@@ -264,7 +264,7 @@ def draw_muscle_activity(iteration, data, plot_nodes, plot_names, title):
 
 
 def plot_hind_motor_activity(iteration, data, side="right"):
-    side = "right"
+    side = "left"
     limb = "hind"
 
     muscle_names = [
@@ -585,38 +585,44 @@ def draw_slider(
 ):
     with imgui_ctx.begin(name):
         clicked, values[0] = imgui.slider_float(
-            label="drive",
+            label="alpha",
             v=values[0],
             v_min=min_value,
             v_max=max_value,
         )
         clicked, values[1] = imgui.slider_float(
-            label="Ia",
+            label="drive",
             v=values[1],
             v_min=min_value,
             v_max=max_value,
         )
         clicked, values[2] = imgui.slider_float(
-            label="II",
+            label="Ia",
             v=values[2],
             v_min=min_value,
             v_max=max_value,
         )
         clicked, values[3] = imgui.slider_float(
-            label="Ib",
+            label="II",
             v=values[3],
             v_min=min_value,
             v_max=max_value,
         )
         clicked, values[4] = imgui.slider_float(
-            label="Vn",
+            label="Ib",
             v=values[4],
-            v_min=-1.0,
+            v_min=min_value,
             v_max=max_value,
         )
         clicked, values[5] = imgui.slider_float(
-            label="Cut",
+            label="Vn",
             v=values[5],
+            v_min=-1.0,
+            v_max=max_value,
+        )
+        clicked, values[6] = imgui.slider_float(
+            label="Cut",
+            v=values[6],
             v_min=min_value,
             v_max=max_value,
         )
@@ -711,15 +717,22 @@ def main():
     _time_draw_last = _time_draw
     _realtime = 0.1
 
-    imgui.get_io().config_flags |= imgui.ConfigFlags_.docking_enable
+    io = imgui.get_io()
+    io.config_flags |= imgui.ConfigFlags_.docking_enable
     imgui.get_style().anti_aliased_lines = True
     imgui.get_style().anti_aliased_lines_use_tex = True
     imgui.get_style().anti_aliased_fill = True
 
+
+    alpha_input_indices = [
+        index
+        for index, node in enumerate(network_options.nodes)
+        if "input" in node.name and node.model == "external_relay"
+    ]
     drive_input_indices = [
         index
         for index, node in enumerate(network_options.nodes)
-        if "DR" in node.name
+        if "DR" in node.name and node.model == "linear"
     ]
     Ia_input_indices = [
         index
@@ -746,20 +759,24 @@ def main():
         for index, node in enumerate(network_options.nodes)
         if "cut" == node.name[-3:] and node.model == "external_relay"
     ]
-    slider_values = np.zeros((6,))
-    slider_values[0] = 0.25
+    slider_values = np.zeros((7,))
+    slider_values[0] = 1.0
     input_array = np.zeros(np.shape(inputs_view))
-    input_array[drive_input_indices] = 0.25
+    input_array[alpha_input_indices] = 1.0
     button_state = False
     # input_array[drive_input_indices[0]] *= 1.05
+    for index, node in enumerate(network_options.nodes):
+        if "BS_DR" in node.name and node.model == "linear":
+            bs_dr = index
 
     for iteration in tqdm(range(0, N_ITERATIONS), colour="green", ascii=" >="):
-        input_array[drive_input_indices] = slider_values[0]
-        input_array[Ia_input_indices] = slider_values[1]
-        input_array[II_input_indices] = slider_values[2]
-        input_array[Ib_input_indices] = slider_values[3]
-        input_array[Vn_input_indices] = slider_values[4]
-        input_array[Cut_input_indices] = slider_values[5]
+        input_array[alpha_input_indices] = slider_values[0]
+        input_array[drive_input_indices] = slider_values[1]
+        input_array[Ia_input_indices] = slider_values[2]
+        input_array[II_input_indices] = slider_values[3]
+        input_array[Ib_input_indices] = slider_values[4]
+        input_array[Vn_input_indices] = slider_values[5]
+        input_array[Cut_input_indices] = slider_values[6]
 
         inputs_view[:] = input_array
         network.step()
@@ -768,10 +785,8 @@ def main():
         _time_draw_last = _time_draw
         _time_draw = time.time()
         fps = _realtime*1/(_time_draw-_time_draw_last)+(1-_realtime)*fps
-        # print(imgui.get_io().delta_time, imgui.get_io().framerate)
         implot.push_style_var(implot.StyleVar_.line_weight, 2.0)
-        if not (iteration % 1):
-            time.sleep(1e-4)
+        if not (iteration % 2):
             gui.new_frame()
             slider_values = draw_slider(label="d", name="Drive", values=slider_values)
             add_plot(buffer_iteration, network.data)
