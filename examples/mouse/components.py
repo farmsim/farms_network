@@ -271,13 +271,22 @@ class BrainStemDrive:
         """Add nodes."""
         node_specs = [
             (
-                join_str(("BS", "DR")),
+                join_str(("BS", "input")),
                 "ExternalRelay",
                 np.array((3.0, 0.0)),
                 "A",
                 [0.0, 0.0, 0.0],
                 {},
                 {},
+            ),
+            (
+                join_str(("BS", "DR")),
+                "Linear",
+                np.array((3.0, -1.0)),
+                "A",
+                [0.0, 0.0, 0.0],
+                None,
+                {"slope": 1.0, "bias": 0.0},
             ),
         ]
 
@@ -289,7 +298,9 @@ class BrainStemDrive:
         """Add edges."""
 
         # Define edge details in a list for easier iteration
-        edge_specs = []
+        edge_specs = [
+            (("BS", "input"), ("BS", "DR"), 1.0, "excitatory"),
+        ]
 
         # Loop through the edge specs to create each edge
         edges = create_edges(edge_specs, self.name)
@@ -1818,7 +1829,7 @@ def brain_stem_circuit(
 
     edge_specs = []
     for node in network_options.nodes:
-        if ("DR" in node.name) and node.model == "linear":
+        if ("DR" in node.name) and ("BS_DR" not in node.name) and node.model == "linear":
             edge_specs.append(
                 (
                     ("BS", "DR"),
