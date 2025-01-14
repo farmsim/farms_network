@@ -549,59 +549,45 @@ def main():
     # network_options = generate_network(int(1e4))
     # network_options = generate_limb_circuit(int(5e4))
     network_options = generate_quadruped_circuit((5e4))
-    network_options.save("/tmp/network_options.yaml")
 
-    graph = nx.node_link_graph(
-        network_options,
-        directed=True,
-        multigraph=False,
-        link="edges",
-        name="name",
-        source="source",
-        target="target",
-    )
+    plot_network(network_options)
+    network = run_network(network_options)
+    plot_data(network, network_options)
 
 
-    # Run the network
-    # network = profile.profile(run_network, network_options)
-    # network = run_network(network_options)
+    # from abstract_control.control.generate import quadruped_siggraph_network
+    # from copy import deepcopy
+    # og_graph = quadruped_siggraph_network()
 
-    # nodes_names = [
-    #     node.name
-    #     for node in network.data.nodes
-    # ]
-    # print(nodes_names)
+    # def update_names(old_names):
+    #     replace_names = {
+    #         "IIIn": "II_In",
+    #         "IbIn": "Ib_In",
+    #         "IaIn": "Ia_In",
+    #         "_motor": "",
+    #     }
+    #     new_names = {}
+    #     for name in old_names:
+    #         new_name = deepcopy(name)
+    #         for old, new in replace_names.items():
+    #             new_name = new_name.replace(old, new)
+    #         new_names[name] = new_name
+    #     return new_names
 
-    # plot_nodes = [
-    #     nodes_names.index(name)
-    #     for name in ["left_hind_PF_FA",]
-    #     if name in nodes_names
-    # ]
+    # new_names = update_names(og_graph.nodes)
+    # og_graph = nx.relabel_nodes(og_graph, mapping=new_names)
 
-    # plt.plot(
-    #     # np.array(network.data.times.array),
-    #     np.array(network.data.nodes[0].output.array)
-    # )
-    # plt.figure()
-    # plt.plot(
-    #     np.array(network.data.times.array),
-    #     np.array(network.data.nodes[plot_nodes[0]].states.array),
-    # )
-    # plt.show()
-    # print(network.data.nodes[5].name)
-    # plt.plot(
-    #     np.array(network.data.times.array),
-    #     np.array(network.data.nodes[5].output.array)
-    # )
-    # plt.plot(
-    #     np.array(network.data.times.array),
-    #     np.array(network.data.nodes[6].output.array)
-    # )
-    # plot_network(network_options)
+    # print(f" OG edges {len(og_graph.edges)}")
+    # print(f" new edges {len(graph.edges)}")
 
-    # Results
-
-    # run_network()
+    # check_edges = 0
+    # for edge in graph.edges():
+    #     if edge in og_graph.edges:
+    #         pass
+    #     else:
+    #         check_edges += 1
+    #         print(f"{edge} not found...")
+    # print(f"Check edges {check_edges}")
 
 
 if __name__ == "__main__":
