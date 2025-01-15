@@ -971,7 +971,11 @@ class LIDannerNodeOptions(NodeOptions):
         options["state"] = LIDannerStateOptions.from_options(
             kwargs["state"]
         )
-        options["noise"] = NoiseOptions.from_options(kwargs["noise"])
+        options["noise"] = None
+        if kwargs["noise"] is not None:
+            options["noise"] = NoiseOptions.from_options(
+                kwargs["noise"]
+            )
         return cls(**options)
 
 
@@ -1074,9 +1078,11 @@ class LINaPDannerNodeOptions(NodeOptions):
         options["state"] = LINaPDannerStateOptions.from_options(
             kwargs["state"]
         )
-        options["noise"] = NoiseOptions.from_options(
-            kwargs["noise"]
-        )
+        options["noise"] = None
+        if kwargs["noise"] is not None:
+            options["noise"] = NoiseOptions.from_options(
+                kwargs["noise"]
+            )
         return cls(**options)
 
 
