@@ -58,6 +58,7 @@ class NetworkOptions(Options):
             "oscillator": OscillatorNodeOptions,
             "li_danner": LIDannerNodeOptions,
             "li_nap_danner": LINaPDannerNodeOptions,
+            "leaky_integrator": LeakyIntegratorNodeOptions,
         }
         options["nodes"] = [
             node_types[node["model"]].from_options(node)
@@ -842,6 +843,95 @@ class HopfOscillatorStateOptions(NodeStateOptions):
             names=HopfOscillatorStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
+##################################
+# Leaky Integrator Model Options #
+##################################
+class LeakyIntegratorNodeOptions(NodeOptions):
+    """ Class to define the properties for standard leaky integrator model """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "leaky_integrator"
+        super().__init__(
+            name=kwargs.pop("name"),
+            model=model,
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+            state=kwargs.pop("state"),
+            noise=kwargs.pop("noise"),
+        )
+        self._nstates = 1
+        self._nparameters = 3
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ Load from options """
+        options = {}
+        options["name"] = kwargs.pop("name")
+        options["parameters"] = LeakyIntegratorParameterOptions.from_options(
+            kwargs["parameters"]
+        )
+        options["visual"] = NodeVisualOptions.from_options(
+            kwargs["visual"]
+        )
+        options["state"] = LeakyIntegratorStateOptions.from_options(
+            kwargs["state"]
+        )
+        options["noise"] = None
+        if kwargs["noise"] is not None:
+            options["noise"] = NoiseOptions.from_options(
+                kwargs["noise"]
+            )
+        return cls(**options)
+
+
+class LeakyIntegratorParameterOptions(NodeParameterOptions):
+    """
+    Class to define the parameters of Leaky Integrator model.
+
+    Attributes:
+        tau (float): Time constant.
+        bias (float)
+        D (float)
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.tau = kwargs.pop("tau")
+        self.bias = kwargs.pop("bias")
+        self.D = kwargs.pop("D")
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+        """ Get the default parameters for LI Danner Node model """
+
+        options = {}
+
+        options["tau"] = kwargs.pop("tau", 0.1)
+        options["bias"] = kwargs.pop("bias", -2.75)
+        options["D"] = kwargs.pop("D", 1.0)
+
+        return cls(**options)
+
+
+class LeakyIntegratorStateOptions(NodeStateOptions):
+    """ LeakyIntegrator node state options """
+
+    STATE_NAMES = ["m",]
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            initial=kwargs.pop("initial"),
+            names=LeakyIntegratorStateOptions.STATE_NAMES
+        )
+        assert len(self.initial) == 1, f"Number of initial states {len(self.initial)} should be 1"
 
 
 #########################################
