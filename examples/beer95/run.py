@@ -93,24 +93,13 @@ def generate_network(iterations=20000):
 
     network_options.save("/tmp/beer95.yaml")
 
-    data = NetworkData.from_options(network_options)
-
     network = PyNetwork.from_options(network_options)
     network.setup_integrator(network_options)
-
-    # nnodes = len(network_options.nodes)
-    # integrator.set_initial_value(np.zeros(len(data.states.array),), 0.0)
-
-    # print("Data ------------", np.array(network.data.states.array))
-
-    # data.to_file("/tmp/sim.hdf5")
-
-    # integrator.integrate(integrator.t + 1e-3)
+    data = network.data
 
     # # Integrate
     states = np.ones((iterations+1, len(data.states.array)))*0.0
     outputs = np.ones((iterations, len(data.outputs.array)))*1.0
-    # states[0, 2] = -1.0
 
     # for index, node in enumerate(network_options.nodes):
     #     print(index, node.name)
