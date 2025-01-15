@@ -24,31 +24,31 @@ from libc.string cimport strdup
 from .options import EdgeOptions
 
 
-cdef class PyEdge:
+cdef class Edge:
     """ Python interface to Edge C-Structure"""
 
     def __cinit__(self):
-        self.edge = <Edge*>malloc(sizeof(Edge))
-        if self.edge is NULL:
-            raise MemoryError("Failed to allocate memory for Edge")
-        self.edge.nparameters = 0
+        self.c_edge = <EdgeCy*>malloc(sizeof(EdgeCy))
+        if self.c_edge is NULL:
+            raise MemoryError("Failed to allocate memory for EdgeCy")
+        self.c_edge.nparameters = 0
 
     def __dealloc__(self):
-        if self.edge is not NULL:
-            if self.edge.source is not NULL:
-                free(self.edge.source)
-            if self.edge.target is not NULL:
-                free(self.edge.target)
-            if self.edge.type is not NULL:
-                free(self.edge.type)
-            if self.edge.parameters is not NULL:
-                free(self.edge.parameters)
-            free(self.edge)
+        if self.c_edge is not NULL:
+            if self.c_edge.source is not NULL:
+                free(self.c_edge.source)
+            if self.c_edge.target is not NULL:
+                free(self.c_edge.target)
+            if self.c_edge.type is not NULL:
+                free(self.c_edge.type)
+            if self.c_edge.parameters is not NULL:
+                free(self.c_edge.parameters)
+            free(self.c_edge)
 
     def __init__(self, source: str, target: str, edge_type: str, **kwargs):
-        self.edge.source = strdup(source.encode('UTF-8'))
-        self.edge.target = strdup(source.encode('UTF-8'))
-        self.edge.type = strdup(edge_type.encode('UTF-8'))
+        self.c_edge.source = strdup(source.encode('UTF-8'))
+        self.c_edge.target = strdup(source.encode('UTF-8'))
+        self.c_edge.type = strdup(edge_type.encode('UTF-8'))
 
     @classmethod
     def from_options(cls, edge_options: EdgeOptions):
@@ -62,33 +62,33 @@ cdef class PyEdge:
     # Property methods for source
     @property
     def source(self):
-        if self.edge.source is NULL:
+        if self.c_edge.source is NULL:
             return None
-        return self.edge.source.decode('UTF-8')
+        return self.c_edge.source.decode('UTF-8')
 
     @property
     def target(self):
-        if self.edge.target is NULL:
+        if self.c_edge.target is NULL:
             return None
-        return self.edge.target.decode('UTF-8')
+        return self.c_edge.target.decode('UTF-8')
 
     @property
     def type(self):
-        if self.edge.type is NULL:
+        if self.c_edge.type is NULL:
             return None
-        return self.edge.type.decode('UTF-8')
+        return self.c_edge.type.decode('UTF-8')
 
     # Property methods for nparameters
     @property
     def nparameters(self):
-        return self.edge.nparameters
+        return self.c_edge.nparameters
 
     @property
     def parameters(self):
         """Generic accessor for parameters."""
-        if not self.edge.parameters:
-            raise ValueError("Edge parameters are NULL")
-        if self.edge.nparameters == 0:
+        if not self.c_edge.parameters:
+            raise ValueError("EdgeCy parameters are NULL")
+        if self.c_edge.nparameters == 0:
             raise ValueError("No parameters available")
 
         # The derived class should override this method to provide specific behavior

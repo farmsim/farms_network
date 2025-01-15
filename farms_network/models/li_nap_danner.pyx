@@ -46,11 +46,11 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     double noise,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ ODE """
-    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node[0].parameters)[0]
+    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> c_node[0].parameters)[0]
 
     # States
     cdef double state_v = states[<int>STATE.v]
@@ -79,7 +79,7 @@ cdef void ode(
         unsigned int j
         double _input, _weight
 
-    cdef unsigned int ninputs = node.ninputs
+    cdef unsigned int ninputs = c_node.ninputs
     for j in range(ninputs):
         _input = network_outputs[inputs[j]]
         _weight = weights[j]
@@ -107,12 +107,12 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ Node output. """
 
-    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> node.parameters)[0]
+    cdef LINaPDannerNodeParameters params = (<LINaPDannerNodeParameters*> c_node.parameters)[0]
     cdef double _n_out = 0.0
     cdef double state_v = states[<int>STATE.v]
     if state_v >= params.v_max:
@@ -124,19 +124,19 @@ cdef double output(
     return _n_out
 
 
-cdef class PyLINaPDannerNode(PyNode):
+cdef class LINaPDannerNode(Node):
     """ Python interface to Leaky Integrator Node with persistence sodium C-Structure """
 
     def __cinit__(self):
         # override defaults
-        self.node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
+        self.c_node.model_type = strdup("LI_NAP_DANNER".encode('UTF-8'))
         # override default ode and out methods
-        self.node.is_statefull = True
-        self.node.ode = ode
-        self.node.output = output
+        self.c_node.is_statefull = True
+        self.c_node.ode = ode
+        self.c_node.output = output
         # parameters
-        self.node.parameters = malloc(sizeof(LINaPDannerNodeParameters))
-        if self.node.parameters is NULL:
+        self.c_node.parameters = malloc(sizeof(LINaPDannerNodeParameters))
+        if self.c_node.parameters is NULL:
             raise MemoryError("Failed to allocate memory for node parameters")
 
     def __init__(self, name: str, **kwargs):
@@ -144,7 +144,7 @@ cdef class PyLINaPDannerNode(PyNode):
 
         # Set node parameters
         cdef LINaPDannerNodeParameters* param = <LINaPDannerNodeParameters*>(
-            self.node.parameters
+            self.c_node.parameters
         )
         param.c_m = kwargs.pop("c_m")
         param.g_nap = kwargs.pop("g_nap")
@@ -172,6 +172,6 @@ cdef class PyLINaPDannerNode(PyNode):
     def parameters(self):
         """ Parameters in the network """
         cdef LINaPDannerNodeParameters params = (
-            <LINaPDannerNodeParameters*> self.node.parameters
+            <LINaPDannerNodeParameters*> self.c_node.parameters
         )[0]
         return params

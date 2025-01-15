@@ -22,7 +22,7 @@ Header for Edge Base Struture.
 """
 
 
-cdef struct Edge:
+cdef struct EdgeCy:
 
     #
     char* source                # Source node
@@ -35,8 +35,8 @@ cdef struct Edge:
 
 
 
-cdef class PyEdge:
+cdef class Edge:
     """ Python interface to Edge C-Structure"""
 
     cdef:
-        Edge* edge
+        EdgeCy* c_edge

@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 import numpy as np
 from farms_core.io.yaml import read_yaml
-from farms_network.core.network import PyNetwork
+from farms_network.core.network import Network
 from farms_network.core.options import NetworkOptions
 from farms_network.gui.gui import NetworkGUI
 from imgui_bundle import imgui, imgui_ctx, implot
@@ -679,7 +679,7 @@ def main():
     # run network
     network_options = NetworkOptions.from_options(read_yaml(clargs.config_path))
 
-    network = PyNetwork.from_options(network_options)
+    network = Network.from_options(network_options)
     network.setup_integrator(network_options)
 
     # Integrate

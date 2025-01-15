@@ -19,128 +19,151 @@ limitations under the License.
 Factory class for generating the node model.
 """
 
-from farms_network.core.edge import PyEdge
-from farms_network.models.leaky_integrator import PyLeakyIntegratorNode
-from farms_network.models.external_relay import PyExternalRelayNode
+from typing import Dict, Optional, Type
+
+from farms_network.core.edge import Edge
+from farms_network.core.node import Node
+from farms_network.models.external_relay import ExternalRelayNode
 # from farms_network.models.fitzhugh_nagumo import FitzhughNagumo
 # from farms_network.models.hh_daun_motoneuron import HHDaunMotoneuron
-from farms_network.models.hopf_oscillator import PyHopfOscillatorNode
-from farms_network.models.li_danner import PyLIDannerNode
-from farms_network.models.li_nap_danner import PyLINaPDannerNode
-from farms_network.models.linear import PyLinearNode
+from farms_network.models.hopf_oscillator import HopfOscillatorNode
+from farms_network.models.leaky_integrator import LeakyIntegratorNode
+from farms_network.models.li_danner import LIDannerNode
+from farms_network.models.li_nap_danner import LINaPDannerNode
+from farms_network.models.linear import LinearNode
 # from farms_network.models.lif_daun_interneuron import LIFDaunInterneuron
 # from farms_network.models.matsuoka_node import MatsuokaNode
 # from farms_network.models.morphed_oscillator import MorphedOscillator
 # from farms_network.models.morris_lecar import MorrisLecarNode
-from farms_network.models.oscillator import PyOscillatorEdge, PyOscillatorNode
-from farms_network.models.relu import PyReLUNode
-
-# from farms_network.models.sensory_node import SensoryNode
+from farms_network.models.oscillator import OscillatorEdge, OscillatorNode
+from farms_network.models.relu import ReLUNode
 
 
 class NodeFactory:
     """Implementation of Factory Node class.
     """
-    nodes = {
+    _nodes: Dict[str, Type[Edge]] = {
         # 'if': PyIntegrateAndFire,
-        'oscillator': PyOscillatorNode,
-        'hopf_oscillator': PyHopfOscillatorNode,
+        'oscillator': OscillatorNode,
+        'hopf_oscillator': HopfOscillatorNode,
         # 'morphed_oscillator': MorphedOscillator,
-        'leaky_integrator': PyLeakyIntegratorNode,
-        'external_relay': PyExternalRelayNode,
-        'linear': PyLinearNode,
-        'li_nap_danner': PyLINaPDannerNode,
-        'li_danner': PyLIDannerNode,
+        'leaky_integrator': LeakyIntegratorNode,
+        'external_relay': ExternalRelayNode,
+        'linear': LinearNode,
+        'li_nap_danner': LINaPDannerNode,
+        'li_danner': LIDannerNode,
         # 'lif_daun_interneuron': LIFDaunInterneuron,
         # 'hh_daun_motoneuron': HHDaunMotoneuron,
         # 'fitzhugh_nagumo': FitzhughNagumo,
         # 'matsuoka_node': MatsuokaNode,
         # 'morris_lecar': MorrisLecarNode,
-        'relu': PyReLUNode,
+        'relu': ReLUNode,
     }
 
-    def __init__(self):
-        """Factory initialization."""
-        super(NodeFactory, self).__init__()
+    @classmethod
+    def available_types(cls) -> list[str]:
+        """Get list of registered node types.
 
-    @staticmethod
-    def register_node(node_type, node_instance):
+        Returns:
+            Sorted list of registered node type identifiers
         """
-        Register a new type of node that is a child class of Node.
-        Parameters
-        ----------
-        self: type
-            description
-        node_type: <str>
-            String to identifier for the node.
-        node_instance: <cls>
-            Class of the node to register.
-        """
-        NodeFactory.nodes[node_type] = node_instance
+        return sorted(cls._nodes.keys())
 
-    @staticmethod
-    def generate_node(node_type):
-        """Generate the necessary type of node.
-        Parameters
-        ----------
-        self: type
-            description
-        node_type: <str>
-            One of the following list of available nodes.
-            1. if - Integrate and Fire
-            2. lif_danner_nap - LIF Danner Nap
-            3. lif_danner - LIF Danner
-            4. lif_daun_internode - LIF Daun Internode
-            5. hh_daun_motornode - HH_Daun_Motornode
-        Returns
-        -------
-        node: <cls>
-            Appropriate node class.
+    @classmethod
+    def create(cls, node_type: str) -> Node:
+        """Create a node instance of the specified type.
+
+        Args:
+            node_type: Type identifier of node to create
+
+        Returns:
+            Instance of requested node class
+
+        Raises:
+            KeyError: If node_type is not registered
         """
-        node = NodeFactory.nodes.get(node_type)
-        if not node:
-            raise ValueError(node_type)
-        return node
+        try:
+            node_class = cls._nodes[node_type]
+            return node_class
+        except KeyError:
+            available = ', '.join(sorted(cls._nodes.keys()))
+            raise KeyError(
+                f"Unknown node type: {node_type}. "
+                f"Available types: {available}"
+            )
+
+    @classmethod
+    def register(cls, node_type: str, node_class: Type[Node]) -> None:
+        """Register a new node type.
+
+        Args:
+            node_type: Unique identifier for the node
+            node_class: Node class to register, must inherit from Node
+
+        Raises:
+            TypeError: If node_class doesn't inherit from Node
+            ValueError: If node_type is already registered
+        """
+        if not issubclass(node_class, Node):
+            raise TypeError(f"Node class must inherit from Node: {node_class}")
+
+        if node_type in cls._nodes:
+            raise ValueError(f"Node type already registered: {node_type}")
+
+        cls._nodes[node_type] = node_class
 
 
 class EdgeFactory:
     """Implementation of Factory Edge class.
     """
-    edges = {
-        'oscillator': PyOscillatorEdge,
+    _edges: Dict[str, Type[Edge]] = {
+        'oscillator': OscillatorEdge,
     }
 
-    def __init__(self):
-        """Factory initialization."""
-        super().__init__()
+    @classmethod
+    def available_types(cls) -> list[str]:
+        """Get list of registered edge types."""
+        return sorted(cls._edges.keys())
 
-    @staticmethod
-    def register_edge(edge_type, edge_instance):
-        """
-        Register a new type of edge that is a child class of Edge.
-        Parameters
-        ----------
-        self: type
-            description
-        edge_type: <str>
-            String to identifier for the edge.
-        edge_instance: <cls>
-            Class of the edge to register.
-        """
-        EdgeFactory.edges[edge_type] = edge_instance
+    @classmethod
+    def create(cls, edge_type: str) -> Edge:
+        """Create an edge instance of the specified type.
 
-    @staticmethod
-    def generate_edge(edge_type):
-        """Generate the necessary type of edge.
-        Parameters
-        ----------
-        edge_type: <str>
-        Returns
-        -------
-        edge: <cls>
-            Appropriate edge class.
+        Args:
+            edge_type: Type identifier of edge to create
+
+        Returns:
+            Instance of requested edge class
+
+        Raises:
+            KeyError: If edge_type is not registered
         """
-        edge = EdgeFactory.edges.get(edge_type, PyEdge)
-        if not edge:
-            raise ValueError(edge_type)
-        return edge
+        try:
+            edge_class = cls._edges.get(edge_type, Edge)
+            return edge_class
+        except KeyError:
+            available = ', '.join(sorted(cls._edges.keys()))
+            raise KeyError(
+                f"Unknown edge type: {edge_type}. "
+                f"Available types: {available}"
+            )
+
+    @classmethod
+    def register(cls, edge_type: str, edge_class: Type[Edge]) -> None:
+        """Register a new edge type.
+
+        Args:
+            edge_type: Unique identifier for the edge
+            edge_class: Edge class to register, must inherit from Edge
+
+        Raises:
+            TypeError: If edge_class doesn't inherit from Edge
+            ValueError: If edge_type is already registered
+        """
+        if not issubclass(edge_class, Edge):
+            raise TypeError(f"Edge class must inherit from Edge: {edge_class}")
+
+        if edge_type in cls._edges:
+            raise ValueError(f"Edge type already registered: {edge_type}")
+
+        cls._edges[edge_type] = edge_class

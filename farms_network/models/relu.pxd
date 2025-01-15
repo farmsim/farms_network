@@ -20,8 +20,8 @@ Rectified Linear Unit
 """
 
 
-from ..core.node cimport Node, PyNode
-from ..core.edge cimport Edge, PyEdge
+from ..core.node cimport NodeCy, Node
+from ..core.edge cimport EdgeCy, Edge
 
 
 cdef enum:
@@ -43,12 +43,12 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
 
 
-cdef class PyReLUNode(PyNode):
+cdef class ReLUNode(Node):
     """ Python interface to ReLU Node C-Structure """
 
     cdef:

@@ -19,8 +19,8 @@ limitations under the License.
 Izhikevich neuron model based on Izhikevich et.al. 2003
 """
 
-from ..core.node cimport Node, PyNode
-from ..core.edge cimport Edge, PyEdge
+from ..core.node cimport NodeCy, Node
+from ..core.edge cimport EdgeCy, Edge
 
 
 cdef enum:
@@ -48,8 +48,8 @@ cdef:
         unsigned int* inputs,
         double* weights,
         double noise,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
     double output(
         double time,
@@ -58,12 +58,12 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
 
 
-cdef class PyIzhikevichNode(PyNode):
+cdef class IzhikevichNode(Node):
     """ Python interface to Izhikevich Node C-Structure """
 
     cdef:

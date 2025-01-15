@@ -38,17 +38,17 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ Node output. """
-    cdef ReLUNodeParameters params = (<ReLUNodeParameters*> node[0].parameters)[0]
+    cdef ReLUNodeParameters params = (<ReLUNodeParameters*> c_node[0].parameters)[0]
 
     cdef:
         double _sum = 0.0
         unsigned int j
         double _input, _weight
-    cdef unsigned int ninputs = node.ninputs
+    cdef unsigned int ninputs = c_node.ninputs
     _sum += external_input
     for j in range(ninputs):
         _input = network_outputs[inputs[j]]
@@ -59,24 +59,24 @@ cdef double output(
     return res
 
 
-cdef class PyReLUNode(PyNode):
+cdef class ReLUNode(Node):
     """ Python interface to ReLU Node C-Structure """
 
     def __cinit__(self):
-        self.node.model_type = strdup("RELU".encode('UTF-8'))
+        self.c_node.model_type = strdup("RELU".encode('UTF-8'))
         # override default ode and out methods
-        self.node.is_statefull = False
-        self.node.output = output
+        self.c_node.is_statefull = False
+        self.c_node.output = output
         # parameters
-        self.node.parameters = malloc(sizeof(ReLUNodeParameters))
-        if self.node.parameters is NULL:
+        self.c_node.parameters = malloc(sizeof(ReLUNodeParameters))
+        if self.c_node.parameters is NULL:
             raise MemoryError("Failed to allocate memory for node parameters")
 
     def __init__(self, name: str, **kwargs):
         super().__init__(name)
 
         # Set node parameters
-        cdef ReLUNodeParameters* param = <ReLUNodeParameters*>(self.node.parameters)
+        cdef ReLUNodeParameters* param = <ReLUNodeParameters*>(self.c_node.parameters)
         param.gain = kwargs.pop("gain")
         param.sign = kwargs.pop("sign")
         param.offset = kwargs.pop("offset")
@@ -86,5 +86,5 @@ cdef class PyReLUNode(PyNode):
     @property
     def parameters(self):
         """ Parameters in the network """
-        cdef ReLUNodeParameters params = (<ReLUNodeParameters*> self.node.parameters)[0]
+        cdef ReLUNodeParameters params = (<ReLUNodeParameters*> self.c_node.parameters)[0]
         return params

@@ -21,10 +21,10 @@ Header for Node Base Struture.
 
 """
 
-from .edge cimport Edge
+from .edge cimport EdgeCy
 
 
-cdef struct Node:
+cdef struct NodeCy:
     # Generic parameters
     unsigned int nstates        # Number of state variables in the node.
     unsigned int nparameters    # Number of parameters for the node.
@@ -48,8 +48,8 @@ cdef struct Node:
         unsigned int* inputs,
         double* weights,
         double noise,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
 
     double output(
@@ -59,8 +59,8 @@ cdef struct Node:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
 
 
@@ -74,8 +74,8 @@ cdef:
         unsigned int* inputs,
         double* weights,
         double noise,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
     double output(
         double time,
@@ -84,13 +84,13 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        Node* node,
-        Edge** edges,
+        NodeCy* c_node,
+        EdgeCy** c_edges,
     ) noexcept
 
 
-cdef class PyNode:
+cdef class Node:
     """ Python interface to Node C-Structure"""
 
     cdef:
-        Node* node
+        NodeCy* c_node

@@ -31,8 +31,6 @@ from .data import NetworkData, NetworkStates
 
 from .data_cy cimport (NetworkConnectivityCy, NetworkDataCy, NetworkNoiseCy,
                        NetworkStatesCy)
-from .edge cimport Edge, PyEdge
-from .node cimport Node, PyNode
 
 from .options import (EdgeOptions, IntegrationOptions, NetworkOptions,
                       NodeOptions)
@@ -42,16 +40,16 @@ cdef inline void ode(
     double time,
     double[:] states_arr,
     NetworkDataCy data,
-    Network* network,
+    NetworkCy* c_network,
     double[:] node_outputs_tmp,
 ) noexcept:
     """ C Implementation to compute full network state """
     cdef unsigned int j, nnodes
 
-    cdef Node __node
-    cdef Node** nodes = network.nodes
-    cdef Edge** edges = network.edges
-    nnodes = network.nnodes
+    cdef NodeCy __node
+    cdef NodeCy** c_nodes = c_network.c_nodes
+    cdef EdgeCy** c_edges = c_network.c_edges
+    nnodes = c_network.nnodes
 
     # It is important to use the states passed to the function and not from the data.states
     cdef double* states = &states_arr[0]
@@ -72,7 +70,7 @@ cdef inline void ode(
     cdef double* node_outputs_tmp_ptr = &node_outputs_tmp[0]
 
     for j in range(nnodes):
-        __node = nodes[j][0]
+        __node = c_nodes[j][0]
         if __node.is_statefull:
             __node.ode(
                 time,
@@ -83,8 +81,8 @@ cdef inline void ode(
                 input_neurons + input_neurons_indices[j],
                 weights + input_neurons_indices[j],
                 noise[j],
-                nodes[j],
-                edges + input_neurons_indices[j],
+                c_nodes[j],
+                c_edges + input_neurons_indices[j],
             )
         node_outputs_tmp_ptr[j] = __node.output(
             time,
@@ -93,17 +91,17 @@ cdef inline void ode(
             outputs,
             input_neurons + input_neurons_indices[j],
             weights + input_neurons_indices[j],
-            nodes[j],
-            edges + input_neurons_indices[j],
+            c_nodes[j],
+            c_edges + input_neurons_indices[j],
         )
 
 
 cdef inline void logger(
     int iteration,
     NetworkDataCy data,
-    Network* network
+    NetworkCy* c_network
 ) noexcept:
-    cdef unsigned int nnodes = network.nnodes
+    cdef unsigned int nnodes = c_network.nnodes
     cdef unsigned int j
     cdef double* states_ptr = &data.states.array[0]
     cdef unsigned int[:] state_indices = data.states.indices
@@ -139,23 +137,23 @@ cdef inline void _noise_states_to_output(
         outputs[indices[index]] = states[index]
 
 
-cdef class PyNetwork(ODESystem):
+cdef class Network(ODESystem):
     """ Python interface to Network ODE """
 
     def __cinit__(self, network_options: NetworkOptions):
         """ C initialization for manual memory allocation """
-        self.network = <Network*>malloc(sizeof(Network))
-        if self.network is NULL:
+        self.c_network = <NetworkCy*>malloc(sizeof(NetworkCy))
+        if self.c_network is NULL:
             raise MemoryError("Failed to allocate memory for Network")
-        self.network.nnodes = len(network_options.nodes)
-        self.network.nedges = len(network_options.edges)
+        self.c_network.nnodes = len(network_options.nodes)
+        self.c_network.nedges = len(network_options.edges)
         # Allocate memory for c-node structs
-        self.network.nodes = <Node**>malloc(self.nnodes * sizeof(Node *))
-        if self.network.nodes is NULL:
+        self.c_network.c_nodes = <NodeCy**>malloc(self.nnodes * sizeof(NodeCy *))
+        if self.c_network.c_nodes is NULL:
             raise MemoryError("Failed to allocate memory for Network nodes")
         # Allocation memory for c-edge structs
-        self.network.edges = <Edge**>malloc(self.nedges * sizeof(Edge *))
-        if self.network.edges is NULL:
+        self.c_network.c_edges = <EdgeCy**>malloc(self.nedges * sizeof(EdgeCy *))
+        if self.c_network.c_edges is NULL:
             raise MemoryError("Failed to allocate memory for Network edges")
 
     def __init__(self, network_options: NetworkOptions):
@@ -164,10 +162,10 @@ cdef class PyNetwork(ODESystem):
         super().__init__()
         self.data = <NetworkDataCy>NetworkData.from_options(network_options)
 
-        self.pynodes = []
-        self.pyedges = []
+        self.nodes = []
+        self.edges = []
         self.nodes_output_data = []
-        self.__tmp_node_outputs = np.zeros((self.network.nnodes,))
+        self.__tmp_node_outputs = np.zeros((self.c_network.nnodes,))
         self.setup_network(network_options, self.data)
 
         # Integration options
@@ -182,10 +180,10 @@ cdef class PyNetwork(ODESystem):
 
     def __dealloc__(self):
         """ Deallocate any manual memory as part of clean up """
-        if self.network.nodes is not NULL:
-            free(self.network.nodes)
-        if self.network is not NULL:
-            free(self.network)
+        if self.c_network.c_nodes is not NULL:
+            free(self.c_network.c_nodes)
+        if self.c_network is not NULL:
+            free(self.c_network)
 
     @classmethod
     def from_options(cls, options: NetworkOptions):
@@ -201,7 +199,7 @@ cdef class PyNetwork(ODESystem):
         # Setup ODE numerical integrator
         integration_options = network_options.integration
         cdef double timestep = integration_options.timestep
-        self.ode_integrator = RK4Solver(self.network.nstates, timestep)
+        self.ode_integrator = RK4Solver(self.c_network.nstates, timestep)
         # Setup SDE numerical integrator for noise models if any
         noise_options = []
         for node in network_options.nodes:
@@ -215,46 +213,45 @@ cdef class PyNetwork(ODESystem):
     def setup_network(self, options: NetworkOptions, data: NetworkData):
         """ Setup network """
 
-        cdef Node* c_node
-
         connectivity = data.connectivity
         cdef unsigned int __nstates = 0
         cdef unsigned int index
-        cdef PyNode pyn
-        cdef PyEdge pye
+        cdef NodeCy* c_node
+        cdef Node node
         for index, node_options in enumerate(options.nodes):
-            self.pynodes.append(self.generate_node(node_options))
-            pyn = <PyNode> self.pynodes[index]
-            c_node = (<Node*>pyn.node)
+            self.nodes.append(self.generate_node(node_options))
+            node = <Node> self.nodes[index]
+            c_node = (<NodeCy*>node.c_node)
             c_node.ninputs = len(
                 connectivity.sources[
                     connectivity.indices[index]:connectivity.indices[index+1]
                 ]
             ) if connectivity.indices else 0
-            self.network.nodes[index] = c_node
+            self.c_network.c_nodes[index] = c_node
             __nstates += node_options._nstates
-        self.network.nstates = __nstates
+        self.c_network.nstates = __nstates
 
-        cdef Edge* c_edge
+        cdef EdgeCy* c_edge
+        cdef Edge edge
         for index, edge_options in enumerate(options.edges):
-            self.pyedges.append(self.generate_edge(edge_options, options.nodes))
-            pye = <PyEdge> self.pyedges[index]
-            c_edge = (<Edge*>pye.edge)
-            self.network.edges[index] = c_edge
+            self.edges.append(self.generate_edge(edge_options, options.nodes))
+            edge = <Edge> self.edges[index]
+            c_edge = (<EdgeCy*>edge.c_edge)
+            self.c_network.c_edges[index] = c_edge
 
         # Initial states data
         # Initialize states
-        for j, node in enumerate(options.nodes):
-            if node.state:
+        for j, node_opts in enumerate(options.nodes):
+            if node_opts.state:
                 for state_index, index in enumerate(
                         range(data.states.indices[j], data.states.indices[j+1])
                 ):
-                    data.states.array[index] = node.state.initial[state_index]
+                    data.states.array[index] = node_opts.state.initial[state_index]
 
     @staticmethod
     def generate_node(node_options: NodeOptions):
         """ Generate a node from options """
-        Node = NodeFactory.generate_node(node_options.model)
+        Node = NodeFactory.create(node_options.model)
         node = Node.from_options(node_options)
         return node
 
@@ -262,24 +259,24 @@ cdef class PyNetwork(ODESystem):
     def generate_edge(edge_options: EdgeOptions, nodes_options):
         """ Generate a edge from options """
         target = nodes_options[nodes_options.index(edge_options.target)]
-        Edge = EdgeFactory.generate_edge(target.model)
+        Edge = EdgeFactory.create(target.model)
         edge = Edge.from_options(edge_options)
         return edge
 
     @property
     def nnodes(self):
         """ Number of nodes in the network """
-        return self.network.nnodes
+        return self.c_network.nnodes
 
     @property
     def nedges(self):
         """ Number of edges in the network """
-        return self.network.nedges
+        return self.c_network.nedges
 
     @property
     def nstates(self):
         """ Number of states in the network """
-        return self.network.nstates
+        return self.c_network.nstates
 
     cpdef void step(self):
         """ Step the network state """
@@ -304,7 +301,7 @@ cdef class PyNetwork(ODESystem):
         )
         # Logging
         # TODO: Use network options to check global logging flag
-        logger((self.iteration%self.buffer_size), self.data, self.network)
+        logger((self.iteration%self.buffer_size), self.data, self.c_network)
         self.iteration += 1
 
     cdef void evaluate(self, double time, double[:] states, double[:] derivatives) noexcept:
@@ -312,6 +309,6 @@ cdef class PyNetwork(ODESystem):
         # Update noise model
         cdef NetworkDataCy data = <NetworkDataCy> self.data
 
-        ode(time, states, data, self.network, self.__tmp_node_outputs)
+        ode(time, states, data, self.c_network, self.__tmp_node_outputs)
         data.outputs.array[:] = self.__tmp_node_outputs
         derivatives[:] = data.derivatives.array

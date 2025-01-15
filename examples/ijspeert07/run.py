@@ -10,7 +10,7 @@ import seaborn as sns
 from farms_core.utils import profile
 from farms_network.core import options
 from farms_network.core.data import NetworkData
-from farms_network.core.network import PyNetwork
+from farms_network.core.network import Network
 from tqdm import tqdm
 
 plt.rcParams['text.usetex'] = False
@@ -178,7 +178,7 @@ def generate_network(iterations=2000):
 
     data = NetworkData.from_options(network_options)
 
-    network = PyNetwork.from_options(network_options)
+    network = Network.from_options(network_options)
     network.setup_integrator(network_options)
 
     # nnodes = len(network_options.nodes)

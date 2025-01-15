@@ -33,10 +33,10 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     double noise,
-    Node* node,
-    Edge** edges,
+    NodeCy* node,
+    EdgeCy** c_edges,
 ) noexcept:
-    """ Node ODE """
+    """ NodeCy ODE """
     printf("Base implementation of ODE C function \n")
 
 
@@ -47,37 +47,37 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node,
-    Edge** edges,
+    NodeCy* node,
+    EdgeCy** c_edges,
 ) noexcept:
-    """ Node output """
+    """ NodeCy output """
     printf("Base implementation of output C function \n")
     return 0.0
 
 
-cdef class PyNode:
+cdef class Node:
     """ Python interface to Node C-Structure"""
 
     def __cinit__(self):
-        self.node = <Node*>malloc(sizeof(Node))
-        if self.node is NULL:
-            raise MemoryError("Failed to allocate memory for Node")
-        self.node.name = NULL
-        self.node.model_type = strdup("base".encode('UTF-8'))
-        self.node.ode = ode
-        self.node.output = output
-        self.node.nparameters = 0
-        self.node.ninputs = 0
+        self.c_node = <NodeCy*>malloc(sizeof(NodeCy))
+        if self.c_node is NULL:
+            raise MemoryError("Failed to allocate memory for NodeCy")
+        self.c_node.name = NULL
+        self.c_node.model_type = strdup("base".encode('UTF-8'))
+        self.c_node.ode = ode
+        self.c_node.output = output
+        self.c_node.nparameters = 0
+        self.c_node.ninputs = 0
 
     def __dealloc__(self):
-        if self.node is not NULL:
-            if self.node.name is not NULL:
-                free(self.node.name)
-            if self.node.model_type is not NULL:
-                free(self.node.model_type)
-            if self.node.parameters is not NULL:
-                free(self.node.parameters)
-            free(self.node)
+        if self.c_node is not NULL:
+            if self.c_node.name is not NULL:
+                free(self.c_node.name)
+            if self.c_node.model_type is not NULL:
+                free(self.c_node.model_type)
+            if self.c_node.parameters is not NULL:
+                free(self.c_node.parameters)
+            free(self.c_node)
 
     def __init__(self, name: str, **kwargs):
         self.name = name
@@ -91,44 +91,44 @@ cdef class PyNode:
     # Property methods for name
     @property
     def name(self):
-        if self.node.name is NULL:
+        if self.c_node.name is NULL:
             return None
-        return self.node.name.decode('UTF-8')
+        return self.c_node.name.decode('UTF-8')
 
     @name.setter
     def name(self, value):
-        if self.node.name is not NULL:
-            free(self.node.name)
-        self.node.name = strdup(value.encode('UTF-8'))
+        if self.c_node.name is not NULL:
+            free(self.c_node.name)
+        self.c_node.name = strdup(value.encode('UTF-8'))
 
     # Property methods for model_type
     @property
     def model_type(self):
-        if self.node.model_type is NULL:
+        if self.c_node.model_type is NULL:
             return None
-        return self.node.model_type.decode('UTF-8')
+        return self.c_node.model_type.decode('UTF-8')
 
     # Property methods for nstates
     @property
     def nstates(self):
-        return self.node.nstates
+        return self.c_node.nstates
 
     # Property methods for ninputs
     @property
     def ninputs(self):
-        return self.node.ninputs
+        return self.c_node.ninputs
 
     # Property methods for nparameters
     @property
     def nparameters(self):
-        return self.node.nparameters
+        return self.c_node.nparameters
 
     @property
     def parameters(self):
         """Generic accessor for parameters."""
-        if not self.node.parameters:
-            raise ValueError("Node parameters are NULL")
-        if self.node.nparameters == 0:
+        if not self.c_node.parameters:
+            raise ValueError("NodeCy parameters are NULL")
+        if self.c_node.nparameters == 0:
             raise ValueError("No parameters available")
 
         # The derived class should override this method to provide specific behavior
@@ -152,10 +152,10 @@ cdef class PyNode:
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
 
-        cdef Edge** edges = NULL
+        cdef EdgeCy** c_edges = NULL
 
         # Call the C function directly
-        self.node.ode(
+        self.c_node.ode(
             time,
             states_ptr,
             derivatives_ptr,
@@ -164,8 +164,8 @@ cdef class PyNode:
             inputs_ptr,
             weights_ptr,
             noise,
-            self.node,
-            edges
+            self.c_node,
+            c_edges
         )
 
     def output(
@@ -182,14 +182,14 @@ cdef class PyNode:
         cdef double* network_outputs_ptr = &network_outputs[0]
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
-        cdef Edge** edges = NULL
-        return self.node.output(
+        cdef EdgeCy** c_edges = NULL
+        return self.c_node.output(
             time,
             states_ptr,
             external_input,
             network_outputs_ptr,
             inputs_ptr,
             weights_ptr,
-            self.node,
-            edges
+            self.c_node,
+            c_edges
         )

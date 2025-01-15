@@ -20,7 +20,7 @@ External model
 """
 
 from libc.stdio cimport printf
-from libc.stdlib cimport free, malloc
+from libc.stdlib cimport malloc
 from libc.string cimport strdup
 
 
@@ -31,21 +31,21 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ Node output. """
     return external_input
 
 
-cdef class PyExternalRelayNode(PyNode):
+cdef class ExternalRelayNode(Node):
     """ Python interface to External Relay Node C-Structure """
 
     def __cinit__(self):
-        self.node.model_type = strdup("EXTERNAL_RELAY".encode('UTF-8'))
+        self.c_node.model_type = strdup("EXTERNAL_RELAY".encode('UTF-8'))
         # override default ode and out methods
-        self.node.is_statefull = False
-        self.node.output = output
+        self.c_node.is_statefull = False
+        self.c_node.output = output
 
     def __init__(self, name: str, **kwargs):
         super().__init__(name)

@@ -3,11 +3,11 @@ cimport numpy as cnp
 from ..numeric.integrators_cy cimport EulerMaruyamaSolver, RK4Solver
 from ..numeric.system cimport ODESystem, SDESystem
 from .data_cy cimport NetworkDataCy, NodeDataCy
-from .edge cimport Edge
-from .node cimport Node
+from .edge cimport Edge, EdgeCy
+from .node cimport Node, NodeCy
 
 
-cdef struct Network:
+cdef struct NetworkCy:
 
     # info
     unsigned long int nnodes
@@ -15,19 +15,19 @@ cdef struct Network:
     unsigned long int nstates
 
     # nodes list
-    Node** nodes
+    NodeCy** c_nodes
 
     # edges list
-    Edge** edges
+    EdgeCy** c_edges
 
 
-cdef class PyNetwork(ODESystem):
+cdef class Network(ODESystem):
     """ Python interface to Network ODE """
 
     cdef:
-        Network *network
-        public list pynodes
-        public list pyedges
+        NetworkCy *c_network
+        public list nodes
+        public list edges
         public NetworkDataCy data
         double[:] __tmp_node_outputs
 

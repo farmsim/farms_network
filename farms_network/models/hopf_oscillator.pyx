@@ -47,12 +47,12 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     double noise,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ ODE """
     # Parameters
-    cdef HopfOscillatorNodeParameters params = (<HopfOscillatorNodeParameters*> node[0].parameters)[0]
+    cdef HopfOscillatorNodeParameters params = (<HopfOscillatorNodeParameters*> c_node[0].parameters)[0]
 
     # States
     cdef double state_x = states[<int>STATE.x]
@@ -63,7 +63,7 @@ cdef void ode(
         unsigned int j
         double _input, _weight
 
-    cdef unsigned int ninputs = node.ninputs
+    cdef unsigned int ninputs = c_node.ninputs
     for j in range(ninputs):
         _input = network_outputs[inputs[j]]
         _weight = weights[j]
@@ -87,32 +87,32 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    Node* node,
-    Edge** edges,
+    NodeCy* c_node,
+    EdgeCy** c_edges,
 ) noexcept:
     """ Node output. """
     return states[<int>STATE.y]
 
 
-cdef class PyHopfOscillatorNode(PyNode):
+cdef class HopfOscillatorNode(Node):
     """ Python interface to HopfOscillator Node C-Structure """
 
     def __cinit__(self):
-        self.node.model_type = strdup("HOPF_OSCILLATOR".encode('UTF-8'))
+        self.c_node.model_type = strdup("HOPF_OSCILLATOR".encode('UTF-8'))
         # override default ode and out methods
-        self.node.is_statefull = True
-        self.node.ode = ode
-        self.node.output = output
+        self.c_node.is_statefull = True
+        self.c_node.ode = ode
+        self.c_node.output = output
         # parameters
-        self.node.parameters = malloc(sizeof(HopfOscillatorNodeParameters))
-        if self.node.parameters is NULL:
+        self.c_node.parameters = malloc(sizeof(HopfOscillatorNodeParameters))
+        if self.c_node.parameters is NULL:
             raise MemoryError("Failed to allocate memory for node parameters")
 
     def __init__(self, name: str, **kwargs):
         super().__init__(name)
 
         # Set node parameters
-        cdef HopfOscillatorNodeParameters* params = <HopfOscillatorNodeParameters*>(self.node.parameters)
+        cdef HopfOscillatorNodeParameters* params = <HopfOscillatorNodeParameters*>(self.c_node.parameters)
         params.mu = kwargs.pop("mu")
         params.omega = kwargs.pop("omega")
         params.alpha = kwargs.pop("alpha")
@@ -123,5 +123,5 @@ cdef class PyHopfOscillatorNode(PyNode):
     @property
     def parameters(self):
         """ Parameters in the network """
-        cdef HopfOscillatorNodeParameters params = (<HopfOscillatorNodeParameters*> self.node.parameters)[0]
+        cdef HopfOscillatorNodeParameters params = (<HopfOscillatorNodeParameters*> self.c_node.parameters)[0]
         return params
