@@ -11,7 +11,7 @@ from tqdm import tqdm
 def run_network(network_options):
 
     network = PyNetwork.from_options(network_options)
-    network.setup_integrator(network_options.integration)
+    network.setup_integrator(network_options)
 
     # data.to_file("/tmp/sim.hdf5")
 
