@@ -46,6 +46,7 @@ Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 gui = [
     "scipy",
     "matplotlib",
+    "seaborn",
     "PyQt5",
     "networkx",
     "pydot",
