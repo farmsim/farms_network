@@ -32,7 +32,7 @@ extensions = [
         [f"farms_network/{subpackage}/*.pyx"],
         include_dirs=[numpy.get_include(),],
         # libraries=["c", "stdc++"],
-        extra_compile_args=['-ffast-math', '-O3'],
+        extra_compile_args=['-O3'],
         extra_link_args=['-O3'],
     )
     for subpackage in ('core', 'models', 'numeric', 'noise')
