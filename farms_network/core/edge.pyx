@@ -31,6 +31,10 @@ cdef class Edge:
         self.c_edge = <EdgeCy*>malloc(sizeof(EdgeCy))
         if self.c_edge is NULL:
             raise MemoryError("Failed to allocate memory for EdgeCy")
+        self.c_edge.source = NULL
+        self.c_edge.target = NULL
+        self.c_edge.type = NULL
+        self.c_edge.parameters = NULL
         self.c_edge.nparameters = 0
 
     def __dealloc__(self):

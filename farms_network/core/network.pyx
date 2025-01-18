@@ -182,6 +182,8 @@ cdef class Network(ODESystem):
         """ Deallocate any manual memory as part of clean up """
         if self.c_network.c_nodes is not NULL:
             free(self.c_network.c_nodes)
+        if self.c_network.c_edges is not NULL:
+            free(self.c_network.c_edges)
         if self.c_network is not NULL:
             free(self.c_network)
 

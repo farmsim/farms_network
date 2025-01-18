@@ -66,6 +66,7 @@ cdef class Node:
         self.c_node.model_type = strdup("base".encode('UTF-8'))
         self.c_node.ode = ode
         self.c_node.output = output
+        self.c_node.parameters = NULL
         self.c_node.nparameters = 0
         self.c_node.ninputs = 0
 
