@@ -2,7 +2,6 @@
 DOI: 10.1126/science.1138353 """
 
 
-import farms_pylog as pylog
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
