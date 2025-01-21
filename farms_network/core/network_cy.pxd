@@ -7,7 +7,7 @@ from .edge cimport Edge, EdgeCy
 from .node cimport Node, NodeCy
 
 
-cdef struct NetworkCy:
+cdef struct NetworkStruct:
 
     # info
     unsigned long int nnodes
@@ -21,11 +21,11 @@ cdef struct NetworkCy:
     EdgeCy** c_edges
 
 
-cdef class Network(ODESystem):
+cdef class NetworkCy(ODESystem):
     """ Python interface to Network ODE """
 
     cdef:
-        NetworkCy *c_network
+        NetworkStruct *c_network
         public list nodes
         public list edges
         public NetworkDataCy data
