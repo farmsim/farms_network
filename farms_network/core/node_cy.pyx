@@ -1,27 +1,10 @@
-"""
------------------------------------------------------------------------
-Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
-Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
------------------------------------------------------------------------
-"""
+""" Node """
 
 from libc.stdio cimport printf
 from libc.stdlib cimport free, malloc
 from libc.string cimport strdup
 
-from .options import NodeOptions
+from farms_network.core.options import NodeOptions
 
 
 cdef void ode(
@@ -33,10 +16,10 @@ cdef void ode(
     unsigned int* inputs,
     double* weights,
     double noise,
-    NodeCy* node,
+    node_t* node,
     EdgeCy** c_edges,
 ) noexcept:
-    """ NodeCy ODE """
+    """ node_t ODE """
     printf("Base implementation of ODE C function \n")
 
 
@@ -47,89 +30,74 @@ cdef double output(
     double* network_outputs,
     unsigned int* inputs,
     double* weights,
-    NodeCy* node,
+    node_t* node,
     EdgeCy** c_edges,
 ) noexcept:
-    """ NodeCy output """
+    """ node_t output """
     printf("Base implementation of output C function \n")
     return 0.0
 
 
-cdef class Node:
-    """ Python interface to Node C-Structure"""
+cdef class NodeCy:
+    """ Interface to Node C-Structure """
 
-    def __cinit__(self):
-        self.c_node = <NodeCy*>malloc(sizeof(NodeCy))
-        if self.c_node is NULL:
-            raise MemoryError("Failed to allocate memory for NodeCy")
-        self.c_node.name = NULL
-        self.c_node.model_type = strdup("base".encode('UTF-8'))
-        self.c_node.ode = ode
-        self.c_node.output = output
-        self.c_node.parameters = NULL
-        self.c_node.nparameters = 0
-        self.c_node.ninputs = 0
+    def __cinit__(self, name: str, model: str):
+        self._node = <node_t*>malloc(sizeof(node_t))
+        if self._node is NULL:
+            raise MemoryError("Failed to allocate memory for node_t")
+        self._node.name = strdup(name.encode('UTF-8'))
+        self._node.model = strdup(model.encode('UTF-8'))
+        self._node.ode = ode
+        self._node.output = output
+        self._node.parameters = NULL
+        self._node.nparameters = 0
+        self._node.ninputs = 0
 
     def __dealloc__(self):
-        if self.c_node is not NULL:
-            if self.c_node.name is not NULL:
-                free(self.c_node.name)
-            if self.c_node.model_type is not NULL:
-                free(self.c_node.model_type)
-            if self.c_node.parameters is not NULL:
-                free(self.c_node.parameters)
-            free(self.c_node)
-
-    def __init__(self, name: str, **kwargs):
-        self.name = name
-
-    @classmethod
-    def from_options(cls, node_options: NodeOptions):
-        """ From node options """
-        name: str = node_options.name
-        return cls(name, **node_options.parameters)
+        if self._node is not NULL:
+            if self._node.name is not NULL:
+                free(self._node.name)
+            if self._node.model is not NULL:
+                free(self._node.model)
+            if self._node.parameters is not NULL:
+                free(self._node.parameters)
+            free(self._node)
 
     # Property methods for name
     @property
     def name(self):
-        if self.c_node.name is NULL:
+        if self._node.name is NULL:
             return None
-        return self.c_node.name.decode('UTF-8')
+        return self._node.name.decode('UTF-8')
 
-    @name.setter
-    def name(self, value):
-        if self.c_node.name is not NULL:
-            free(self.c_node.name)
-        self.c_node.name = strdup(value.encode('UTF-8'))
-
-    # Property methods for model_type
+    # Property methods for model
     @property
-    def model_type(self):
-        if self.c_node.model_type is NULL:
+    def model(self):
+        if self._node.model is NULL:
             return None
-        return self.c_node.model_type.decode('UTF-8')
+        return self._node.model.decode('UTF-8')
 
     # Property methods for nstates
     @property
     def nstates(self):
-        return self.c_node.nstates
+        return self._node.nstates
 
     # Property methods for ninputs
     @property
     def ninputs(self):
-        return self.c_node.ninputs
+        return self._node.ninputs
 
     # Property methods for nparameters
     @property
     def nparameters(self):
-        return self.c_node.nparameters
+        return self._node.nparameters
 
     @property
     def parameters(self):
         """Generic accessor for parameters."""
-        if not self.c_node.parameters:
-            raise ValueError("NodeCy parameters are NULL")
-        if self.c_node.nparameters == 0:
+        if not self._node.parameters:
+            raise ValueError("node_t parameters are NULL")
+        if self._node.nparameters == 0:
             raise ValueError("No parameters available")
 
         # The derived class should override this method to provide specific behavior
@@ -156,7 +124,7 @@ cdef class Node:
         cdef EdgeCy** c_edges = NULL
 
         # Call the C function directly
-        self.c_node.ode(
+        self._node.ode(
             time,
             states_ptr,
             derivatives_ptr,
@@ -165,7 +133,7 @@ cdef class Node:
             inputs_ptr,
             weights_ptr,
             noise,
-            self.c_node,
+            self._node,
             c_edges
         )
 
@@ -184,13 +152,13 @@ cdef class Node:
         cdef unsigned int* inputs_ptr = &inputs[0]
         cdef double* weights_ptr = &weights[0]
         cdef EdgeCy** c_edges = NULL
-        return self.c_node.output(
+        return self._node.output(
             time,
             states_ptr,
             external_input,
             network_outputs_ptr,
             inputs_ptr,
             weights_ptr,
-            self.c_node,
+            self._node,
             c_edges
         )

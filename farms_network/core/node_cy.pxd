@@ -1,36 +1,15 @@
-"""
+""" Node Base Struture. """
 
------------------------------------------------------------------------
-Copyright 2018-2020 Jonathan Arreguit, Shravan Tata Ramalingasetty
-Copyright 2018 BioRobotics Laboratory, École polytechnique fédérale de Lausanne
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
------------------------------------------------------------------------
-
-Header for Node Base Struture.
-
-"""
-
-from .edge cimport EdgeCy
+from farms_network.core.edge cimport EdgeCy
 
 
-cdef struct NodeCy:
+cdef struct node_t:
     # Generic parameters
     unsigned int nstates        # Number of state variables in the node.
     unsigned int nparameters    # Number of parameters for the node.
     unsigned int ninputs        # Number of inputs
 
-    char* model_type            # Type of the model (e.g., "empty").
+    char* model                 # Type of the model (e.g., "empty").
     char* name                  # Unique name of the node.
 
     bint is_statefull              # Flag indicating whether the node is stateful. (ODE)
@@ -48,7 +27,7 @@ cdef struct NodeCy:
         unsigned int* inputs,
         double* weights,
         double noise,
-        NodeCy* c_node,
+        node_t* c_node,
         EdgeCy** c_edges,
     ) noexcept
 
@@ -59,7 +38,7 @@ cdef struct NodeCy:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        NodeCy* c_node,
+        node_t* c_node,
         EdgeCy** c_edges,
     ) noexcept
 
@@ -74,7 +53,7 @@ cdef:
         unsigned int* inputs,
         double* weights,
         double noise,
-        NodeCy* c_node,
+        node_t* c_node,
         EdgeCy** c_edges,
     ) noexcept
     double output(
@@ -84,13 +63,13 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        NodeCy* c_node,
+        node_t* c_node,
         EdgeCy** c_edges,
     ) noexcept
 
 
-cdef class Node:
-    """ Python interface to Node C-Structure"""
+cdef class NodeCy:
+    """ Interface to Node C-Structure """
 
     cdef:
-        NodeCy* c_node
+        node_t* _node
