@@ -1,195 +1,12 @@
 """ Options to configure the neural and network models """
 
-import time
-from enum import IntEnum
-from typing import Dict, Iterable, List, Self, Union
 
-import matplotlib.pyplot as plt
-import networkx as nx
+import time
+from typing import Dict, Iterable, List, Self, Type, Union
+
 from farms_core import pylog
 from farms_core.options import Options
-
-
-##############################
-# Network Base Class Options #
-##############################
-class NetworkOptions(Options):
-    """ Base class for neural network options """
-
-    def __init__(self, **kwargs):
-        super().__init__()
-
-        # Default properties to make it compatible with networkx
-        # seed
-        self.directed: bool = kwargs.pop("directed", True)
-        self.multigraph: bool = kwargs.pop("multigraph", False)
-        self.graph: dict = kwargs.pop("graph", {"name": ""})
-        self.units = kwargs.pop("units", None)
-        self.logs: NetworkLogOptions = kwargs.pop("logs")
-        self.random_seed: int = kwargs.pop("random_seed", time.time_ns())
-
-        self.integration = kwargs.pop(
-            "integration", IntegrationOptions.defaults()
-        )
-
-        self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
-        self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
-
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs):
-        """ From options """
-        options = {}
-        options["directed"] = kwargs["directed"]
-        options["multigraph"] = kwargs["multigraph"]
-        options["graph"] = kwargs["graph"]
-        options["units"] = kwargs["units"]
-        # Log options
-        options["logs"] = NetworkLogOptions.from_options(kwargs["logs"])
-        # Integration options
-        options["integration"] = IntegrationOptions.from_options(kwargs["integration"])
-        # Nodes
-        node_types = {
-            "linear": LinearNodeOptions,
-            "external_relay": ExternalRelayNodeOptions,
-            "relu": ReLUNodeOptions,
-            "oscillator": OscillatorNodeOptions,
-            "li_danner": LIDannerNodeOptions,
-            "li_nap_danner": LINaPDannerNodeOptions,
-            "leaky_integrator": LeakyIntegratorNodeOptions,
-        }
-        options["nodes"] = [
-            node_types[node["model"]].from_options(node)
-            for node in kwargs["nodes"]
-        ]
-        # Edges
-        edge_types = {
-            "standard": EdgeOptions,
-            "oscillator": OscillatorEdgeOptions,
-        }
-        options["edges"] = [
-            edge_types[edge["model"]].from_options(edge)
-            for edge in kwargs["edges"]
-        ]
-        return cls(**options)
-
-    def add_node(self, options: "NodeOptions"):
-        """ Add a node if it does not already exist in the list """
-        assert isinstance(options, NodeOptions), f"{type(options)} not an instance of NodeOptions"
-        if options not in self.nodes:
-            self.nodes.append(options)
-        else:
-            print(f"Node {options.name} already exists and will not be added again.")
-
-    def add_nodes(self, options: Iterable["NodeOptions"]):
-        """ Add a collection of nodes """
-        for node in options:
-            self.add_node(node)
-
-    def add_edge(self, options: "EdgeOptions"):
-        """ Add a node if it does not already exist in the list """
-        if (options.source in self.nodes) and (options.target in self.nodes):
-            self.edges.append(options)
-        else:
-            missing_nodes = [
-                "" if (options.source in self.nodes) else options.source,
-                "" if (options.target in self.nodes) else options.target,
-            ]
-            pylog.debug(f"Missing node {*missing_nodes,} in Edge {options}")
-
-    def add_edges(self, options: Iterable["EdgeOptions"]):
-        """ Add a collection of edges """
-        for edge in options:
-            self.add_edge(edge)
-
-    def __add__(self, other: Self):
-        """ Combine two network options """
-        assert isinstance(other, NetworkOptions)
-        for node in other.nodes:
-            self.add_node(node)
-        for edge in other.edges:
-            self.add_edge(edge)
-        return self
-
-
-#################################
-# Numerical Integration Options #
-#################################
-class IntegrationOptions(Options):
-    """ Class to set the options for numerical integration """
-
-    def __init__(self, **kwargs):
-        super().__init__()
-
-        self.timestep: float = kwargs.pop("timestep")
-        self.n_iterations: int = int(kwargs.pop("n_iterations"))
-        self.integrator: str = kwargs.pop("integrator")
-        self.method: str = kwargs.pop("method")
-        self.atol: float = kwargs.pop("atol")
-        self.rtol: float = kwargs.pop("rtol")
-        self.max_step: float = kwargs.pop("max_step")
-        self.checks: bool = kwargs.pop("checks")
-
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def defaults(cls, **kwargs):
-
-        options = {}
-
-        options["timestep"] = kwargs.pop("timestep", 1e-3)
-        options["n_iterations"] = int(kwargs.pop("n_iterations", 1e3))
-        options["integrator"] = kwargs.pop("integrator", "rk4")
-        options["method"] = kwargs.pop("method", "adams")
-        options["atol"] = kwargs.pop("atol", 1e-12)
-        options["rtol"] = kwargs.pop("rtol", 1e-6)
-        options["max_step"] = kwargs.pop("max_step", 0.0)
-        options["checks"] = kwargs.pop("checks", True)
-        return cls(**options)
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-        return cls(**kwargs)
-
-
-
-###################
-# Logging Options #
-###################
-class NetworkLogOptions(Options):
-    """ Log options for the network level
-
-    Configure logging for network events and iterations.
-
-    Attributes:
-        n_iterations (int): Number of iterations to log.
-        buffer_size (int): Size of the log buffer. Defaults to n_iterations if 0.
-        nodes_all (bool): Whether to log all nodes or only selected ones. Defaults to False.
-    """
-
-    def __init__(self, n_iterations: int, **kwargs):
-        super().__init__(**kwargs)
-
-        self.n_iterations: int = n_iterations
-        assert isinstance(self.n_iterations, int), "iterations shoulde be an integer"
-        self.buffer_size: int = kwargs.pop('buffer_size', self.n_iterations)
-        if self.buffer_size == 0:
-            self.buffer_size = self.n_iterations
-        assert isinstance(self.buffer_size, int), "buffer_size shoulde be an integer"
-        self.nodes_all: bool = kwargs.pop("nodes_all", False)
-
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-        n_iterations = kwargs.pop("n_iterations")
-        return cls(n_iterations, **kwargs)
+from farms_network.models import EdgeTypes, Models
 
 
 ###########################
@@ -203,7 +20,7 @@ class NodeOptions(Options):
         super().__init__()
         self.name: str = kwargs.pop("name")
 
-        self.model: str = kwargs.pop("model", None)
+        self.model: str = kwargs.pop("model")
         self.parameters: NodeParameterOptions = kwargs.pop("parameters")
         self.visual: NodeVisualOptions = kwargs.pop("visual")
         self.state: NodeStateOptions = kwargs.pop("state")
@@ -239,9 +56,6 @@ class NodeOptions(Options):
 class NodeParameterOptions(Options):
     """ Base class for node specific parameters """
 
-    def __init__(self):
-        super().__init__()
-
     @classmethod
     def from_options(cls, kwargs: Dict):
         """ From options """
@@ -251,12 +65,14 @@ class NodeParameterOptions(Options):
 class NodeStateOptions(Options):
     """ Base class for node specific state options """
 
+    STATE_NAMES: List[str] = []  # Override in subclasses
+
     def __init__(self, **kwargs):
         super().__init__()
         self.initial: List[float] = kwargs.pop("initial")
         self.names: List[str] = kwargs.pop("names")
         if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
+            raise ValueError(f'Unknown kwargs: {kwargs}')
 
     @classmethod
     def from_kwargs(cls, **kwargs):
@@ -266,7 +82,7 @@ class NodeStateOptions(Options):
             for name in cls.STATE_NAMES
         ]
         if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
+            raise ValueError(f'Unknown kwargs: {kwargs}')
         return cls(initial=initial)
 
     @classmethod
@@ -324,7 +140,7 @@ class EdgeOptions(Options):
         self.source: str = kwargs.pop("source")
         self.target: str = kwargs.pop("target")
         self.weight: float = kwargs.pop("weight")
-        self.type: str = kwargs.pop("type")
+        self.type: Union[EdgeTypes, int] = kwargs.pop("type")
         self.parameters: EdgeParameterOptions = kwargs.pop(
             "parameters", EdgeParameterOptions()
         )
@@ -456,25 +272,26 @@ class OrnsteinUhlenbeckOptions(NoiseOptions):
         return cls(**options)
 
 
-################################
-# External Relay Model Options #
-################################
-class ExternalRelayNodeOptions(NodeOptions):
-    """ Class to define the properties of ExternalRelay node model
-
-    # TODO: Remove parameters from options
-
-    """
+#######################
+# Relay Model Options #
+#######################
+class RelayNodeOptions(NodeOptions):
+    """ Class to define the properties of Relay node model """
+    MODEL = Models.RELAY
 
     def __init__(self, **kwargs):
         """ Initialize """
-        model = "external_relay"
+        state = kwargs.pop("state", None)
+        parameters = kwargs.pop("parameters", None)
+
+        assert state is None
+        assert parameters is None
         super().__init__(
             name=kwargs.pop("name"),
-            model=model,
-            parameters=kwargs.pop("parameters"),
+            model=RelayNodeOptions.MODEL,
+            parameters=parameters,
             visual=kwargs.pop("visual"),
-            state=kwargs.pop("state", None),
+            state=state,
             noise=kwargs.pop("noise"),
         )
         self._nstates = 0
@@ -488,9 +305,41 @@ class ExternalRelayNodeOptions(NodeOptions):
         """ Load from options """
         options = {}
         options["name"] = kwargs.pop("name")
-        options["parameters"] = NodeParameterOptions()
+        options["parameters"] = None
         options["visual"] = NodeVisualOptions.from_options(kwargs["visual"])
         options["noise"] = kwargs.pop("noise", None)
+        return cls(**options)
+
+
+class RelayEdgeOptions(EdgeOptions):
+    """ Relay edge options """
+    MODEL = Models.RELAY
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+
+        super().__init__(
+            model=RelayEdgeOptions.MODEL,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            parameters=None,
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
@@ -499,16 +348,19 @@ class ExternalRelayNodeOptions(NodeOptions):
 ########################
 class LinearNodeOptions(NodeOptions):
     """ Class to define the properties of Linear node model """
+    MODEL = Models.LINEAR
 
     def __init__(self, **kwargs):
         """ Initialize """
-        model = "linear"
+
+        state = kwargs.pop("state", None)
+        assert state is None
         super().__init__(
             name=kwargs.pop("name"),
-            model=model,
+            model=LinearNodeOptions.MODEL,
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
-            state=kwargs.pop("state", None),
+            state=state,
             noise=kwargs.pop("noise"),
         )
         self._nstates = 0
@@ -528,7 +380,6 @@ class LinearNodeOptions(NodeOptions):
         options["visual"] = NodeVisualOptions.from_options(
             kwargs["visual"]
         )
-        options["state"] = None
         options["noise"] = kwargs.pop("noise", None)
         return cls(**options)
 
@@ -548,10 +399,39 @@ class LinearParameterOptions(NodeParameterOptions):
         """ Get the default parameters for Linear Node model """
 
         options = {}
-
         options["slope"] = kwargs.pop("slope", 1.0)
         options["bias"] = kwargs.pop("bias", 0.0)
+        return cls(**options)
 
+
+class LinearEdgeOptions(EdgeOptions):
+    """ Linear edge options """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+
+        super().__init__(
+            model=Models.LINEAR,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = None
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
@@ -561,15 +441,19 @@ class LinearParameterOptions(NodeParameterOptions):
 class ReLUNodeOptions(NodeOptions):
     """ Class to define the properties of ReLU node model """
 
+    MODEL = Models.RELU
+
     def __init__(self, **kwargs):
         """ Initialize """
-        model = "relu"
+
+        state = kwargs.pop("state", None)
+        assert state is None
         super().__init__(
             name=kwargs.pop("name"),
-            model=model,
+            model=ReLUNodeOptions.MODEL,
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
-            state=kwargs.pop("state", None),
+            state=state,
             noise=kwargs.pop("noise"),
         )
         self._nstates = 0
@@ -608,13 +492,42 @@ class ReLUParameterOptions(NodeParameterOptions):
     @classmethod
     def defaults(cls, **kwargs):
         """ Get the default parameters for ReLU Node model """
-
         options = {}
-
         options["gain"] = kwargs.pop("gain", 1.0)
         options["sign"] = kwargs.pop("sign", 1)
         options["offset"] = kwargs.pop("offset", 0.0)
 
+        return cls(**options)
+
+
+class ReLUEdgeOptions(EdgeOptions):
+    """ ReLU edge options """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+
+        super().__init__(
+            model=Models.RELU,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = None
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
@@ -940,19 +853,20 @@ class LeakyIntegratorStateOptions(NodeStateOptions):
 class LIDannerNodeOptions(NodeOptions):
     """ Class to define the properties of Leaky integrator danner node model """
 
+    MODEL = Models.LI_DANNER
+
     def __init__(self, **kwargs):
         """ Initialize """
-        model = "li_danner"
         super().__init__(
             name=kwargs.pop("name"),
-            model=model,
+            model=LIDannerNodeOptions.MODEL,
             parameters=kwargs.pop("parameters"),
             visual=kwargs.pop("visual"),
             state=kwargs.pop("state"),
             noise=kwargs.pop("noise"),
         )
-        self._nstates = 1
-        self._nparameters = 13
+        self._nstates = 2
+        self._nparameters = 10
 
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
@@ -962,7 +876,7 @@ class LIDannerNodeOptions(NodeOptions):
         """ Load from options """
         options = {}
         options["name"] = kwargs.pop("name")
-        options["parameters"] = LIDannerParameterOptions.from_options(
+        options["parameters"] = LIDannerNodeParameterOptions.from_options(
             kwargs["parameters"]
         )
         options["visual"] = NodeVisualOptions.from_options(
@@ -979,7 +893,7 @@ class LIDannerNodeOptions(NodeOptions):
         return cls(**options)
 
 
-class LIDannerParameterOptions(NodeParameterOptions):
+class LIDannerNodeParameterOptions(NodeParameterOptions):
     """
     Class to define the parameters of Leaky Integrator Danner node model.
 
@@ -993,6 +907,7 @@ class LIDannerParameterOptions(NodeParameterOptions):
         g_syn_i (float): Inhibitory synaptic conductance (in nS).
         e_syn_e (float): Excitatory synaptic reversal potential (in mV).
         e_syn_i (float): Inhibitory synaptic reversal potential (in mV).
+        tau_ch (float): Cholinergic time constant (in mS)
     """
 
     def __init__(self, **kwargs):
@@ -1006,6 +921,7 @@ class LIDannerParameterOptions(NodeParameterOptions):
         self.g_syn_i = kwargs.pop("g_syn_i")                # nS
         self.e_syn_e = kwargs.pop("e_syn_e")                # mV
         self.e_syn_i = kwargs.pop("e_syn_i")                # mV
+        self.tau_ch = kwargs.pop("tau_ch", 5.0)                  # tau-cholinergic
         if kwargs:
             raise Exception(f'Unknown kwargs: {kwargs}')
 
@@ -1014,7 +930,6 @@ class LIDannerParameterOptions(NodeParameterOptions):
         """ Get the default parameters for LI Danner Node model """
 
         options = {}
-
         options["c_m"] = kwargs.pop("c_m",  10.0)
         options["g_leak"] = kwargs.pop("g_leak",  2.8)
         options["e_leak"] = kwargs.pop("e_leak",  -60.0)
@@ -1024,21 +939,54 @@ class LIDannerParameterOptions(NodeParameterOptions):
         options["g_syn_i"] = kwargs.pop("g_syn_i",  10.0)
         options["e_syn_e"] = kwargs.pop("e_syn_e",  -10.0)
         options["e_syn_i"] = kwargs.pop("e_syn_i",  -75.0)
-
+        options["tau_ch"] = kwargs.pop("tau_ch",  5.0)
         return cls(**options)
 
 
 class LIDannerStateOptions(NodeStateOptions):
     """ LI Danner node state options """
 
-    STATE_NAMES = ["v",]
+    STATE_NAMES = ["v", "a"]
 
     def __init__(self, **kwargs):
         super().__init__(
-            initial=kwargs.pop("initial"),
+            initial=kwargs.pop("initial", [-60.0, 0.0]),
             names=LIDannerStateOptions.STATE_NAMES
         )
-        assert len(self.initial) == 1, f"Number of initial states {len(self.initial)} should be 1"
+        # assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
+class LIDannerEdgeOptions(EdgeOptions):
+    """ LIDanner edge options """
+
+    MODEL = Models.LI_DANNER
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        super().__init__(
+            model=LIDannerEdgeOptions.MODEL,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = None
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
+        return cls(**options)
 
 
 ##################################################
@@ -1069,7 +1017,7 @@ class LINaPDannerNodeOptions(NodeOptions):
         """ Load from options """
         options = {}
         options["name"] = kwargs.pop("name")
-        options["parameters"] = LINaPDannerParameterOptions.from_options(
+        options["parameters"] = LINaPDannerNodeParameterOptions.from_options(
             kwargs["parameters"]
         )
         options["visual"] = NodeVisualOptions.from_options(
@@ -1086,7 +1034,7 @@ class LINaPDannerNodeOptions(NodeOptions):
         return cls(**options)
 
 
-class LINaPDannerParameterOptions(NodeParameterOptions):
+class LINaPDannerNodeParameterOptions(NodeParameterOptions):
     """ Class to define the parameters of Leaky integrator danner node model """
 
     def __init__(self, **kwargs):
@@ -1133,10 +1081,10 @@ class LINaPDannerParameterOptions(NodeParameterOptions):
         options["tau_max"] = kwargs.pop("tau_max", 160.0)         # mS
         options["v_max"] = kwargs.pop("v_max", 0.0)               # mV
         options["v_thr"] = kwargs.pop("v_thr", -50.0)             # mV
-        options["g_syn_e"] = kwargs.pop("g_syn_e", 10.0)          # nS
-        options["g_syn_i"] = kwargs.pop("g_syn_i", 10.0)          # nS
-        options["e_syn_e"] = kwargs.pop("e_syn_e", -10.0)         # mV
-        options["e_syn_i"] = kwargs.pop("e_syn_i", -75.0)         # mV
+        options["g_syn_e"] = kwargs.pop("g_syn_e",  10.0)
+        options["g_syn_i"] = kwargs.pop("g_syn_i",  10.0)
+        options["e_syn_e"] = kwargs.pop("e_syn_e",  -10.0)
+        options["e_syn_i"] = kwargs.pop("e_syn_i",  -75.0)
 
         return cls(**options)
 
@@ -1152,6 +1100,38 @@ class LINaPDannerStateOptions(NodeStateOptions):
             names=LINaPDannerStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
+class LINaPDannerEdgeOptions(EdgeOptions):
+    """ LINaPDanner edge options """
+
+    def __init__(self, **kwargs):
+        """ Initialize """
+        model = "li_danner"
+        super().__init__(
+            model=model,
+            source=kwargs.pop("source"),
+            target=kwargs.pop("target"),
+            weight=kwargs.pop("weight"),
+            type=kwargs.pop("type"),
+            parameters=kwargs.pop("parameters"),
+            visual=kwargs.pop("visual"),
+        )
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+
+        options = {}
+        options["source"] = kwargs["source"]
+        options["target"] = kwargs["target"]
+        options["weight"] = kwargs["weight"]
+        options["type"] = kwargs["type"]
+        options["parameters"] = None
+        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
+        return cls(**options)
 
 
 ####################
@@ -1196,11 +1176,11 @@ class IzhikevichParameterOptions(NodeParameterOptions):
 
         options = {}
 
-        options["recovery_time"] = kwargs.pop("recovery_time", 0.02)    # pF
+        options["recovery_time"] = kwargs.pop("recovery_time", 0.02)               # pF
         options["recovery_sensitivity"] = kwargs.pop("recovery_sensitivity", 0.2)  # nS
-        options["membrane_reset"] = kwargs.pop("membrane_reset", -65.0)              # mV
-        options["recovery_reset"] = kwargs.pop("recovery_reset", 2)              # mV
-        options["membrane_threshold"] = kwargs.pop("membrane_threshold", 30.0)      # mV
+        options["membrane_reset"] = kwargs.pop("membrane_reset", -65.0)            # mV
+        options["recovery_reset"] = kwargs.pop("recovery_reset", 2)                # mV
+        options["membrane_threshold"] = kwargs.pop("membrane_threshold", 30.0)     # mV
 
         return cls(**options)
 
@@ -1216,3 +1196,206 @@ class IzhikevichStateOptions(NodeStateOptions):
             names=IzhikevichStateOptions.STATE_NAMES
         )
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
+
+
+##############################
+# Network Base Class Options #
+##############################
+class NetworkOptions(Options):
+    """ Base class for neural network options """
+
+    NODE_TYPES: Dict[Models, Type] = {
+        Models.RELAY: RelayNodeOptions,
+        Models.LINEAR: LinearNodeOptions,
+        Models.RELU: ReLUNodeOptions,
+        Models.OSCILLATOR: OscillatorNodeOptions,
+        # Models.HOPF_OSCILLATOR: HopfOscillatorNodeOptions,
+        # Models.MORPHED_OSCILLATOR: MorphedOscillatorNodeOptions,
+        # Models.MATSUOKA: MatsuokaNodeOptions,
+        # Models.FITZHUGH_NAGUMO: FitzhughNagumoNodeOptions,
+        # Models.MORRIS_LECAR: MorrisLecarNodeOptions,
+        # Models.LEAKY_INTEGRATOR: LeakyIntegratorNodeOptions,
+        Models.LI_DANNER: LIDannerNodeOptions,
+        Models.LI_NAP_DANNER: LINaPDannerNodeOptions,
+        # Models.LI_DAUN: LIDaunNodeOptions,
+        # Models.HH_DAUN: HHDaunNodeOptions,
+    }
+
+    EDGE_TYPES: Dict[Models, Type] = {
+        Models.RELAY: RelayEdgeOptions,
+        Models.LINEAR: LinearEdgeOptions,
+        Models.RELU: ReLUEdgeOptions,
+        Models.OSCILLATOR: OscillatorEdgeOptions,
+        # Models.HOPF_OSCILLATOR: HopfOscillatorEdgeOptions,
+        # Models.MORPHED_OSCILLATOR: MorphedOscillatorEdgeOptions,
+        # Models.MATSUOKA: MatsuokaEdgeOptions,
+        # Models.FITZHUGH_NAGUMO: FitzhughNagumoEdgeOptions,
+        # Models.MORRIS_LECAR: MorrisLecarEdgeOptions,
+        # Models.LEAKY_INTEGRATOR: LeakyIntegratorEdgeOptions,
+        Models.LI_DANNER: LIDannerEdgeOptions,
+        Models.LI_NAP_DANNER: LINaPDannerEdgeOptions,
+        # Models.LI_DAUN: LIDaunEdgeOptions,
+        # Models.HH_DAUN: HHDaunEdgeOptions,
+    }
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        # Default properties to make it compatible with networkx
+        # seed
+        self.directed: bool = kwargs.pop("directed", True)
+        self.multigraph: bool = kwargs.pop("multigraph", False)
+        self.graph: dict = kwargs.pop("graph", {"name": ""})
+        self.units = kwargs.pop("units", None)
+        self.logs: NetworkLogOptions = kwargs.pop("logs")
+        self.random_seed: int = kwargs.pop("random_seed", time.time_ns())
+
+        self.integration = kwargs.pop(
+            "integration", IntegrationOptions.defaults()
+        )
+
+        self.nodes: List[NodeOptions] = kwargs.pop("nodes", [])
+        self.edges: List[EdgeOptions] = kwargs.pop("edges", [])
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs):
+        """ From options """
+        options = {}
+        options["directed"] = kwargs["directed"]
+        options["multigraph"] = kwargs["multigraph"]
+        options["graph"] = kwargs["graph"]
+        options["units"] = kwargs["units"]
+        # Log options
+        options["logs"] = NetworkLogOptions.from_options(kwargs["logs"])
+        # Integration options
+        options["integration"] = IntegrationOptions.from_options(kwargs["integration"])
+        # Nodes
+        options["nodes"] = [
+            cls.NODE_TYPES[node["model"]].from_options(node)
+            for node in kwargs["nodes"]
+        ]
+        # Edges
+        options["edges"] = [
+            # cls.EDGE_TYPES[edge["model"]].from_options(edge)
+            EdgeOptions.from_options(edge)
+            for edge in kwargs["edges"]
+        ]
+        return cls(**options)
+
+    def add_node(self, options: NodeOptions):
+        """ Add a node if it does not already exist in the list """
+        assert isinstance(options, NodeOptions), f"{type(options)} not an instance of NodeOptions"
+        if options not in self.nodes:
+            self.nodes.append(options)
+        else:
+            print(f"Node {options.name} already exists and will not be added again.")
+
+    def add_nodes(self, options: Iterable[NodeOptions]):
+        """ Add a collection of nodes """
+        for node in options:
+            self.add_node(node)
+
+    def add_edge(self, options: EdgeOptions):
+        """ Add a node if it does not already exist in the list """
+        if (options.source in self.nodes) and (options.target in self.nodes):
+            self.edges.append(options)
+        else:
+            missing_nodes = [
+                "" if (options.source in self.nodes) else options.source,
+                "" if (options.target in self.nodes) else options.target,
+            ]
+            pylog.debug(f"Missing node {*missing_nodes,} in Edge {options}")
+
+    def add_edges(self, options: Iterable[EdgeOptions]):
+        """ Add a collection of edges """
+        for edge in options:
+            self.add_edge(edge)
+
+    def __add__(self, other: Self):
+        """ Combine two network options """
+        assert isinstance(other, NetworkOptions)
+        for node in other.nodes:
+            self.add_node(node)
+        for edge in other.edges:
+            self.add_edge(edge)
+        return self
+
+
+#################################
+# Numerical Integration Options #
+#################################
+class IntegrationOptions(Options):
+    """ Class to set the options for numerical integration """
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+        self.timestep: float = kwargs.pop("timestep")
+        self.n_iterations: int = int(kwargs.pop("n_iterations"))
+        self.integrator: str = kwargs.pop("integrator")
+        self.method: str = kwargs.pop("method")
+        self.atol: float = kwargs.pop("atol")
+        self.rtol: float = kwargs.pop("rtol")
+        self.max_step: float = kwargs.pop("max_step")
+        self.checks: bool = kwargs.pop("checks")
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def defaults(cls, **kwargs):
+
+        options = {}
+
+        options["timestep"] = kwargs.pop("timestep", 1e-3)
+        options["n_iterations"] = int(kwargs.pop("n_iterations", 1e3))
+        options["integrator"] = kwargs.pop("integrator", "rk4")
+        options["method"] = kwargs.pop("method", "adams")
+        options["atol"] = kwargs.pop("atol", 1e-12)
+        options["rtol"] = kwargs.pop("rtol", 1e-6)
+        options["max_step"] = kwargs.pop("max_step", 0.0)
+        options["checks"] = kwargs.pop("checks", True)
+        return cls(**options)
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        return cls(**kwargs)
+
+
+###################
+# Logging Options #
+###################
+class NetworkLogOptions(Options):
+    """ Log options for the network level
+
+    Configure logging for network events and iterations.
+
+    Attributes:
+        n_iterations (int): Number of iterations to log.
+        buffer_size (int): Size of the log buffer. Defaults to n_iterations if 0.
+        nodes_all (bool): Whether to log all nodes or only selected ones. Defaults to False.
+    """
+
+    def __init__(self, n_iterations: int, **kwargs):
+        super().__init__(**kwargs)
+
+        self.n_iterations: int = n_iterations
+        assert isinstance(self.n_iterations, int), "iterations shoulde be an integer"
+        self.buffer_size: int = kwargs.pop('buffer_size', self.n_iterations)
+        if self.buffer_size == 0:
+            self.buffer_size = self.n_iterations
+        assert isinstance(self.buffer_size, int), "buffer_size shoulde be an integer"
+        self.nodes_all: bool = kwargs.pop("nodes_all", False)
+
+        if kwargs:
+            raise Exception(f'Unknown kwargs: {kwargs}')
+
+    @classmethod
+    def from_options(cls, kwargs: Dict):
+        """ From options """
+        n_iterations = kwargs.pop("n_iterations")
+        return cls(n_iterations, **kwargs)
