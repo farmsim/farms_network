@@ -82,7 +82,7 @@ cdef class LIFDannerNap(Neuron):
         (_, self.sigma_noise) = neural_container.constants.add_parameter(
             'sigma_noise_' + self.n_id, kwargs.get('sigma_noise', 0.005))  #
         (_, self.seed_noise) = neural_container.constants.add_parameter(
-            'seed_noise_' + self.n_id, kwargs.get('seed_noise', time.thread_time_ns()))  #
+            'seed_noise_' + self.n_id, kwargs.get('seed_noise', np.int32(time.thread_time_ns())))  #
         (_, self.time_step_noise) = neural_container.constants.add_parameter(
             'time_step_noise_' + self.n_id, kwargs.get('time_step_noise', 1e-3/2.0))  #
 
