@@ -2,7 +2,7 @@
 
 
 import time
-from typing import Dict, Iterable, List, Self, Type, Union
+from typing import Any, Dict, Iterable, List, Self, Type
 
 from farms_core import pylog
 from farms_core.options import Options
@@ -14,32 +14,26 @@ from farms_network.models import EdgeTypes, Models
 ###########################
 class NodeOptions(Options):
     """ Base class for defining node options """
+    MODEL = Models.BASE
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         """ Initialize """
         super().__init__()
         self.name: str = kwargs.pop("name")
-
-        self.model: str = kwargs.pop("model")
-        self.parameters: NodeParameterOptions = kwargs.pop("parameters")
-        self.visual: NodeVisualOptions = kwargs.pop("visual")
-        self.state: NodeStateOptions = kwargs.pop("state")
+        model = kwargs.pop("model", NodeOptions.MODEL)
+        if isinstance(model, Models):
+            model = Models.to_str(model)
+        elif not isinstance(model, str):
+            raise TypeError(
+                f"{model} is of {type(model)}. Needs to {type(Models)} or {type(str)}"
+            )
+        self.model: str = model
+        self.parameters: NodeParameterOptions = kwargs.pop("parameters", None)
+        self.visual: NodeVisualOptions = NodeVisualOptions.from_options(
+            kwargs.pop("visual")
+        )
+        self.state: NodeStateOptions = kwargs.pop("state", None)
         self.noise: NoiseOptions = kwargs.pop("noise", None)
-
-        self._nstates: int = 0
-        self._nparameters: int = 0
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    def __eq__(self, other):
-        if isinstance(other, NodeOptions):
-            return self.name == other.name
-        elif isinstance(other, str):
-            return self.name == other
-        return False
-
-    def __hash__(self):
-        return hash(self.name)  # Hash based on the node name (or any unique property)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
@@ -51,6 +45,23 @@ class NodeOptions(Options):
         options["state"] = kwargs.pop("state")
         options["noise"] = kwargs.pop("noise")
         return cls(**options)
+
+    def __eq__(self, other):
+        if isinstance(other, NodeOptions):
+            return self.name == other.name
+        elif isinstance(other, str):
+            return self.name == other
+        return False
+
+    def __hash__(self):
+        return hash(self.name)  # Hash based on the node name (or any unique property)
+
+    def __str__(self) -> str:
+        attrs_str = ',\n'.join(f'{attr}={getattr(self, attr)}' for attr in self.keys())
+        return f"{self.__class__.__name__}(\n{attrs_str}\n)"
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
 
 class NodeParameterOptions(Options):
@@ -71,6 +82,7 @@ class NodeStateOptions(Options):
         super().__init__()
         self.initial: List[float] = kwargs.pop("initial")
         self.names: List[str] = kwargs.pop("names")
+
         if kwargs:
             raise ValueError(f'Unknown kwargs: {kwargs}')
 
@@ -135,12 +147,10 @@ class EdgeOptions(Options):
     def __init__(self, **kwargs):
         """ Initialize """
         super().__init__()
-        model = "standard"
-        self.model: str = kwargs.pop("model", model)
         self.source: str = kwargs.pop("source")
         self.target: str = kwargs.pop("target")
         self.weight: float = kwargs.pop("weight")
-        self.type: Union[EdgeTypes, int] = kwargs.pop("type")
+        self.type = EdgeTypes.to_str(kwargs.pop("type"))
         self.parameters: EdgeParameterOptions = kwargs.pop(
             "parameters", EdgeParameterOptions()
         )
@@ -174,12 +184,20 @@ class EdgeOptions(Options):
         )
         return cls(**options)
 
+    def __str__(self) -> str:
+        attrs_str = ',\n'.join(f'{attr}={getattr(self, attr)}' for attr in self.keys())
+        return f"{self.__class__.__name__}(\n{attrs_str}\n)"
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
 
 class EdgeParameterOptions(Options):
     """ Base class for edge specific parameters """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
+        self.model: str = kwargs.pop("model", None)
 
     @classmethod
     def from_options(cls, kwargs: Dict):
