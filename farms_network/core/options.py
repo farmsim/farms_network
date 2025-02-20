@@ -1125,7 +1125,7 @@ class NetworkOptions(Options):
         if options not in self.nodes:
             self.nodes.append(options)
         else:
-            print(f"Node {options.name} already exists and will not be added again.")
+            pylog.warning(f"Node {options.name} already exists and will not be added again.")
 
     def add_nodes(self, options: Iterable[NodeOptions]):
         """ Add a collection of nodes """
