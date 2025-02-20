@@ -329,38 +329,6 @@ class RelayNodeOptions(NodeOptions):
         return cls(**options)
 
 
-class RelayEdgeOptions(EdgeOptions):
-    """ Relay edge options """
-    MODEL = Models.RELAY
-
-    def __init__(self, **kwargs):
-        """ Initialize """
-
-        super().__init__(
-            model=RelayEdgeOptions.MODEL,
-            source=kwargs.pop("source"),
-            target=kwargs.pop("target"),
-            weight=kwargs.pop("weight"),
-            type=kwargs.pop("type"),
-            parameters=None,
-            visual=kwargs.pop("visual"),
-        )
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-
-        options = {}
-        options["source"] = kwargs["source"]
-        options["target"] = kwargs["target"]
-        options["weight"] = kwargs["weight"]
-        options["type"] = kwargs["type"]
-        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
-        return cls(**options)
-
-
 ########################
 # Linear Model Options #
 ########################
@@ -419,37 +387,6 @@ class LinearParameterOptions(NodeParameterOptions):
         options = {}
         options["slope"] = kwargs.pop("slope", 1.0)
         options["bias"] = kwargs.pop("bias", 0.0)
-        return cls(**options)
-
-
-class LinearEdgeOptions(EdgeOptions):
-    """ Linear edge options """
-
-    def __init__(self, **kwargs):
-        """ Initialize """
-
-        super().__init__(
-            model=Models.LINEAR,
-            source=kwargs.pop("source"),
-            target=kwargs.pop("target"),
-            weight=kwargs.pop("weight"),
-            type=kwargs.pop("type"),
-            visual=kwargs.pop("visual"),
-        )
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-
-        options = {}
-        options["source"] = kwargs["source"]
-        options["target"] = kwargs["target"]
-        options["weight"] = kwargs["weight"]
-        options["type"] = kwargs["type"]
-        options["parameters"] = None
-        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
@@ -515,37 +452,6 @@ class ReLUParameterOptions(NodeParameterOptions):
         options["sign"] = kwargs.pop("sign", 1)
         options["offset"] = kwargs.pop("offset", 0.0)
 
-        return cls(**options)
-
-
-class ReLUEdgeOptions(EdgeOptions):
-    """ ReLU edge options """
-
-    def __init__(self, **kwargs):
-        """ Initialize """
-
-        super().__init__(
-            model=Models.RELU,
-            source=kwargs.pop("source"),
-            target=kwargs.pop("target"),
-            weight=kwargs.pop("weight"),
-            type=kwargs.pop("type"),
-            visual=kwargs.pop("visual"),
-        )
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-
-        options = {}
-        options["source"] = kwargs["source"]
-        options["target"] = kwargs["target"]
-        options["weight"] = kwargs["weight"]
-        options["type"] = kwargs["type"]
-        options["parameters"] = None
-        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
         return cls(**options)
 
 
@@ -631,53 +537,13 @@ class OscillatorStateOptions(NodeStateOptions):
         assert len(self.initial) == 3, f"Number of initial states {len(self.initial)} should be 3"
 
 
-class OscillatorEdgeOptions(EdgeOptions):
-    """ Oscillator edge options """
-
-    def __init__(self, **kwargs):
-        """ Initialize """
-        model = "oscillator"
-        super().__init__(
-            model=model,
-            source=kwargs.pop("source"),
-            target=kwargs.pop("target"),
-            weight=kwargs.pop("weight"),
-            type=kwargs.pop("type"),
-            parameters=kwargs.pop("parameters"),
-            visual=kwargs.pop("visual"),
-        )
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    def __eq__(self, other):
-        if isinstance(other, EdgeOptions):
-            return (
-                (self.source == other.source) and
-                (self.target == other.target)
-            )
-        return False
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-
-        options = {}
-        options["source"] = kwargs["source"]
-        options["target"] = kwargs["target"]
-        options["weight"] = kwargs["weight"]
-        options["type"] = kwargs["type"]
-        options["parameters"] = OscillatorEdgeParameterOptions.from_options(
-            kwargs["parameters"]
-        )
-        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
-        return cls(**options)
-
-
 class OscillatorEdgeParameterOptions(EdgeParameterOptions):
     """ Oscillator edge parameter options """
 
+    MODEL = Models.OSCILLATOR
+
     def __init__(self, **kwargs):
-        super().__init__()
+        super().__init__(model=OscillatorEdgeParameterOptions.MODEL)
         self.phase_difference = kwargs.pop("phase_difference")   # radians
 
         if kwargs:
@@ -1120,38 +986,6 @@ class LINaPDannerStateOptions(NodeStateOptions):
         assert len(self.initial) == 2, f"Number of initial states {len(self.initial)} should be 2"
 
 
-class LINaPDannerEdgeOptions(EdgeOptions):
-    """ LINaPDanner edge options """
-
-    def __init__(self, **kwargs):
-        """ Initialize """
-        model = "li_danner"
-        super().__init__(
-            model=model,
-            source=kwargs.pop("source"),
-            target=kwargs.pop("target"),
-            weight=kwargs.pop("weight"),
-            type=kwargs.pop("type"),
-            parameters=kwargs.pop("parameters"),
-            visual=kwargs.pop("visual"),
-        )
-        if kwargs:
-            raise Exception(f'Unknown kwargs: {kwargs}')
-
-    @classmethod
-    def from_options(cls, kwargs: Dict):
-        """ From options """
-
-        options = {}
-        options["source"] = kwargs["source"]
-        options["target"] = kwargs["target"]
-        options["weight"] = kwargs["weight"]
-        options["type"] = kwargs["type"]
-        options["parameters"] = None
-        options["visual"] = EdgeVisualOptions.from_options(kwargs["visual"])
-        return cls(**options)
-
-
 ####################
 # Izhikevich Model #
 ####################
@@ -1239,23 +1073,6 @@ class NetworkOptions(Options):
         # Models.HH_DAUN: HHDaunNodeOptions,
     }
 
-    EDGE_TYPES: Dict[Models, Type] = {
-        Models.RELAY: RelayEdgeOptions,
-        Models.LINEAR: LinearEdgeOptions,
-        Models.RELU: ReLUEdgeOptions,
-        Models.OSCILLATOR: OscillatorEdgeOptions,
-        # Models.HOPF_OSCILLATOR: HopfOscillatorEdgeOptions,
-        # Models.MORPHED_OSCILLATOR: MorphedOscillatorEdgeOptions,
-        # Models.MATSUOKA: MatsuokaEdgeOptions,
-        # Models.FITZHUGH_NAGUMO: FitzhughNagumoEdgeOptions,
-        # Models.MORRIS_LECAR: MorrisLecarEdgeOptions,
-        # Models.LEAKY_INTEGRATOR: LeakyIntegratorEdgeOptions,
-        Models.LI_DANNER: LIDannerEdgeOptions,
-        Models.LI_NAP_DANNER: LINaPDannerEdgeOptions,
-        # Models.LI_DAUN: LIDaunEdgeOptions,
-        # Models.HH_DAUN: HHDaunEdgeOptions,
-    }
-
     def __init__(self, **kwargs):
         super().__init__()
 
@@ -1297,7 +1114,6 @@ class NetworkOptions(Options):
         ]
         # Edges
         options["edges"] = [
-            # cls.EDGE_TYPES[edge["model"]].from_options(edge)
             EdgeOptions.from_options(edge)
             for edge in kwargs["edges"]
         ]
