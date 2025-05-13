@@ -55,7 +55,7 @@ cdef class LIFDanner(Neuron):
         double mu_noise
         double sigma_noise
         double time_step_noise
-        unsigned long int seed_noise
+        long int seed_noise
 
         # states
         Parameter v
