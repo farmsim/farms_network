@@ -16,23 +16,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
 
-Rectified Linear Unit
+Relay model
 """
 
 
-from ..core.node cimport NodeCy, Node
-from ..core.edge cimport EdgeCy, Edge
-
-
-cdef enum:
-    #STATES
-    NSTATES = 0
-
-
-cdef packed struct ReLUNodeParameters:
-    double gain
-    double sign
-    double offset
+from ..core.node_cy cimport NodeCy, node_t
+from ..core.edge_cy cimport edge_t
 
 
 cdef:
@@ -43,13 +32,10 @@ cdef:
         double* network_outputs,
         unsigned int* inputs,
         double* weights,
-        NodeCy* c_node,
-        EdgeCy** c_edges,
+        node_t* c_node,
+        edge_t** c_edges,
     ) noexcept
 
 
-cdef class ReLUNode(Node):
-    """ Python interface to ReLU Node C-Structure """
-
-    cdef:
-        ReLUNodeParameters parameters
+cdef class RelayNodeCy(NodeCy):
+    """ Python interface to External Relay Node C-Structure """
