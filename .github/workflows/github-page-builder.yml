@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      # - farms-core-integration
 
 jobs:
   build:
@@ -12,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        with:
+          ref: farms-core-integration
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,14 +26,29 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make automake gcc g++ subversion python3-dev
-          pip install sphinx sphinx-rtd-theme cython numpy
+          python3 -m pip install setuptools wheel
+          python3 -m pip install --no-use-pep517 pip==23.2.1
+          python3 -m pip install --no-use-pep517 distlib==0.3.8
+          python3 -m pip install --no-use-pep517 setuptools==65.5.0
+          python3 -m pip install --no-use-pep517 cython
+          python3 -m pip install --no-use-pep517 numpy
+          python3 -m pip install --no-use-pep517 networkx
+          python3 -m pip install --no-use-pep517 -r ducks/source/requirements.txt
+          cd ../
+          git clone https://github.com/farmsim/farms_core.git
+          cd farms_core
+          python3 -m pip install --no-use-pep517 .
+          python3 -m pip --version
+          python3 -m pip list
+          cd ../farms_network
+          python setup.py build_ext --inplace
 
       - name: Build HTML
         run: |
-          cd docs
+          cd ducks
           make html
           cd ..
-          mv docs/build/html/ public/
+          mv ducks/build/html/ public/
 
       - name: Cache documentation artifacts
         uses: actions/upload-artifact@v4
@@ -40,7 +58,7 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public

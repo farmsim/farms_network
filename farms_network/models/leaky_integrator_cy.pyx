@@ -15,42 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -----------------------------------------------------------------------
+
+Leaky Integrator Neuron.
 """
-
-
-##################################
-########## Network data ##########
-##################################
-
-cdef class NetworkDataCy:
-    """ Network data """
-
-    def __init__(self):
-        """ network data initialization """
-
-        super().__init__()
-        ...
-
-
-##################################
-########## Neurons Data ##########
-##################################
-        
-cdef class NeuronsDataCy:
-    """ Neurons data """
-
-    def __init__(self):
-        """ neurons data initialization """
-
-        super().__init__()
-        ...
-        
-
-cdef class NeuronDataCy:
-    """ Neuron data """
-
-    def __init__(self):
-        """ neurons data initialization """
-
-        super().__init__()
-        ...
